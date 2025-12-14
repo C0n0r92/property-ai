@@ -72,8 +72,8 @@ export default function Home() {
               <Link href="/map" className="btn-primary">
                 Explore the Map →
               </Link>
-              <Link href="/properties" className="btn-secondary">
-                Search Properties
+              <Link href="/insights" className="btn-secondary">
+                View Market Insights
               </Link>
             </div>
           </div>
@@ -194,8 +194,8 @@ export default function Home() {
                 <p>✓ Best areas: {valueAreas.slice(0, 2).map(a => a.name).join(', ')}</p>
                 <p>✓ Avg size: {Math.round(under400k.filter(p => p.areaSqm).reduce((s, p) => s + (p.areaSqm || 0), 0) / under400k.filter(p => p.areaSqm).length)}m²</p>
               </div>
-              <Link href="/properties?maxPrice=400000" className="btn-secondary mt-6 w-full text-center block">
-                Browse Properties
+              <Link href="/map" className="btn-secondary mt-6 w-full text-center block">
+                View on Map
               </Link>
             </div>
             
@@ -207,8 +207,8 @@ export default function Home() {
                 <p>✓ Mix of houses and apartments</p>
                 <p>✓ Most 3-bed options here</p>
               </div>
-              <Link href="/properties?minPrice=400000&maxPrice=600000" className="btn-primary mt-6 w-full text-center block">
-                Browse Properties
+              <Link href="/map" className="btn-primary mt-6 w-full text-center block">
+                View on Map
               </Link>
             </div>
             
@@ -220,8 +220,8 @@ export default function Home() {
                 <p>✓ Mostly Ballsbridge, Ranelagh, Dalkey</p>
                 <p>✓ 4+ beds, 150m²+ typical</p>
               </div>
-              <Link href="/properties?minPrice=1000000" className="btn-secondary mt-6 w-full text-center block">
-                Browse Properties
+              <Link href="/map" className="btn-secondary mt-6 w-full text-center block">
+                View on Map
               </Link>
             </div>
           </div>
@@ -237,8 +237,8 @@ export default function Home() {
                 <h2 className="text-2xl font-bold mb-2">Recent Good Deals</h2>
                 <p className="text-[var(--foreground-secondary)]">Properties that sold 15%+ below area average €/sqm</p>
               </div>
-              <Link href="/properties?sort=value" className="text-[var(--accent)] hover:underline">
-                View all →
+              <Link href="/map" className="text-[var(--accent)] hover:underline">
+                View on map →
               </Link>
             </div>
             
@@ -345,15 +345,15 @@ export default function Home() {
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Find Your Property?</h2>
           <p className="text-[var(--foreground-secondary)] mb-8">
-            Explore the interactive map to see prices across Dublin, 
-            or search our database of {stats.totalProperties.toLocaleString()} sold properties.
+            Explore the interactive map to see prices across Dublin 
+            with {stats.totalProperties.toLocaleString()} sold properties.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/map" className="btn-primary">
               Open Interactive Map
             </Link>
-            <Link href="/properties" className="btn-secondary">
-              Search All Properties
+            <Link href="/insights" className="btn-secondary">
+              View Market Insights
             </Link>
           </div>
         </div>
@@ -366,7 +366,6 @@ export default function Home() {
             Data from public records · Updated daily · {stats.totalProperties.toLocaleString()} properties
           </div>
           <div className="flex gap-6 text-sm">
-            <Link href="/properties" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Properties</Link>
             <Link href="/map" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Map</Link>
             <Link href="/insights" className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)]">Insights</Link>
           </div>
