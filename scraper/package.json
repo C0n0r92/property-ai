@@ -1,0 +1,21 @@
+{
+  "name": "daft-scraper",
+  "version": "1.0.0",
+  "description": "Scraper for Daft.ie sold properties",
+  "type": "module",
+  "scripts": {
+    "scrape": "npx tsx src/scrape-fast.ts",
+    "scrape:parallel": "npx tsx src/scrape-parallel.ts",
+    "scrape:worker": "npx tsx src/worker.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+
+
