@@ -4,7 +4,7 @@ import { join } from 'path';
 
 // Configuration
 const TOTAL_PAGES = 10277;
-const NUM_WORKERS = 6;
+const NUM_WORKERS = 3; // Reduced to avoid rate limiting
 const TEST_MODE = false; // Set to true for testing with small ranges
 const TEST_PAGES_PER_WORKER = 3; // Pages per worker in test mode
 
@@ -108,11 +108,19 @@ async function main() {
   configs.forEach(c => console.log(`  Worker ${c.id}: pages ${c.startPage}-${c.endPage}`));
   console.log('');
   
-  // Spawn all workers
-  const workers = configs.map(config => ({
-    config,
-    process: spawnWorker(config)
-  }));
+  // Spawn workers with staggered start (5 seconds apart)
+  const workers: { config: WorkerConfig; process: ChildProcess }[] = [];
+  for (const config of configs) {
+    workers.push({
+      config,
+      process: spawnWorker(config)
+    });
+    // Wait 5 seconds before starting next worker to avoid rate limiting
+    if (config.id < configs.length) {
+      console.log(`Waiting 5 seconds before starting next worker...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
   
   // Wait for all workers to complete
   const results = await Promise.all(

@@ -29,6 +29,13 @@ export interface ScrapedProperty {
 
   // Metadata
   scrapedAt: string; // ISO timestamp
+
+  // Geocoding
+  latitude?: number;
+  longitude?: number;
+  eircode?: string;
+  nominatimAddress?: string; // Full address from Nominatim response
+  geocodeStatus?: 'success' | 'not_found' | 'error';
 }
 
 export interface ScrapeProgress {

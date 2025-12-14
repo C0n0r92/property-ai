@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Nominatim/OSM data (large files)
+nominatim-data/
+*.osm.pbf

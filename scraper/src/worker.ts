@@ -16,61 +16,80 @@ const workerId = getArg('worker-id') || '1';
 async function runWorker() {
   console.log(`[Worker ${workerId}] Starting: pages ${startPage}-${endPage} -> ${outputFile}`);
   
-  // Load existing data if resuming
+  // Load existing data
   let properties: any[] = [];
   let currentPage = startPage;
   
   if (existsSync(outputFile)) {
     try {
       properties = JSON.parse(readFileSync(outputFile, 'utf-8'));
-      if (properties.length > 0) {
-        const lastUrl = properties[properties.length - 1].sourceUrl;
-        const pageMatch = lastUrl?.match(/page=(\d+)/);
-        const lastPage = pageMatch ? parseInt(pageMatch[1]) : 1;
-        currentPage = Math.min(lastPage + 1, endPage + 1);
-        if (currentPage > endPage) {
-          console.log(`[Worker ${workerId}] Already complete (${properties.length} properties)`);
-          return;
-        }
-        console.log(`[Worker ${workerId}] Resuming from page ${currentPage} (${properties.length} properties)`);
-      }
+      console.log(`[Worker ${workerId}] Loaded ${properties.length} existing properties`);
     } catch {
       // Start fresh
     }
   }
   
+  // Always start from the specified startPage (no auto-resume)
+  console.log(`[Worker ${workerId}] Starting from page ${currentPage}`);
+  
   const browser = await chromium.launch({ headless: false });
   const page = await browser.newPage();
   
   try {
+    // First, go to main page and accept cookies (do this once before starting)
+    console.log(`[Worker ${workerId}] Going to main page to accept cookies...`);
+    await page.goto('https://www.daft.ie/sold-properties/dublin', { 
+      waitUntil: 'domcontentloaded', 
+      timeout: 30000 
+    });
+    await page.waitForTimeout(2000);
+    
+    try {
+      const btn = page.locator('button:has-text("Accept All")');
+      if (await btn.isVisible({ timeout: 3000 })) {
+        await btn.click();
+        console.log(`[Worker ${workerId}] Cookies accepted`);
+        await page.waitForTimeout(1000);
+      }
+    } catch {}
+    
+    // If resuming from a page > 1, navigate to that page first
+    if (currentPage > 1) {
+      console.log(`[Worker ${workerId}] Navigating to starting page ${currentPage}...`);
+      await page.goto(`https://www.daft.ie/sold-properties/dublin?page=${currentPage}`, { 
+        waitUntil: 'domcontentloaded', 
+        timeout: 30000 
+      });
+      await page.waitForTimeout(2000);
+    }
+    
+    // Now start scraping from the assigned page range
     for (let pageNum = currentPage; pageNum <= endPage; pageNum++) {
-      const url = pageNum === 1
-        ? 'https://www.daft.ie/sold-properties/dublin'
-        : `https://www.daft.ie/sold-properties/dublin?page=${pageNum}`;
-      
       console.log(`[Worker ${workerId}] Page ${pageNum}/${endPage}`);
       
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-      
-      // Wait for page to render
-      await page.waitForTimeout(2000);
-      
-      // Handle cookies on first page of this worker's range
-      if (pageNum === currentPage) {
+      // For pages after the first one, click "Next" button instead of direct navigation
+      if (pageNum > currentPage) {
         try {
-          const btn = page.locator('button:has-text("Accept All")');
-          if (await btn.isVisible({ timeout: 3000 })) {
-            await btn.click();
-            await page.waitForTimeout(1000);
-          }
-        } catch {}
+          const nextBtn = page.locator('[data-testid="next-page-link"]');
+          await nextBtn.click();
+          await page.waitForTimeout(1500);
+        } catch (e) {
+          console.log(`[Worker ${workerId}] Could not click next, trying direct nav...`);
+          await page.goto(`https://www.daft.ie/sold-properties/dublin?page=${pageNum}`, { 
+            waitUntil: 'domcontentloaded', 
+            timeout: 30000 
+          });
+          await page.waitForTimeout(1500);
+        }
       }
       
       // Wait for cards
       await page.waitForSelector('[data-testid="card-container"]', { timeout: 15000 });
       
       // Extract data
-      const sourceUrl = url;
+      const sourceUrl = pageNum === 1 
+        ? 'https://www.daft.ie/sold-properties/dublin'
+        : `https://www.daft.ie/sold-properties/dublin?page=${pageNum}`;
       const pageData = await page.evaluate((sourceUrl) => {
         const cards = document.querySelectorAll('[data-testid="card-container"]');
         const results: any[] = [];

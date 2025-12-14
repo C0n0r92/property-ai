@@ -6,7 +6,8 @@
   "scripts": {
     "scrape": "npx tsx src/scrape-fast.ts",
     "scrape:parallel": "npx tsx src/scrape-parallel.ts",
-    "scrape:worker": "npx tsx src/worker.ts"
+    "scrape:worker": "npx tsx src/worker.ts",
+    "geocode": "npx tsx src/geocode.ts"
   },
   "dependencies": {
     "playwright": "^1.52.0"
