@@ -4,6 +4,8 @@
   "description": "Scraper for Daft.ie sold properties",
   "type": "module",
   "scripts": {
+    "pipeline": "npx tsx src/pipeline.ts",
+    "cleanup": "npx tsx src/pipeline.ts --cleanup",
     "scrape": "npx tsx src/scrape-fast.ts",
     "scrape:parallel": "npx tsx src/scrape-parallel.ts",
     "scrape:worker": "npx tsx src/worker.ts",
