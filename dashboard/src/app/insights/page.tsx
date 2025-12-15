@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { formatFullPrice } from '@/lib/format';
 
@@ -32,7 +33,185 @@ interface MonthlyTrend {
   count: number;
 }
 
+// Payment Modal Component
+function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
+  const [selectedPlan, setSelectedPlan] = useState<'one-time' | 'monthly'>('one-time');
+  
+  const features = [
+    {
+      icon: '🧠',
+      title: 'AI Price Predictions',
+      desc: 'Get ML-powered fair value estimates for any Dublin property based on 40,000+ sales'
+    },
+    {
+      icon: '📊',
+      title: 'Hidden Deal Finder',
+      desc: 'Instantly identify underpriced properties before they get snapped up'
+    },
+    {
+      icon: '📈',
+      title: 'Area Trend Forecasts',
+      desc: '6-month price predictions for every Dublin neighbourhood with confidence scores'
+    },
+    {
+      icon: '🎯',
+      title: 'Bidding War Predictor',
+      desc: 'Know which properties will likely go over asking price and by how much'
+    },
+    {
+      icon: '💡',
+      title: 'Investment Scoring',
+      desc: 'Rental yield estimates, price appreciation potential, and risk ratings'
+    },
+    {
+      icon: '⏰',
+      title: 'Market Timing Alerts',
+      desc: 'Get notified when market conditions favour buyers or sellers in your target area'
+    },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+      
+      {/* Modal */}
+      <div className="relative bg-[#0D1117] border border-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        {/* Close button */}
+        <button
+          onClick={onDismiss}
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+          aria-label="Close"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        
+        {/* Header */}
+        <div className="relative p-8 pb-0">
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-emerald-500/10 to-transparent rounded-t-2xl" />
+          
+          <div className="relative text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-sm font-medium mb-4">
+              <span className="animate-pulse">🔥</span>
+              <span>Limited Time Offer</span>
+            </div>
+            
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Unlock <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Pro Insights</span>
+            </h2>
+            <p className="text-gray-400 max-w-md mx-auto">
+              Make smarter property decisions with AI-powered analytics trained on every Dublin sale since 2020
+            </p>
+          </div>
+        </div>
+        
+        {/* Features Grid */}
+        <div className="p-8 pt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            {features.map((feature, i) => (
+              <div 
+                key={i}
+                className="p-4 rounded-xl bg-gray-800/50 border border-gray-700/50 hover:border-emerald-500/30 transition-colors"
+              >
+                <div className="text-2xl mb-2">{feature.icon}</div>
+                <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
+                <p className="text-sm text-gray-400">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+          
+          {/* Pricing Toggle */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex rounded-xl bg-gray-800 p-1">
+              <button
+                onClick={() => setSelectedPlan('one-time')}
+                className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  selectedPlan === 'one-time'
+                    ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                One-Time
+              </button>
+              <button
+                onClick={() => setSelectedPlan('monthly')}
+                className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  selectedPlan === 'monthly'
+                    ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
+          
+          {/* Price Display */}
+          <div className="text-center mb-8">
+            {selectedPlan === 'one-time' ? (
+              <div>
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-5xl font-bold text-white">€20</span>
+                  <span className="text-gray-500 line-through">€49</span>
+                </div>
+                <p className="text-emerald-400 text-sm mt-1">Lifetime access • One-time payment</p>
+                <p className="text-gray-500 text-xs mt-1">No subscriptions, no recurring fees</p>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-5xl font-bold text-white">€5</span>
+                  <span className="text-gray-400">/month</span>
+                </div>
+                <p className="text-emerald-400 text-sm mt-1">Cancel anytime • Full access</p>
+                <p className="text-gray-500 text-xs mt-1">First month free for early adopters</p>
+              </div>
+            )}
+          </div>
+          
+          {/* CTA Button */}
+          <button
+            onClick={() => alert('Payment integration coming soon! Contact us at hello@gaffintel.ie')}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold text-lg hover:from-emerald-400 hover:to-cyan-400 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+          >
+            Get Pro Access Now
+          </button>
+          
+          {/* Trust Badges */}
+          <div className="flex items-center justify-center gap-6 mt-6 text-gray-500 text-sm">
+            <div className="flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Secure Payment</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>30-Day Guarantee</span>
+            </div>
+          </div>
+          
+          {/* Close link */}
+          <div className="text-center mt-6">
+            <button 
+              onClick={onDismiss}
+              className="text-gray-500 hover:text-gray-300 text-sm underline transition-colors"
+            >
+              Maybe later, back to map
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function InsightsPage() {
+  const router = useRouter();
   const [data, setData] = useState<{
     stats: Stats;
     areaStats: AreaStat[];
@@ -41,6 +220,9 @@ export default function InsightsPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'count' | 'medianPrice' | 'change6m'>('count');
+  
+  // Check if user has paid (in real app, this would check auth/subscription status)
+  const [hasPaid] = useState(false);
   
   useEffect(() => {
     fetch('/api/stats')
@@ -81,6 +263,15 @@ export default function InsightsPage() {
     month: d.month.substring(5), // Just MM
     label: new Date(d.month + '-01').toLocaleDateString('en-IE', { month: 'short', year: '2-digit' }),
   }));
+
+  // Always show payment modal if user hasn't paid
+  if (!hasPaid) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-[#0a0a0a]">
+        <PaymentModal onDismiss={() => router.push('/map')} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
