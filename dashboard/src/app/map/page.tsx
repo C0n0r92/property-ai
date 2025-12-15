@@ -11,7 +11,15 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoiYzBuMHI5IiwiYSI6ImNtajZiaXZzdDBrOHMzZXF5dnFnMmZ
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 type DifferenceFilter = 'all' | 'over' | 'under' | 'exact';
-type TimeFilter = 'all' | '2024' | '2023' | '2022' | 'recent6m' | 'recent12m';
+
+// Month names for display
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const QUARTER_MONTHS: Record<number, number[]> = {
+  1: [0, 1, 2],   // Q1: Jan, Feb, Mar
+  2: [3, 4, 5],   // Q2: Apr, May, Jun
+  3: [6, 7, 8],   // Q3: Jul, Aug, Sep
+  4: [9, 10, 11], // Q4: Oct, Nov, Dec
+};
 
 // Common Dublin areas for quick access
 const DUBLIN_AREAS = [
@@ -45,7 +53,13 @@ export default function MapPage() {
   const [mapReady, setMapReady] = useState(false);
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>('all');
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+  
+  // Hierarchical time filter state
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedQuarter, setSelectedQuarter] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [recentFilter, setRecentFilter] = useState<'6m' | '12m' | null>(null);
+  
   const [stats, setStats] = useState({ total: 0, avgPrice: 0, avgPricePerSqm: 0, overAsking: 0, underAsking: 0 });
   
   // Search state
@@ -142,35 +156,59 @@ export default function MapPage() {
       });
   }, []);
 
+  // Get available years from the data
+  const availableYears = useMemo(() => {
+    const years = new Set<number>();
+    properties.forEach(p => {
+      if (p.soldDate) {
+        years.add(new Date(p.soldDate).getFullYear());
+      }
+    });
+    return Array.from(years).sort((a, b) => b - a); // Most recent first
+  }, [properties]);
+
   // Filter properties based on difference and time filters
   const filteredProperties = useMemo(() => {
     let filtered = properties;
     
-    // Apply time filter
-    if (timeFilter !== 'all') {
+    // Apply recent filter (takes priority)
+    if (recentFilter) {
       const now = new Date();
       filtered = filtered.filter(p => {
         if (!p.soldDate) return false;
         const soldDate = new Date(p.soldDate);
         
-        switch (timeFilter) {
-          case '2024':
-            return soldDate.getFullYear() === 2024;
-          case '2023':
-            return soldDate.getFullYear() === 2023;
-          case '2022':
-            return soldDate.getFullYear() === 2022;
-          case 'recent6m': {
-            const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-            return soldDate >= sixMonthsAgo;
-          }
-          case 'recent12m': {
-            const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-            return soldDate >= oneYearAgo;
-          }
-          default:
-            return true;
+        if (recentFilter === '6m') {
+          const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+          return soldDate >= sixMonthsAgo;
+        } else if (recentFilter === '12m') {
+          const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+          return soldDate >= oneYearAgo;
         }
+        return true;
+      });
+    }
+    // Apply hierarchical year/quarter/month filter
+    else if (selectedYear !== null) {
+      filtered = filtered.filter(p => {
+        if (!p.soldDate) return false;
+        const soldDate = new Date(p.soldDate);
+        const year = soldDate.getFullYear();
+        const month = soldDate.getMonth();
+        
+        // Year must match
+        if (year !== selectedYear) return false;
+        
+        // If quarter is selected, filter by quarter
+        if (selectedQuarter !== null) {
+          const quarterMonths = QUARTER_MONTHS[selectedQuarter];
+          if (!quarterMonths.includes(month)) return false;
+          
+          // If month is selected, filter by specific month
+          if (selectedMonth !== null && month !== selectedMonth) return false;
+        }
+        
+        return true;
       });
     }
     
@@ -194,7 +232,56 @@ export default function MapPage() {
     }
     
     return filtered;
-  }, [properties, differenceFilter, timeFilter]);
+  }, [properties, differenceFilter, selectedYear, selectedQuarter, selectedMonth, recentFilter]);
+
+  // Helper to clear time filters
+  const clearTimeFilters = () => {
+    setSelectedYear(null);
+    setSelectedQuarter(null);
+    setSelectedMonth(null);
+    setRecentFilter(null);
+  };
+
+  // Calculate filtered stats for the selected time period
+  const filteredStats = useMemo(() => {
+    // Get properties with valid pricePerSqm for the filtered set
+    const withPricePerSqm = filteredProperties.filter(p => p.pricePerSqm && p.pricePerSqm > 0);
+    
+    if (withPricePerSqm.length === 0) {
+      return { avgPricePerSqm: 0, percentChange: null, isFiltered: false };
+    }
+    
+    const filteredAvg = Math.round(
+      withPricePerSqm.reduce((sum, p) => sum + (p.pricePerSqm || 0), 0) / withPricePerSqm.length
+    );
+    
+    // Check if we have an active time filter
+    const isFiltered = selectedYear !== null || recentFilter !== null;
+    
+    // Calculate percentage change vs overall average
+    let percentChange: number | null = null;
+    if (isFiltered && stats.avgPricePerSqm > 0) {
+      percentChange = ((filteredAvg - stats.avgPricePerSqm) / stats.avgPricePerSqm) * 100;
+    }
+    
+    return { avgPricePerSqm: filteredAvg, percentChange, isFiltered };
+  }, [filteredProperties, selectedYear, recentFilter, stats.avgPricePerSqm]);
+
+  // Helper to get current time filter description
+  const getTimeFilterLabel = (): string => {
+    if (recentFilter === '6m') return 'Last 6 months';
+    if (recentFilter === '12m') return 'Last 12 months';
+    if (selectedYear === null) return 'All Time';
+    
+    let label = selectedYear.toString();
+    if (selectedQuarter !== null) {
+      label += ` Q${selectedQuarter}`;
+      if (selectedMonth !== null) {
+        label = `${MONTH_NAMES[selectedMonth]} ${selectedYear}`;
+      }
+    }
+    return label;
+  };
 
   // Initialize map
   useEffect(() => {
@@ -504,11 +591,15 @@ export default function MapPage() {
     }
   };
 
-  // Get year from date
-  const getSoldYear = (dateStr: string | undefined): string => {
+  // Get month and year from date (e.g., "Mar 2022")
+  const getSoldMonthYear = (dateStr: string | undefined): string => {
     if (!dateStr) return 'Unknown';
     try {
-      return new Date(dateStr).getFullYear().toString();
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-IE', { 
+        year: 'numeric', 
+        month: 'short'
+      });
     } catch {
       return 'Unknown';
     }
@@ -516,11 +607,11 @@ export default function MapPage() {
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col">
-      {/* Map Controls */}
-      <div className="p-4 bg-[#111827] border-b border-gray-800 flex items-center justify-between flex-wrap gap-4">
+      {/* Map Controls - Row 1: Title, Search, View Mode, Price Filter */}
+      <div className="px-4 py-3 bg-[#111827] border-b border-gray-800 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold text-white">Property Map</h1>
-          <span className="text-gray-400">
+          <span className="text-gray-400 text-sm">
             {loading ? 'Loading...' : `${filteredProperties.length.toLocaleString()} properties`}
           </span>
           
@@ -585,12 +676,12 @@ export default function MapPage() {
           </div>
         </div>
         
-        <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
           {/* View Toggle */}
           <div className="flex rounded-lg overflow-hidden border border-gray-700">
             <button
               onClick={() => setViewMode('clusters')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === 'clusters' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -600,7 +691,7 @@ export default function MapPage() {
             </button>
             <button
               onClick={() => setViewMode('price')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === 'price' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -610,7 +701,7 @@ export default function MapPage() {
             </button>
             <button
               onClick={() => setViewMode('difference')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === 'difference' 
                   ? 'bg-blue-600 text-white' 
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -620,65 +711,11 @@ export default function MapPage() {
             </button>
           </div>
 
-          {/* Time Period Filter */}
-          <div className="flex rounded-lg overflow-hidden border border-gray-700">
-            <button
-              onClick={() => setTimeFilter('all')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                timeFilter === 'all' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              All Time
-            </button>
-            <button
-              onClick={() => setTimeFilter('recent6m')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                timeFilter === 'recent6m' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              6 Months
-            </button>
-            <button
-              onClick={() => setTimeFilter('recent12m')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                timeFilter === 'recent12m' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              12 Months
-            </button>
-            <button
-              onClick={() => setTimeFilter('2024')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                timeFilter === '2024' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              2024
-            </button>
-            <button
-              onClick={() => setTimeFilter('2023')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                timeFilter === '2023' 
-                  ? 'bg-indigo-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              2023
-            </button>
-          </div>
-
           {/* Price vs Asking Filter */}
           <div className="flex rounded-lg overflow-hidden border border-gray-700">
             <button
               onClick={() => setDifferenceFilter('all')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 differenceFilter === 'all' 
                   ? 'bg-purple-600 text-white' 
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -688,7 +725,7 @@ export default function MapPage() {
             </button>
             <button
               onClick={() => setDifferenceFilter('over')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 differenceFilter === 'over' 
                   ? 'bg-red-600 text-white' 
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -699,7 +736,7 @@ export default function MapPage() {
             </button>
             <button
               onClick={() => setDifferenceFilter('under')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 differenceFilter === 'under' 
                   ? 'bg-green-600 text-white' 
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -710,6 +747,120 @@ export default function MapPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Map Controls - Row 2: Time Period Filters */}
+      <div className="px-4 py-2 bg-[#0f1419] border-b border-gray-800 flex items-center gap-3">
+        <span className="text-gray-500 text-sm font-medium">Time Period:</span>
+        
+        {/* Quick presets */}
+        <div className="flex rounded-lg overflow-hidden border border-gray-700">
+          <button
+            onClick={() => { clearTimeFilters(); }}
+            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+              selectedYear === null && recentFilter === null
+                ? 'bg-indigo-600 text-white' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            All Time
+          </button>
+          <button
+            onClick={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); }}
+            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+              recentFilter === '6m'
+                ? 'bg-indigo-600 text-white' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            6 Months
+          </button>
+          <button
+            onClick={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('12m'); }}
+            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+              recentFilter === '12m'
+                ? 'bg-indigo-600 text-white' 
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            12 Months
+          </button>
+        </div>
+
+        <div className="w-px h-6 bg-gray-700" />
+
+        {/* Year dropdown */}
+        <select
+          value={selectedYear ?? ''}
+          onChange={(e) => {
+            const year = e.target.value ? parseInt(e.target.value) : null;
+            setSelectedYear(year);
+            setSelectedQuarter(null);
+            setSelectedMonth(null);
+            setRecentFilter(null);
+          }}
+          className={`px-3 py-1.5 text-sm font-medium border rounded-lg focus:outline-none focus:border-indigo-500 cursor-pointer ${
+            selectedYear !== null 
+              ? 'bg-indigo-600 border-indigo-600 text-white' 
+              : 'bg-gray-800 border-gray-700 text-gray-300'
+          }`}
+        >
+          <option value="">Year</option>
+          {availableYears.map(year => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+
+        {/* Quarter dropdown - only show when year selected */}
+        {selectedYear !== null && (
+          <select
+            value={selectedQuarter ?? ''}
+            onChange={(e) => {
+              const quarter = e.target.value ? parseInt(e.target.value) : null;
+              setSelectedQuarter(quarter);
+              setSelectedMonth(null);
+            }}
+            className={`px-3 py-1.5 text-sm font-medium border rounded-lg focus:outline-none focus:border-indigo-500 cursor-pointer ${
+              selectedQuarter !== null 
+                ? 'bg-indigo-600 border-indigo-600 text-white' 
+                : 'bg-gray-800 border-gray-700 text-gray-300'
+            }`}
+          >
+            <option value="">Quarter</option>
+            <option value="1">Q1 (Jan-Mar)</option>
+            <option value="2">Q2 (Apr-Jun)</option>
+            <option value="3">Q3 (Jul-Sep)</option>
+            <option value="4">Q4 (Oct-Dec)</option>
+          </select>
+        )}
+
+        {/* Month dropdown - only show when quarter selected */}
+        {selectedYear !== null && selectedQuarter !== null && (
+          <select
+            value={selectedMonth ?? ''}
+            onChange={(e) => {
+              const month = e.target.value !== '' ? parseInt(e.target.value) : null;
+              setSelectedMonth(month);
+            }}
+            className={`px-3 py-1.5 text-sm font-medium border rounded-lg focus:outline-none focus:border-indigo-500 cursor-pointer ${
+              selectedMonth !== null 
+                ? 'bg-indigo-600 border-indigo-600 text-white' 
+                : 'bg-gray-800 border-gray-700 text-gray-300'
+            }`}
+          >
+            <option value="">Month</option>
+            {QUARTER_MONTHS[selectedQuarter].map(monthIndex => (
+              <option key={monthIndex} value={monthIndex}>{MONTH_NAMES[monthIndex]}</option>
+            ))}
+          </select>
+        )}
+
+        {/* Show current filter summary */}
+        {(selectedYear !== null || recentFilter !== null) && (
+          <span className="ml-auto text-indigo-400 text-sm font-medium">
+            Showing: {getTimeFilterLabel()}
+          </span>
+        )}
       </div>
       
       {/* Legend bar */}
@@ -747,13 +898,6 @@ export default function MapPage() {
         <div className="ml-auto flex items-center gap-4 text-gray-500">
           <span>🔥 {stats.overAsking.toLocaleString()} bidding wars</span>
           <span>💰 {stats.underAsking.toLocaleString()} deals</span>
-          {timeFilter !== 'all' && (
-            <span className="text-indigo-400 font-medium">
-              Showing: {timeFilter === 'recent6m' ? 'Last 6 months' : 
-                       timeFilter === 'recent12m' ? 'Last 12 months' : 
-                       timeFilter}
-            </span>
-          )}
         </div>
       </div>
       
@@ -792,7 +936,7 @@ export default function MapPage() {
                 {formatFullPrice(selectedProperty.soldPrice)}
               </div>
               <div className="px-3 py-1 rounded-full bg-blue-600 text-white text-sm font-medium">
-                Sold {getSoldYear(selectedProperty.soldDate)}
+                Sold {getSoldMonthYear(selectedProperty.soldDate)}
               </div>
             </div>
             
@@ -882,9 +1026,32 @@ export default function MapPage() {
         
         {/* Stats overlay */}
         <div className="absolute top-4 left-4 hidden md:block">
-          <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg p-4 border border-gray-700">
-            <div className="text-sm text-gray-500 mb-1">Dublin Avg €/m²</div>
-            <div className="text-2xl font-bold text-white font-mono">€{stats.avgPricePerSqm.toLocaleString()}</div>
+          <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg p-4 border border-gray-700 min-w-[180px]">
+            <div className="text-sm text-gray-500 mb-1">
+              {filteredStats.isFiltered ? `${getTimeFilterLabel()} Avg €/m²` : 'Dublin Avg €/m²'}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-white font-mono">
+                €{(filteredStats.isFiltered ? filteredStats.avgPricePerSqm : stats.avgPricePerSqm).toLocaleString()}
+              </span>
+              {filteredStats.isFiltered && filteredStats.percentChange !== null && (
+                <span className={`text-sm font-semibold px-1.5 py-0.5 rounded ${
+                  filteredStats.percentChange > 0 
+                    ? 'bg-green-500/20 text-green-400' 
+                    : filteredStats.percentChange < 0 
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'bg-gray-500/20 text-gray-400'
+                }`}>
+                  {filteredStats.percentChange > 0 ? '↑' : filteredStats.percentChange < 0 ? '↓' : ''}
+                  {Math.abs(filteredStats.percentChange).toFixed(1)}%
+                </span>
+              )}
+            </div>
+            {filteredStats.isFiltered && (
+              <div className="text-xs text-gray-500 mt-1">
+                vs €{stats.avgPricePerSqm.toLocaleString()} overall
+              </div>
+            )}
           </div>
         </div>
         
