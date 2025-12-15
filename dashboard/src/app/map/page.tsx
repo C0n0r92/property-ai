@@ -6,9 +6,10 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { formatFullPrice } from '@/lib/format';
 import type { Property, Listing } from '@/types/property';
 import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
+import { analytics } from '@/lib/analytics';
 
 // Mapbox access token
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiYzBuMHI5IiwiYSI6ImNtajZiaXZzdDBrOHMzZXF5dnFnMmZ6Ym4ifQ.Np14DcYGtlYDP8yBPUp_JQ';
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 type DifferenceFilter = 'all' | 'over' | 'under' | 'exact';
@@ -78,6 +79,34 @@ export default function MapPage() {
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // Analytics-wrapped state setters
+  const handleViewModeChange = (mode: 'clusters' | 'price' | 'difference') => {
+    setViewMode(mode);
+    analytics.mapViewModeChanged(mode);
+  };
+
+  const handleDataSourceChange = (source: DataSource) => {
+    setDataSource(source);
+    analytics.mapDataSourceChanged(source);
+    setSelectedProperty(null);
+    setSelectedListing(null);
+    if (source !== 'sold' && viewMode === 'difference') {
+      setViewMode('clusters');
+    }
+  };
+
+  const handleFilterChange = (filterType: string, value: string) => {
+    analytics.mapFilterApplied(filterType, value);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedYear(null);
+    setSelectedQuarter(null);
+    setSelectedMonth(null);
+    setRecentFilter(null);
+    analytics.filtersCleared();
+  };
+
   // Search for location using Mapbox Geocoding API
   const searchLocation = async (query: string) => {
     if (!query.trim()) {
@@ -90,7 +119,7 @@ export default function MapPage() {
       // Bias search towards Dublin
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
-        `access_token=${MAPBOX_TOKEN}&` +
+        `access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''}&` +
         `country=IE&` +
         `bbox=-6.6,53.1,-5.9,53.6&` + // Dublin bounding box
         `limit=5`
@@ -934,7 +963,7 @@ export default function MapPage() {
           {/* Data Source Toggle */}
           <div className="flex rounded-lg overflow-hidden border-2 border-cyan-600">
             <button
-              onClick={() => { setDataSource('sold'); setSelectedListing(null); }}
+              onClick={() => handleDataSourceChange('sold')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 dataSource === 'sold' 
                   ? 'bg-cyan-600 text-white' 
@@ -944,11 +973,7 @@ export default function MapPage() {
               🏠 Sold
             </button>
             <button
-              onClick={() => { 
-                setDataSource('forSale'); 
-                setSelectedProperty(null); 
-                if (viewMode === 'difference') setViewMode('clusters');
-              }}
+              onClick={() => handleDataSourceChange('forSale')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 dataSource === 'forSale' 
                   ? 'bg-cyan-600 text-white' 
@@ -958,10 +983,7 @@ export default function MapPage() {
               🏷️ For Sale
             </button>
             <button
-              onClick={() => { 
-                setDataSource('both'); 
-                setViewMode('clusters'); // Both mode works best with clusters
-              }}
+              onClick={() => handleDataSourceChange('both')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 dataSource === 'both' 
                   ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white' 
@@ -1049,7 +1071,7 @@ export default function MapPage() {
           {/* View Toggle */}
           <div className="flex rounded-lg overflow-hidden border border-gray-700">
             <button
-              onClick={() => setViewMode('clusters')}
+              onClick={() => handleViewModeChange('clusters')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === 'clusters' 
                   ? 'bg-blue-600 text-white' 
@@ -1059,7 +1081,7 @@ export default function MapPage() {
               Clusters
             </button>
             <button
-              onClick={() => setViewMode('price')}
+              onClick={() => handleViewModeChange('price')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 viewMode === 'price' 
                   ? 'bg-blue-600 text-white' 
@@ -1070,7 +1092,7 @@ export default function MapPage() {
             </button>
             {dataSource === 'sold' && (
               <button
-                onClick={() => setViewMode('difference')}
+                onClick={() => handleViewModeChange('difference')}
                 className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                   viewMode === 'difference' 
                     ? 'bg-blue-600 text-white' 
@@ -1369,10 +1391,10 @@ export default function MapPage() {
                   <div className="text-white font-semibold">{selectedProperty.propertyType}</div>
                 </div>
               )}
-              {selectedProperty.floorArea && (
+              {selectedProperty.areaSqm && (
                 <div className="bg-gray-800 rounded-lg px-3 py-2">
                   <div className="text-gray-500 text-xs">Floor Area</div>
-                  <div className="text-white font-semibold">{selectedProperty.floorArea} m²</div>
+                  <div className="text-white font-semibold">{selectedProperty.areaSqm} m²</div>
                 </div>
               )}
             </div>

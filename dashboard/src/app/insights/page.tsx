@@ -2,8 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { loadStripe } from '@stripe/stripe-js';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { formatFullPrice } from '@/lib/format';
+import { analytics } from '@/lib/analytics';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface Stats {
   totalProperties: number;
@@ -36,6 +41,47 @@ interface MonthlyTrend {
 // Payment Modal Component
 function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
   const [selectedPlan, setSelectedPlan] = useState<'one-time' | 'monthly'>('one-time');
+  const [loading, setLoading] = useState(false);
+
+  // Track modal view on mount
+  useEffect(() => {
+    analytics.paymentModalViewed();
+  }, []);
+
+  const handlePlanChange = (plan: 'one-time' | 'monthly') => {
+    setSelectedPlan(plan);
+    analytics.paymentPlanSelected(plan);
+  };
+
+  const handleDismiss = () => {
+    analytics.paymentModalDismissed();
+    onDismiss();
+  };
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    const amount = selectedPlan === 'one-time' ? 20 : 5;
+    analytics.paymentCheckoutStarted(selectedPlan, amount);
+    
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: selectedPlan }),
+      });
+
+      const { url } = await response.json();
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Failed to start checkout. Please try again.');
+      setLoading(false);
+    }
+  };
   
   const features = [
     {
@@ -79,7 +125,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
       <div className="relative bg-[#0D1117] border border-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Close button */}
         <button
-          onClick={onDismiss}
+          onClick={handleDismiss}
           className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
           aria-label="Close"
         >
@@ -126,7 +172,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
           <div className="flex justify-center mb-6">
             <div className="inline-flex rounded-xl bg-gray-800 p-1">
               <button
-                onClick={() => setSelectedPlan('one-time')}
+                onClick={() => handlePlanChange('one-time')}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   selectedPlan === 'one-time'
                     ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg'
@@ -136,7 +182,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
                 One-Time
               </button>
               <button
-                onClick={() => setSelectedPlan('monthly')}
+                onClick={() => handlePlanChange('monthly')}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   selectedPlan === 'monthly'
                     ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg'
@@ -173,10 +219,11 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
           
           {/* CTA Button */}
           <button
-            onClick={() => alert('Payment integration coming soon! Contact us at hello@gaffintel.ie')}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold text-lg hover:from-emerald-400 hover:to-cyan-400 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+            onClick={handleCheckout}
+            disabled={loading}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold text-lg hover:from-emerald-400 hover:to-cyan-400 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Get Pro Access Now
+            {loading ? 'Processing...' : 'Get Pro Access Now'}
           </button>
           
           {/* Trust Badges */}
@@ -198,7 +245,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
           {/* Close link */}
           <div className="text-center mt-6">
             <button 
-              onClick={onDismiss}
+              onClick={handleDismiss}
               className="text-gray-500 hover:text-gray-300 text-sm underline transition-colors"
             >
               Maybe later, back to map
@@ -212,6 +259,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
 
 export default function InsightsPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [data, setData] = useState<{
     stats: Stats;
     areaStats: AreaStat[];
@@ -221,16 +269,30 @@ export default function InsightsPage() {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'count' | 'medianPrice' | 'change6m'>('count');
   
-  // Check if user has paid (in real app, this would check auth/subscription status)
-  const [hasPaid] = useState(false);
+  // Check if user has paid from session
+  const hasPaid = (session?.user as any)?.hasPaid || false;
   
   useEffect(() => {
-    fetch('/api/stats')
-      .then(res => res.json())
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, []);
+    // Only fetch data if user has paid
+    if (hasPaid) {
+      fetch('/api/stats')
+        .then(res => res.json())
+        .then(setData)
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [hasPaid]);
   
+  // Show payment modal if user hasn't paid (check FIRST before data checks)
+  if (!hasPaid) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-[#0a0a0a]">
+        <PaymentModal onDismiss={() => router.push('/map')} />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -263,15 +325,6 @@ export default function InsightsPage() {
     month: d.month.substring(5), // Just MM
     label: new Date(d.month + '-01').toLocaleDateString('en-IE', { month: 'short', year: '2-digit' }),
   }));
-
-  // Always show payment modal if user hasn't paid
-  if (!hasPaid) {
-    return (
-      <div className="min-h-[calc(100vh-64px)] bg-[#0a0a0a]">
-        <PaymentModal onDismiss={() => router.push('/map')} />
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
