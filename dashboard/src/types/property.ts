@@ -46,3 +46,29 @@ export interface AreaStats {
   change6m: number;
 }
 
+// For Sale Listings (active market inventory)
+export interface Listing {
+  address: string;
+  askingPrice: number;
+  beds: number | null;
+  baths: number | null;
+  areaSqm: number | null;
+  propertyType: string;
+  berRating: string | null;
+  sourceUrl: string;
+  sourcePage: number;
+  latitude: number | null;
+  longitude: number | null;
+  eircode: string | null;
+  nominatimAddress: string | null;
+  pricePerSqm: number | null;
+  scrapedAt: string;
+}
+
+export interface ListingStats {
+  totalListings: number;
+  medianPrice: number;
+  avgPricePerSqm: number;
+  priceRange: { min: number; max: number };
+}
+

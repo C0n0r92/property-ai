@@ -1,11 +1,15 @@
-import { Property, MarketStats, AreaStats } from '@/types/property';
-import { readFileSync } from 'fs';
+import { Property, MarketStats, AreaStats, Listing, ListingStats } from '@/types/property';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 // Cache for properties data
 let propertiesCache: Property[] | null = null;
 let cacheTime: number = 0;
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+// Cache for listings data
+let listingsCache: Listing[] | null = null;
+let listingsCacheTime: number = 0;
 
 /**
  * Load properties from JSON file with caching
@@ -179,5 +183,63 @@ export function formatPrice(price: number): string {
  */
 export function formatFullPrice(price: number): string {
   return `€${price.toLocaleString()}`;
+}
+
+/**
+ * Load for-sale listings from JSON file with caching
+ */
+export function loadListings(): Listing[] {
+  const now = Date.now();
+  
+  if (listingsCache && (now - listingsCacheTime) < CACHE_TTL) {
+    return listingsCache;
+  }
+  
+  try {
+    const dataPath = join(process.cwd(), '..', 'scraper', 'data', 'listings.json');
+    
+    if (!existsSync(dataPath)) {
+      console.log('Listings file not found:', dataPath);
+      return [];
+    }
+    
+    const data = readFileSync(dataPath, 'utf-8');
+    listingsCache = JSON.parse(data);
+    listingsCacheTime = now;
+    
+    // Filter out invalid data (no price, extreme prices)
+    listingsCache = listingsCache!.filter(l => 
+      l.askingPrice >= 50000 && l.askingPrice <= 50000000
+    );
+    
+    return listingsCache;
+  } catch (error) {
+    console.error('Error loading listings:', error);
+    return [];
+  }
+}
+
+/**
+ * Calculate listing statistics
+ */
+export function getListingStats(listings: Listing[]): ListingStats {
+  if (listings.length === 0) {
+    return { totalListings: 0, medianPrice: 0, avgPricePerSqm: 0, priceRange: { min: 0, max: 0 } };
+  }
+  
+  const prices = listings.map(l => l.askingPrice).sort((a, b) => a - b);
+  const medianPrice = prices[Math.floor(prices.length / 2)];
+  
+  const withSqm = listings.filter(l => l.pricePerSqm && l.pricePerSqm > 0);
+  const avgPricePerSqm = withSqm.length > 0 
+    ? Math.round(withSqm.reduce((sum, l) => sum + (l.pricePerSqm || 0), 0) / withSqm.length)
+    : 0;
+  
+  return {
+    totalListings: listings.length,
+    medianPrice,
+    avgPricePerSqm,
+    priceRange: { min: prices[0], max: prices[prices.length - 1] },
+  };
 }
 

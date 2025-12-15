@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "pipeline": "npx tsx src/pipeline.ts",
+    "pipeline-open": "npx tsx src/pipeline-open.ts",
     "cleanup": "npx tsx src/pipeline.ts --cleanup",
     "scrape": "npx tsx src/scrape-fast.ts",
     "scrape:parallel": "npx tsx src/scrape-parallel.ts",

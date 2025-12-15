@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { formatFullPrice } from '@/lib/format';
-import type { Property } from '@/types/property';
+import type { Property, Listing } from '@/types/property';
+import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
 
 // Mapbox access token
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiYzBuMHI5IiwiYSI6ImNtajZiaXZzdDBrOHMzZXF5dnFnMmZ6Ym4ifQ.Np14DcYGtlYDP8yBPUp_JQ';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 type DifferenceFilter = 'all' | 'over' | 'under' | 'exact';
+type DataSource = 'sold' | 'forSale' | 'both';
 
 // Month names for display
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -47,20 +49,27 @@ const DUBLIN_AREAS = [
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const spiderfyManager = useRef<SpiderfyManager | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>('all');
   
-  // Hierarchical time filter state
+  // Data source toggle: Sold Properties vs For Sale
+  const [dataSource, setDataSource] = useState<DataSource>('sold');
+  
+  // Hierarchical time filter state (only for sold properties)
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedQuarter, setSelectedQuarter] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [recentFilter, setRecentFilter] = useState<'6m' | '12m' | null>(null);
   
   const [stats, setStats] = useState({ total: 0, avgPrice: 0, avgPricePerSqm: 0, overAsking: 0, underAsking: 0 });
+  const [listingStats, setListingStats] = useState({ totalListings: 0, medianPrice: 0, avgPricePerSqm: 0 });
   
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -119,9 +128,38 @@ export default function MapPage() {
     setSearchQuery('');
   };
 
-  // Load properties and true Dublin stats
+  // Handle spider feature click (when user clicks on a spiderfied marker)
+  const handleSpiderFeatureClick = useCallback((spiderFeature: SpiderFeature) => {
+    const props = spiderFeature.properties;
+    if (props?.isListing) {
+      setSelectedListing({
+        address: props?.address as string,
+        askingPrice: props?.askingPrice as number,
+        pricePerSqm: props?.pricePerSqm as number,
+        beds: props?.beds as number,
+        baths: props?.baths as number,
+        propertyType: props?.propertyType as string,
+        berRating: props?.berRating as string,
+      } as Listing);
+      setSelectedProperty(null);
+    } else {
+      setSelectedProperty({
+        address: props?.address as string,
+        soldPrice: props?.soldPrice as number,
+        askingPrice: props?.askingPrice as number,
+        pricePerSqm: props?.pricePerSqm as number,
+        beds: props?.beds as number,
+        baths: props?.baths as number,
+        propertyType: props?.propertyType as string,
+        soldDate: props?.soldDate as string,
+      } as Property);
+      setSelectedListing(null);
+    }
+  }, []);
+
+  // Load properties data on mount
   useEffect(() => {
-    // Fetch ALL properties for the map (clustering handles performance)
+    // Fetch ALL sold properties for the map (clustering handles performance)
     fetch('/api/properties?limit=50000')
       .then(res => res.json())
       .then(data => {
@@ -141,7 +179,9 @@ export default function MapPage() {
           overAsking,
           underAsking,
         }));
-        setLoading(false);
+        if (dataSource === 'sold') {
+          setLoading(false);
+        }
       });
 
     // Fetch true Dublin-wide stats from stats API
@@ -153,6 +193,29 @@ export default function MapPage() {
           avgPrice: data.stats.medianPrice,
           avgPricePerSqm: data.stats.avgPricePerSqm,
         }));
+      });
+      
+    // Fetch listings for For Sale mode
+    fetch('/api/listings?limit=50000')
+      .then(res => res.json())
+      .then(data => {
+        const listingsWithCoords = (data.listings || []).filter((l: Listing) => l.latitude && l.longitude);
+        setListings(listingsWithCoords);
+        setListingStats({
+          totalListings: listingsWithCoords.length,
+          medianPrice: data.stats?.medianPrice || 0,
+          avgPricePerSqm: data.stats?.avgPricePerSqm || 0,
+        });
+        if (dataSource === 'forSale') {
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        // Listings file may not exist yet
+        setListings([]);
+        if (dataSource === 'forSale') {
+          setLoading(false);
+        }
       });
   }, []);
 
@@ -242,7 +305,81 @@ export default function MapPage() {
     setRecentFilter(null);
   };
 
-  // Calculate filtered stats for the selected time period
+  // Filter listings based on time filters (using scrapedAt date)
+  const filteredListings = useMemo(() => {
+    let filtered = listings;
+    
+    // Apply recent filter
+    if (recentFilter) {
+      const now = new Date();
+      filtered = filtered.filter(l => {
+        if (!l.scrapedAt) return false;
+        const scrapedDate = new Date(l.scrapedAt);
+        
+        if (recentFilter === '6m') {
+          const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+          return scrapedDate >= sixMonthsAgo;
+        } else if (recentFilter === '12m') {
+          const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+          return scrapedDate >= oneYearAgo;
+        }
+        return true;
+      });
+    }
+    // Apply year/quarter/month filter
+    else if (selectedYear !== null) {
+      filtered = filtered.filter(l => {
+        if (!l.scrapedAt) return false;
+        const scrapedDate = new Date(l.scrapedAt);
+        const year = scrapedDate.getFullYear();
+        const month = scrapedDate.getMonth();
+        
+        if (year !== selectedYear) return false;
+        
+        if (selectedQuarter !== null) {
+          const quarterMonths = QUARTER_MONTHS[selectedQuarter];
+          if (!quarterMonths.includes(month)) return false;
+          
+          if (selectedMonth !== null && month !== selectedMonth) return false;
+        }
+        
+        return true;
+      });
+    }
+    
+    return filtered;
+  }, [listings, recentFilter, selectedYear, selectedQuarter, selectedMonth]);
+
+  // Get active data based on data source
+  const activeData = useMemo(() => {
+    const listingsData = filteredListings.map(l => ({
+      ...l,
+      // Normalize for map display
+      price: l.askingPrice,
+      soldPrice: 0, // Not applicable
+      soldDate: l.scrapedAt, // Use scrapedAt for listings
+      overUnderPercent: 0, // Not applicable
+      isListing: true,
+    }));
+    
+    const soldData = filteredProperties.map(p => ({
+      ...p,
+      price: p.soldPrice,
+      isListing: false,
+    }));
+    
+    if (dataSource === 'forSale') {
+      return listingsData;
+    }
+    if (dataSource === 'both') {
+      // Combine both datasets
+      return [...soldData, ...listingsData];
+    }
+    // Default: sold only
+    return soldData;
+  }, [dataSource, filteredListings, filteredProperties]);
+
+  // Calculate filtered stats for the selected time period (sold properties)
   const filteredStats = useMemo(() => {
     // Get properties with valid pricePerSqm for the filtered set
     const withPricePerSqm = filteredProperties.filter(p => p.pricePerSqm && p.pricePerSqm > 0);
@@ -266,6 +403,24 @@ export default function MapPage() {
     
     return { avgPricePerSqm: filteredAvg, percentChange, isFiltered };
   }, [filteredProperties, selectedYear, recentFilter, stats.avgPricePerSqm]);
+
+  // Calculate filtered stats for listings (for sale)
+  const filteredListingStats = useMemo(() => {
+    const withPricePerSqm = filteredListings.filter(l => l.pricePerSqm && l.pricePerSqm > 0);
+    
+    if (withPricePerSqm.length === 0) {
+      return { avgPricePerSqm: 0, medianPrice: 0 };
+    }
+    
+    const avgPricePerSqm = Math.round(
+      withPricePerSqm.reduce((sum, l) => sum + (l.pricePerSqm || 0), 0) / withPricePerSqm.length
+    );
+    
+    const prices = filteredListings.map(l => l.askingPrice).sort((a, b) => a - b);
+    const medianPrice = prices[Math.floor(prices.length / 2)] || 0;
+    
+    return { avgPricePerSqm, medianPrice };
+  }, [filteredListings]);
 
   // Helper to get current time filter description
   const getTimeFilterLabel = (): string => {
@@ -298,50 +453,65 @@ export default function MapPage() {
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
     
     map.current.on('load', () => {
+      // Initialize spiderfy manager
+      if (map.current) {
+        spiderfyManager.current = new SpiderfyManager(map.current, handleSpiderFeatureClick);
+        spiderfyManager.current.initializeLayers();
+      }
       setMapReady(true);
     });
 
     return () => {
+      spiderfyManager.current?.cleanup();
+      spiderfyManager.current = null;
       map.current?.remove();
       map.current = null;
     };
-  }, []);
+  }, [handleSpiderFeatureClick]);
 
-  // Setup map layers based on view mode and filtered properties
+  // Setup map layers based on view mode and data source
   useEffect(() => {
-    if (!mapReady || !map.current || filteredProperties.length === 0) return;
+    if (!mapReady || !map.current || activeData.length === 0) return;
 
     const geojson: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
-      features: filteredProperties.map(p => {
-        const priceDiff = p.askingPrice ? p.soldPrice - p.askingPrice : 0;
-        const priceDiffPercent = p.askingPrice ? Math.round((priceDiff / p.askingPrice) * 100) : 0;
+      features: activeData.map(item => {
+        const isListing = item.isListing;
+        const soldPrice = isListing ? 0 : item.soldPrice;
+        const askingPrice = item.askingPrice || 0;
+        const priceDiff = isListing ? 0 : (askingPrice ? soldPrice - askingPrice : 0);
+        const priceDiffPercent = isListing ? 0 : (askingPrice ? Math.round((priceDiff / askingPrice) * 100) : 0);
         
         return {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: [p.longitude!, p.latitude!],
+            coordinates: [item.longitude!, item.latitude!],
           },
           properties: {
-            id: p.url || p.address,
-            address: p.address,
-            soldPrice: p.soldPrice,
-            askingPrice: p.askingPrice || 0,
-            pricePerSqm: p.pricePerSqm || 0,
+            id: item.sourceUrl || item.address,
+            address: item.address,
+            soldPrice: soldPrice,
+            askingPrice: askingPrice,
+            price: item.price, // Unified price field
+            pricePerSqm: item.pricePerSqm || 0,
             priceDiff,
             priceDiffPercent,
-            beds: p.beds,
-            baths: p.baths,
-            propertyType: p.propertyType,
-            soldDate: p.soldDate,
-            floorArea: p.floorArea,
+            beds: item.beds,
+            baths: item.baths,
+            propertyType: item.propertyType,
+            soldDate: isListing ? '' : item.soldDate,
+            berRating: isListing ? (item as any).berRating : null,
+            isListing: isListing,
           },
         };
       }),
     };
 
     // Remove existing layers/sources
+    // Collapse spider when view/data changes
+    spiderfyManager.current?.collapse();
+    
     const layersToRemove = ['clusters', 'cluster-count', 'unclustered-point', 'properties-points'];
     layersToRemove.forEach(layer => {
       if (map.current?.getLayer(layer)) map.current.removeLayer(layer);
@@ -405,7 +575,7 @@ export default function MapPage() {
         },
       });
 
-      // Individual unclustered points
+      // Individual unclustered points - different colors for sold vs for sale
       map.current.addLayer({
         id: 'unclustered-point',
         type: 'circle',
@@ -413,18 +583,35 @@ export default function MapPage() {
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-radius': 8,
-          'circle-color': [
-            'interpolate',
-            ['linear'],
-            ['get', 'pricePerSqm'],
-            2000, '#22C55E',
-            4000, '#3B82F6',
-            6000, '#FACC15',
-            8000, '#F97316',
-            10000, '#EF4444',
-          ],
+          'circle-color': dataSource === 'both' 
+            ? [
+                'case',
+                ['==', ['get', 'isListing'], true],
+                '#F43F5E', // Rose/hot pink for listings (for sale) - bright, attention-grabbing
+                '#FFFFFF', // White for sold properties - neutral, clear contrast
+              ]
+            : dataSource === 'forSale'
+            ? '#F43F5E' // Rose/hot pink for listings
+            : [
+                // Price-based gradient for sold only
+                'interpolate',
+                ['linear'],
+                ['get', 'pricePerSqm'],
+                2000, '#22C55E',
+                4000, '#3B82F6',
+                6000, '#FACC15',
+                8000, '#F97316',
+                10000, '#EF4444',
+              ],
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff',
+          'circle-stroke-color': dataSource === 'both' 
+            ? [
+                'case',
+                ['==', ['get', 'isListing'], true],
+                '#ffffff',
+                '#374151', // Dark gray stroke for white dots
+              ]
+            : '#ffffff',
         },
       });
 
@@ -444,21 +631,88 @@ export default function MapPage() {
         });
       });
 
-      // Click on unclustered point
+      // Click on unclustered point - with spiderfy support
       map.current.on('click', 'unclustered-point', (e) => {
-        if (e.features && e.features[0]) {
-          const props = e.features[0].properties;
-          setSelectedProperty({
-            address: props?.address,
-            soldPrice: props?.soldPrice,
-            askingPrice: props?.askingPrice,
-            pricePerSqm: props?.pricePerSqm,
-            beds: props?.beds,
-            baths: props?.baths,
-            propertyType: props?.propertyType,
-            soldDate: props?.soldDate,
-            floorArea: props?.floorArea,
-          } as Property);
+        if (!e.features || !e.features[0]) return;
+        
+        const clickedFeature = e.features[0];
+        const clickedGeometry = clickedFeature.geometry as GeoJSON.Point;
+        const clickedCoords = clickedGeometry.coordinates as [number, number];
+        
+        // If spider is expanded and user clicks the center point, collapse it
+        if (spiderfyManager.current?.isAtCenter(clickedCoords)) {
+          spiderfyManager.current.collapse();
+          return;
+        }
+        
+        // Query ALL features at this pixel location
+        const allFeatures = map.current?.queryRenderedFeatures(e.point, {
+          layers: ['unclustered-point']
+        });
+        
+        // Find features with identical coordinates (within small tolerance)
+        const tolerance = 0.000001;
+        const overlappingRaw = allFeatures?.filter(f => {
+          const geom = f.geometry as GeoJSON.Point;
+          return Math.abs(geom.coordinates[0] - clickedCoords[0]) < tolerance &&
+                 Math.abs(geom.coordinates[1] - clickedCoords[1]) < tolerance;
+        }) || [];
+        
+        // Deduplicate by unique ID (Mapbox can return same feature multiple times from tile overlaps)
+        const seenIds = new Set<string>();
+        const overlapping = overlappingRaw.filter(f => {
+          const id = f.properties?.id || f.properties?.address;
+          if (seenIds.has(id)) return false;
+          seenIds.add(id);
+          return true;
+        });
+        
+        if (overlapping.length > 1) {
+          // Multiple properties at same location - trigger spiderfy
+          spiderfyManager.current?.expand(clickedCoords, overlapping);
+        } else {
+          // Single property - show details as normal
+          const props = clickedFeature.properties;
+          if (props?.isListing) {
+            setSelectedListing({
+              address: props?.address,
+              askingPrice: props?.askingPrice,
+              pricePerSqm: props?.pricePerSqm,
+              beds: props?.beds,
+              baths: props?.baths,
+              propertyType: props?.propertyType,
+              berRating: props?.berRating,
+            } as Listing);
+            setSelectedProperty(null);
+          } else {
+            setSelectedProperty({
+              address: props?.address,
+              soldPrice: props?.soldPrice,
+              askingPrice: props?.askingPrice,
+              pricePerSqm: props?.pricePerSqm,
+              beds: props?.beds,
+              baths: props?.baths,
+              propertyType: props?.propertyType,
+              soldDate: props?.soldDate,
+            } as Property);
+            setSelectedListing(null);
+          }
+        }
+      });
+      
+      // Click elsewhere on map to collapse spider
+      map.current.on('click', (e) => {
+        // Check if click was on spider markers - if so, don't collapse
+        if (spiderfyManager.current?.isClickOnSpider(e.point)) return;
+        
+        // Check if click was on clusters or unclustered points
+        const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
+          layers: ['clusters', 'unclustered-point']
+        });
+        
+        // Only collapse if clicking on empty map area
+        if (!clickedFeatures?.length) {
+          spiderfyManager.current?.collapse();
         }
       });
 
@@ -494,7 +748,7 @@ export default function MapPage() {
           'circle-color': [
             'interpolate',
             ['linear'],
-            ['get', 'soldPrice'],
+            ['get', 'price'], // Use unified price field (soldPrice for sold, askingPrice for listings)
             200000, '#22C55E',
             400000, '#3B82F6',
             600000, '#FACC15',
@@ -550,19 +804,86 @@ export default function MapPage() {
 
     function setupPointClickHandler(layerId: string) {
       map.current?.on('click', layerId, (e) => {
-        if (e.features && e.features[0]) {
-          const props = e.features[0].properties;
-          setSelectedProperty({
-            address: props?.address,
-            soldPrice: props?.soldPrice,
-            askingPrice: props?.askingPrice,
-            pricePerSqm: props?.pricePerSqm,
-            beds: props?.beds,
-            baths: props?.baths,
-            propertyType: props?.propertyType,
-            soldDate: props?.soldDate,
-            floorArea: props?.floorArea,
-          } as Property);
+        if (!e.features || !e.features[0]) return;
+        
+        const clickedFeature = e.features[0];
+        const clickedGeometry = clickedFeature.geometry as GeoJSON.Point;
+        const clickedCoords = clickedGeometry.coordinates as [number, number];
+        
+        // If spider is expanded and user clicks the center point, collapse it
+        if (spiderfyManager.current?.isAtCenter(clickedCoords)) {
+          spiderfyManager.current.collapse();
+          return;
+        }
+        
+        // Query ALL features at this pixel location
+        const allFeatures = map.current?.queryRenderedFeatures(e.point, {
+          layers: [layerId]
+        });
+        
+        // Find features with identical coordinates
+        const tolerance = 0.000001;
+        const overlappingRaw = allFeatures?.filter(f => {
+          const geom = f.geometry as GeoJSON.Point;
+          return Math.abs(geom.coordinates[0] - clickedCoords[0]) < tolerance &&
+                 Math.abs(geom.coordinates[1] - clickedCoords[1]) < tolerance;
+        }) || [];
+        
+        // Deduplicate by unique ID (Mapbox can return same feature multiple times from tile overlaps)
+        const seenIds = new Set<string>();
+        const overlapping = overlappingRaw.filter(f => {
+          const id = f.properties?.id || f.properties?.address;
+          if (seenIds.has(id)) return false;
+          seenIds.add(id);
+          return true;
+        });
+        
+        if (overlapping.length > 1) {
+          // Multiple properties at same location - trigger spiderfy
+          spiderfyManager.current?.expand(clickedCoords, overlapping);
+        } else {
+          // Single property - show details as normal
+          const props = clickedFeature.properties;
+          if (props?.isListing) {
+            setSelectedListing({
+              address: props?.address,
+              askingPrice: props?.askingPrice,
+              pricePerSqm: props?.pricePerSqm,
+              beds: props?.beds,
+              baths: props?.baths,
+              propertyType: props?.propertyType,
+              berRating: props?.berRating,
+            } as Listing);
+            setSelectedProperty(null);
+          } else {
+            setSelectedProperty({
+              address: props?.address,
+              soldPrice: props?.soldPrice,
+              askingPrice: props?.askingPrice,
+              pricePerSqm: props?.pricePerSqm,
+              beds: props?.beds,
+              baths: props?.baths,
+              propertyType: props?.propertyType,
+              soldDate: props?.soldDate,
+            } as Property);
+            setSelectedListing(null);
+          }
+        }
+      });
+      
+      // Click elsewhere on map to collapse spider (for price/difference view modes)
+      map.current?.on('click', (e) => {
+        // Check if click was on spider markers - if so, don't collapse
+        if (spiderfyManager.current?.isClickOnSpider(e.point)) return;
+        
+        // Check if click was on the layer
+        const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
+          layers: [layerId]
+        });
+        
+        // Only collapse if clicking on empty map area
+        if (!clickedFeatures?.length) {
+          spiderfyManager.current?.collapse();
         }
       });
 
@@ -574,7 +895,7 @@ export default function MapPage() {
       });
     }
 
-  }, [mapReady, filteredProperties, viewMode]);
+  }, [mapReady, activeData, viewMode, dataSource]);
 
   // Format sold date for display
   const formatSoldDate = (dateStr: string | undefined): string => {
@@ -607,12 +928,60 @@ export default function MapPage() {
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col">
-      {/* Map Controls - Row 1: Title, Search, View Mode, Price Filter */}
+      {/* Map Controls - Row 1: Data Source Toggle, Title, Search, View Mode, Price Filter */}
       <div className="px-4 py-3 bg-[#111827] border-b border-gray-800 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-white">Property Map</h1>
+          {/* Data Source Toggle */}
+          <div className="flex rounded-lg overflow-hidden border-2 border-cyan-600">
+            <button
+              onClick={() => { setDataSource('sold'); setSelectedListing(null); }}
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                dataSource === 'sold' 
+                  ? 'bg-cyan-600 text-white' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              🏠 Sold
+            </button>
+            <button
+              onClick={() => { 
+                setDataSource('forSale'); 
+                setSelectedProperty(null); 
+                if (viewMode === 'difference') setViewMode('clusters');
+              }}
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                dataSource === 'forSale' 
+                  ? 'bg-cyan-600 text-white' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              🏷️ For Sale
+            </button>
+            <button
+              onClick={() => { 
+                setDataSource('both'); 
+                setViewMode('clusters'); // Both mode works best with clusters
+              }}
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                dataSource === 'both' 
+                  ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              🔄 Both
+            </button>
+          </div>
+          
+          <h1 className="text-xl font-bold text-white">
+            {dataSource === 'sold' ? 'Sold Properties' : dataSource === 'forSale' ? 'For Sale' : 'Sold vs For Sale'}
+          </h1>
           <span className="text-gray-400 text-sm">
-            {loading ? 'Loading...' : `${filteredProperties.length.toLocaleString()} properties`}
+            {loading ? 'Loading...' : dataSource === 'sold' 
+              ? `${filteredProperties.length.toLocaleString()} sold`
+              : dataSource === 'forSale'
+              ? `${filteredListings.length.toLocaleString()} listings`
+              : `${filteredProperties.length.toLocaleString()} sold · ${filteredListings.length.toLocaleString()} for sale`
+            }
           </span>
           
           {/* Location Search */}
@@ -699,32 +1068,35 @@ export default function MapPage() {
             >
               By Price
             </button>
-            <button
-              onClick={() => setViewMode('difference')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                viewMode === 'difference' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              Sold vs Asking
-            </button>
+            {dataSource === 'sold' && (
+              <button
+                onClick={() => setViewMode('difference')}
+                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  viewMode === 'difference' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                }`}
+              >
+                Sold vs Asking
+              </button>
+            )}
           </div>
 
-          {/* Price vs Asking Filter */}
-          <div className="flex rounded-lg overflow-hidden border border-gray-700">
-            <button
-              onClick={() => setDifferenceFilter('all')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                differenceFilter === 'all' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              All Sales
-            </button>
-            <button
-              onClick={() => setDifferenceFilter('over')}
+          {/* Price vs Asking Filter - only for sold properties */}
+          {dataSource === 'sold' && (
+            <div className="flex rounded-lg overflow-hidden border border-gray-700">
+              <button
+                onClick={() => setDifferenceFilter('all')}
+                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  differenceFilter === 'all' 
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                }`}
+              >
+                All Sales
+              </button>
+              <button
+                onClick={() => setDifferenceFilter('over')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                 differenceFilter === 'over' 
                   ? 'bg-red-600 text-white' 
@@ -745,11 +1117,13 @@ export default function MapPage() {
             >
               💰 Deals
             </button>
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Map Controls - Row 2: Time Period Filters */}
+      {/* Map Controls - Row 2: Time Period Filters (all modes) */}
+      {(dataSource === 'sold' || dataSource === 'forSale' || dataSource === 'both') && (
       <div className="px-4 py-2 bg-[#0f1419] border-b border-gray-800 flex items-center gap-3">
         <span className="text-gray-500 text-sm font-medium">Time Period:</span>
         
@@ -855,18 +1229,40 @@ export default function MapPage() {
           </select>
         )}
 
-        {/* Show current filter summary */}
+        {/* Show current filter summary and clear button */}
         {(selectedYear !== null || recentFilter !== null) && (
-          <span className="ml-auto text-indigo-400 text-sm font-medium">
-            Showing: {getTimeFilterLabel()}
-          </span>
+          <div className="ml-auto flex items-center gap-3">
+            <span className="text-indigo-400 text-sm font-medium">
+              Showing: {getTimeFilterLabel()}
+            </span>
+            <button
+              onClick={clearTimeFilters}
+              className="px-2 py-1 text-xs font-medium text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+            >
+              ✕ Clear
+            </button>
+          </div>
         )}
       </div>
+      )}
       
       {/* Legend bar */}
       <div className="px-4 py-2 bg-[#0D1117] border-b border-gray-800 flex items-center gap-6 text-xs text-gray-400 overflow-x-auto">
-        {viewMode === 'clusters' && (
+        {viewMode === 'clusters' && dataSource !== 'both' && (
           <>
+            <span className="text-gray-500 font-medium">Cluster size:</span>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> &lt;10</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> 10-50</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> 50-100</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> 200+</div>
+          </>
+        )}
+        {viewMode === 'clusters' && dataSource === 'both' && (
+          <>
+            <span className="text-gray-500 font-medium">Property type:</span>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-white border border-gray-500"></div> Sold</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-500"></div> For Sale</div>
+            <span className="mx-2 text-gray-600">|</span>
             <span className="text-gray-500 font-medium">Cluster size:</span>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> &lt;10</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> 10-50</div>
@@ -876,7 +1272,7 @@ export default function MapPage() {
         )}
         {viewMode === 'price' && (
           <>
-            <span className="text-gray-500 font-medium">Sold price:</span>
+            <span className="text-gray-500 font-medium">{dataSource === 'sold' ? 'Sold price:' : 'Asking price:'}</span>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> €200k</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> €400k</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> €600k</div>
@@ -884,7 +1280,7 @@ export default function MapPage() {
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> €1M+</div>
           </>
         )}
-        {viewMode === 'difference' && (
+        {viewMode === 'difference' && dataSource === 'sold' && (
           <>
             <span className="text-gray-500 font-medium">vs Asking:</span>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> 20% under</div>
@@ -896,8 +1292,21 @@ export default function MapPage() {
         )}
         
         <div className="ml-auto flex items-center gap-4 text-gray-500">
-          <span>🔥 {stats.overAsking.toLocaleString()} bidding wars</span>
-          <span>💰 {stats.underAsking.toLocaleString()} deals</span>
+          {dataSource === 'sold' && (
+            <>
+              <span>🔥 {stats.overAsking.toLocaleString()} bidding wars</span>
+              <span>💰 {stats.underAsking.toLocaleString()} deals</span>
+            </>
+          )}
+          {dataSource === 'forSale' && (
+            <span>🏷️ {filteredListings.length.toLocaleString()} listings</span>
+          )}
+          {dataSource === 'both' && (
+            <>
+              <span className="text-gray-200">⚪ {filteredProperties.length.toLocaleString()} sold</span>
+              <span className="text-rose-400">🔴 {filteredListings.length.toLocaleString()} for sale</span>
+            </>
+          )}
         </div>
       </div>
       
@@ -1024,33 +1433,159 @@ export default function MapPage() {
           </div>
         )}
         
+        {/* Selected Listing Panel (For Sale) */}
+        {selectedListing && (
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-5 shadow-2xl border border-cyan-700">
+            <button 
+              onClick={() => setSelectedListing(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
+            >
+              ✕
+            </button>
+            
+            {/* Address */}
+            <h3 className="font-semibold text-white pr-8 mb-3 text-lg leading-tight">
+              {selectedListing.address}
+            </h3>
+            
+            {/* Price with For Sale badge */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="text-3xl font-bold text-white font-mono">
+                {formatFullPrice(selectedListing.askingPrice)}
+              </div>
+              <div className="px-3 py-1 rounded-full bg-cyan-600 text-white text-sm font-medium">
+                🏷️ For Sale
+              </div>
+            </div>
+            
+            {/* Property details grid */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {selectedListing.beds && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Bedrooms</div>
+                  <div className="text-white font-semibold">{selectedListing.beds}</div>
+                </div>
+              )}
+              {selectedListing.baths && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Bathrooms</div>
+                  <div className="text-white font-semibold">{selectedListing.baths}</div>
+                </div>
+              )}
+              {selectedListing.propertyType && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Type</div>
+                  <div className="text-white font-semibold">{selectedListing.propertyType}</div>
+                </div>
+              )}
+              {selectedListing.berRating && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">BER Rating</div>
+                  <div className="text-white font-semibold">{selectedListing.berRating}</div>
+                </div>
+              )}
+            </div>
+            
+            {/* Price per sqm */}
+            {selectedListing.pricePerSqm && selectedListing.pricePerSqm > 0 && (
+              <div className="border-t border-gray-700 pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Price per m²</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-mono">€{selectedListing.pricePerSqm.toLocaleString()}</span>
+                    {listingStats.avgPricePerSqm > 0 && selectedListing.pricePerSqm < listingStats.avgPricePerSqm * 0.85 && (
+                      <span className="px-2 py-0.5 rounded bg-green-600/20 text-green-400 text-xs font-medium">
+                        Below avg
+                      </span>
+                    )}
+                    {listingStats.avgPricePerSqm > 0 && selectedListing.pricePerSqm > listingStats.avgPricePerSqm * 1.2 && (
+                      <span className="px-2 py-0.5 rounded bg-orange-600/20 text-orange-400 text-xs font-medium">
+                        Above avg
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
         {/* Stats overlay */}
         <div className="absolute top-4 left-4 hidden md:block">
           <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg p-4 border border-gray-700 min-w-[180px]">
-            <div className="text-sm text-gray-500 mb-1">
-              {filteredStats.isFiltered ? `${getTimeFilterLabel()} Avg €/m²` : 'Dublin Avg €/m²'}
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-white font-mono">
-                €{(filteredStats.isFiltered ? filteredStats.avgPricePerSqm : stats.avgPricePerSqm).toLocaleString()}
-              </span>
-              {filteredStats.isFiltered && filteredStats.percentChange !== null && (
-                <span className={`text-sm font-semibold px-1.5 py-0.5 rounded ${
-                  filteredStats.percentChange > 0 
-                    ? 'bg-green-500/20 text-green-400' 
-                    : filteredStats.percentChange < 0 
-                      ? 'bg-red-500/20 text-red-400'
-                      : 'bg-gray-500/20 text-gray-400'
-                }`}>
-                  {filteredStats.percentChange > 0 ? '↑' : filteredStats.percentChange < 0 ? '↓' : ''}
-                  {Math.abs(filteredStats.percentChange).toFixed(1)}%
-                </span>
-              )}
-            </div>
-            {filteredStats.isFiltered && (
-              <div className="text-xs text-gray-500 mt-1">
-                vs €{stats.avgPricePerSqm.toLocaleString()} overall
-              </div>
+            {dataSource === 'sold' && (
+              <>
+                <div className="text-sm text-gray-500 mb-1">
+                  {filteredStats.isFiltered ? `${getTimeFilterLabel()} Avg €/m²` : 'Dublin Avg €/m²'}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-bold text-white font-mono">
+                    €{(filteredStats.isFiltered ? filteredStats.avgPricePerSqm : stats.avgPricePerSqm).toLocaleString()}
+                  </span>
+                  {filteredStats.isFiltered && filteredStats.percentChange !== null && (
+                    <span className={`text-sm font-semibold px-1.5 py-0.5 rounded ${
+                      filteredStats.percentChange > 0 
+                        ? 'bg-green-500/20 text-green-400' 
+                        : filteredStats.percentChange < 0 
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'bg-gray-500/20 text-gray-400'
+                    }`}>
+                      {filteredStats.percentChange > 0 ? '↑' : filteredStats.percentChange < 0 ? '↓' : ''}
+                      {Math.abs(filteredStats.percentChange).toFixed(1)}%
+                    </span>
+                  )}
+                </div>
+                {filteredStats.isFiltered && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    vs €{stats.avgPricePerSqm.toLocaleString()} overall
+                  </div>
+                )}
+              </>
+            )}
+            {dataSource === 'forSale' && (
+              <>
+                <div className="text-sm text-gray-500 mb-1">
+                  {(selectedYear !== null || recentFilter !== null) ? `${getTimeFilterLabel()} Avg €/m²` : 'Asking Avg €/m²'}
+                </div>
+                <div className="text-2xl font-bold text-white font-mono">
+                  €{filteredListingStats.avgPricePerSqm.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {filteredListings.length.toLocaleString()} listings
+                  {filteredListings.length !== listings.length && ` (of ${listings.length})`}
+                </div>
+              </>
+            )}
+            {dataSource === 'both' && (
+              <>
+                <div className="text-sm text-gray-500 mb-2">
+                  {(selectedYear !== null || recentFilter !== null) ? `${getTimeFilterLabel()} Avg €/m²` : 'Avg €/m² Comparison'}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-gray-200 text-sm">⚪ Sold</span>
+                    <span className="text-lg font-bold text-white font-mono">
+                      €{filteredStats.avgPricePerSqm.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-rose-400 text-sm">🔴 For Sale</span>
+                    <span className="text-lg font-bold text-white font-mono">
+                      €{filteredListingStats.avgPricePerSqm.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                {filteredListingStats.avgPricePerSqm > 0 && filteredStats.avgPricePerSqm > 0 && (
+                  <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-700">
+                    {filteredListingStats.avgPricePerSqm > filteredStats.avgPricePerSqm 
+                      ? `Asking ${((filteredListingStats.avgPricePerSqm - filteredStats.avgPricePerSqm) / filteredStats.avgPricePerSqm * 100).toFixed(1)}% above sold`
+                      : filteredListingStats.avgPricePerSqm < filteredStats.avgPricePerSqm
+                        ? `Asking ${((filteredStats.avgPricePerSqm - filteredListingStats.avgPricePerSqm) / filteredStats.avgPricePerSqm * 100).toFixed(1)}% below sold`
+                        : 'Asking prices match sold prices'
+                    }
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -1058,13 +1593,16 @@ export default function MapPage() {
         {/* View mode tips */}
         <div className="absolute bottom-4 right-4 hidden md:block">
           <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg px-4 py-3 border border-gray-700 text-sm text-gray-400 max-w-xs">
-            {viewMode === 'clusters' && (
-              <p>💡 Click clusters to zoom in. Click properties for details.</p>
+            {viewMode === 'clusters' && dataSource !== 'both' && (
+              <p>💡 Click clusters to zoom in. Click {dataSource === 'sold' ? 'properties' : 'listings'} for details.</p>
+            )}
+            {viewMode === 'clusters' && dataSource === 'both' && (
+              <p>💡 <span className="text-white">White</span> = Sold, <span className="text-rose-400">Pink</span> = For Sale. Click for details.</p>
             )}
             {viewMode === 'price' && (
-              <p>💡 Colors show sold price. Green = under €400k, Red = over €1M.</p>
+              <p>💡 Colors show {dataSource === 'sold' ? 'sold' : 'asking'} price. Green = under €400k, Red = over €1M.</p>
             )}
-            {viewMode === 'difference' && (
+            {viewMode === 'difference' && dataSource === 'sold' && (
               <p>💡 Green = deals (sold under asking), Red = bidding wars (sold over asking).</p>
             )}
           </div>
