@@ -13,7 +13,13 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 type DifferenceFilter = 'all' | 'over' | 'under' | 'exact';
-type DataSource = 'sold' | 'forSale' | 'rentals' | 'all';
+
+// Data source selection - allows any combination
+interface DataSourceSelection {
+  sold: boolean;
+  forSale: boolean;
+  rentals: boolean;
+}
 
 // Month names for display
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -59,11 +65,12 @@ export default function MapPage() {
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [selectedRental, setSelectedRental] = useState<RentalListing | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(11); // Track zoom for legend display
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>('all');
   
-  // Data source toggle: Sold Properties vs For Sale
-  const [dataSource, setDataSource] = useState<DataSource>('sold');
+  // Data source toggle: allows any combination of sold, forSale, rentals
+  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: false, rentals: false });
   
   // Hierarchical time filter state (only for sold properties)
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -82,22 +89,51 @@ export default function MapPage() {
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // Collapsible filter panel state
+  const [showFilters, setShowFilters] = useState(true);
+  
+  // New filter states
+  const [bedsFilter, setBedsFilter] = useState<number | null>(null);
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState<string | null>(null);
+  const [minPrice, setMinPrice] = useState<number | null>(null);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [minArea, setMinArea] = useState<number | null>(null);
+  const [maxArea, setMaxArea] = useState<number | null>(null);
+  const [yieldFilter, setYieldFilter] = useState<'any' | 'high' | 'medium' | 'low' | null>(null);
+
   // Analytics-wrapped state setters
   const handleViewModeChange = (mode: 'clusters' | 'price' | 'difference') => {
     setViewMode(mode);
     analytics.mapViewModeChanged(mode);
   };
 
-  const handleDataSourceChange = (source: DataSource) => {
-    setDataSource(source);
+  const toggleDataSource = (source: keyof DataSourceSelection) => {
+    setDataSources(prev => {
+      const newSources = { ...prev, [source]: !prev[source] };
+      // Ensure at least one source is selected
+      if (!newSources.sold && !newSources.forSale && !newSources.rentals) {
+        return prev; // Don't allow deselecting all
+      }
+      // If sold is being deselected and we're in difference view, switch to clusters
+      if (source === 'sold' && prev.sold && !newSources.sold && viewMode === 'difference') {
+        setViewMode('clusters');
+      }
+      return newSources;
+    });
     analytics.mapDataSourceChanged(source);
     setSelectedProperty(null);
     setSelectedListing(null);
     setSelectedRental(null);
-    if (source !== 'sold' && viewMode === 'difference') {
-      setViewMode('clusters');
-    }
   };
+  
+  // Helper to check if only one source type is active
+  const isSingleSource = (source: keyof DataSourceSelection) => {
+    return dataSources[source] && 
+      Object.entries(dataSources).filter(([_, v]) => v).length === 1;
+  };
+  
+  // Helper to check active source count
+  const activeSourceCount = Object.values(dataSources).filter(Boolean).length;
 
   const handleFilterChange = (filterType: string, value: string) => {
     analytics.mapFilterApplied(filterType, value);
@@ -108,6 +144,14 @@ export default function MapPage() {
     setSelectedQuarter(null);
     setSelectedMonth(null);
     setRecentFilter(null);
+    setBedsFilter(null);
+    setPropertyTypeFilter(null);
+    setMinPrice(null);
+    setMaxPrice(null);
+    setMinArea(null);
+    setMaxArea(null);
+    setYieldFilter(null);
+    setDifferenceFilter('all');
     analytics.filtersCleared();
   };
 
@@ -169,6 +213,7 @@ export default function MapPage() {
       const fullRental = rentals.find(r => r.sourceUrl === props?.sourceUrl || r.address === props?.address);
       if (fullRental) {
         setSelectedRental(fullRental);
+        analytics.mapPropertyClicked('rental');
       }
       setSelectedProperty(null);
       setSelectedListing(null);
@@ -177,6 +222,7 @@ export default function MapPage() {
       const fullListing = listings.find(l => l.sourceUrl === props?.sourceUrl || l.address === props?.address);
       if (fullListing) {
         setSelectedListing(fullListing);
+        analytics.mapPropertyClicked('forSale');
       }
       setSelectedProperty(null);
       setSelectedRental(null);
@@ -185,6 +231,7 @@ export default function MapPage() {
       const fullProperty = properties.find(p => p.sourceUrl === props?.sourceUrl || p.address === props?.address);
       if (fullProperty) {
         setSelectedProperty(fullProperty);
+        analytics.mapPropertyClicked('sold');
       }
       setSelectedListing(null);
       setSelectedRental(null);
@@ -213,7 +260,7 @@ export default function MapPage() {
           overAsking,
           underAsking,
         }));
-        if (dataSource === 'sold') {
+        if (dataSources.sold) {
           setLoading(false);
         }
       });
@@ -240,14 +287,14 @@ export default function MapPage() {
           medianPrice: data.stats?.medianPrice || 0,
           avgPricePerSqm: data.stats?.avgPricePerSqm || 0,
         });
-        if (dataSource === 'forSale') {
+        if (dataSources.forSale) {
           setLoading(false);
         }
       })
       .catch(() => {
         // Listings file may not exist yet
         setListings([]);
-        if (dataSource === 'forSale') {
+        if (dataSources.forSale) {
           setLoading(false);
         }
       });
@@ -259,14 +306,14 @@ export default function MapPage() {
         const rentalsWithCoords = (data.rentals || []).filter((r: RentalListing) => r.latitude && r.longitude);
         setRentals(rentalsWithCoords);
         setRentalStats(data.stats || { totalRentals: 0, medianRent: 0, avgRentPerSqm: 0, rentRange: { min: 0, max: 0 } });
-        if (dataSource === 'rentals') {
+        if (dataSources.rentals) {
           setLoading(false);
         }
       })
       .catch(() => {
         // Rentals file may not exist yet
         setRentals([]);
-        if (dataSource === 'rentals') {
+        if (dataSources.rentals) {
           setLoading(false);
         }
       });
@@ -347,8 +394,53 @@ export default function MapPage() {
       });
     }
     
+    // Apply bedroom filter
+    if (bedsFilter !== null) {
+      filtered = filtered.filter(p => {
+        if (bedsFilter === 5) return (p.beds || 0) >= 5; // 5+ beds
+        return p.beds === bedsFilter;
+      });
+    }
+    
+    // Apply property type filter
+    if (propertyTypeFilter !== null) {
+      filtered = filtered.filter(p => 
+        p.propertyType?.toLowerCase().includes(propertyTypeFilter.toLowerCase())
+      );
+    }
+    
+    // Apply price range filter
+    if (minPrice !== null) {
+      filtered = filtered.filter(p => p.soldPrice >= minPrice);
+    }
+    if (maxPrice !== null) {
+      filtered = filtered.filter(p => p.soldPrice <= maxPrice);
+    }
+    
+    // Apply area filter
+    if (minArea !== null) {
+      filtered = filtered.filter(p => (p.areaSqm || 0) >= minArea);
+    }
+    if (maxArea !== null) {
+      filtered = filtered.filter(p => (p.areaSqm || 0) <= maxArea);
+    }
+    
+    // Apply yield filter
+    if (yieldFilter !== null && yieldFilter !== 'any') {
+      filtered = filtered.filter(p => {
+        const y = p.yieldEstimate?.grossYield;
+        if (y === undefined || y === null) return false;
+        switch (yieldFilter) {
+          case 'high': return y >= 10;
+          case 'medium': return y >= 5 && y < 10;
+          case 'low': return y < 5;
+          default: return true;
+        }
+      });
+    }
+    
     return filtered;
-  }, [properties, differenceFilter, selectedYear, selectedQuarter, selectedMonth, recentFilter]);
+  }, [properties, differenceFilter, selectedYear, selectedQuarter, selectedMonth, recentFilter, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
 
   // Helper to clear time filters
   const clearTimeFilters = () => {
@@ -400,10 +492,93 @@ export default function MapPage() {
       });
     }
     
+    // Apply bedroom filter
+    if (bedsFilter !== null) {
+      filtered = filtered.filter(l => {
+        if (bedsFilter === 5) return (l.beds || 0) >= 5; // 5+ beds
+        return l.beds === bedsFilter;
+      });
+    }
+    
+    // Apply property type filter
+    if (propertyTypeFilter !== null) {
+      filtered = filtered.filter(l => 
+        l.propertyType?.toLowerCase().includes(propertyTypeFilter.toLowerCase())
+      );
+    }
+    
+    // Apply price range filter
+    if (minPrice !== null) {
+      filtered = filtered.filter(l => l.askingPrice >= minPrice);
+    }
+    if (maxPrice !== null) {
+      filtered = filtered.filter(l => l.askingPrice <= maxPrice);
+    }
+    
+    // Apply area filter
+    if (minArea !== null) {
+      filtered = filtered.filter(l => (l.areaSqm || 0) >= minArea);
+    }
+    if (maxArea !== null) {
+      filtered = filtered.filter(l => (l.areaSqm || 0) <= maxArea);
+    }
+    
+    // Apply yield filter
+    if (yieldFilter !== null && yieldFilter !== 'any') {
+      filtered = filtered.filter(l => {
+        const y = l.yieldEstimate?.grossYield;
+        if (y === undefined || y === null) return false;
+        switch (yieldFilter) {
+          case 'high': return y >= 10;
+          case 'medium': return y >= 5 && y < 10;
+          case 'low': return y < 5;
+          default: return true;
+        }
+      });
+    }
+    
     return filtered;
-  }, [listings, recentFilter, selectedYear, selectedQuarter, selectedMonth]);
+  }, [listings, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
 
-  // Get active data based on data source
+  // Filter rentals based on filters
+  const filteredRentals = useMemo(() => {
+    let filtered = rentals;
+    
+    // Apply bedroom filter
+    if (bedsFilter !== null) {
+      filtered = filtered.filter(r => {
+        if (bedsFilter === 5) return (r.beds || 0) >= 5; // 5+ beds
+        return r.beds === bedsFilter;
+      });
+    }
+    
+    // Apply property type filter
+    if (propertyTypeFilter !== null) {
+      filtered = filtered.filter(r => 
+        r.propertyType?.toLowerCase().includes(propertyTypeFilter.toLowerCase())
+      );
+    }
+    
+    // Apply price range filter (monthly rent)
+    if (minPrice !== null) {
+      filtered = filtered.filter(r => r.monthlyRent >= minPrice);
+    }
+    if (maxPrice !== null) {
+      filtered = filtered.filter(r => r.monthlyRent <= maxPrice);
+    }
+    
+    // Apply area filter
+    if (minArea !== null) {
+      filtered = filtered.filter(r => (r.areaSqm || 0) >= minArea);
+    }
+    if (maxArea !== null) {
+      filtered = filtered.filter(r => (r.areaSqm || 0) <= maxArea);
+    }
+    
+    return filtered;
+  }, [rentals, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea]);
+
+  // Get active data based on selected data sources
   const activeData = useMemo(() => {
     const listingsData = filteredListings.map(l => ({
       ...l,
@@ -423,7 +598,7 @@ export default function MapPage() {
       isRental: false,
     }));
     
-    const rentalsData = rentals.map(r => ({
+    const rentalsData = filteredRentals.map(r => ({
       ...r,
       // Normalize for map display
       price: r.monthlyRent,
@@ -434,19 +609,32 @@ export default function MapPage() {
       isRental: true,
     }));
     
-    if (dataSource === 'forSale') {
-      return listingsData;
-    }
-    if (dataSource === 'rentals') {
-      return rentalsData;
-    }
-    if (dataSource === 'all') {
-      // Combine all datasets
-      return [...soldData, ...listingsData, ...rentalsData];
-    }
-    // Default: sold only
-    return soldData;
-  }, [dataSource, filteredListings, filteredProperties, rentals]);
+    // Combine based on selected sources
+    const result: typeof soldData = [];
+    if (dataSources.sold) result.push(...soldData);
+    if (dataSources.forSale) result.push(...listingsData);
+    if (dataSources.rentals) result.push(...rentalsData);
+    
+    return result;
+  }, [dataSources, filteredListings, filteredProperties, filteredRentals]);
+
+  // Count active filters for badge display
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedYear !== null) count++;
+    if (selectedQuarter !== null) count++;
+    if (selectedMonth !== null) count++;
+    if (recentFilter !== null) count++;
+    if (differenceFilter !== 'all') count++;
+    if (bedsFilter !== null) count++;
+    if (propertyTypeFilter !== null) count++;
+    if (minPrice !== null) count++;
+    if (maxPrice !== null) count++;
+    if (minArea !== null) count++;
+    if (maxArea !== null) count++;
+    if (yieldFilter !== null && yieldFilter !== 'any') count++;
+    return count;
+  }, [selectedYear, selectedQuarter, selectedMonth, recentFilter, differenceFilter, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
 
   // Calculate filtered stats for the selected time period (sold properties)
   const filteredStats = useMemo(() => {
@@ -528,6 +716,13 @@ export default function MapPage() {
         spiderfyManager.current.initializeLayers();
       }
       setMapReady(true);
+    });
+
+    // Track zoom level for legend display
+    map.current.on('zoom', () => {
+      if (map.current) {
+        setZoomLevel(map.current.getZoom());
+      }
     });
 
     return () => {
@@ -673,7 +868,7 @@ export default function MapPage() {
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-radius': 8,
-          'circle-color': dataSource === 'all' 
+          'circle-color': activeSourceCount > 1 
             ? [
                 'case',
                 ['==', ['get', 'isRental'], true],
@@ -682,9 +877,9 @@ export default function MapPage() {
                 '#F43F5E', // Rose/hot pink for listings (for sale)
                 '#FFFFFF', // White for sold properties
               ]
-            : dataSource === 'rentals'
+            : dataSources.rentals
             ? '#A855F7' // Purple for rentals
-            : dataSource === 'forSale'
+            : dataSources.forSale
             ? '#F43F5E' // Rose/hot pink for listings
             : [
                 // Price-based gradient for sold only
@@ -698,7 +893,7 @@ export default function MapPage() {
                 10000, '#EF4444',
               ],
           'circle-stroke-width': 2,
-          'circle-stroke-color': dataSource === 'all' 
+          'circle-stroke-color': activeSourceCount > 1 
             ? [
                 'case',
                 ['==', ['get', 'isRental'], true],
@@ -1005,7 +1200,17 @@ export default function MapPage() {
     // Start the setup process
     setupLayers();
 
-  }, [mapReady, activeData, viewMode, dataSource, rentals, listings, properties]);
+  }, [mapReady, activeData, viewMode, dataSources, rentals, listings, properties]);
+
+  // Resize map when filter panel is toggled
+  useEffect(() => {
+    if (map.current) {
+      // Small delay to allow DOM to update
+      setTimeout(() => {
+        map.current?.resize();
+      }, 250);
+    }
+  }, [showFilters]);
 
   // Format sold date for display
   const formatSoldDate = (dateStr: string | undefined): string => {
@@ -1036,83 +1241,84 @@ export default function MapPage() {
     }
   };
 
+  // Property types for filter dropdown
+  const propertyTypes = ['House', 'Apartment', 'Duplex', 'Terrace', 'Semi-D', 'Detached', 'Bungalow'];
+
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col">
-      {/* Map Controls - Row 1: Data Source Toggle, Title, Search, View Mode, Price Filter */}
+      {/* Main Control Bar - Single Row */}
       <div className="px-4 py-3 bg-[#111827] border-b border-gray-800 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          {/* Data Source Toggle */}
-          <div className="flex rounded-lg overflow-hidden border-2 border-cyan-600">
+          {/* Data Source Multi-Select */}
+          <div className="flex items-center gap-1 bg-gray-800 rounded-lg p-1 border border-gray-700">
             <button
-              onClick={() => handleDataSourceChange('sold')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                dataSource === 'sold' 
-                  ? 'bg-cyan-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              onClick={() => toggleDataSource('sold')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                dataSources.sold 
+                  ? 'bg-cyan-600 text-white shadow-sm' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
+              title="Toggle sold properties"
             >
               🏠 Sold
             </button>
             <button
-              onClick={() => handleDataSourceChange('forSale')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                dataSource === 'forSale' 
-                  ? 'bg-cyan-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              onClick={() => toggleDataSource('forSale')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                dataSources.forSale 
+                  ? 'bg-rose-500 text-white shadow-sm' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
+              title="Toggle for sale listings"
             >
               🏷️ For Sale
             </button>
             <button
-              onClick={() => handleDataSourceChange('rentals')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                dataSource === 'rentals' 
-                  ? 'bg-purple-500 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              onClick={() => toggleDataSource('rentals')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                dataSources.rentals 
+                  ? 'bg-purple-500 text-white shadow-sm' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
+              title="Toggle rental listings"
             >
               🏘️ Rentals
             </button>
-            <button
-              onClick={() => handleDataSourceChange('all')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                dataSource === 'all' 
-                  ? 'bg-gradient-to-r from-cyan-600 via-rose-500 to-purple-500 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              🌐 All
-            </button>
           </div>
           
-          <h1 className="text-xl font-bold text-white">
-            {dataSource === 'sold' ? 'Sold Properties' : dataSource === 'forSale' ? 'For Sale' : dataSource === 'rentals' ? 'Rentals' : 'All Properties'}
-          </h1>
-          <span className="text-gray-400 text-sm">
-            {loading ? 'Loading...' : dataSource === 'sold' 
-              ? `${filteredProperties.length.toLocaleString()} sold`
-              : dataSource === 'forSale'
-              ? `${filteredListings.length.toLocaleString()} listings`
-              : dataSource === 'rentals'
-              ? `${rentals.length.toLocaleString()} rentals`
-              : `${filteredProperties.length.toLocaleString()} sold · ${filteredListings.length.toLocaleString()} for sale · ${rentals.length.toLocaleString()} rentals`
-            }
+          {/* Count display - shows totals for all selected sources */}
+          <span className="text-gray-400 text-sm font-medium">
+            {loading ? 'Loading...' : (
+              <>
+                {activeData.length.toLocaleString()} total
+                {activeSourceCount > 1 && (
+                  <span className="text-gray-500 ml-1">
+                    ({[
+                      dataSources.sold && `${filteredProperties.length.toLocaleString()} sold`,
+                      dataSources.forSale && `${filteredListings.length.toLocaleString()} for sale`,
+                      dataSources.rentals && `${filteredRentals.length.toLocaleString()} rentals`
+                    ].filter(Boolean).join(' · ')})
+                  </span>
+                )}
+              </>
+            )}
           </span>
           
           {/* Location Search */}
           <div className="relative">
             <div className="flex items-center">
+              <span className="absolute left-3 text-gray-500">🔍</span>
               <input
                 type="text"
                 placeholder="Search location..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onFocus={() => setShowSearchResults(true)}
-                className="w-48 md:w-64 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 text-sm"
+                className="w-48 md:w-56 pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 text-sm"
               />
               {isSearching && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
                 </div>
               )}
             </div>
@@ -1120,7 +1326,6 @@ export default function MapPage() {
             {/* Search Results Dropdown */}
             {showSearchResults && (searchResults.length > 0 || searchQuery === '') && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
-                {/* Quick area buttons */}
                 {searchQuery === '' && (
                   <div className="p-2 border-b border-gray-700">
                     <div className="text-xs text-gray-500 mb-2 px-2">Quick jump to:</div>
@@ -1137,8 +1342,6 @@ export default function MapPage() {
                     </div>
                   </div>
                 )}
-                
-                {/* Search results */}
                 {searchResults.map((result, index) => (
                   <button
                     key={index}
@@ -1146,12 +1349,11 @@ export default function MapPage() {
                     className="w-full px-4 py-3 text-left hover:bg-gray-700 text-white text-sm border-b border-gray-700 last:border-b-0 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-blue-400">📍</span>
+                      <span className="text-cyan-400">📍</span>
                       <span>{result.place_name}</span>
                     </div>
                   </button>
                 ))}
-                
                 {searchQuery && searchResults.length === 0 && !isSearching && (
                   <div className="px-4 py-3 text-gray-500 text-sm">No results found</div>
                 )}
@@ -1161,281 +1363,360 @@ export default function MapPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          {/* View Toggle */}
+          {/* View Mode Toggle */}
           <div className="flex rounded-lg overflow-hidden border border-gray-700">
             <button
               onClick={() => handleViewModeChange('clusters')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                viewMode === 'clusters' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                viewMode === 'clusters' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
               }`}
+              title="Group nearby properties into clusters"
             >
-              Clusters
+              📍 Clusters
             </button>
             <button
               onClick={() => handleViewModeChange('price')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                viewMode === 'price' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                viewMode === 'price' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
               }`}
+              title="Color by price"
             >
-              By Price
+              💶 By Price
             </button>
-            {dataSource === 'sold' && (
+            {dataSources.sold && (
               <button
                 onClick={() => handleViewModeChange('difference')}
                 className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                  viewMode === 'difference' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  viewMode === 'difference' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                 }`}
+                title="Color by sold vs asking price difference"
               >
-                Sold vs Asking
+                📊 vs Asking
               </button>
             )}
           </div>
+          
+          {/* Filter Toggle Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+              showFilters || activeFilterCount > 0
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
+            }`}
+          >
+            <span>⚙️ Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
 
-          {/* Price vs Asking Filter - only for sold properties */}
-          {dataSource === 'sold' && (
-            <div className="flex rounded-lg overflow-hidden border border-gray-700">
-              <button
-                onClick={() => setDifferenceFilter('all')}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                  differenceFilter === 'all' 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                All Sales
-              </button>
-              <button
-                onClick={() => setDifferenceFilter('over')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                differenceFilter === 'over' 
-                  ? 'bg-red-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-              title="Properties that sold above their asking price"
-            >
-              🔥 Bidding Wars
-            </button>
-            <button
-              onClick={() => setDifferenceFilter('under')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                differenceFilter === 'under' 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-              title="Properties that sold below their asking price"
-            >
-              💰 Deals
-            </button>
+      {/* Collapsible Filter Panel */}
+      {showFilters && (
+        <div className="bg-[#0d1117] border-b border-gray-800 px-4 py-4 animate-in slide-in-from-top duration-200">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {/* VIEW MODE Section */}
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">View</label>
+              <div className="flex flex-col gap-1">
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" checked={viewMode === 'clusters'} onChange={() => handleViewModeChange('clusters')} className="accent-indigo-500" />
+                  Clusters
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" checked={viewMode === 'price'} onChange={() => handleViewModeChange('price')} className="accent-indigo-500" />
+                  By Price
+                </label>
+                {dataSources.sold && (
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={viewMode === 'difference'} onChange={() => handleViewModeChange('difference')} className="accent-indigo-500" />
+                    Sold vs Asking
+                  </label>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Map Controls - Row 2: Time Period Filters (all modes) */}
-      {(dataSource === 'sold' || dataSource === 'forSale' || dataSource === 'both') && (
-      <div className="px-4 py-2 bg-[#0f1419] border-b border-gray-800 flex items-center gap-3">
-        <span className="text-gray-500 text-sm font-medium">Time Period:</span>
-        
-        {/* Quick presets */}
-        <div className="flex rounded-lg overflow-hidden border border-gray-700">
-          <button
-            onClick={() => { clearTimeFilters(); }}
-            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-              selectedYear === null && recentFilter === null
-                ? 'bg-indigo-600 text-white' 
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            All Time
-          </button>
-          <button
-            onClick={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); }}
-            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-              recentFilter === '6m'
-                ? 'bg-indigo-600 text-white' 
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            6 Months
-          </button>
-          <button
-            onClick={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('12m'); }}
-            className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-              recentFilter === '12m'
-                ? 'bg-indigo-600 text-white' 
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            12 Months
-          </button>
-        </div>
+            {/* TIME PERIOD Section */}
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Time Period</label>
+              <div className="flex flex-col gap-1">
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" checked={selectedYear === null && recentFilter === null} onChange={() => clearTimeFilters()} className="accent-indigo-500" />
+                  All Time
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" checked={recentFilter === '6m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); }} className="accent-indigo-500" />
+                  Last 6 Months
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" checked={recentFilter === '12m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('12m'); }} className="accent-indigo-500" />
+                  Last 12 Months
+                </label>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <select
+                  value={selectedYear ?? ''}
+                  onChange={(e) => { setSelectedYear(e.target.value ? parseInt(e.target.value) : null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); }}
+                  className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                >
+                  <option value="">Year</option>
+                  {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+                {selectedYear !== null && (
+                  <select
+                    value={selectedQuarter ?? ''}
+                    onChange={(e) => { setSelectedQuarter(e.target.value ? parseInt(e.target.value) : null); setSelectedMonth(null); }}
+                    className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                  >
+                    <option value="">Quarter</option>
+                    <option value="1">Q1</option>
+                    <option value="2">Q2</option>
+                    <option value="3">Q3</option>
+                    <option value="4">Q4</option>
+                  </select>
+                )}
+              </div>
+            </div>
 
-        <div className="w-px h-6 bg-gray-700" />
+            {/* PROPERTY Section */}
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Property</label>
+              <select
+                value={bedsFilter ?? ''}
+                onChange={(e) => setBedsFilter(e.target.value ? parseInt(e.target.value) : null)}
+                className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none mb-2"
+              >
+                <option value="">Any Beds</option>
+                <option value="1">1 Bed</option>
+                <option value="2">2 Beds</option>
+                <option value="3">3 Beds</option>
+                <option value="4">4 Beds</option>
+                <option value="5">5+ Beds</option>
+              </select>
+              <select
+                value={propertyTypeFilter ?? ''}
+                onChange={(e) => setPropertyTypeFilter(e.target.value || null)}
+                className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+              >
+                <option value="">Any Type</option>
+                {propertyTypes.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
 
-        {/* Year dropdown */}
-        <select
-          value={selectedYear ?? ''}
-          onChange={(e) => {
-            const year = e.target.value ? parseInt(e.target.value) : null;
-            setSelectedYear(year);
-            setSelectedQuarter(null);
-            setSelectedMonth(null);
-            setRecentFilter(null);
-          }}
-          className={`px-3 py-1.5 text-sm font-medium border rounded-lg focus:outline-none focus:border-indigo-500 cursor-pointer ${
-            selectedYear !== null 
-              ? 'bg-indigo-600 border-indigo-600 text-white' 
-              : 'bg-gray-800 border-gray-700 text-gray-300'
-          }`}
-        >
-          <option value="">Year</option>
-          {availableYears.map(year => (
-            <option key={year} value={year}>{year}</option>
-          ))}
-        </select>
+            {/* PRICE Section */}
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">
+                {dataSources.rentals ? 'Monthly Rent' : 'Price'}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Min €"
+                  value={minPrice ?? ''}
+                  onChange={(e) => setMinPrice(e.target.value ? parseInt(e.target.value) : null)}
+                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                />
+                <input
+                  type="number"
+                  placeholder="Max €"
+                  value={maxPrice ?? ''}
+                  onChange={(e) => setMaxPrice(e.target.value ? parseInt(e.target.value) : null)}
+                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                />
+              </div>
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="number"
+                  placeholder="Min m²"
+                  value={minArea ?? ''}
+                  onChange={(e) => setMinArea(e.target.value ? parseInt(e.target.value) : null)}
+                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                />
+                <input
+                  type="number"
+                  placeholder="Max m²"
+                  value={maxArea ?? ''}
+                  onChange={(e) => setMaxArea(e.target.value ? parseInt(e.target.value) : null)}
+                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                />
+              </div>
+            </div>
 
-        {/* Quarter dropdown - only show when year selected */}
-        {selectedYear !== null && (
-          <select
-            value={selectedQuarter ?? ''}
-            onChange={(e) => {
-              const quarter = e.target.value ? parseInt(e.target.value) : null;
-              setSelectedQuarter(quarter);
-              setSelectedMonth(null);
-            }}
-            className={`px-3 py-1.5 text-sm font-medium border rounded-lg focus:outline-none focus:border-indigo-500 cursor-pointer ${
-              selectedQuarter !== null 
-                ? 'bg-indigo-600 border-indigo-600 text-white' 
-                : 'bg-gray-800 border-gray-700 text-gray-300'
-            }`}
-          >
-            <option value="">Quarter</option>
-            <option value="1">Q1 (Jan-Mar)</option>
-            <option value="2">Q2 (Apr-Jun)</option>
-            <option value="3">Q3 (Jul-Sep)</option>
-            <option value="4">Q4 (Oct-Dec)</option>
-          </select>
-        )}
+            {/* SALE TYPE Section - only for sold */}
+            {dataSources.sold && (
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Sale Type</label>
+                <div className="flex flex-col gap-1">
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={differenceFilter === 'all'} onChange={() => setDifferenceFilter('all')} className="accent-indigo-500" />
+                    All Sales
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={differenceFilter === 'over'} onChange={() => setDifferenceFilter('over')} className="accent-red-500" />
+                    🔥 Bidding Wars
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={differenceFilter === 'under'} onChange={() => setDifferenceFilter('under')} className="accent-green-500" />
+                    💰 Deals
+                  </label>
+                </div>
+              </div>
+            )}
 
-        {/* Month dropdown - only show when quarter selected */}
-        {selectedYear !== null && selectedQuarter !== null && (
-          <select
-            value={selectedMonth ?? ''}
-            onChange={(e) => {
-              const month = e.target.value !== '' ? parseInt(e.target.value) : null;
-              setSelectedMonth(month);
-            }}
-            className={`px-3 py-1.5 text-sm font-medium border rounded-lg focus:outline-none focus:border-indigo-500 cursor-pointer ${
-              selectedMonth !== null 
-                ? 'bg-indigo-600 border-indigo-600 text-white' 
-                : 'bg-gray-800 border-gray-700 text-gray-300'
-            }`}
-          >
-            <option value="">Month</option>
-            {QUARTER_MONTHS[selectedQuarter].map(monthIndex => (
-              <option key={monthIndex} value={monthIndex}>{MONTH_NAMES[monthIndex]}</option>
-            ))}
-          </select>
-        )}
-
-        {/* Show current filter summary and clear button */}
-        {(selectedYear !== null || recentFilter !== null) && (
-          <div className="ml-auto flex items-center gap-3">
-            <span className="text-indigo-400 text-sm font-medium">
-              Showing: {getTimeFilterLabel()}
-            </span>
-            <button
-              onClick={clearTimeFilters}
-              className="px-2 py-1 text-xs font-medium text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 rounded transition-colors"
-            >
-              ✕ Clear
-            </button>
+            {/* YIELD Section - only for sold and forSale */}
+            {(dataSources.sold || dataSources.forSale) && (
+              <div>
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Est. Yield</label>
+                <div className="flex flex-col gap-1">
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={yieldFilter === null || yieldFilter === 'any'} onChange={() => setYieldFilter(null)} className="accent-indigo-500" />
+                    Any
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={yieldFilter === 'high'} onChange={() => setYieldFilter('high')} className="accent-green-500" />
+                    High (10%+)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={yieldFilter === 'medium'} onChange={() => setYieldFilter('medium')} className="accent-yellow-500" />
+                    Medium (5-10%)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                    <input type="radio" checked={yieldFilter === 'low'} onChange={() => setYieldFilter('low')} className="accent-orange-500" />
+                    Low (&lt;5%)
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Clear and Close */}
+          <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-800">
+            <div className="text-sm text-gray-500">
+              {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'No filters applied'}
+            </div>
+            <div className="flex gap-2">
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={handleClearFilters}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
+                >
+                  Clear All
+                </button>
+              )}
+              <button
+                onClick={() => setShowFilters(false)}
+                className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-      
-      {/* Legend bar */}
-      <div className="px-4 py-2 bg-[#0D1117] border-b border-gray-800 flex items-center gap-6 text-xs text-gray-400 overflow-x-auto">
-        {viewMode === 'clusters' && (dataSource === 'sold' || dataSource === 'forSale' || dataSource === 'rentals') && (
+
+      {/* Compact Legend Bar */}
+      <div className="px-4 py-1.5 bg-[#0D1117] border-b border-gray-800 flex items-center gap-4 text-xs text-gray-400 overflow-x-auto">
+        {/* Cluster view - show cluster colors when zoomed out, property colors when zoomed in */}
+        {viewMode === 'clusters' && zoomLevel < 14 && (
           <>
-            <span className="text-gray-500 font-medium">Cluster size:</span>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> &lt;10</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> 10-50</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> 50-100</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> 200+</div>
+            <span className="text-gray-500 font-medium shrink-0">Clusters:</span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> &lt;10</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> 10-50</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> 50-100</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> 200+</span>
+            </div>
           </>
         )}
-        {viewMode === 'clusters' && dataSource === 'all' && (
+        {/* When zoomed in to individual properties in cluster mode */}
+        {viewMode === 'clusters' && zoomLevel >= 14 && activeSourceCount === 1 && dataSources.sold && (
           <>
-            <span className="text-gray-500 font-medium">Data type:</span>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-white border border-gray-500"></div> Sold</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-500"></div> For Sale</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-purple-500"></div> Rental</div>
-            <span className="mx-2 text-gray-600">|</span>
-            <span className="text-gray-500 font-medium">Cluster size:</span>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> &lt;10</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> 10-50</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> 50-100</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> 200+</div>
+            <span className="text-gray-500 font-medium shrink-0">€/m²:</span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> €2k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> €4k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> €6k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500"></span> €8k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> €10k+</span>
+            </div>
           </>
         )}
-        {viewMode === 'price' && dataSource !== 'rentals' && (
+        {viewMode === 'clusters' && zoomLevel >= 14 && activeSourceCount === 1 && dataSources.forSale && (
           <>
-            <span className="text-gray-500 font-medium">{dataSource === 'sold' ? 'Sold price:' : 'Asking price:'}</span>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> €200k</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> €400k</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> €600k</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-orange-500"></div> €800k</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> €1M+</div>
+            <span className="text-gray-500 font-medium shrink-0">For Sale:</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500"></span> All listings</span>
           </>
         )}
-        {viewMode === 'price' && dataSource === 'rentals' && (
+        {viewMode === 'clusters' && zoomLevel >= 14 && activeSourceCount === 1 && dataSources.rentals && (
           <>
-            <span className="text-gray-500 font-medium">Monthly rent:</span>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> €1,000</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> €1,500</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> €2,000</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-orange-500"></div> €2,500</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> €3,000+</div>
+            <span className="text-gray-500 font-medium shrink-0">Rentals:</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500"></span> All rentals</span>
           </>
         )}
-        {viewMode === 'difference' && dataSource === 'sold' && (
+        {viewMode === 'clusters' && zoomLevel >= 14 && activeSourceCount > 1 && (
           <>
-            <span className="text-gray-500 font-medium">vs Asking:</span>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> 20% under</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-400"></div> 10% under</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> At asking</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-orange-500"></div> 10% over</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> 20%+ over</div>
+            <span className="text-gray-500 font-medium shrink-0">Type:</span>
+            <div className="flex items-center gap-3">
+              {dataSources.sold && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-white border border-gray-500"></span> Sold</span>}
+              {dataSources.forSale && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500"></span> For Sale</span>}
+              {dataSources.rentals && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500"></span> Rental</span>}
+            </div>
+          </>
+        )}
+        {viewMode === 'price' && (dataSources.sold || dataSources.forSale) && (
+          <>
+            <span className="text-gray-500 font-medium shrink-0">Price:</span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> €200k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> €400k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> €600k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500"></span> €800k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> €1M+</span>
+            </div>
+          </>
+        )}
+        {viewMode === 'price' && dataSources.rentals && !dataSources.sold && !dataSources.forSale && (
+          <>
+            <span className="text-gray-500 font-medium shrink-0">Rent:</span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> €1k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> €1.5k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> €2k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500"></span> €2.5k</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> €3k+</span>
+            </div>
+          </>
+        )}
+        {viewMode === 'difference' && dataSources.sold && (
+          <>
+            <span className="text-gray-500 font-medium shrink-0">vs Asking:</span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> -20%</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> At asking</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> +20%</span>
+            </div>
+          </>
+        )}
+        {/* Show type legend when multiple sources selected and zoomed out */}
+        {activeSourceCount > 1 && zoomLevel < 14 && (
+          <>
+            <span className="mx-2 text-gray-700">|</span>
+            <span className="text-gray-500 font-medium shrink-0">Type:</span>
+            <div className="flex items-center gap-3">
+              {dataSources.sold && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-white border border-gray-500"></span> Sold</span>}
+              {dataSources.forSale && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500"></span> For Sale</span>}
+              {dataSources.rentals && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500"></span> Rental</span>}
+            </div>
           </>
         )}
         
-        <div className="ml-auto flex items-center gap-4 text-gray-500">
-          {dataSource === 'sold' && (
-            <>
-              <span>🔥 {stats.overAsking.toLocaleString()} bidding wars</span>
-              <span>💰 {stats.underAsking.toLocaleString()} deals</span>
-            </>
-          )}
-          {dataSource === 'forSale' && (
-            <span>🏷️ {filteredListings.length.toLocaleString()} listings</span>
-          )}
-          {dataSource === 'rentals' && (
-            <span>🏘️ {rentals.length.toLocaleString()} rentals</span>
-          )}
-          {dataSource === 'all' && (
-            <>
-              <span className="text-gray-200">⚪ {filteredProperties.length.toLocaleString()} sold</span>
-              <span className="text-rose-400">🔴 {filteredListings.length.toLocaleString()} for sale</span>
-              <span className="text-purple-400">🟣 {rentals.length.toLocaleString()} rentals</span>
-            </>
+        <div className="ml-auto flex items-center gap-3 text-gray-500 shrink-0">
+          {activeFilterCount > 0 && (
+            <span className="text-indigo-400 text-xs">{activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
           )}
         </div>
       </div>
@@ -1573,8 +1854,8 @@ export default function MapPage() {
                         selectedProperty.yieldEstimate.confidence === 'high' ? 'bg-green-600/20 text-green-400' :
                         selectedProperty.yieldEstimate.confidence === 'medium' ? 'bg-yellow-600/20 text-yellow-400' :
                         'bg-orange-600/20 text-orange-400'
-                      }`}>
-                        {selectedProperty.yieldEstimate.confidence}
+                      }`} title="Confidence level based on available rental data">
+                        {selectedProperty.yieldEstimate.confidence === 'very_low' ? '⚠️ limited data' : `${selectedProperty.yieldEstimate.confidence} confidence`}
                       </span>
                     </div>
                   </div>
@@ -1684,8 +1965,8 @@ export default function MapPage() {
                       selectedListing.yieldEstimate.confidence === 'high' ? 'bg-green-600/20 text-green-400' :
                       selectedListing.yieldEstimate.confidence === 'medium' ? 'bg-yellow-600/20 text-yellow-400' :
                       'bg-orange-600/20 text-orange-400'
-                    }`}>
-                      {selectedListing.yieldEstimate.confidence}
+                    }`} title="Confidence level based on available rental data">
+                      {selectedListing.yieldEstimate.confidence === 'very_low' ? '⚠️ limited data' : `${selectedListing.yieldEstimate.confidence} confidence`}
                     </span>
                   </div>
                 </div>
@@ -1789,10 +2070,11 @@ export default function MapPage() {
           </div>
         )}
         
-        {/* Stats overlay */}
-        <div className="absolute top-4 left-4 hidden md:block">
-          <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg p-4 border border-gray-700 min-w-[180px]">
-            {dataSource === 'sold' && (
+        {/* Stats overlay - hidden when property/listing/rental panel is open */}
+        {!selectedProperty && !selectedListing && !selectedRental && (
+          <div className="absolute top-4 left-4 hidden md:block">
+            <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg p-4 border border-gray-700 min-w-[180px]">
+              {dataSources.sold && (
               <>
                 <div className="text-sm text-gray-500 mb-1">
                   {filteredStats.isFiltered ? `${getTimeFilterLabel()} Avg €/m²` : 'Dublin Avg €/m²'}
@@ -1821,7 +2103,7 @@ export default function MapPage() {
                 )}
               </>
             )}
-            {dataSource === 'forSale' && (
+            {dataSources.forSale && (
               <>
                 <div className="text-sm text-gray-500 mb-1">
                   {(selectedYear !== null || recentFilter !== null) ? `${getTimeFilterLabel()} Avg €/m²` : 'Asking Avg €/m²'}
@@ -1835,14 +2117,14 @@ export default function MapPage() {
                 </div>
               </>
             )}
-            {dataSource === 'rentals' && (
+            {dataSources.rentals && (
               <>
                 <div className="text-sm text-gray-500 mb-1">Dublin Median Rent</div>
                 <div className="text-2xl font-bold text-white font-mono">
                   €{rentalStats.medianRent.toLocaleString()}/mo
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {rentals.length.toLocaleString()} rentals
+                  {filteredRentals.length.toLocaleString()} rentals
                 </div>
                 {rentalStats.avgRentPerSqm > 0 && (
                   <div className="text-xs text-gray-500 mt-1">
@@ -1851,7 +2133,7 @@ export default function MapPage() {
                 )}
               </>
             )}
-            {dataSource === 'all' && (
+            {activeSourceCount > 1 && (
               <>
                 <div className="text-sm text-gray-500 mb-2">
                   {(selectedYear !== null || recentFilter !== null) ? `${getTimeFilterLabel()} Avg €/m²` : 'Avg €/m² Comparison'}
@@ -1888,25 +2170,26 @@ export default function MapPage() {
                 )}
               </>
             )}
+            </div>
           </div>
-        </div>
+        )}
         
         {/* View mode tips */}
         <div className="absolute bottom-4 right-4 hidden md:block">
           <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg px-4 py-3 border border-gray-700 text-sm text-gray-400 max-w-xs">
-            {viewMode === 'clusters' && (dataSource === 'sold' || dataSource === 'forSale' || dataSource === 'rentals') && (
-              <p>💡 Click clusters to zoom in. Click {dataSource === 'sold' ? 'properties' : dataSource === 'rentals' ? 'rentals' : 'listings'} for details.</p>
+            {viewMode === 'clusters' && (dataSources.sold || dataSources.forSale || dataSources.rentals) && (
+              <p>💡 Click clusters to zoom in. Click {dataSources.sold ? 'properties' : dataSources.rentals ? 'rentals' : 'listings'} for details.</p>
             )}
-            {viewMode === 'clusters' && dataSource === 'all' && (
+            {viewMode === 'clusters' && activeSourceCount > 1 && (
               <p>💡 <span className="text-white">White</span> = Sold, <span className="text-rose-400">Pink</span> = For Sale, <span className="text-purple-400">Purple</span> = Rental. Click for details.</p>
             )}
-            {viewMode === 'price' && dataSource !== 'rentals' && (
-              <p>💡 Colors show {dataSource === 'sold' ? 'sold' : 'asking'} price. Green = under €400k, Red = over €1M.</p>
+            {viewMode === 'price' && (dataSources.sold || dataSources.forSale) && (
+              <p>💡 Colors show {dataSources.sold ? 'sold' : 'asking'} price. Green = under €400k, Red = over €1M.</p>
             )}
-            {viewMode === 'price' && dataSource === 'rentals' && (
+            {viewMode === 'price' && dataSources.rentals && (
               <p>💡 Colors show monthly rent. Green = under €1,500, Red = over €3,000.</p>
             )}
-            {viewMode === 'difference' && dataSource === 'sold' && (
+            {viewMode === 'difference' && dataSources.sold && (
               <p>💡 Green = deals (sold under asking), Red = bidding wars (sold over asking).</p>
             )}
           </div>

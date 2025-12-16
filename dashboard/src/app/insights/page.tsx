@@ -59,10 +59,16 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
   };
 
   const handleCheckout = async () => {
-    setLoading(true);
     const amount = selectedPlan === 'one-time' ? 20 : 5;
     analytics.paymentCheckoutStarted(selectedPlan, amount);
     
+    // Show under development message
+    alert('🚧 Under Development\n\nPro access is coming soon! We\'re working hard to bring you premium insights.');
+    return;
+    
+    // Stripe checkout disabled for now
+    /*
+    setLoading(true);
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -81,6 +87,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
       alert('Failed to start checkout. Please try again.');
       setLoading(false);
     }
+    */
   };
   
   const features = [

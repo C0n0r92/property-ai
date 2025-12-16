@@ -25,15 +25,15 @@ export const analytics = {
     trackEvent({ action: 'view_mode_changed', category: 'map', label: mode });
   },
   
-  mapDataSourceChanged: (source: 'sold' | 'forSale' | 'both') => {
-    trackEvent({ action: 'data_source_changed', category: 'map', label: source });
+  mapDataSourceChanged: (source: string) => {
+    trackEvent({ action: 'data_source_toggled', category: 'map', label: source });
   },
   
   mapFilterApplied: (filterType: string, filterValue: string) => {
     trackEvent({ action: 'filter_applied', category: 'map', label: `${filterType}:${filterValue}` });
   },
   
-  mapPropertyClicked: (propertyType: 'sold' | 'forSale') => {
+  mapPropertyClicked: (propertyType: 'sold' | 'forSale' | 'rental') => {
     trackEvent({ action: 'property_clicked', category: 'map', label: propertyType });
   },
   
