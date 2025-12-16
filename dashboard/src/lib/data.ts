@@ -32,15 +32,20 @@ function loadData(): ConsolidatedData {
   }
   
   try {
-    // Try to load from consolidated data.json first
-    const consolidatedPath = join(process.cwd(), '..', 'scraper', 'data', 'data.json');
+    // Try multiple paths for data.json (production: public folder, dev: scraper folder)
+    const possiblePaths = [
+      join(process.cwd(), 'public', 'data.json'),  // Production (deployed dashboard)
+      join(process.cwd(), '..', 'scraper', 'data', 'data.json'),  // Development (monorepo)
+    ];
     
-    if (existsSync(consolidatedPath)) {
-      const data = readFileSync(consolidatedPath, 'utf-8');
-      dataCache = JSON.parse(data);
-      cacheTime = now;
-      console.log(`Loaded consolidated data: ${dataCache!.properties.length} properties, ${dataCache!.listings.length} listings, ${dataCache!.rentals.length} rentals`);
-      return dataCache!;
+    for (const consolidatedPath of possiblePaths) {
+      if (existsSync(consolidatedPath)) {
+        const data = readFileSync(consolidatedPath, 'utf-8');
+        dataCache = JSON.parse(data);
+        cacheTime = now;
+        console.log(`Loaded consolidated data from ${consolidatedPath}: ${dataCache!.properties.length} properties, ${dataCache!.listings.length} listings, ${dataCache!.rentals.length} rentals`);
+        return dataCache!;
+      }
     }
     
     // Fallback to separate files if data.json doesn't exist
