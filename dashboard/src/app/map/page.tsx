@@ -1,17 +1,3 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Dublin Property Map - 43,000+ Sold Prices | Gaff Intel',
-  description: 'Interactive map of Dublin property sales, listings, and rentals. Search by area, filter by price, beds, and property type. See what properties really sold for.',
-  keywords: ['Dublin property map', 'property prices Dublin', 'house prices map Ireland', 'Dublin sold prices', 'Dublin property search'],
-  alternates: { canonical: '/map' },
-  openGraph: {
-    title: 'Dublin Property Map - 43,000+ Sold Prices | Gaff Intel',
-    description: 'Interactive map of Dublin property sales, listings, and rentals. See what properties really sold for.',
-    url: 'https://gaffintel.com/map',
-  },
-};
-
 'use client';
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';

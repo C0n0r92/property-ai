@@ -1,17 +1,3 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Dublin Property Market Insights & Trends | Gaff Intel',
-  description: 'Dublin property market analytics: median prices, price trends, area rankings, and sales volume. Data-driven insights from 43,000+ property sales.',
-  keywords: ['Dublin property trends', 'Dublin house price trends', 'Dublin property market', 'Dublin area prices', 'property market analysis Ireland'],
-  alternates: { canonical: '/insights' },
-  openGraph: {
-    title: 'Dublin Property Market Insights & Trends | Gaff Intel',
-    description: 'Dublin property market analytics: median prices, price trends, area rankings, and sales volume.',
-    url: 'https://gaffintel.com/insights',
-  },
-};
-
 'use client';
 
 import { useState, useEffect } from 'react';
