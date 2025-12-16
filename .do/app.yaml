@@ -16,13 +16,13 @@ services:
     envs:
       - key: NEXT_PUBLIC_MAPBOX_TOKEN
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
+        value: pk.eyJ1IjoiYzBuMHI5IiwiYSI6ImNtajZiaXZzdDBrOHMzZXF5dnFnMmZ6Ym4ifQ.Np14DcYGtlYDP8yBPUp_JQ
       - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
         scope: RUN_AND_BUILD_TIME
         value: G-43FMLL1ZG0
       - key: NEXTAUTH_SECRET
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
+        value: 402kbrR3CT3PBkuq6LSPFHMDwCqKdbrpdbiOpEMzXiY=
       - key: NEXTAUTH_URL
         scope: RUN_AND_BUILD_TIME
         value: https://gaffintel.com
