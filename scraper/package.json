@@ -6,6 +6,11 @@
   "scripts": {
     "pipeline": "npx tsx src/pipeline.ts",
     "pipeline-open": "npx tsx src/pipeline-open.ts",
+    "pipeline-rentals": "npx tsx src/pipeline-rentals.ts",
+    "scrape:sold": "npx tsx src/pipeline.ts",
+    "scrape:listings": "npx tsx src/pipeline-open.ts",
+    "scrape:rentals": "npx tsx src/pipeline-rentals.ts",
+    "consolidate": "npx tsx src/consolidate.ts",
     "cleanup": "npx tsx src/pipeline.ts --cleanup",
     "scrape": "npx tsx src/scrape-fast.ts",
     "scrape:parallel": "npx tsx src/scrape-parallel.ts",

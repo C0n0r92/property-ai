@@ -1,43 +1,141 @@
-import { Property, MarketStats, AreaStats, Listing, ListingStats } from '@/types/property';
+import { Property, MarketStats, AreaStats, Listing, ListingStats, RentalListing, RentalStats } from '@/types/property';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-// Cache for properties data
-let propertiesCache: Property[] | null = null;
+// ============== Unified Data Cache ==============
+
+interface ConsolidatedData {
+  properties: Property[];
+  listings: Listing[];
+  rentals: RentalListing[];
+  stats: {
+    generated: string;
+    propertiesCount: number;
+    listingsCount: number;
+    rentalsCount: number;
+    yieldCoverage: { properties: number; listings: number };
+  };
+}
+
+let dataCache: ConsolidatedData | null = null;
 let cacheTime: number = 0;
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
-// Cache for listings data
-let listingsCache: Listing[] | null = null;
-let listingsCacheTime: number = 0;
-
 /**
- * Load properties from JSON file with caching
+ * Load unified data.json with caching
  */
-export function loadProperties(): Property[] {
+function loadData(): ConsolidatedData {
   const now = Date.now();
   
-  if (propertiesCache && (now - cacheTime) < CACHE_TTL) {
-    return propertiesCache;
+  if (dataCache && (now - cacheTime) < CACHE_TTL) {
+    return dataCache;
   }
   
   try {
-    const dataPath = join(process.cwd(), '..', 'scraper', 'data', 'properties.json');
-    const data = readFileSync(dataPath, 'utf-8');
-    propertiesCache = JSON.parse(data);
-    cacheTime = now;
+    // Try to load from consolidated data.json first
+    const consolidatedPath = join(process.cwd(), '..', 'scraper', 'data', 'data.json');
     
-    // Filter out bad data (future dates, very old dates, extreme prices)
-    propertiesCache = propertiesCache!.filter(p => {
-      const year = parseInt(p.soldDate?.split('-')[0] || '0');
-      return year >= 2020 && year <= 2025 && p.soldPrice >= 50000 && p.soldPrice <= 20000000;
-    });
+    if (existsSync(consolidatedPath)) {
+      const data = readFileSync(consolidatedPath, 'utf-8');
+      dataCache = JSON.parse(data);
+      cacheTime = now;
+      console.log(`Loaded consolidated data: ${dataCache!.properties.length} properties, ${dataCache!.listings.length} listings, ${dataCache!.rentals.length} rentals`);
+      return dataCache!;
+    }
     
-    return propertiesCache;
+    // Fallback to separate files if data.json doesn't exist
+    console.log('data.json not found, falling back to separate files');
+    return loadFromSeparateFiles();
   } catch (error) {
-    console.error('Error loading properties:', error);
-    return [];
+    console.error('Error loading consolidated data:', error);
+    return loadFromSeparateFiles();
   }
+}
+
+/**
+ * Fallback: Load from separate JSON files
+ */
+function loadFromSeparateFiles(): ConsolidatedData {
+  const properties: Property[] = [];
+  const listings: Listing[] = [];
+  const rentals: RentalListing[] = [];
+  
+  try {
+    const propsPath = join(process.cwd(), '..', 'scraper', 'data', 'properties.json');
+    if (existsSync(propsPath)) {
+      const data = JSON.parse(readFileSync(propsPath, 'utf-8'));
+      properties.push(...data);
+    }
+  } catch (e) { console.error('Error loading properties:', e); }
+  
+  try {
+    const listingsPath = join(process.cwd(), '..', 'scraper', 'data', 'listings.json');
+    if (existsSync(listingsPath)) {
+      const data = JSON.parse(readFileSync(listingsPath, 'utf-8'));
+      listings.push(...data);
+    }
+  } catch (e) { console.error('Error loading listings:', e); }
+  
+  try {
+    const rentalsPath = join(process.cwd(), '..', 'scraper', 'data', 'rentals.json');
+    if (existsSync(rentalsPath)) {
+      const data = JSON.parse(readFileSync(rentalsPath, 'utf-8'));
+      rentals.push(...data);
+    }
+  } catch (e) { console.error('Error loading rentals:', e); }
+  
+  dataCache = {
+    properties,
+    listings,
+    rentals,
+    stats: {
+      generated: new Date().toISOString(),
+      propertiesCount: properties.length,
+      listingsCount: listings.length,
+      rentalsCount: rentals.length,
+      yieldCoverage: { properties: 0, listings: 0 },
+    },
+  };
+  cacheTime = Date.now();
+  
+  return dataCache;
+}
+
+/**
+ * Load properties from unified data with filtering
+ */
+export function loadProperties(): Property[] {
+  const data = loadData();
+  
+  // Filter out bad data (future dates, very old dates, extreme prices)
+  return data.properties.filter(p => {
+    const year = parseInt(p.soldDate?.split('-')[0] || '0');
+    return year >= 2020 && year <= 2025 && p.soldPrice >= 50000 && p.soldPrice <= 20000000;
+  });
+}
+
+/**
+ * Load listings from unified data with filtering
+ */
+export function loadListings(): Listing[] {
+  const data = loadData();
+  
+  // Filter out invalid data (no price, extreme prices)
+  return data.listings.filter(l => 
+    l.askingPrice >= 50000 && l.askingPrice <= 50000000
+  );
+}
+
+/**
+ * Load rentals from unified data with filtering
+ */
+export function loadRentals(): RentalListing[] {
+  const data = loadData();
+  
+  // Filter out invalid data (no rent, extreme rents)
+  return data.rentals.filter(r => 
+    r.monthlyRent >= 500 && r.monthlyRent <= 20000
+  );
 }
 
 /**
@@ -186,40 +284,6 @@ export function formatFullPrice(price: number): string {
 }
 
 /**
- * Load for-sale listings from JSON file with caching
- */
-export function loadListings(): Listing[] {
-  const now = Date.now();
-  
-  if (listingsCache && (now - listingsCacheTime) < CACHE_TTL) {
-    return listingsCache;
-  }
-  
-  try {
-    const dataPath = join(process.cwd(), '..', 'scraper', 'data', 'listings.json');
-    
-    if (!existsSync(dataPath)) {
-      console.log('Listings file not found:', dataPath);
-      return [];
-    }
-    
-    const data = readFileSync(dataPath, 'utf-8');
-    listingsCache = JSON.parse(data);
-    listingsCacheTime = now;
-    
-    // Filter out invalid data (no price, extreme prices)
-    listingsCache = listingsCache!.filter(l => 
-      l.askingPrice >= 50000 && l.askingPrice <= 50000000
-    );
-    
-    return listingsCache;
-  } catch (error) {
-    console.error('Error loading listings:', error);
-    return [];
-  }
-}
-
-/**
  * Calculate listing statistics
  */
 export function getListingStats(listings: Listing[]): ListingStats {
@@ -243,3 +307,26 @@ export function getListingStats(listings: Listing[]): ListingStats {
   };
 }
 
+/**
+ * Calculate rental statistics
+ */
+export function getRentalStats(rentals: RentalListing[]): RentalStats {
+  if (rentals.length === 0) {
+    return { totalRentals: 0, medianRent: 0, avgRentPerSqm: 0, rentRange: { min: 0, max: 0 } };
+  }
+  
+  const rents = rentals.map(r => r.monthlyRent).sort((a, b) => a - b);
+  const medianRent = rents[Math.floor(rents.length / 2)];
+  
+  const withSqm = rentals.filter(r => r.rentPerSqm && r.rentPerSqm > 0);
+  const avgRentPerSqm = withSqm.length > 0 
+    ? Math.round(withSqm.reduce((sum, r) => sum + (r.rentPerSqm || 0), 0) / withSqm.length * 10) / 10
+    : 0;
+  
+  return {
+    totalRentals: rentals.length,
+    medianRent,
+    avgRentPerSqm,
+    rentRange: { min: rents[0], max: rents[rents.length - 1] },
+  };
+}

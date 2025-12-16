@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { formatFullPrice } from '@/lib/format';
-import type { Property, Listing } from '@/types/property';
+import type { Property, Listing, RentalListing, RentalStats } from '@/types/property';
 import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
 import { analytics } from '@/lib/analytics';
 
@@ -13,7 +13,7 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 type DifferenceFilter = 'all' | 'over' | 'under' | 'exact';
-type DataSource = 'sold' | 'forSale' | 'both';
+type DataSource = 'sold' | 'forSale' | 'rentals' | 'all';
 
 // Month names for display
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -53,9 +53,11 @@ export default function MapPage() {
   const spiderfyManager = useRef<SpiderfyManager | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
+  const [rentals, setRentals] = useState<RentalListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [selectedRental, setSelectedRental] = useState<RentalListing | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>('all');
@@ -71,6 +73,7 @@ export default function MapPage() {
   
   const [stats, setStats] = useState({ total: 0, avgPrice: 0, avgPricePerSqm: 0, overAsking: 0, underAsking: 0 });
   const [listingStats, setListingStats] = useState({ totalListings: 0, medianPrice: 0, avgPricePerSqm: 0 });
+  const [rentalStats, setRentalStats] = useState<RentalStats>({ totalRentals: 0, medianRent: 0, avgRentPerSqm: 0, rentRange: { min: 0, max: 0 } });
   
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,6 +93,7 @@ export default function MapPage() {
     analytics.mapDataSourceChanged(source);
     setSelectedProperty(null);
     setSelectedListing(null);
+    setSelectedRental(null);
     if (source !== 'sold' && viewMode === 'difference') {
       setViewMode('clusters');
     }
@@ -160,31 +164,32 @@ export default function MapPage() {
   // Handle spider feature click (when user clicks on a spiderfied marker)
   const handleSpiderFeatureClick = useCallback((spiderFeature: SpiderFeature) => {
     const props = spiderFeature.properties;
-    if (props?.isListing) {
-      setSelectedListing({
-        address: props?.address as string,
-        askingPrice: props?.askingPrice as number,
-        pricePerSqm: props?.pricePerSqm as number,
-        beds: props?.beds as number,
-        baths: props?.baths as number,
-        propertyType: props?.propertyType as string,
-        berRating: props?.berRating as string,
-      } as Listing);
+    if (props?.isRental) {
+      // Find the full rental object from the rentals array
+      const fullRental = rentals.find(r => r.sourceUrl === props?.sourceUrl || r.address === props?.address);
+      if (fullRental) {
+        setSelectedRental(fullRental);
+      }
       setSelectedProperty(null);
-    } else {
-      setSelectedProperty({
-        address: props?.address as string,
-        soldPrice: props?.soldPrice as number,
-        askingPrice: props?.askingPrice as number,
-        pricePerSqm: props?.pricePerSqm as number,
-        beds: props?.beds as number,
-        baths: props?.baths as number,
-        propertyType: props?.propertyType as string,
-        soldDate: props?.soldDate as string,
-      } as Property);
       setSelectedListing(null);
+    } else if (props?.isListing) {
+      // Find the full listing object from the listings array
+      const fullListing = listings.find(l => l.sourceUrl === props?.sourceUrl || l.address === props?.address);
+      if (fullListing) {
+        setSelectedListing(fullListing);
+      }
+      setSelectedProperty(null);
+      setSelectedRental(null);
+    } else {
+      // Find the full property object from the properties array
+      const fullProperty = properties.find(p => p.sourceUrl === props?.sourceUrl || p.address === props?.address);
+      if (fullProperty) {
+        setSelectedProperty(fullProperty);
+      }
+      setSelectedListing(null);
+      setSelectedRental(null);
     }
-  }, []);
+  }, [rentals, listings, properties]);
 
   // Load properties data on mount
   useEffect(() => {
@@ -243,6 +248,25 @@ export default function MapPage() {
         // Listings file may not exist yet
         setListings([]);
         if (dataSource === 'forSale') {
+          setLoading(false);
+        }
+      });
+    
+    // Fetch rentals for Rentals mode
+    fetch('/api/rentals?limit=50000')
+      .then(res => res.json())
+      .then(data => {
+        const rentalsWithCoords = (data.rentals || []).filter((r: RentalListing) => r.latitude && r.longitude);
+        setRentals(rentalsWithCoords);
+        setRentalStats(data.stats || { totalRentals: 0, medianRent: 0, avgRentPerSqm: 0, rentRange: { min: 0, max: 0 } });
+        if (dataSource === 'rentals') {
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        // Rentals file may not exist yet
+        setRentals([]);
+        if (dataSource === 'rentals') {
           setLoading(false);
         }
       });
@@ -389,24 +413,40 @@ export default function MapPage() {
       soldDate: l.scrapedAt, // Use scrapedAt for listings
       overUnderPercent: 0, // Not applicable
       isListing: true,
+      isRental: false,
     }));
     
     const soldData = filteredProperties.map(p => ({
       ...p,
       price: p.soldPrice,
       isListing: false,
+      isRental: false,
+    }));
+    
+    const rentalsData = rentals.map(r => ({
+      ...r,
+      // Normalize for map display
+      price: r.monthlyRent,
+      soldPrice: 0, // Not applicable
+      soldDate: r.scrapedAt, // Use scrapedAt for rentals
+      overUnderPercent: 0, // Not applicable
+      isListing: false,
+      isRental: true,
     }));
     
     if (dataSource === 'forSale') {
       return listingsData;
     }
-    if (dataSource === 'both') {
-      // Combine both datasets
-      return [...soldData, ...listingsData];
+    if (dataSource === 'rentals') {
+      return rentalsData;
+    }
+    if (dataSource === 'all') {
+      // Combine all datasets
+      return [...soldData, ...listingsData, ...rentalsData];
     }
     // Default: sold only
     return soldData;
-  }, [dataSource, filteredListings, filteredProperties]);
+  }, [dataSource, filteredListings, filteredProperties, rentals]);
 
   // Calculate filtered stats for the selected time period (sold properties)
   const filteredStats = useMemo(() => {
@@ -502,14 +542,27 @@ export default function MapPage() {
   useEffect(() => {
     if (!mapReady || !map.current || activeData.length === 0) return;
 
+    // Helper function to setup layers - may need to retry if style not loaded
+    const setupLayers = () => {
+      if (!map.current || !map.current.isStyleLoaded()) {
+        // Style not ready, retry in 100ms
+        setTimeout(setupLayers, 100);
+        return;
+      }
+      
+      doSetupLayers();
+    };
+    
+    const doSetupLayers = () => {
     const geojson: GeoJSON.FeatureCollection = {
       type: 'FeatureCollection',
       features: activeData.map(item => {
         const isListing = item.isListing;
-        const soldPrice = isListing ? 0 : item.soldPrice;
+        const isRental = item.isRental;
+        const soldPrice = (isListing || isRental) ? 0 : item.soldPrice;
         const askingPrice = item.askingPrice || 0;
-        const priceDiff = isListing ? 0 : (askingPrice ? soldPrice - askingPrice : 0);
-        const priceDiffPercent = isListing ? 0 : (askingPrice ? Math.round((priceDiff / askingPrice) * 100) : 0);
+        const priceDiff = (isListing || isRental) ? 0 : (askingPrice ? soldPrice - askingPrice : 0);
+        const priceDiffPercent = (isListing || isRental) ? 0 : (askingPrice ? Math.round((priceDiff / askingPrice) * 100) : 0);
         
         return {
           type: 'Feature',
@@ -519,6 +572,7 @@ export default function MapPage() {
           },
           properties: {
             id: item.sourceUrl || item.address,
+            sourceUrl: item.sourceUrl,
             address: item.address,
             soldPrice: soldPrice,
             askingPrice: askingPrice,
@@ -529,9 +583,16 @@ export default function MapPage() {
             beds: item.beds,
             baths: item.baths,
             propertyType: item.propertyType,
-            soldDate: isListing ? '' : item.soldDate,
-            berRating: isListing ? (item as any).berRating : null,
+            soldDate: (isListing || isRental) ? '' : item.soldDate,
+            berRating: (isListing || isRental) ? (item as any).berRating : null,
             isListing: isListing,
+            isRental: isRental,
+            // Rental-specific properties
+            monthlyRent: isRental ? (item as any).monthlyRent : null,
+            furnishing: isRental ? (item as any).furnishing : null,
+            dublinPostcode: isRental ? (item as any).dublinPostcode : null,
+            rentPerSqm: isRental ? (item as any).rentPerSqm : null,
+            rentPerBed: isRental ? (item as any).rentPerBed : null,
           },
         };
       }),
@@ -604,7 +665,7 @@ export default function MapPage() {
         },
       });
 
-      // Individual unclustered points - different colors for sold vs for sale
+      // Individual unclustered points - different colors for sold vs for sale vs rentals
       map.current.addLayer({
         id: 'unclustered-point',
         type: 'circle',
@@ -612,13 +673,17 @@ export default function MapPage() {
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-radius': 8,
-          'circle-color': dataSource === 'both' 
+          'circle-color': dataSource === 'all' 
             ? [
                 'case',
+                ['==', ['get', 'isRental'], true],
+                '#A855F7', // Purple for rentals
                 ['==', ['get', 'isListing'], true],
-                '#F43F5E', // Rose/hot pink for listings (for sale) - bright, attention-grabbing
-                '#FFFFFF', // White for sold properties - neutral, clear contrast
+                '#F43F5E', // Rose/hot pink for listings (for sale)
+                '#FFFFFF', // White for sold properties
               ]
+            : dataSource === 'rentals'
+            ? '#A855F7' // Purple for rentals
             : dataSource === 'forSale'
             ? '#F43F5E' // Rose/hot pink for listings
             : [
@@ -633,9 +698,11 @@ export default function MapPage() {
                 10000, '#EF4444',
               ],
           'circle-stroke-width': 2,
-          'circle-stroke-color': dataSource === 'both' 
+          'circle-stroke-color': dataSource === 'all' 
             ? [
                 'case',
+                ['==', ['get', 'isRental'], true],
+                '#ffffff',
                 ['==', ['get', 'isListing'], true],
                 '#ffffff',
                 '#374151', // Dark gray stroke for white dots
@@ -702,29 +769,30 @@ export default function MapPage() {
         } else {
           // Single property - show details as normal
           const props = clickedFeature.properties;
-          if (props?.isListing) {
-            setSelectedListing({
-              address: props?.address,
-              askingPrice: props?.askingPrice,
-              pricePerSqm: props?.pricePerSqm,
-              beds: props?.beds,
-              baths: props?.baths,
-              propertyType: props?.propertyType,
-              berRating: props?.berRating,
-            } as Listing);
+          if (props?.isRental) {
+            // Find the full rental object
+            const fullRental = rentals.find(r => r.sourceUrl === props?.sourceUrl || r.address === props?.address);
+            if (fullRental) {
+              setSelectedRental(fullRental);
+            }
             setSelectedProperty(null);
-          } else {
-            setSelectedProperty({
-              address: props?.address,
-              soldPrice: props?.soldPrice,
-              askingPrice: props?.askingPrice,
-              pricePerSqm: props?.pricePerSqm,
-              beds: props?.beds,
-              baths: props?.baths,
-              propertyType: props?.propertyType,
-              soldDate: props?.soldDate,
-            } as Property);
             setSelectedListing(null);
+          } else if (props?.isListing) {
+            // Find the full listing object
+            const fullListing = listings.find(l => l.sourceUrl === props?.sourceUrl || l.address === props?.address);
+            if (fullListing) {
+              setSelectedListing(fullListing);
+            }
+            setSelectedProperty(null);
+            setSelectedRental(null);
+          } else {
+            // Find the full property object
+            const fullProperty = properties.find(p => p.sourceUrl === props?.sourceUrl || p.address === props?.address);
+            if (fullProperty) {
+              setSelectedProperty(fullProperty);
+            }
+            setSelectedListing(null);
+            setSelectedRental(null);
           }
         }
       });
@@ -835,6 +903,9 @@ export default function MapPage() {
       map.current?.on('click', layerId, (e) => {
         if (!e.features || !e.features[0]) return;
         
+        // Check if layer still exists before processing
+        if (!map.current?.getLayer(layerId)) return;
+        
         const clickedFeature = e.features[0];
         const clickedGeometry = clickedFeature.geometry as GeoJSON.Point;
         const clickedCoords = clickedGeometry.coordinates as [number, number];
@@ -873,29 +944,30 @@ export default function MapPage() {
         } else {
           // Single property - show details as normal
           const props = clickedFeature.properties;
-          if (props?.isListing) {
-            setSelectedListing({
-              address: props?.address,
-              askingPrice: props?.askingPrice,
-              pricePerSqm: props?.pricePerSqm,
-              beds: props?.beds,
-              baths: props?.baths,
-              propertyType: props?.propertyType,
-              berRating: props?.berRating,
-            } as Listing);
+          if (props?.isRental) {
+            // Find the full rental object
+            const fullRental = rentals.find(r => r.sourceUrl === props?.sourceUrl || r.address === props?.address);
+            if (fullRental) {
+              setSelectedRental(fullRental);
+            }
             setSelectedProperty(null);
-          } else {
-            setSelectedProperty({
-              address: props?.address,
-              soldPrice: props?.soldPrice,
-              askingPrice: props?.askingPrice,
-              pricePerSqm: props?.pricePerSqm,
-              beds: props?.beds,
-              baths: props?.baths,
-              propertyType: props?.propertyType,
-              soldDate: props?.soldDate,
-            } as Property);
             setSelectedListing(null);
+          } else if (props?.isListing) {
+            // Find the full listing object
+            const fullListing = listings.find(l => l.sourceUrl === props?.sourceUrl || l.address === props?.address);
+            if (fullListing) {
+              setSelectedListing(fullListing);
+            }
+            setSelectedProperty(null);
+            setSelectedRental(null);
+          } else {
+            // Find the full property object
+            const fullProperty = properties.find(p => p.sourceUrl === props?.sourceUrl || p.address === props?.address);
+            if (fullProperty) {
+              setSelectedProperty(fullProperty);
+            }
+            setSelectedListing(null);
+            setSelectedRental(null);
           }
         }
       });
@@ -904,6 +976,9 @@ export default function MapPage() {
       map.current?.on('click', (e) => {
         // Check if click was on spider markers - if so, don't collapse
         if (spiderfyManager.current?.isClickOnSpider(e.point)) return;
+        
+        // Check if layer still exists before querying
+        if (!map.current?.getLayer(layerId)) return;
         
         // Check if click was on the layer
         const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
@@ -917,14 +992,20 @@ export default function MapPage() {
       });
 
       map.current?.on('mouseenter', layerId, () => {
-        if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+        if (map.current?.getLayer(layerId)) {
+          map.current.getCanvas().style.cursor = 'pointer';
+        }
       });
       map.current?.on('mouseleave', layerId, () => {
         if (map.current) map.current.getCanvas().style.cursor = '';
       });
     }
+    }; // End of doSetupLayers
+    
+    // Start the setup process
+    setupLayers();
 
-  }, [mapReady, activeData, viewMode, dataSource]);
+  }, [mapReady, activeData, viewMode, dataSource, rentals, listings, properties]);
 
   // Format sold date for display
   const formatSoldDate = (dateStr: string | undefined): string => {
@@ -983,26 +1064,38 @@ export default function MapPage() {
               🏷️ For Sale
             </button>
             <button
-              onClick={() => handleDataSourceChange('both')}
+              onClick={() => handleDataSourceChange('rentals')}
               className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                dataSource === 'both' 
-                  ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white' 
+                dataSource === 'rentals' 
+                  ? 'bg-purple-500 text-white' 
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
               }`}
             >
-              🔄 Both
+              🏘️ Rentals
+            </button>
+            <button
+              onClick={() => handleDataSourceChange('all')}
+              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                dataSource === 'all' 
+                  ? 'bg-gradient-to-r from-cyan-600 via-rose-500 to-purple-500 text-white' 
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              }`}
+            >
+              🌐 All
             </button>
           </div>
           
           <h1 className="text-xl font-bold text-white">
-            {dataSource === 'sold' ? 'Sold Properties' : dataSource === 'forSale' ? 'For Sale' : 'Sold vs For Sale'}
+            {dataSource === 'sold' ? 'Sold Properties' : dataSource === 'forSale' ? 'For Sale' : dataSource === 'rentals' ? 'Rentals' : 'All Properties'}
           </h1>
           <span className="text-gray-400 text-sm">
             {loading ? 'Loading...' : dataSource === 'sold' 
               ? `${filteredProperties.length.toLocaleString()} sold`
               : dataSource === 'forSale'
               ? `${filteredListings.length.toLocaleString()} listings`
-              : `${filteredProperties.length.toLocaleString()} sold · ${filteredListings.length.toLocaleString()} for sale`
+              : dataSource === 'rentals'
+              ? `${rentals.length.toLocaleString()} rentals`
+              : `${filteredProperties.length.toLocaleString()} sold · ${filteredListings.length.toLocaleString()} for sale · ${rentals.length.toLocaleString()} rentals`
             }
           </span>
           
@@ -1270,7 +1363,7 @@ export default function MapPage() {
       
       {/* Legend bar */}
       <div className="px-4 py-2 bg-[#0D1117] border-b border-gray-800 flex items-center gap-6 text-xs text-gray-400 overflow-x-auto">
-        {viewMode === 'clusters' && dataSource !== 'both' && (
+        {viewMode === 'clusters' && (dataSource === 'sold' || dataSource === 'forSale' || dataSource === 'rentals') && (
           <>
             <span className="text-gray-500 font-medium">Cluster size:</span>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> &lt;10</div>
@@ -1279,11 +1372,12 @@ export default function MapPage() {
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> 200+</div>
           </>
         )}
-        {viewMode === 'clusters' && dataSource === 'both' && (
+        {viewMode === 'clusters' && dataSource === 'all' && (
           <>
-            <span className="text-gray-500 font-medium">Property type:</span>
+            <span className="text-gray-500 font-medium">Data type:</span>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-white border border-gray-500"></div> Sold</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-500"></div> For Sale</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-purple-500"></div> Rental</div>
             <span className="mx-2 text-gray-600">|</span>
             <span className="text-gray-500 font-medium">Cluster size:</span>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> &lt;10</div>
@@ -1292,7 +1386,7 @@ export default function MapPage() {
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> 200+</div>
           </>
         )}
-        {viewMode === 'price' && (
+        {viewMode === 'price' && dataSource !== 'rentals' && (
           <>
             <span className="text-gray-500 font-medium">{dataSource === 'sold' ? 'Sold price:' : 'Asking price:'}</span>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> €200k</div>
@@ -1300,6 +1394,16 @@ export default function MapPage() {
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> €600k</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-orange-500"></div> €800k</div>
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> €1M+</div>
+          </>
+        )}
+        {viewMode === 'price' && dataSource === 'rentals' && (
+          <>
+            <span className="text-gray-500 font-medium">Monthly rent:</span>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-green-500"></div> €1,000</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500"></div> €1,500</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-yellow-400"></div> €2,000</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-orange-500"></div> €2,500</div>
+            <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500"></div> €3,000+</div>
           </>
         )}
         {viewMode === 'difference' && dataSource === 'sold' && (
@@ -1323,10 +1427,14 @@ export default function MapPage() {
           {dataSource === 'forSale' && (
             <span>🏷️ {filteredListings.length.toLocaleString()} listings</span>
           )}
-          {dataSource === 'both' && (
+          {dataSource === 'rentals' && (
+            <span>🏘️ {rentals.length.toLocaleString()} rentals</span>
+          )}
+          {dataSource === 'all' && (
             <>
               <span className="text-gray-200">⚪ {filteredProperties.length.toLocaleString()} sold</span>
               <span className="text-rose-400">🔴 {filteredListings.length.toLocaleString()} for sale</span>
+              <span className="text-purple-400">🟣 {rentals.length.toLocaleString()} rentals</span>
             </>
           )}
         </div>
@@ -1451,6 +1559,39 @@ export default function MapPage() {
                 <span className="text-gray-500 text-sm">Sold date</span>
                 <span className="text-gray-300">{formatSoldDate(selectedProperty.soldDate)}</span>
               </div>
+              
+              {/* Yield Estimate */}
+              {selectedProperty.yieldEstimate && (
+                <div className="mt-3 pt-3 border-t border-gray-700">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-500 text-sm">Est. Gross Yield</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-400 font-bold font-mono">
+                        {selectedProperty.yieldEstimate.grossYield.toFixed(1)}%
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        selectedProperty.yieldEstimate.confidence === 'high' ? 'bg-green-600/20 text-green-400' :
+                        selectedProperty.yieldEstimate.confidence === 'medium' ? 'bg-yellow-600/20 text-yellow-400' :
+                        'bg-orange-600/20 text-orange-400'
+                      }`}>
+                        {selectedProperty.yieldEstimate.confidence}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500">Est. Monthly Rent</span>
+                    <span className="text-white font-mono">€{selectedProperty.yieldEstimate.monthlyRent.toLocaleString()}/mo</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm mt-1">
+                    <span className="text-gray-500">Est. Annual Return</span>
+                    <span className="text-white font-mono">€{(selectedProperty.yieldEstimate.monthlyRent * 12).toLocaleString()}/yr</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {selectedProperty.yieldEstimate.note}
+                    <span className="text-gray-600"> • Based on sold price €{selectedProperty.soldPrice.toLocaleString()}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1529,6 +1670,122 @@ export default function MapPage() {
                 </div>
               </div>
             )}
+            
+            {/* Yield Estimate */}
+            {selectedListing.yieldEstimate && (
+              <div className="border-t border-gray-700 pt-4 mt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-500 text-sm">Est. Gross Yield</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-emerald-400 font-bold font-mono">
+                      {selectedListing.yieldEstimate.grossYield.toFixed(1)}%
+                    </span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      selectedListing.yieldEstimate.confidence === 'high' ? 'bg-green-600/20 text-green-400' :
+                      selectedListing.yieldEstimate.confidence === 'medium' ? 'bg-yellow-600/20 text-yellow-400' :
+                      'bg-orange-600/20 text-orange-400'
+                    }`}>
+                      {selectedListing.yieldEstimate.confidence}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">Est. Monthly Rent</span>
+                  <span className="text-white font-mono">€{selectedListing.yieldEstimate.monthlyRent.toLocaleString()}/mo</span>
+                </div>
+                <div className="flex justify-between items-center text-sm mt-1">
+                  <span className="text-gray-500">Est. Annual Return</span>
+                  <span className="text-white font-mono">€{(selectedListing.yieldEstimate.monthlyRent * 12).toLocaleString()}/yr</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {selectedListing.yieldEstimate.note}
+                  <span className="text-gray-600"> • Based on asking price €{selectedListing.askingPrice.toLocaleString()}</span>
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Selected Rental Panel */}
+        {selectedRental && (
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-5 shadow-2xl border border-purple-600">
+            <button 
+              onClick={() => setSelectedRental(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
+            >
+              ✕
+            </button>
+            
+            {/* Address */}
+            <h3 className="font-semibold text-white pr-8 mb-3 text-lg leading-tight">
+              {selectedRental.address}
+            </h3>
+            
+            {/* Rent with badge */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="text-3xl font-bold text-white font-mono">
+                €{selectedRental.monthlyRent.toLocaleString()}/mo
+              </div>
+              <div className="px-3 py-1 rounded-full bg-purple-500 text-white text-sm font-medium">
+                🏘️ Rental
+              </div>
+            </div>
+            
+            {/* Property details grid */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {selectedRental.beds && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Bedrooms</div>
+                  <div className="text-white font-semibold">{selectedRental.beds}</div>
+                </div>
+              )}
+              {selectedRental.baths && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Bathrooms</div>
+                  <div className="text-white font-semibold">{selectedRental.baths}</div>
+                </div>
+              )}
+              {selectedRental.propertyType && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Type</div>
+                  <div className="text-white font-semibold">{selectedRental.propertyType}</div>
+                </div>
+              )}
+              {selectedRental.berRating && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">BER Rating</div>
+                  <div className="text-white font-semibold">{selectedRental.berRating}</div>
+                </div>
+              )}
+              {selectedRental.furnishing && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Furnishing</div>
+                  <div className="text-white font-semibold">{selectedRental.furnishing}</div>
+                </div>
+              )}
+              {selectedRental.dublinPostcode && (
+                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                  <div className="text-gray-500 text-xs">Postcode</div>
+                  <div className="text-white font-semibold">{selectedRental.dublinPostcode}</div>
+                </div>
+              )}
+            </div>
+            
+            {/* Rent per sqm/bed */}
+            <div className="border-t border-gray-700 pt-4 space-y-2">
+              {selectedRental.rentPerBed && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Rent per bedroom</span>
+                  <span className="text-white font-mono">€{selectedRental.rentPerBed.toLocaleString()}/mo</span>
+                </div>
+              )}
+              {selectedRental.rentPerSqm && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Rent per m²</span>
+                  <span className="text-white font-mono">€{selectedRental.rentPerSqm.toFixed(2)}/mo</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
         
@@ -1578,7 +1835,23 @@ export default function MapPage() {
                 </div>
               </>
             )}
-            {dataSource === 'both' && (
+            {dataSource === 'rentals' && (
+              <>
+                <div className="text-sm text-gray-500 mb-1">Dublin Median Rent</div>
+                <div className="text-2xl font-bold text-white font-mono">
+                  €{rentalStats.medianRent.toLocaleString()}/mo
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {rentals.length.toLocaleString()} rentals
+                </div>
+                {rentalStats.avgRentPerSqm > 0 && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    €{rentalStats.avgRentPerSqm.toFixed(2)}/m² avg
+                  </div>
+                )}
+              </>
+            )}
+            {dataSource === 'all' && (
               <>
                 <div className="text-sm text-gray-500 mb-2">
                   {(selectedYear !== null || recentFilter !== null) ? `${getTimeFilterLabel()} Avg €/m²` : 'Avg €/m² Comparison'}
@@ -1594,6 +1867,12 @@ export default function MapPage() {
                     <span className="text-rose-400 text-sm">🔴 For Sale</span>
                     <span className="text-lg font-bold text-white font-mono">
                       €{filteredListingStats.avgPricePerSqm.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-purple-400 text-sm">🟣 Rentals</span>
+                    <span className="text-lg font-bold text-white font-mono">
+                      €{rentalStats.medianRent.toLocaleString()}/mo
                     </span>
                   </div>
                 </div>
@@ -1615,14 +1894,17 @@ export default function MapPage() {
         {/* View mode tips */}
         <div className="absolute bottom-4 right-4 hidden md:block">
           <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg px-4 py-3 border border-gray-700 text-sm text-gray-400 max-w-xs">
-            {viewMode === 'clusters' && dataSource !== 'both' && (
-              <p>💡 Click clusters to zoom in. Click {dataSource === 'sold' ? 'properties' : 'listings'} for details.</p>
+            {viewMode === 'clusters' && (dataSource === 'sold' || dataSource === 'forSale' || dataSource === 'rentals') && (
+              <p>💡 Click clusters to zoom in. Click {dataSource === 'sold' ? 'properties' : dataSource === 'rentals' ? 'rentals' : 'listings'} for details.</p>
             )}
-            {viewMode === 'clusters' && dataSource === 'both' && (
-              <p>💡 <span className="text-white">White</span> = Sold, <span className="text-rose-400">Pink</span> = For Sale. Click for details.</p>
+            {viewMode === 'clusters' && dataSource === 'all' && (
+              <p>💡 <span className="text-white">White</span> = Sold, <span className="text-rose-400">Pink</span> = For Sale, <span className="text-purple-400">Purple</span> = Rental. Click for details.</p>
             )}
-            {viewMode === 'price' && (
+            {viewMode === 'price' && dataSource !== 'rentals' && (
               <p>💡 Colors show {dataSource === 'sold' ? 'sold' : 'asking'} price. Green = under €400k, Red = over €1M.</p>
+            )}
+            {viewMode === 'price' && dataSource === 'rentals' && (
+              <p>💡 Colors show monthly rent. Green = under €1,500, Red = over €3,000.</p>
             )}
             {viewMode === 'difference' && dataSource === 'sold' && (
               <p>💡 Green = deals (sold under asking), Red = bidding wars (sold over asking).</p>

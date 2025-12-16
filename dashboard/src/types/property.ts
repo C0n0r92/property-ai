@@ -1,3 +1,15 @@
+// Yield estimate from rental data matching
+export interface YieldEstimate {
+  monthlyRent: number;
+  grossYield: number;
+  confidence: 'high' | 'medium' | 'low' | 'very_low';
+  source: 'eircode' | 'nearby' | 'area_average';
+  dataPoints: number;
+  searchRadius?: number;
+  rentRange: { min: number; max: number };
+  note: string;
+}
+
 export interface Property {
   address: string;
   soldDate: string;
@@ -16,6 +28,9 @@ export interface Property {
   nominatimAddress: string | null;
   pricePerSqm: number | null;
   scrapedAt: string;
+  // Yield estimate (added by consolidate script)
+  yieldEstimate?: YieldEstimate | null;
+  dublinPostcode?: string | null;
 }
 
 export interface PropertyFilters {
@@ -63,6 +78,9 @@ export interface Listing {
   nominatimAddress: string | null;
   pricePerSqm: number | null;
   scrapedAt: string;
+  // Yield estimate (added by consolidate script)
+  yieldEstimate?: YieldEstimate | null;
+  dublinPostcode?: string | null;
 }
 
 export interface ListingStats {
@@ -70,5 +88,34 @@ export interface ListingStats {
   medianPrice: number;
   avgPricePerSqm: number;
   priceRange: { min: number; max: number };
+}
+
+// Rental Listings
+export interface RentalListing {
+  address: string;
+  monthlyRent: number;
+  beds: number | null;
+  baths: number | null;
+  areaSqm: number | null;
+  propertyType: string;
+  berRating: string | null;
+  furnishing: string | null;
+  sourceUrl: string;
+  sourcePage: number;
+  latitude: number | null;
+  longitude: number | null;
+  eircode: string | null;
+  nominatimAddress: string | null;
+  rentPerSqm: number | null;
+  rentPerBed: number | null;
+  dublinPostcode: string | null;
+  scrapedAt: string;
+}
+
+export interface RentalStats {
+  totalRentals: number;
+  medianRent: number;
+  avgRentPerSqm: number;
+  rentRange: { min: number; max: number };
 }
 
