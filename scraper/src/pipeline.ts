@@ -632,5 +632,5 @@ const args = process.argv.slice(2);
 if (args.includes('--cleanup')) {
   runCleanup().catch(console.error);
 } else {
-  runPipeline().catch(console.error);
+runPipeline().catch(console.error);
 }

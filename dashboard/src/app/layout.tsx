@@ -10,7 +10,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
-  keywords: ['Dublin property', 'house prices Dublin', 'property prices Ireland', 'sold house prices', 'Dublin real estate', 'property market Dublin'],
+  keywords: [
+    'Dublin property', 'house prices Dublin', 'property prices Ireland', 'sold house prices', 
+    'Dublin real estate', 'property market Dublin', 'Dublin property map', 'Dublin house prices 2024',
+    'property sold prices Dublin', 'Dublin property search', 'Dublin property values', 
+    'property price check Dublin', 'Dublin property data', 'Ireland property prices',
+    'what did house sell for Dublin', 'Dublin rental prices', 'Dublin property listings'
+  ],
   authors: [{ name: 'Gaff Intel' }],
   creator: 'Gaff Intel',
   openGraph: {
@@ -50,6 +56,37 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "Gaff Intel",
+              "description": "Dublin Property Intelligence - Explore 43,000+ sold properties with price insights and market predictions",
+              "url": "https://gaffintel.com",
+              "applicationCategory": "RealEstateApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR"
+              },
+              "areaServed": {
+                "@type": "City",
+                "name": "Dublin",
+                "containedInPlace": {
+                  "@type": "Country",
+                  "name": "Ireland"
+                }
+              },
+              "creator": {
+                "@type": "Organization",
+                "name": "Gaff Intel"
+              }
+            })
+          }}
+        />
       </head>
       <body className="antialiased min-h-screen">
         <Providers>
