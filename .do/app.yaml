@@ -1,0 +1,45 @@
+name: gaff-intel
+region: fra
+services:
+  - name: web
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
+      deploy_on_push: true
+    source_dir: /dashboard
+    build_command: npm run build
+    run_command: npm run start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    http_port: 3000
+    envs:
+      - key: NEXT_PUBLIC_MAPBOX_TOKEN
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
+        scope: RUN_AND_BUILD_TIME
+        value: G-43FMLL1ZG0
+      - key: NEXTAUTH_SECRET
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: NEXTAUTH_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://gaffintel.com
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+    routes:
+      - path: /
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 30
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 3
+domains:
+  - domain: gaffintel.com
+    type: PRIMARY
+  - domain: www.gaffintel.com
+    type: ALIAS
+
