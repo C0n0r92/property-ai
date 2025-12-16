@@ -6,6 +6,37 @@ import Providers from "@/components/Providers";
 export const metadata: Metadata = {
   title: "Gaff Intel | Dublin Property Intelligence",
   description: "Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.",
+  metadataBase: new URL('https://gaffintel.com'),
+  alternates: {
+    canonical: '/',
+  },
+  keywords: ['Dublin property', 'house prices Dublin', 'property prices Ireland', 'sold house prices', 'Dublin real estate', 'property market Dublin'],
+  authors: [{ name: 'Gaff Intel' }],
+  creator: 'Gaff Intel',
+  openGraph: {
+    type: 'website',
+    locale: 'en_IE',
+    url: 'https://gaffintel.com',
+    siteName: 'Gaff Intel',
+    title: 'Gaff Intel | Dublin Property Intelligence',
+    description: 'Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Gaff Intel | Dublin Property Intelligence',
+    description: 'Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({
