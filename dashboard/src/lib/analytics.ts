@@ -1,4 +1,5 @@
-// Google Analytics event tracking utility
+// Analytics event tracking utility (Google Analytics + PostHog)
+import posthog from 'posthog-js';
 
 type GTagEvent = {
   action: string;
@@ -7,13 +8,23 @@ type GTagEvent = {
   value?: number;
 };
 
-// Track custom events
+// Track custom events to both GA and PostHog
 export const trackEvent = ({ action, category, label, value }: GTagEvent) => {
+  // Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
     (window as any).gtag('event', action, {
       event_category: category,
       event_label: label,
       value: value,
+    });
+  }
+  
+  // PostHog
+  if (typeof window !== 'undefined' && posthog) {
+    posthog.capture(action, {
+      category,
+      label,
+      value,
     });
   }
 };
