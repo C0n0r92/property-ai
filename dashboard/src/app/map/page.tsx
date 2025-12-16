@@ -799,12 +799,14 @@ export default function MapPage() {
     // Collapse spider when view/data changes
     spiderfyManager.current?.collapse();
     
+    if (!map.current) return;
+    
     const layersToRemove = ['clusters', 'cluster-count', 'unclustered-point', 'properties-points'];
     layersToRemove.forEach(layer => {
-      if (map.current?.getLayer(layer)) map.current.removeLayer(layer);
+      if (map.current?.getLayer(layer)) map.current?.removeLayer(layer);
     });
-    if (map.current.getSource('properties')) map.current.removeSource('properties');
-    if (map.current.getSource('properties-clustered')) map.current.removeSource('properties-clustered');
+    if (map.current?.getSource('properties')) map.current?.removeSource('properties');
+    if (map.current?.getSource('properties-clustered')) map.current?.removeSource('properties-clustered');
 
     if (viewMode === 'clusters') {
       // Add clustered source
