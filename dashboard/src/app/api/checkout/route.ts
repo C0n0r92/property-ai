@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-11-17.clover',
-});
+// Lazy initialization to avoid build-time errors
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not configured');
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2025-11-17.clover',
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const stripe = getStripe();
     const { plan } = await request.json();
 
     if (!plan || (plan !== 'one-time' && plan !== 'monthly')) {
@@ -50,12 +57,12 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Stripe checkout error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to create checkout session';
     return NextResponse.json(
-      { error: error.message || 'Failed to create checkout session' },
+      { error: message },
       { status: 500 }
     );
   }
 }
-
