@@ -210,7 +210,7 @@ export default function MapPage() {
     const props = spiderFeature.properties;
     if (props?.isRental) {
       // Find the full rental object from the rentals array
-      const fullRental = rentals.find(r => r.sourceUrl === props?.sourceUrl || r.address === props?.address);
+      const fullRental = rentals.find(r => r.address === props?.address);
       if (fullRental) {
         setSelectedRental(fullRental);
         analytics.mapPropertyClicked('rental');
@@ -219,7 +219,7 @@ export default function MapPage() {
       setSelectedListing(null);
     } else if (props?.isListing) {
       // Find the full listing object from the listings array
-      const fullListing = listings.find(l => l.sourceUrl === props?.sourceUrl || l.address === props?.address);
+      const fullListing = listings.find(l => l.address === props?.address);
       if (fullListing) {
         setSelectedListing(fullListing);
         analytics.mapPropertyClicked('forSale');
@@ -228,7 +228,7 @@ export default function MapPage() {
       setSelectedRental(null);
     } else {
       // Find the full property object from the properties array
-      const fullProperty = properties.find(p => p.sourceUrl === props?.sourceUrl || p.address === props?.address);
+      const fullProperty = properties.find(p => p.address === props?.address);
       if (fullProperty) {
         setSelectedProperty(fullProperty);
         analytics.mapPropertyClicked('sold');
@@ -768,7 +768,7 @@ export default function MapPage() {
             coordinates: [item.longitude!, item.latitude!],
           },
           properties: {
-            id: item.sourceUrl || item.address,
+            id: item.address,
             sourceUrl: item.sourceUrl,
             address: item.address,
             soldPrice: soldPrice,
@@ -970,7 +970,7 @@ export default function MapPage() {
           const props = clickedFeature.properties;
           if (props?.isRental) {
             // Find the full rental object
-            const fullRental = rentals.find(r => r.sourceUrl === props?.sourceUrl || r.address === props?.address);
+            const fullRental = rentals.find(r => r.address === props?.address);
             if (fullRental) {
               setSelectedRental(fullRental);
             }
@@ -978,7 +978,7 @@ export default function MapPage() {
             setSelectedListing(null);
           } else if (props?.isListing) {
             // Find the full listing object
-            const fullListing = listings.find(l => l.sourceUrl === props?.sourceUrl || l.address === props?.address);
+            const fullListing = listings.find(l => l.address === props?.address);
             if (fullListing) {
               setSelectedListing(fullListing);
             }
@@ -986,7 +986,7 @@ export default function MapPage() {
             setSelectedRental(null);
           } else {
             // Find the full property object
-            const fullProperty = properties.find(p => p.sourceUrl === props?.sourceUrl || p.address === props?.address);
+            const fullProperty = properties.find(p => p.address === props?.address);
             if (fullProperty) {
               setSelectedProperty(fullProperty);
             }
@@ -1145,7 +1145,7 @@ export default function MapPage() {
           const props = clickedFeature.properties;
           if (props?.isRental) {
             // Find the full rental object
-            const fullRental = rentals.find(r => r.sourceUrl === props?.sourceUrl || r.address === props?.address);
+            const fullRental = rentals.find(r => r.address === props?.address);
             if (fullRental) {
               setSelectedRental(fullRental);
             }
@@ -1153,7 +1153,7 @@ export default function MapPage() {
             setSelectedListing(null);
           } else if (props?.isListing) {
             // Find the full listing object
-            const fullListing = listings.find(l => l.sourceUrl === props?.sourceUrl || l.address === props?.address);
+            const fullListing = listings.find(l => l.address === props?.address);
             if (fullListing) {
               setSelectedListing(fullListing);
             }
@@ -1161,7 +1161,7 @@ export default function MapPage() {
             setSelectedRental(null);
           } else {
             // Find the full property object
-            const fullProperty = properties.find(p => p.sourceUrl === props?.sourceUrl || p.address === props?.address);
+            const fullProperty = properties.find(p => p.address === props?.address);
             if (fullProperty) {
               setSelectedProperty(fullProperty);
             }
