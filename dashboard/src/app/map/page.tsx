@@ -605,6 +605,8 @@ export default function MapPage() {
       soldPrice: 0, // Not applicable
       soldDate: r.scrapedAt, // Use scrapedAt for rentals
       overUnderPercent: 0, // Not applicable
+      askingPrice: r.monthlyRent, // Use monthly rent as the "price"
+      pricePerSqm: r.areaSqm ? Math.round(r.monthlyRent / r.areaSqm) : 0,
       isListing: false,
       isRental: true,
     }));
