@@ -238,34 +238,88 @@ export default function MapPage() {
     }
   }, [rentals, listings, properties]);
 
-  // Load properties data on mount
+  // Load data for all Ireland based on selected data sources
   useEffect(() => {
-    // Fetch ALL sold properties for the map (clustering handles performance)
-    fetch('/api/properties?limit=50000')
+    // Only fetch data for selected sources
+    const sources = [];
+    if (dataSources.sold) sources.push('sold');
+    if (dataSources.forSale) sources.push('forSale');
+    if (dataSources.rentals) sources.push('rentals');
+    
+    if (sources.length === 0) return;
+    
+    setLoading(true);
+    
+    // Load all Ireland bounds
+    const irelandBounds = {
+      north: 55.5,
+      south: 51.4,
+      east: -5.4,
+      west: -10.7,
+    };
+    
+    // Fetch map data with all Ireland bounds and selected sources
+    fetch(`/api/map-data?sources=${sources.join(',')}&north=${irelandBounds.north}&south=${irelandBounds.south}&east=${irelandBounds.east}&west=${irelandBounds.west}&limit=100000`)
       .then(res => res.json())
       .then(data => {
-        const propsWithCoords = data.properties.filter((p: Property) => p.latitude && p.longitude);
-        
-        // Calculate over/under asking from map data
-        const withAsking = propsWithCoords.filter((p: Property) => p.askingPrice && p.askingPrice > 0);
-        const overAsking = withAsking.filter((p: Property) => p.soldPrice > p.askingPrice!).length;
-        const underAsking = withAsking.filter((p: Property) => p.soldPrice < p.askingPrice!).length;
-        
-        setProperties(propsWithCoords);
-        
-        // Set map-specific counts
-        setStats(prev => ({
-          ...prev,
-          total: propsWithCoords.length,
-          overAsking,
-          underAsking,
-        }));
-        if (dataSources.sold) {
-          setLoading(false);
+        // Update properties if sold is selected
+        if (data.properties) {
+          setProperties(data.properties);
+          
+          // Calculate over/under asking from loaded data
+          const withAsking = data.properties.filter((p: Property) => p.askingPrice && p.askingPrice > 0);
+          const overAsking = withAsking.filter((p: Property) => p.soldPrice > p.askingPrice!).length;
+          const underAsking = withAsking.filter((p: Property) => p.soldPrice < p.askingPrice!).length;
+          
+          setStats(prev => ({
+            ...prev,
+            total: data.properties.length,
+            overAsking,
+            underAsking,
+          }));
         }
+        
+        // Update listings if forSale is selected
+        if (data.listings) {
+          setListings(data.listings);
+          const prices = data.listings.map((l: Listing) => l.askingPrice).sort((a: number, b: number) => a - b);
+          const medianPrice = prices[Math.floor(prices.length / 2)] || 0;
+          const withSqm = data.listings.filter((l: Listing) => l.pricePerSqm && l.pricePerSqm > 0);
+          const avgPricePerSqm = withSqm.length > 0 
+            ? Math.round(withSqm.reduce((sum: number, l: Listing) => sum + (l.pricePerSqm || 0), 0) / withSqm.length)
+            : 0;
+          setListingStats({
+            totalListings: data.listings.length,
+            medianPrice,
+            avgPricePerSqm,
+          });
+        }
+        
+        // Update rentals if rentals is selected
+        if (data.rentals) {
+          setRentals(data.rentals);
+          const rents = data.rentals.map((r: RentalListing) => r.monthlyRent).sort((a: number, b: number) => a - b);
+          const medianRent = rents[Math.floor(rents.length / 2)] || 0;
+          const withSqm = data.rentals.filter((r: RentalListing) => r.rentPerSqm && r.rentPerSqm > 0);
+          const avgRentPerSqm = withSqm.length > 0 
+            ? Math.round(withSqm.reduce((sum: number, r: RentalListing) => sum + (r.rentPerSqm || 0), 0) / withSqm.length * 10) / 10
+            : 0;
+          setRentalStats({
+            totalRentals: data.rentals.length,
+            medianRent,
+            avgRentPerSqm,
+            rentRange: { min: rents[0] || 0, max: rents[rents.length - 1] || 0 },
+          });
+        }
+        
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error loading map data:', err);
+        setLoading(false);
       });
 
-    // Fetch true Dublin-wide stats from stats API
+    // Fetch overall Dublin-wide stats (lightweight)
     fetch('/api/stats')
       .then(res => res.json())
       .then(data => {
@@ -274,50 +328,10 @@ export default function MapPage() {
           avgPrice: data.stats.medianPrice,
           avgPricePerSqm: data.stats.avgPricePerSqm,
         }));
-      });
+      })
+      .catch(err => console.error('Error loading stats:', err));
       
-    // Fetch listings for For Sale mode
-    fetch('/api/listings?limit=50000')
-      .then(res => res.json())
-      .then(data => {
-        const listingsWithCoords = (data.listings || []).filter((l: Listing) => l.latitude && l.longitude);
-        setListings(listingsWithCoords);
-        setListingStats({
-          totalListings: listingsWithCoords.length,
-          medianPrice: data.stats?.medianPrice || 0,
-          avgPricePerSqm: data.stats?.avgPricePerSqm || 0,
-        });
-        if (dataSources.forSale) {
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        // Listings file may not exist yet
-        setListings([]);
-        if (dataSources.forSale) {
-          setLoading(false);
-        }
-      });
-    
-    // Fetch rentals for Rentals mode
-    fetch('/api/rentals?limit=50000')
-      .then(res => res.json())
-      .then(data => {
-        const rentalsWithCoords = (data.rentals || []).filter((r: RentalListing) => r.latitude && r.longitude);
-        setRentals(rentalsWithCoords);
-        setRentalStats(data.stats || { totalRentals: 0, medianRent: 0, avgRentPerSqm: 0, rentRange: { min: 0, max: 0 } });
-        if (dataSources.rentals) {
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        // Rentals file may not exist yet
-        setRentals([]);
-        if (dataSources.rentals) {
-          setLoading(false);
-        }
-      });
-  }, []);
+  }, [dataSources.sold, dataSources.forSale, dataSources.rentals]);
 
   // Get available years from the data
   const availableYears = useMemo(() => {
@@ -1729,12 +1743,12 @@ export default function MapPage() {
       <div className="flex-1 relative" style={{ minHeight: '500px' }}>
         <div ref={mapContainer} className="absolute inset-0" style={{ width: '100%', height: '100%' }} />
         
-        {/* Loading overlay */}
+        {/* Loading indicator - non-blocking */}
         {loading && (
-          <div className="absolute inset-0 bg-gray-900/80 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-400">Loading properties...</p>
+          <div className="absolute top-4 right-4 z-10 bg-gray-900/95 backdrop-blur-xl rounded-lg px-4 py-3 border border-blue-500 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-white font-medium">Loading data...</span>
             </div>
           </div>
         )}
