@@ -5,7 +5,7 @@ interface PropertySnapshotProps {
   property?: Property;
   listing?: Listing;
   rental?: RentalListing;
-  snapshotRef?: React.RefObject<HTMLDivElement>;
+  snapshotRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export function PropertySnapshot({ property, listing, rental, snapshotRef }: PropertySnapshotProps) {
