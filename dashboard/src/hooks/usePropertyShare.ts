@@ -9,7 +9,7 @@ interface UsePropertyShareReturn {
 }
 
 export function usePropertyShare(
-  snapshotRef: RefObject<HTMLDivElement>,
+  snapshotRef: RefObject<HTMLDivElement | null>,
   data: Property | Listing | RentalListing | null,
   type: 'sold' | 'forSale' | 'rental'
 ): UsePropertyShareReturn {
