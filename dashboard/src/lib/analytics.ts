@@ -99,5 +99,9 @@ export const analytics = {
   filtersCleared: () => {
     trackEvent({ action: 'filters_cleared', category: 'feature' });
   },
+  
+  propertyShared: (propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'property_shared', category: 'feature', label: propertyType });
+  },
 };
 

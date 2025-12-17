@@ -7,6 +7,8 @@ import { formatFullPrice } from '@/lib/format';
 import type { Property, Listing, RentalListing, RentalStats } from '@/types/property';
 import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
 import { analytics } from '@/lib/analytics';
+import { PropertySnapshot } from '@/components/PropertySnapshot';
+import { usePropertyShare } from '@/hooks/usePropertyShare';
 
 // Mapbox access token
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -57,6 +59,9 @@ export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const spiderfyManager = useRef<SpiderfyManager | null>(null);
+  const soldSnapshotRef = useRef<HTMLDivElement>(null);
+  const listingSnapshotRef = useRef<HTMLDivElement>(null);
+  const rentalSnapshotRef = useRef<HTMLDivElement>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [rentals, setRentals] = useState<RentalListing[]>([]);
@@ -89,8 +94,8 @@ export default function MapPage() {
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Collapsible filter panel state
-  const [showFilters, setShowFilters] = useState(true);
+  // Collapsible filter panel state - hidden by default on mobile
+  const [showFilters, setShowFilters] = useState(false);
   
   // New filter states
   const [bedsFilter, setBedsFilter] = useState<number | null>(null);
@@ -100,6 +105,11 @@ export default function MapPage() {
   const [minArea, setMinArea] = useState<number | null>(null);
   const [maxArea, setMaxArea] = useState<number | null>(null);
   const [yieldFilter, setYieldFilter] = useState<'any' | 'high' | 'medium' | 'low' | null>(null);
+
+  // Property sharing hooks
+  const soldShare = usePropertyShare(soldSnapshotRef, selectedProperty, 'sold');
+  const listingShare = usePropertyShare(listingSnapshotRef, selectedListing, 'forSale');
+  const rentalShare = usePropertyShare(rentalSnapshotRef, selectedRental, 'rental');
 
   // Analytics-wrapped state setters
   const handleViewModeChange = (mode: 'clusters' | 'price' | 'difference') => {
@@ -1265,47 +1275,47 @@ export default function MapPage() {
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col">
       {/* Main Control Bar - Single Row */}
-      <div className="px-4 py-3 bg-[#111827] border-b border-gray-800 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+      <div className="px-2 py-2 md:px-4 md:py-3 bg-[#111827] border-b border-gray-800 flex flex-wrap md:flex-nowrap items-center justify-between gap-2 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-4 flex-wrap md:flex-nowrap">
           {/* Data Source Multi-Select */}
           <div className="flex items-center gap-1 bg-gray-800 rounded-lg p-1 border border-gray-700">
             <button
               onClick={() => toggleDataSource('sold')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+              className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
                 dataSources.sold 
                   ? 'bg-cyan-600 text-white shadow-sm' 
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
               title="Toggle sold properties"
             >
-              🏠 Sold
+              Sold
             </button>
             <button
               onClick={() => toggleDataSource('forSale')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+              className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
                 dataSources.forSale 
                   ? 'bg-rose-500 text-white shadow-sm' 
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
               title="Toggle for sale listings"
             >
-              🏷️ For Sale
+              For Sale
             </button>
             <button
               onClick={() => toggleDataSource('rentals')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+              className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
                 dataSources.rentals 
                   ? 'bg-purple-500 text-white shadow-sm' 
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
               title="Toggle rental listings"
             >
-              🏘️ Rentals
+              Rentals
             </button>
           </div>
           
           {/* Count display - shows totals for all selected sources */}
-          <span className="text-gray-400 text-sm font-medium">
+          <span className="hidden sm:inline text-gray-400 text-sm font-medium">
             {loading ? 'Loading...' : (
               <>
                 {activeData.length.toLocaleString()} total
@@ -1323,7 +1333,7 @@ export default function MapPage() {
           </span>
           
           {/* Location Search */}
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <div className="flex items-center">
               <span className="absolute left-3 text-gray-500">🔍</span>
               <input
@@ -1332,7 +1342,7 @@ export default function MapPage() {
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onFocus={() => setShowSearchResults(true)}
-                className="w-48 md:w-56 pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 text-sm"
+                className="w-full sm:w-40 md:w-56 pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 text-sm"
               />
               {isSearching && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -1380,36 +1390,36 @@ export default function MapPage() {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 md:gap-3">
           {/* View Mode Toggle */}
           <div className="flex rounded-lg overflow-hidden border border-gray-700">
             <button
               onClick={() => handleViewModeChange('clusters')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
                 viewMode === 'clusters' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
               }`}
               title="Group nearby properties into clusters"
             >
-              📍 Clusters
+              Clusters
             </button>
             <button
               onClick={() => handleViewModeChange('price')}
-              className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
                 viewMode === 'price' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
               }`}
               title="Color by price"
             >
-              💶 By Price
+              Price
             </button>
             {dataSources.sold && (
               <button
                 onClick={() => handleViewModeChange('difference')}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
                   viewMode === 'difference' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                 }`}
                 title="Color by sold vs asking price difference"
               >
-                📊 vs Asking
+                vs Asking
               </button>
             )}
           </div>
@@ -1417,13 +1427,13 @@ export default function MapPage() {
           {/* Filter Toggle Button */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+            className={`px-3 md:px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-1.5 md:gap-2 ${
               showFilters || activeFilterCount > 0
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
             }`}
           >
-            <span>⚙️ Filters</span>
+            <span>Filters</span>
             {activeFilterCount > 0 && (
               <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
                 {activeFilterCount}
@@ -1435,8 +1445,8 @@ export default function MapPage() {
 
       {/* Collapsible Filter Panel */}
       {showFilters && (
-        <div className="bg-[#0d1117] border-b border-gray-800 px-4 py-4 animate-in slide-in-from-top duration-200">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="bg-[#0d1117] border-b border-gray-800 px-2 py-3 md:px-4 md:py-4 animate-in slide-in-from-top duration-200">
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
             {/* VIEW MODE Section */}
             <div>
               <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">View</label>
@@ -1479,7 +1489,7 @@ export default function MapPage() {
                 <select
                   value={selectedYear ?? ''}
                   onChange={(e) => { setSelectedYear(e.target.value ? parseInt(e.target.value) : null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); }}
-                  className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                  className="flex-1 px-2 py-2 md:py-1 text-sm md:text-xs bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
                 >
                   <option value="">Year</option>
                   {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
@@ -1488,7 +1498,7 @@ export default function MapPage() {
                   <select
                     value={selectedQuarter ?? ''}
                     onChange={(e) => { setSelectedQuarter(e.target.value ? parseInt(e.target.value) : null); setSelectedMonth(null); }}
-                    className="flex-1 px-2 py-1 text-xs bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                    className="flex-1 px-2 py-2 md:py-1 text-sm md:text-xs bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
                   >
                     <option value="">Quarter</option>
                     <option value="1">Q1</option>
@@ -1506,7 +1516,7 @@ export default function MapPage() {
               <select
                 value={bedsFilter ?? ''}
                 onChange={(e) => setBedsFilter(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none mb-2"
+                className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none mb-2"
               >
                 <option value="">Any Beds</option>
                 <option value="1">1 Bed</option>
@@ -1518,7 +1528,7 @@ export default function MapPage() {
               <select
                 value={propertyTypeFilter ?? ''}
                 onChange={(e) => setPropertyTypeFilter(e.target.value || null)}
-                className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="">Any Type</option>
                 {propertyTypes.map(t => <option key={t} value={t}>{t}</option>)}
@@ -1536,14 +1546,14 @@ export default function MapPage() {
                   placeholder="Min €"
                   value={minPrice ?? ''}
                   onChange={(e) => setMinPrice(e.target.value ? parseInt(e.target.value) : null)}
-                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                  className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
                 />
                 <input
                   type="number"
                   placeholder="Max €"
                   value={maxPrice ?? ''}
                   onChange={(e) => setMaxPrice(e.target.value ? parseInt(e.target.value) : null)}
-                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                  className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
                 />
               </div>
               <div className="flex gap-2 mt-2">
@@ -1552,14 +1562,14 @@ export default function MapPage() {
                   placeholder="Min m²"
                   value={minArea ?? ''}
                   onChange={(e) => setMinArea(e.target.value ? parseInt(e.target.value) : null)}
-                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                  className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
                 />
                 <input
                   type="number"
                   placeholder="Max m²"
                   value={maxArea ?? ''}
                   onChange={(e) => setMaxArea(e.target.value ? parseInt(e.target.value) : null)}
-                  className="w-full px-2 py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
+                  className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none placeholder-gray-600"
                 />
               </div>
             </div>
@@ -1613,21 +1623,21 @@ export default function MapPage() {
 
           {/* Clear and Close */}
           <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-800">
-            <div className="text-sm text-gray-500">
+            <div className="text-xs md:text-sm text-gray-500">
               {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'No filters applied'}
             </div>
             <div className="flex gap-2">
               {activeFilterCount > 0 && (
                 <button
                   onClick={handleClearFilters}
-                  className="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
+                  className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
                 >
                   Clear All
                 </button>
               )}
               <button
                 onClick={() => setShowFilters(false)}
-                className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
+                className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
               >
                 Done
               </button>
@@ -1637,7 +1647,7 @@ export default function MapPage() {
       )}
 
       {/* Compact Legend Bar */}
-      <div className="px-4 py-1.5 bg-[#0D1117] border-b border-gray-800 flex items-center gap-4 text-xs text-gray-400 overflow-x-auto">
+      <div className="hidden sm:flex px-4 py-1.5 bg-[#0D1117] border-b border-gray-800 items-center gap-4 text-xs text-gray-400 overflow-x-auto">
         {/* Cluster view - show cluster colors when zoomed out, property colors when zoomed in */}
         {viewMode === 'clusters' && zoomLevel < 14 && (
           <>
@@ -1755,7 +1765,7 @@ export default function MapPage() {
         
         {/* Selected Property Panel */}
         {selectedProperty && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-5 shadow-2xl border border-gray-700">
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 max-h-[75vh] overflow-y-auto">
             <button 
               onClick={() => setSelectedProperty(null)}
               className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
@@ -1892,12 +1902,39 @@ export default function MapPage() {
                 </div>
               )}
             </div>
+            
+            {/* Share Button */}
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <button
+                onClick={() => {
+                  soldShare.shareProperty();
+                  analytics.propertyShared('sold');
+                }}
+                disabled={soldShare.isGenerating}
+                className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                {soldShare.isGenerating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📸</span>
+                    <span>Share Property</span>
+                  </>
+                )}
+              </button>
+              {soldShare.error && (
+                <p className="text-red-400 text-xs mt-2">{soldShare.error}</p>
+              )}
+            </div>
           </div>
         )}
         
         {/* Selected Listing Panel (For Sale) */}
         {selectedListing && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-5 shadow-2xl border border-cyan-700">
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-cyan-700 max-h-[75vh] overflow-y-auto">
             <button 
               onClick={() => setSelectedListing(null)}
               className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
@@ -2002,12 +2039,39 @@ export default function MapPage() {
                 </p>
               </div>
             )}
+            
+            {/* Share Button */}
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <button
+                onClick={() => {
+                  listingShare.shareProperty();
+                  analytics.propertyShared('forSale');
+                }}
+                disabled={listingShare.isGenerating}
+                className="w-full px-4 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                {listingShare.isGenerating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📸</span>
+                    <span>Share Property</span>
+                  </>
+                )}
+              </button>
+              {listingShare.error && (
+                <p className="text-red-400 text-xs mt-2">{listingShare.error}</p>
+              )}
+            </div>
           </div>
         )}
 
         {/* Selected Rental Panel */}
         {selectedRental && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-5 shadow-2xl border border-purple-600">
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-purple-600 max-h-[75vh] overflow-y-auto">
             <button 
               onClick={() => setSelectedRental(null)}
               className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
@@ -2083,6 +2147,33 @@ export default function MapPage() {
                   <span className="text-gray-500 text-sm">Rent per m²</span>
                   <span className="text-white font-mono">€{selectedRental.rentPerSqm.toFixed(2)}/mo</span>
                 </div>
+              )}
+            </div>
+            
+            {/* Share Button */}
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <button
+                onClick={() => {
+                  rentalShare.shareProperty();
+                  analytics.propertyShared('rental');
+                }}
+                disabled={rentalShare.isGenerating}
+                className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                {rentalShare.isGenerating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📸</span>
+                    <span>Share Property</span>
+                  </>
+                )}
+              </button>
+              {rentalShare.error && (
+                <p className="text-red-400 text-xs mt-2">{rentalShare.error}</p>
               )}
             </div>
           </div>
@@ -2212,6 +2303,26 @@ export default function MapPage() {
             )}
           </div>
         </div>
+        
+        {/* Hidden PropertySnapshot components for image generation */}
+        {selectedProperty && (
+          <PropertySnapshot 
+            property={selectedProperty} 
+            snapshotRef={soldSnapshotRef}
+          />
+        )}
+        {selectedListing && (
+          <PropertySnapshot 
+            listing={selectedListing} 
+            snapshotRef={listingSnapshotRef}
+          />
+        )}
+        {selectedRental && (
+          <PropertySnapshot 
+            rental={selectedRental} 
+            snapshotRef={rentalSnapshotRef}
+          />
+        )}
       </div>
     </div>
   );
