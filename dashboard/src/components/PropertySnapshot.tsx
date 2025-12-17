@@ -30,10 +30,10 @@ export function PropertySnapshot({ property, listing, rental, snapshotRef }: Pro
     ? property.soldPrice 
     : isForSale 
       ? listing.askingPrice 
-      : rental.monthlyRent;
+      : rental?.monthlyRent ?? 0;
   
   // Format date for sold properties
-  const soldDate = isSold && property.soldDate 
+  const soldDate = isSold && property?.soldDate 
     ? new Date(property.soldDate).toLocaleDateString('en-IE', { year: 'numeric', month: 'short' })
     : null;
   
@@ -137,7 +137,7 @@ export function PropertySnapshot({ property, listing, rental, snapshotRef }: Pro
             </div>
             
             {/* Additional info for sold properties */}
-            {isSold && (
+            {isSold && property && (
               <>
                 {property.pricePerSqm && property.pricePerSqm > 0 && (
                   <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', borderRadius: '16px', padding: '20px', marginTop: '16px' }}>
