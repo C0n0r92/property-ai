@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 /**
  * Filter data by geographic bounds
  */
-function filterByBounds<T extends { latitude?: number; longitude?: number }>(
+function filterByBounds<T extends { latitude?: number | null; longitude?: number | null }>(
   data: T[],
   bounds: MapBounds
 ): T[] {
