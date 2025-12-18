@@ -12,10 +12,11 @@ export const metadata: Metadata = {
   },
   keywords: [
     'Dublin property', 'house prices Dublin', 'property prices Ireland', 'sold house prices', 
-    'Dublin real estate', 'property market Dublin', 'Dublin property map', 'Dublin house prices 2024',
+    'Dublin real estate', 'property market Dublin', 'Dublin property map', 'Dublin house prices 2025',
     'property sold prices Dublin', 'Dublin property search', 'Dublin property values', 
     'property price check Dublin', 'Dublin property data', 'Ireland property prices',
-    'what did house sell for Dublin', 'Dublin rental prices', 'Dublin property listings'
+    'what did house sell for Dublin', 'Dublin rental prices', 'Dublin property listings',
+    'rental yield Dublin', 'property investment Dublin'
   ],
   authors: [{ name: 'Gaff Intel' }],
   creator: 'Gaff Intel',
@@ -111,6 +112,12 @@ export default function RootLayout({
                     className="px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
                   >
                     Map
+                  </Link>
+                  <Link 
+                    href="/areas" 
+                    className="px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
+                  >
+                    Areas
                   </Link>
                   <Link 
                     href="/insights" 

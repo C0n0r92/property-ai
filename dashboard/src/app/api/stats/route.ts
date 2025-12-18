@@ -42,11 +42,12 @@ export async function GET() {
   
   return NextResponse.json({
     stats,
-    areaStats: areaStats.slice(0, 30), // Top 30 areas
+    areaStats, // Return all areas
     propertyTypes,
     monthlyTrend,
   });
 }
+
 
 
 

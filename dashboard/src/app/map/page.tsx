@@ -786,6 +786,22 @@ export default function MapPage() {
     };
   }, [handleSpiderFeatureClick]);
 
+  // Function to reset/reload the map
+  const resetMap = useCallback(() => {
+    if (map.current) {
+      // Force map to resize and redraw
+      map.current.resize();
+      map.current.triggerRepaint();
+      
+      // Fly back to Dublin center
+      map.current.flyTo({
+        center: [-6.26, 53.35],
+        zoom: 11,
+        essential: true
+      });
+    }
+  }, []);
+
   // Hide navigation controls on mobile when property panel is open
   useEffect(() => {
     if (!map.current) return;
@@ -1472,6 +1488,15 @@ export default function MapPage() {
               </button>
             )}
           </div>
+          
+          {/* Reset Map Button */}
+          <button
+            onClick={resetMap}
+            className="px-3 md:px-4 py-2 rounded-lg font-medium text-sm transition-all bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
+            title="Reset map view"
+          >
+            🔄
+          </button>
           
           {/* Filter Toggle Button */}
           <button
