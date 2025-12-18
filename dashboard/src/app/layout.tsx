@@ -4,8 +4,8 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "Gaff Intel | Dublin Property Intelligence",
-  description: "Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.",
+  title: "Irish Property Data | Property Intelligence & Market Insights",
+  description: "Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.",
   metadataBase: new URL('https://irishpropertydata.com'),
   alternates: {
     canonical: '/',
@@ -18,20 +18,20 @@ export const metadata: Metadata = {
     'what did house sell for Dublin', 'Dublin rental prices', 'Dublin property listings',
     'rental yield Dublin', 'property investment Dublin'
   ],
-  authors: [{ name: 'Gaff Intel' }],
-  creator: 'Gaff Intel',
+  authors: [{ name: 'Irish Property Data' }],
+  creator: 'Irish Property Data',
   openGraph: {
     type: 'website',
     locale: 'en_IE',
     url: 'https://irishpropertydata.com',
-    siteName: 'Gaff Intel',
-    title: 'Gaff Intel | Dublin Property Intelligence',
-    description: 'Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.',
+    siteName: 'Irish Property Data',
+    title: 'Irish Property Data | Property Intelligence & Market Insights',
+    description: 'Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Gaff Intel | Dublin Property Intelligence',
-    description: 'Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights.',
+    title: 'Irish Property Data | Property Intelligence & Market Insights',
+    description: 'Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights.',
   },
   robots: {
     index: true,
@@ -63,8 +63,8 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              "name": "Gaff Intel",
-              "description": "Dublin Property Intelligence - Explore 43,000+ sold properties with price insights and market predictions",
+              "name": "Irish Property Data",
+              "description": "Irish Property Intelligence - Explore 43,000+ sold properties with price insights and market predictions",
               "url": "https://irishpropertydata.com",
               "applicationCategory": "RealEstateApplication",
               "operatingSystem": "Web",
@@ -83,7 +83,7 @@ export default function RootLayout({
               },
               "creator": {
                 "@type": "Organization",
-                "name": "Gaff Intel"
+                "name": "Irish Property Data"
               }
             })
           }}
@@ -96,13 +96,13 @@ export default function RootLayout({
               <div className="flex justify-between items-center h-16">
                 <Link href="/" className="flex items-center gap-3 group">
                   <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 via-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-cyan-500/25 group-hover:shadow-cyan-500/40 transition-shadow">
-                    G
+                    IPD
                   </div>
                   <div className="hidden sm:flex flex-col">
                     <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                      Gaff Intel
+                      Irish Property Data
                     </span>
-                    <span className="text-[10px] text-gray-500 -mt-1 tracking-wider uppercase">Dublin Property</span>
+                    <span className="text-[10px] text-gray-500 -mt-1 tracking-wider uppercase">Market Intelligence</span>
                   </div>
                 </Link>
                 

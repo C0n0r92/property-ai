@@ -64,7 +64,7 @@ export function AreaStructuredData({
     "keywords": `${areaName}, Dublin, property prices, house prices, real estate data`,
     "creator": {
       "@type": "Organization",
-      "name": "Gaff Intel"
+      "name": "Irish Property Data"
     },
     "temporalCoverage": "2020/2025",
     "spatialCoverage": {

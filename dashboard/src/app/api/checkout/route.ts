@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
             currency,
             product_data: {
               name: plan === 'one-time' 
-                ? 'Gaff Intel Pro - Lifetime Access' 
-                : 'Gaff Intel Pro - Monthly Subscription',
+                ? 'Irish Property Data Pro - Lifetime Access' 
+                : 'Irish Property Data Pro - Monthly Subscription',
               description: plan === 'one-time'
                 ? 'One-time payment for lifetime access to Pro Insights'
                 : 'Monthly subscription to Pro Insights',

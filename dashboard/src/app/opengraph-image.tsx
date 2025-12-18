@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-export const alt = 'Gaff Intel - Dublin Property Intelligence';
+export const alt = 'Irish Property Data - Property Intelligence & Market Insights';
 export const size = {
   width: 1200,
   height: 630,
@@ -107,7 +107,7 @@ export default async function Image() {
               display: 'flex',
             }}
           >
-            Gaff Intel
+            Irish Property Data
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default async function Image() {
             display: 'flex',
           }}
         >
-          Dublin Property Intelligence
+          Market Intelligence
         </div>
 
         {/* Stats */}

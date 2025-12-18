@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   if (!areaName) {
     return {
-      title: 'Area Not Found | Gaff Intel',
+      title: 'Area Not Found | Irish Property Data',
     };
   }
   
