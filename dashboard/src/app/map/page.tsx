@@ -71,11 +71,11 @@ export default function MapPage() {
   const [selectedRental, setSelectedRental] = useState<RentalListing | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(11); // Track zoom for legend display
-  const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
+  const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('price');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>('all');
   
   // Data source toggle: allows any combination of sold, forSale, rentals
-  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: false, rentals: false });
+  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: false });
   
   // Hierarchical time filter state (only for sold properties)
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -94,8 +94,16 @@ export default function MapPage() {
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Collapsible filter panel state - hidden by default on mobile
+  // Collapsible filter panel state - hidden on mobile, open on desktop by default
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Open filters on desktop by default
+  useEffect(() => {
+    const isDesktop = window.innerWidth >= 768; // md breakpoint
+    if (isDesktop) {
+      setShowFilters(true);
+    }
+  }, []);
   
   // New filter states
   const [bedsFilter, setBedsFilter] = useState<number | null>(null);
@@ -124,10 +132,25 @@ export default function MapPage() {
       if (!newSources.sold && !newSources.forSale && !newSources.rentals) {
         return prev; // Don't allow deselecting all
       }
-      // If sold is being deselected and we're in difference view, switch to clusters
-      if (source === 'sold' && prev.sold && !newSources.sold && viewMode === 'difference') {
+      
+      // Auto-select appropriate view mode based on data sources
+      // Only sold selected -> difference (over asking)
+      if (newSources.sold && !newSources.forSale && !newSources.rentals) {
+        setViewMode('difference');
+      }
+      // Sold + for sale (no rentals) -> price
+      else if (newSources.sold && newSources.forSale && !newSources.rentals) {
+        setViewMode('price');
+      }
+      // All 3 selected -> clusters
+      else if (newSources.sold && newSources.forSale && newSources.rentals) {
         setViewMode('clusters');
       }
+      // If sold is being deselected and we're in difference view, switch to clusters
+      else if (!newSources.sold && viewMode === 'difference') {
+        setViewMode('clusters');
+      }
+      
       return newSources;
     });
     analytics.mapDataSourceChanged(source);
@@ -733,7 +756,11 @@ export default function MapPage() {
       pitch: 0,
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    const navControl = new mapboxgl.NavigationControl();
+    map.current.addControl(navControl, 'top-right');
+    
+    // Store reference to nav control for hiding/showing
+    (map.current as any).navControl = navControl;
     
     map.current.on('load', () => {
       // Initialize spiderfy manager
@@ -758,6 +785,28 @@ export default function MapPage() {
       map.current = null;
     };
   }, [handleSpiderFeatureClick]);
+
+  // Hide navigation controls on mobile when property panel is open
+  useEffect(() => {
+    if (!map.current) return;
+    
+    const isMobile = window.innerWidth < 768;
+    const hasPropertyOpen = selectedProperty || selectedListing || selectedRental;
+    
+    if (isMobile && hasPropertyOpen) {
+      // Hide navigation control on mobile when property is selected
+      const navControlContainer = document.querySelector('.mapboxgl-ctrl-top-right');
+      if (navControlContainer) {
+        (navControlContainer as HTMLElement).style.display = 'none';
+      }
+    } else {
+      // Show navigation control
+      const navControlContainer = document.querySelector('.mapboxgl-ctrl-top-right');
+      if (navControlContainer) {
+        (navControlContainer as HTMLElement).style.display = 'block';
+      }
+    }
+  }, [selectedProperty, selectedListing, selectedRental]);
 
   // Setup map layers based on view mode and data source
   useEffect(() => {
@@ -1419,7 +1468,7 @@ export default function MapPage() {
                 }`}
                 title="Color by sold vs asking price difference"
               >
-                vs Asking
+                Over Asking
               </button>
             )}
           </div>
@@ -1462,7 +1511,7 @@ export default function MapPage() {
                 {dataSources.sold && (
                   <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
                     <input type="radio" checked={viewMode === 'difference'} onChange={() => handleViewModeChange('difference')} className="accent-indigo-500" />
-                    Sold vs Asking
+                    Over Asking
                   </label>
                 )}
               </div>
@@ -1721,7 +1770,7 @@ export default function MapPage() {
         )}
         {viewMode === 'difference' && dataSources.sold && (
           <>
-            <span className="text-gray-500 font-medium shrink-0">vs Asking:</span>
+            <span className="text-gray-500 font-medium shrink-0">Over Asking:</span>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> -20%</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400"></span> At asking</span>
@@ -1765,10 +1814,10 @@ export default function MapPage() {
         
         {/* Selected Property Panel */}
         {selectedProperty && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 max-h-[75vh] overflow-y-auto">
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 max-h-[75vh] overflow-y-auto z-50">
             <button 
               onClick={() => setSelectedProperty(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
+              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl z-10"
             >
               ✕
             </button>
@@ -1934,10 +1983,10 @@ export default function MapPage() {
         
         {/* Selected Listing Panel (For Sale) */}
         {selectedListing && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-cyan-700 max-h-[75vh] overflow-y-auto">
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-cyan-700 max-h-[75vh] overflow-y-auto z-50">
             <button 
               onClick={() => setSelectedListing(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
+              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl z-10"
             >
               ✕
             </button>
@@ -2071,10 +2120,10 @@ export default function MapPage() {
 
         {/* Selected Rental Panel */}
         {selectedRental && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-purple-600 max-h-[75vh] overflow-y-auto">
+          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-purple-600 max-h-[75vh] overflow-y-auto z-50">
             <button 
               onClick={() => setSelectedRental(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl"
+              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl z-10"
             >
               ✕
             </button>
