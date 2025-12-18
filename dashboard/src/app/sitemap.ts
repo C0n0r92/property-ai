@@ -3,18 +3,18 @@ import { getAllAreaSlugs } from '@/lib/areas';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://irishpropertydata.com';
-  
+
   // Get all area slugs for dynamic area pages
   const areaSlugs = getAllAreaSlugs();
-  
+
   // Create sitemap entries for all area pages
   const areaPages: MetadataRoute.Sitemap = areaSlugs.map(slug => ({
     url: `${baseUrl}/areas/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    priority: 0.7,
   }));
-  
+
   return [
     {
       url: baseUrl,
@@ -26,19 +26,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/map`,
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 1,
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/areas`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.9,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/insights`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
+      changeFrequency: 'monthly',
+      priority: 0.6,
     },
     // Add all area pages
     ...areaPages,
