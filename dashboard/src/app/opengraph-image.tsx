@@ -223,7 +223,7 @@ export default async function Image() {
             display: 'flex',
           }}
         >
-          gaffintel.com
+          irishpropertydata.com
         </div>
       </div>
     ),

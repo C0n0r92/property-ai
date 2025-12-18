@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: 'Dublin Property Prices by Area | Complete Guide 2025',
     description: 'Compare property prices across 300+ Dublin areas with comprehensive market data and trends.',
     type: 'website',
-    url: 'https://gaffintel.com/areas',
+    url: 'https://irishpropertydata.com/areas',
   },
   twitter: {
     card: 'summary_large_image',

@@ -42,7 +42,7 @@ cp scraper/data/data.json dashboard/public/data.json
 
 ### 2. Check Environment Variables
 Make sure these are set in your deployment:
-- `NEXTAUTH_URL=https://gaffintel.com`
+- `NEXTAUTH_URL=https://irishpropertydata.com`
 - `NODE_ENV=production`
 
 ## Deployment
@@ -59,17 +59,17 @@ git push origin main
 
 ### 1. Verify Pages Load
 Visit these URLs on your live site:
-- https://gaffintel.com/areas
-- https://gaffintel.com/areas/dublin-4
-- https://gaffintel.com/areas/ballsbridge
+- https://irishpropertydata.com/areas
+- https://irishpropertydata.com/areas/dublin-4
+- https://irishpropertydata.com/areas/ballsbridge
 
 ### 2. Check Sitemap
-- Visit: https://gaffintel.com/sitemap.xml
+- Visit: https://irishpropertydata.com/sitemap.xml
 - Verify all area pages are listed
 
 ### 3. Submit to Google
 - Go to [Google Search Console](https://search.google.com/search-console)
-- Submit sitemap: `https://gaffintel.com/sitemap.xml`
+- Submit sitemap: `https://irishpropertydata.com/sitemap.xml`
 - Request indexing for `/areas` page
 
 ### 4. Monitor Performance

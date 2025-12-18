@@ -37,19 +37,19 @@ export function AreaStructuredData({
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://gaffintel.com"
+        "item": "https://irishpropertydata.com"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Areas",
-        "item": "https://gaffintel.com/areas"
+        "item": "https://irishpropertydata.com/areas"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": areaName,
-        "item": `https://gaffintel.com/areas/${areaName.toLowerCase().replace(/\s+/g, '-')}`
+        "item": `https://irishpropertydata.com/areas/${areaName.toLowerCase().replace(/\s+/g, '-')}`
       }
     ]
   };
@@ -60,7 +60,7 @@ export function AreaStructuredData({
     "@type": "Dataset",
     "name": `${areaName} Property Sales Data`,
     "description": `Comprehensive property sales data for ${areaName}, Dublin. Includes ${totalSales.toLocaleString()} property transactions with prices, dates, and market statistics.`,
-    "url": `https://gaffintel.com/areas/${areaName.toLowerCase().replace(/\s+/g, '-')}`,
+    "url": `https://irishpropertydata.com/areas/${areaName.toLowerCase().replace(/\s+/g, '-')}`,
     "keywords": `${areaName}, Dublin, property prices, house prices, real estate data`,
     "creator": {
       "@type": "Organization",
@@ -73,7 +73,7 @@ export function AreaStructuredData({
     },
     "distribution": {
       "@type": "DataDownload",
-      "contentUrl": `https://gaffintel.com/api/areas/${areaName.toLowerCase().replace(/\s+/g, '-')}`
+      "contentUrl": `https://irishpropertydata.com/api/areas/${areaName.toLowerCase().replace(/\s+/g, '-')}`
     }
   };
 

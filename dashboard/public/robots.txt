@@ -2,5 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://gaffintel.com/sitemap.xml
+Sitemap: https://irishpropertydata.com/sitemap.xml
 

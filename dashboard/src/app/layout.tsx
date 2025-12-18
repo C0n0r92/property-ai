@@ -6,7 +6,7 @@ import Providers from "@/components/Providers";
 export const metadata: Metadata = {
   title: "Gaff Intel | Dublin Property Intelligence",
   description: "Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.",
-  metadataBase: new URL('https://gaffintel.com'),
+  metadataBase: new URL('https://irishpropertydata.com'),
   alternates: {
     canonical: '/',
   },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IE',
-    url: 'https://gaffintel.com',
+    url: 'https://irishpropertydata.com',
     siteName: 'Gaff Intel',
     title: 'Gaff Intel | Dublin Property Intelligence',
     description: 'Know what Dublin properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.',
@@ -65,7 +65,7 @@ export default function RootLayout({
               "@type": "WebApplication",
               "name": "Gaff Intel",
               "description": "Dublin Property Intelligence - Explore 43,000+ sold properties with price insights and market predictions",
-              "url": "https://gaffintel.com",
+              "url": "https://irishpropertydata.com",
               "applicationCategory": "RealEstateApplication",
               "operatingSystem": "Web",
               "offers": {

@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getAllAreaSlugs } from '@/lib/areas';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://gaffintel.com';
+  const baseUrl = 'https://irishpropertydata.com';
   
   // Get all area slugs for dynamic area pages
   const areaSlugs = getAllAreaSlugs();

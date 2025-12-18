@@ -1,4 +1,4 @@
-name: gaff-intel
+name: irish-property-data
 region: fra
 services:
   - name: web
@@ -25,7 +25,7 @@ services:
         value: 402kbrR3CT3PBkuq6LSPFHMDwCqKdbrpdbiOpEMzXiY=
       - key: NEXTAUTH_URL
         scope: RUN_AND_BUILD_TIME
-        value: https://gaffintel.com
+        value: https://irishpropertydata.com
       - key: NODE_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
@@ -38,8 +38,8 @@ services:
       timeout_seconds: 5
       failure_threshold: 3
 domains:
-  - domain: gaffintel.com
+  - domain: irishpropertydata.com
     type: PRIMARY
-  - domain: www.gaffintel.com
+  - domain: www.irishpropertydata.com
     type: ALIAS
 
