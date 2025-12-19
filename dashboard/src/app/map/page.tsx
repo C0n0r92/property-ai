@@ -4,9 +4,10 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { formatFullPrice } from '@/lib/format';
-import type { Property, Listing, RentalListing, RentalStats } from '@/types/property';
+import type { Property, Listing, RentalListing, RentalStats, Amenity, WalkabilityScore, RouteInfo, AmenitiesFilter } from '@/types/property';
 import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
 import { analytics } from '@/lib/analytics';
+import { fetchAmenities, calculateWalkabilityScore, getCategoryIcon, formatCategory, getCategoryDisplayName, calculateDistance } from '@/lib/amenities';
 import { PropertySnapshot } from '@/components/PropertySnapshot';
 import { usePropertyShare } from '@/hooks/usePropertyShare';
 
@@ -69,9 +70,24 @@ export default function MapPage() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [selectedRental, setSelectedRental] = useState<RentalListing | null>(null);
+  const isClosingRef = useRef(false);
+
+  // Temporary: Auto-select first listing for testing selected property highlighting
+  // DISABLED: This was causing cards to reopen immediately after closing
+  // useEffect(() => {
+  //   if (listings.length > 0 && !selectedListing && !selectedProperty && !selectedRental) {
+  //     console.log('Auto-selecting first listing for testing:', listings[0].address);
+  //     setSelectedListing(listings[0]);
+  //   }
+  // }, [listings, selectedListing, selectedProperty, selectedRental]);
+
+  // Property card minimize states
+  const [minimizeProperty, setMinimizeProperty] = useState(false);
+  const [minimizeListing, setMinimizeListing] = useState(false);
+  const [minimizeRental, setMinimizeRental] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(11); // Track zoom for legend display
-  const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('price');
+  const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>('all');
   
   // Data source toggle: allows any combination of sold, forSale, rentals
@@ -97,6 +113,31 @@ export default function MapPage() {
 
   // Collapsible filter panel state - hidden on mobile, open on desktop by default
   const [showFilters, setShowFilters] = useState(false);
+
+  // Amenities layer state
+  const [showAmenities, setShowAmenities] = useState(false);
+  const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [amenitiesCache, setAmenitiesCache] = useState<Map<string, Amenity[]>>(new Map());
+  const [walkabilityScore, setWalkabilityScore] = useState<WalkabilityScore | null>(null);
+
+  // Category filtering
+  const [categoryFilters, setCategoryFilters] = useState<AmenitiesFilter>({
+    public_transport: true,
+    education: true,
+    healthcare: true,
+    shopping: true,
+    leisure: true,
+    services: true,
+  });
+
+  // Route visualization
+  const [selectedAmenity, setSelectedAmenity] = useState<Amenity | null>(null);
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+  const [travelMode, setTravelMode] = useState<'walking' | 'cycling' | 'driving'>('walking');
+
+  // Loading and error states
+  const [loadingAmenities, setLoadingAmenities] = useState(false);
+  const [amenitiesError, setAmenitiesError] = useState<string | null>(null);
   
   // Open filters on desktop by default
   useEffect(() => {
@@ -241,6 +282,12 @@ export default function MapPage() {
 
   // Handle spider feature click (when user clicks on a spiderfied marker)
   const handleSpiderFeatureClick = useCallback((spiderFeature: SpiderFeature) => {
+    // Prevent reopening if we just closed a card
+    if (isClosingRef.current) {
+      console.log('Ignoring spider click - card is being closed');
+      return;
+    }
+    
     const props = spiderFeature.properties;
     if (props?.isRental) {
       // Find the full rental object from the rentals array
@@ -907,7 +954,7 @@ export default function MapPage() {
     
     if (!map.current) return;
     
-    const layersToRemove = ['clusters', 'cluster-count', 'unclustered-point', 'properties-points'];
+    const layersToRemove = ['clusters', 'cluster-count', 'unclustered-point', 'properties-points', 'selected-property-point', 'selected-property-star'];
     layersToRemove.forEach(layer => {
       if (map.current?.getLayer(layer)) map.current?.removeLayer(layer);
     });
@@ -1036,21 +1083,27 @@ export default function MapPage() {
       map.current.on('click', 'unclustered-point', (e) => {
         if (!e.features || !e.features[0]) return;
         
+        // Prevent reopening if we just closed a card
+        if (isClosingRef.current) {
+          console.log('Ignoring click - card is being closed');
+          return;
+        }
+
         const clickedFeature = e.features[0];
         const clickedGeometry = clickedFeature.geometry as GeoJSON.Point;
         const clickedCoords = clickedGeometry.coordinates as [number, number];
-        
+
         // If spider is expanded and user clicks the center point, collapse it
         if (spiderfyManager.current?.isAtCenter(clickedCoords)) {
           spiderfyManager.current.collapse();
           return;
         }
-        
+
         // Query ALL features at this pixel location
         const allFeatures = map.current?.queryRenderedFeatures(e.point, {
           layers: ['unclustered-point']
         });
-        
+
         // Find features with identical coordinates (within small tolerance)
         const tolerance = 0.000001;
         const overlappingRaw = allFeatures?.filter(f => {
@@ -1058,7 +1111,7 @@ export default function MapPage() {
           return Math.abs(geom.coordinates[0] - clickedCoords[0]) < tolerance &&
                  Math.abs(geom.coordinates[1] - clickedCoords[1]) < tolerance;
         }) || [];
-        
+
         // Deduplicate by unique ID (Mapbox can return same feature multiple times from tile overlaps)
         const seenIds = new Set<string>();
         const overlapping = overlappingRaw.filter(f => {
@@ -1067,17 +1120,17 @@ export default function MapPage() {
           seenIds.add(id);
           return true;
         });
-        
+
         if (overlapping.length > 1) {
           // Multiple properties at same location - trigger spiderfy
           spiderfyManager.current?.expand(clickedCoords, overlapping);
         } else {
-          // Single property - show details as normal
+          // Single property - show details and zoom to focus on it
           const props = clickedFeature.properties;
           if (props?.isRental) {
             // Find the full rental object
             const fullRental = rentals.find(r => r.address === props?.address);
-            if (fullRental) {
+            if (fullRental && fullRental.longitude && fullRental.latitude) {
               setSelectedRental(fullRental);
             }
             setSelectedProperty(null);
@@ -1085,7 +1138,7 @@ export default function MapPage() {
           } else if (props?.isListing) {
             // Find the full listing object
             const fullListing = listings.find(l => l.address === props?.address);
-            if (fullListing) {
+            if (fullListing && fullListing.longitude && fullListing.latitude) {
               setSelectedListing(fullListing);
             }
             setSelectedProperty(null);
@@ -1093,7 +1146,7 @@ export default function MapPage() {
           } else {
             // Find the full property object
             const fullProperty = properties.find(p => p.address === props?.address);
-            if (fullProperty) {
+            if (fullProperty && fullProperty.longitude && fullProperty.latitude) {
               setSelectedProperty(fullProperty);
             }
             setSelectedListing(null);
@@ -1163,6 +1216,42 @@ export default function MapPage() {
         },
       });
 
+      // Add selected property highlight layer (on top of regular properties)
+      const currentProperty = selectedProperty || selectedListing || selectedRental;
+      console.log('Adding selected property layer for:', currentProperty?.address);
+      console.log('Selected property coords:', currentProperty?.longitude, currentProperty?.latitude);
+      if (currentProperty && currentProperty.longitude && currentProperty.latitude) {
+        console.log('Creating selected property highlight layer for address:', currentProperty.address);
+        try {
+          map.current.addLayer({
+            id: 'selected-property-point',
+            type: 'circle',
+            source: 'properties',
+            filter: ['==', ['get', 'address'], currentProperty.address],
+            paint: {
+              'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                9, 8,  // Larger than regular markers
+                14, 16,
+              ],
+              'circle-color': '#9333EA', // Purple/magenta for selected
+              'circle-opacity': 1.0,
+              'circle-stroke-width': 3,
+              'circle-stroke-color': '#ffffff',
+              // Add a subtle pulse effect
+              'circle-stroke-opacity': 0.8,
+            },
+          });
+          console.log('Selected property highlight layer created successfully');
+        } catch (error) {
+          console.error('Error creating selected property layer:', error);
+        }
+      } else {
+        console.log('Skipping selected property layer - missing coords or no selection');
+      }
+
       setupPointClickHandler('properties-points');
 
     } else if (viewMode === 'difference') {
@@ -1201,12 +1290,44 @@ export default function MapPage() {
         },
       });
 
+      // Add selected property highlight layer (on top of regular properties)
+      const currentProperty = selectedProperty || selectedListing || selectedRental;
+      if (currentProperty && currentProperty.longitude && currentProperty.latitude) {
+        map.current.addLayer({
+          id: 'selected-property-point',
+          type: 'circle',
+          source: 'properties',
+          filter: ['==', ['get', 'address'], currentProperty.address],
+          paint: {
+            'circle-radius': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              9, 10,  // Larger than regular markers
+              14, 20,
+            ],
+            'circle-color': '#9333EA', // Purple/magenta for selected
+            'circle-opacity': 1.0,
+            'circle-stroke-width': 4,
+            'circle-stroke-color': '#ffffff',
+            // Add a subtle pulse effect
+            'circle-stroke-opacity': 0.9,
+          },
+        });
+      }
+
       setupPointClickHandler('properties-points');
     }
 
     function setupPointClickHandler(layerId: string) {
       map.current?.on('click', layerId, (e) => {
         if (!e.features || !e.features[0]) return;
+        
+        // Prevent reopening if we just closed a card
+        if (isClosingRef.current) {
+          console.log('Ignoring click - card is being closed');
+          return;
+        }
         
         // Check if layer still exists before processing
         if (!map.current?.getLayer(layerId)) return;
@@ -1305,12 +1426,815 @@ export default function MapPage() {
         if (map.current) map.current.getCanvas().style.cursor = '';
       });
     }
+
+    // Add star icon for selected property in amenities mode (using built-in Mapbox Maki icon)
+    // We'll use the 'star' icon which should be available in the default Mapbox style
+
+    // Add amenities sources and layers
+    if (!map.current.getSource('amenities')) {
+      map.current.addSource('amenities', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] }
+      });
+
+      // Heavy rail layer (DART/Luas) - larger, more prominent
+      map.current.addLayer({
+        id: 'amenities-heavy-rail',
+        type: 'symbol',
+        source: 'amenities',
+        filter: ['==', ['get', 'isHeavyRail'], true],
+        layout: {
+          'icon-image': ['get', 'icon'], // Mapbox Maki icon
+          'icon-size': 1.8, // Even larger for prominence in amenities mode
+          'icon-allow-overlap': true,
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          'text-size': 12,
+          'text-anchor': 'top',
+          'text-offset': [0, 2],
+          'visibility': 'none', // Hidden initially
+        },
+        paint: {
+          'icon-color': '#3B82F6', // Blue for transport
+          'text-color': '#ffffff',
+          'text-halo-color': '#000000',
+          'text-halo-width': 2,
+        }
+      });
+
+      // Regular amenities layer - more prominent in amenities mode
+      map.current.addLayer({
+        id: 'amenities-regular',
+        type: 'symbol',
+        source: 'amenities',
+        filter: ['!=', ['get', 'isHeavyRail'], true],
+        layout: {
+          'icon-image': ['get', 'icon'],
+          'icon-size': 1.3, // Larger than normal for better visibility
+          'icon-allow-overlap': true, // Allow overlap for better visibility
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Regular'],
+          'text-size': 11,
+          'text-anchor': 'top',
+          'text-offset': [0, 1.5],
+          'visibility': 'none', // Hidden initially
+        },
+        paint: {
+          // Color by category - brighter colors for better visibility
+          'icon-color': [
+            'match',
+            ['get', 'category'],
+            'public_transport', '#3B82F6', // Blue
+            'education', '#A855F7',         // Purple
+            'healthcare', '#EF4444',        // Red
+            'shopping', '#10B981',          // Green
+            'leisure', '#F59E0B',           // Orange
+            'services', '#6B7280',          // Gray
+            '#FFFFFF' // Default
+          ],
+          'text-color': '#ffffff',
+          'text-halo-color': '#000000',
+          'text-halo-width': 1.5,
+        }
+      });
+
+      // Add route source and layer
+      if (!map.current.getSource('route')) {
+        map.current.addSource('route', {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] }
+        });
+
+        map.current.addLayer({
+          id: 'route-line',
+          type: 'line',
+          source: 'route',
+          paint: {
+            'line-color': '#3B82F6',
+            'line-width': 6,
+            'line-opacity': 0.9,
+          }
+        }, 'amenities-regular'); // Add above amenity layers
+      }
+
+      // Amenity click handlers
+      map.current.on('click', 'amenities-heavy-rail', (e) => {
+        if (!e.features?.[0]) return;
+        handleAmenityClick(e.features[0]);
+      });
+
+      map.current.on('click', 'amenities-regular', (e) => {
+        if (!e.features?.[0]) return;
+        handleAmenityClick(e.features[0]);
+      });
+
+      // Amenity hover handlers
+      ['amenities-heavy-rail', 'amenities-regular'].forEach(layerId => {
+        map.current?.on('mouseenter', layerId, () => {
+          if (map.current?.getLayer(layerId)) {
+            map.current.getCanvas().style.cursor = 'pointer';
+          }
+        });
+        map.current?.on('mouseleave', layerId, () => {
+          if (map.current) map.current.getCanvas().style.cursor = '';
+        });
+      });
+    }
+
+    function handleAmenityClick(feature: any) {
+      const props = feature.properties;
+      const amenity = amenities.find(a => a.id === props.id);
+
+      if (amenity) {
+        // Track amenity click
+        analytics.amenityClicked(amenity.type, amenity.name);
+
+        setSelectedAmenity(amenity);
+
+        // Create popup with amenity details
+        if (map.current) {
+          new mapboxgl.Popup()
+            .setLngLat([amenity.longitude, amenity.latitude])
+            .setHTML(createAmenityPopupHTML(amenity))
+            .addTo(map.current);
+        }
+      }
+    }
+
+    function createAmenityPopupHTML(amenity: Amenity): string {
+      return `
+        <div class="amenity-popup" style="min-width: 200px;">
+          <h3 style="font-weight: bold; margin-bottom: 8px;">${amenity.name}</h3>
+          <div style="color: #9ca3af; font-size: 12px; margin-bottom: 8px;">
+            ${formatCategory(amenity.category)}
+          </div>
+          <div style="margin-bottom: 8px;">
+            <div style="font-size: 14px;">📍 ${amenity.distance}m away</div>
+            <div style="font-size: 14px;">⏱️ ${amenity.walkingTime} min walk</div>
+          </div>
+          <button
+            onclick="window.getDirections('${amenity.id}')"
+            style="width: 100%; padding: 8px; background: #3B82F6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
+          >
+            Get Directions
+          </button>
+          <a
+            href="https://www.google.com/maps/dir/?api=1&destination=${amenity.latitude},${amenity.longitude}"
+            target="_blank"
+            style="display: block; text-align: center; margin-top: 8px; font-size: 12px; color: #60a5fa;"
+          >
+            Open in Google Maps
+          </a>
+        </div>
+      `;
+    }
     }; // End of doSetupLayers
     
     // Start the setup process
     setupLayers();
 
   }, [mapReady, activeData, viewMode, dataSources, rentals, listings, properties]);
+
+  // Update amenities map layers when category filters change (debounced)
+  useEffect(() => {
+    if (!map.current || !amenities.length) return;
+
+    // Debounce rapid filter changes
+    const timeoutId = setTimeout(() => {
+      // Filter amenities by category
+      const filtered = amenities.filter(a => categoryFilters[a.category]);
+
+      console.log('Updating amenities layer with', filtered.length, 'filtered amenities');
+
+      // Update map source
+      const geojson: GeoJSON.FeatureCollection = {
+        type: 'FeatureCollection',
+        features: filtered.map(a => ({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [a.longitude, a.latitude] },
+          properties: {
+            id: a.id,
+            name: a.name,
+            category: a.category,
+            icon: a.icon,
+            isHeavyRail: a.isHeavyRail || false,
+            distance: a.distance,
+            walkingTime: a.walkingTime,
+          }
+        }))
+      };
+
+      console.log('Setting amenities GeoJSON:', geojson);
+
+      const amenitiesSource = map.current?.getSource('amenities') as mapboxgl.GeoJSONSource;
+      if (amenitiesSource) {
+        amenitiesSource.setData(geojson);
+        console.log('Amenities data set successfully');
+      } else {
+        console.error('Amenities source not found!');
+      }
+    }, 100); // 100ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [amenities, categoryFilters]);
+
+  // Control layer visibility when amenities mode changes
+  useEffect(() => {
+    if (!map.current) return;
+
+    console.log('Amenities mode:', showAmenities);
+
+    if (showAmenities) {
+      // Filter properties-points to only show the selected property
+      const currentProperty = selectedProperty || selectedListing || selectedRental;
+      console.log('Amenities mode activated, currentProperty:', currentProperty);
+      console.log('selectedProperty:', selectedProperty);
+      console.log('selectedListing:', selectedListing);
+      console.log('selectedRental:', selectedRental);
+
+      if (currentProperty && currentProperty.longitude && currentProperty.latitude) {
+        console.log('Focusing on selected property for amenities mode:', currentProperty.address, 'coords:', currentProperty.longitude, currentProperty.latitude);
+
+        // Hide clusters completely
+        if (map.current.getLayer('clusters')) {
+          console.log('Hiding clusters layer');
+          map.current.setLayoutProperty('clusters', 'visibility', 'none');
+        }
+
+        // Hide properties-points completely and create star marker instead
+        if (map.current.getLayer('properties-points')) {
+          console.log('Hiding properties-points layer completely');
+          map.current.setLayoutProperty('properties-points', 'visibility', 'none');
+        }
+
+        // Create star marker for selected property using Mapbox Maki icon
+        if (!map.current.getLayer('selected-property-star')) {
+          console.log('Creating star marker for selected property');
+
+          // Ensure the properties source exists before adding the layer
+          if (!map.current.getSource('properties')) {
+            console.log('Properties source not found, creating it for star marker');
+            // Create geojson from current properties data (only include properties with valid coordinates)
+            const propertiesGeojson: GeoJSON.FeatureCollection = {
+              type: 'FeatureCollection',
+              features: properties
+                .filter(p => p.longitude !== null && p.latitude !== null)
+                .map(p => ({
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates: [p.longitude!, p.latitude!]
+                  },
+                  properties: {
+                    address: p.address,
+                    soldPrice: p.soldPrice,
+                    pricePerSqm: p.pricePerSqm,
+                    beds: p.beds,
+                    baths: p.baths,
+                    areaSqm: p.areaSqm,
+                    propertyType: p.propertyType,
+                    soldDate: p.soldDate,
+                    sourceUrl: p.sourceUrl,
+                  }
+                }))
+            };
+
+            map.current.addSource('properties', {
+              type: 'geojson',
+              data: propertiesGeojson,
+            });
+          }
+
+          map.current.addLayer({
+            id: 'selected-property-star',
+            type: 'symbol',
+            source: 'properties',
+            filter: ['==', ['get', 'address'], currentProperty.address],
+            layout: {
+              'icon-image': 'star', // Mapbox Maki star icon
+              'icon-size': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                9, 1.5,  // Larger star for prominence
+                14, 2.0,
+              ],
+              'icon-allow-overlap': true,
+              'icon-ignore-placement': true,
+              'icon-anchor': 'center',
+            },
+            paint: {
+              'icon-color': '#9333EA', // Purple/magenta for selected property
+            }
+          });
+        }
+
+        // Zoom to focus on the selected property
+        map.current.flyTo({
+          center: [currentProperty.longitude, currentProperty.latitude],
+          zoom: 16,
+          duration: 1000
+        });
+      } else {
+        console.log('Cannot focus on property - missing coordinates or no current property');
+        if (currentProperty) {
+          console.log('Property exists but missing coords:', currentProperty.address, 'longitude:', currentProperty.longitude, 'latitude:', currentProperty.latitude);
+        }
+      }
+
+      // Show amenities layers (they will become visible when data is loaded)
+      const layersToShow = ['amenities-regular', 'amenities-heavy-rail'];
+      layersToShow.forEach(layerId => {
+        if (map.current?.getLayer(layerId)) {
+          console.log('Showing layer:', layerId);
+          map.current.setLayoutProperty(layerId, 'visibility', 'visible');
+        } else {
+          console.log('Amenities layer not found:', layerId);
+        }
+      });
+    } else {
+      // Hide amenities and restore map to normal view mode state
+      console.log('Hiding amenities - restoring normal map view');
+
+      // Restore map layers based on current view mode
+      if (viewMode === 'clusters') {
+        // Restore clusters if they should be visible
+        if (map.current.getLayer('clusters')) {
+          console.log('Restoring clusters layer');
+          map.current.setLayoutProperty('clusters', 'visibility', 'visible');
+        }
+      } else if (viewMode === 'price') {
+        // Restore properties-points layer
+        if (map.current.getLayer('properties-points')) {
+          console.log('Restoring properties-points layer');
+          map.current.setLayoutProperty('properties-points', 'visibility', 'visible');
+          // Remove the filter that was showing only selected property
+          map.current.setFilter('properties-points', null);
+        }
+      }
+
+      // Remove star marker layer
+      if (map.current.getLayer('selected-property-star')) {
+        console.log('Removing star marker layer');
+        map.current.removeLayer('selected-property-star');
+      }
+
+      // Hide amenities layers
+      const layersToHide = ['amenities-regular', 'amenities-heavy-rail'];
+      layersToHide.forEach(layerId => {
+        if (map.current?.getLayer(layerId)) {
+          console.log('Hiding amenities layer:', layerId);
+          map.current.setLayoutProperty(layerId, 'visibility', 'none');
+        }
+      });
+
+      // Clear route if visible
+      if (map.current.getSource('route')) {
+        (map.current.getSource('route') as mapboxgl.GeoJSONSource)?.setData({
+          type: 'FeatureCollection',
+          features: []
+        });
+      }
+      setRouteInfo(null);
+    }
+  }, [showAmenities, selectedProperty, selectedListing, selectedRental, viewMode]);
+
+  // Zoom to amenities when they are loaded (but not when in amenities mode - let property focus handle zoom)
+  useEffect(() => {
+    const currentProperty = selectedProperty || selectedListing || selectedRental;
+    if (!map.current || !currentProperty || showAmenities || amenities.length === 0) {
+      console.log('Zoom effect skipped:', { map: !!map.current, property: !!currentProperty, showAmenities, amenitiesCount: amenities.length });
+      return;
+    }
+
+    console.log('Zooming to amenities:', amenities.length, 'amenities');
+
+    // Zoom to fit property and amenities
+    const allCoords: [number, number][] = [];
+
+    // Add property coordinates if available
+    if (currentProperty.longitude !== null && currentProperty.latitude !== null) {
+      allCoords.push([currentProperty.longitude, currentProperty.latitude]);
+      console.log('Property coords:', currentProperty.longitude, currentProperty.latitude);
+    }
+
+    // Add amenity coordinates
+    amenities.forEach(a => {
+      allCoords.push([a.longitude, a.latitude]);
+    });
+
+    console.log('Total coords for zoom:', allCoords.length);
+
+    if (allCoords.length > 0) {
+      const bounds = allCoords.reduce((bounds, coord) => {
+        return bounds.extend(coord);
+      }, new mapboxgl.LngLatBounds(allCoords[0], allCoords[0]));
+
+      console.log('Zooming to bounds');
+      map.current.fitBounds(bounds, {
+        padding: 100,
+        maxZoom: 16, // Don't zoom in too much
+        duration: 1000 // Smooth zoom animation
+      });
+
+      // Trigger resize after zoom to ensure proper layout
+      setTimeout(() => {
+        map.current?.resize();
+      }, 1100);
+    }
+  }, [amenities, showAmenities, selectedProperty, selectedListing, selectedRental]);
+
+  // Fetch amenities when any property type is selected and amenities are toggled on
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    const fetchAndDisplayAmenities = async (property: any) => {
+      if (!property?.latitude || !property?.longitude) return;
+
+      const cacheKey = `${property.latitude},${property.longitude}`;
+
+      // Check cache first
+      if (amenitiesCache.has(cacheKey)) {
+        const cached = amenitiesCache.get(cacheKey)!;
+        setAmenities(cached);
+        setWalkabilityScore(calculateWalkabilityScore(cached));
+        setAmenitiesError(null);
+        return;
+      }
+
+      setLoadingAmenities(true);
+      setAmenitiesError(null);
+
+      try {
+        // Validate coordinates
+        if (!property.latitude || !property.longitude) {
+          throw new Error('Invalid property coordinates');
+        }
+
+        console.log('Selected property coords:', property.latitude, property.longitude);
+
+        const results = await fetchAmenities(
+          property.latitude,
+          property.longitude,
+          1000, // 1km radius (2km total diameter) for nearby amenities only
+          abortController.signal // Pass abort signal
+        );
+
+        // Check if request was cancelled
+        if (abortController.signal.aborted) return;
+
+        // If no amenities found from API, add test data for UI testing
+        let finalResults = results;
+        if (results.length === 0) {
+          console.log('API returned no amenities, adding test data for UI testing');
+          const testData = [
+          {
+            id: 'test-bus-stop',
+            type: 'bus_stop' as any,
+            category: 'public_transport' as any,
+            name: '🚍 TEST BUS STOP (Click me!)',
+            latitude: property.latitude + 0.01,
+            longitude: property.longitude + 0.01,
+            distance: 1000,
+            walkingTime: 2,
+            icon: 'bus',
+            isHeavyRail: false,
+            tags: { amenity: 'bus_stop', name: '🚍 TEST BUS STOP (Click me!)' } as Record<string, string>
+          },
+          {
+            id: 'test-shop',
+            type: 'supermarket' as any,
+            category: 'shopping' as any,
+            name: '🛒 TEST SUPERMARKET (Click me!)',
+            latitude: property.latitude - 0.01,
+            longitude: property.longitude - 0.01,
+            distance: 1100,
+            walkingTime: 3,
+            icon: 'grocery',
+            isHeavyRail: false,
+            tags: { shop: 'supermarket', name: '🛒 TEST SUPERMARKET (Click me!)' } as Record<string, string>
+          },
+          {
+            id: 'test-school',
+            type: 'school' as any,
+            category: 'education' as any,
+            name: '🏫 TEST SCHOOL (Click me!)',
+            latitude: property.latitude + 0.007,
+            longitude: property.longitude - 0.007,
+            distance: 800,
+            walkingTime: 16,
+            icon: 'school',
+            isHeavyRail: false,
+            tags: { amenity: 'school', name: '🏫 TEST SCHOOL (Click me!)' } as Record<string, string>
+          },
+          {
+            id: 'test-dart',
+            type: 'train_station' as any,
+            category: 'public_transport' as any,
+            name: '🚆 TEST DART STATION (Heavy Rail!)',
+            latitude: property.latitude - 0.007,
+            longitude: property.longitude + 0.007,
+            distance: 900,
+            walkingTime: 18,
+            icon: 'rail',
+            isHeavyRail: true,
+            tags: { railway: 'station', name: '🚆 TEST DART STATION (Heavy Rail!)', operator: 'Iarnród Éireann' } as Record<string, string>
+          }
+          ];
+
+          finalResults = testData;
+        }
+
+        // Calculate walkability score
+        const score = calculateWalkabilityScore(finalResults);
+
+        // Cache results
+        setAmenitiesCache(prev => new Map(prev).set(cacheKey, results));
+        setAmenities(results);
+        setWalkabilityScore(score);
+
+        // Track successful amenities loading
+        const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
+        analytics.amenitiesLoaded(finalResults.length, propertyType);
+
+        console.log('Amenities loaded:', finalResults.length, 'items');
+
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') return; // Request was cancelled
+
+        console.error('Failed to fetch amenities:', error);
+
+        // Provide user-friendly error messages
+        let errorMessage = 'Unable to load nearby amenities.';
+        if (error instanceof Error) {
+          if (error.message.includes('timeout')) {
+            errorMessage = 'Request timed out. Please try again.';
+          } else if (error.message.includes('network') || error.message.includes('fetch')) {
+            errorMessage = 'Network error. Check your connection and try again.';
+          } else if (error.message.includes('Rate limited')) {
+            errorMessage = 'Service temporarily busy. Please wait a moment and try again.';
+          }
+        }
+
+        setAmenitiesError(errorMessage);
+      } finally {
+        if (!abortController.signal.aborted) {
+          setLoadingAmenities(false);
+        }
+      }
+    };
+
+    // Determine which property type is currently selected
+    const currentProperty = selectedProperty || selectedListing || selectedRental;
+
+    if (showAmenities && currentProperty) {
+      fetchAndDisplayAmenities(currentProperty);
+    } else {
+      setAmenities([]);
+      setWalkabilityScore(null);
+      setAmenitiesError(null);
+    }
+
+    // Cleanup: cancel any ongoing requests
+    return () => {
+      abortController.abort();
+    };
+  }, [showAmenities, selectedProperty, selectedListing, selectedRental]);
+
+  // Clear amenities when switching to a different property
+  const prevPropertyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const currentProperty = selectedProperty || selectedListing || selectedRental;
+    const currentKey = currentProperty ? `${currentProperty.latitude},${currentProperty.longitude}` : null;
+
+    // If property changed, reset amenities state
+    if (currentKey !== prevPropertyRef.current) {
+      console.log('Property changed, resetting amenities state');
+      setAmenities([]);
+      setWalkabilityScore(null);
+      setShowAmenities(false);
+      setLoadingAmenities(false); // Clear any loading state
+      setAmenitiesError(null);
+    }
+
+    prevPropertyRef.current = currentKey;
+  }, [selectedProperty, selectedListing, selectedRental]);
+
+  // Hide amenities when property card is closed
+  useEffect(() => {
+    const hasSelectedProperty = selectedProperty || selectedListing || selectedRental;
+    if (!hasSelectedProperty && showAmenities) {
+      console.log('Property card closed, resetting amenities state');
+      setShowAmenities(false);
+      setAmenities([]);
+      setWalkabilityScore(null);
+      setAmenitiesError(null);
+    }
+  }, [selectedProperty, selectedListing, selectedRental, showAmenities]);
+
+  // Route visualization function
+  const fetchAndDisplayRoute = async (amenity: Amenity) => {
+    // Get the currently selected property (any type)
+    const currentProperty = selectedProperty || selectedListing || selectedRental;
+
+    console.log('🛣️ Getting route from:', currentProperty, 'to amenity:', amenity.name);
+
+    if (!currentProperty?.latitude || !currentProperty?.longitude || !map.current) {
+      console.log('❌ Route failed: No current property or map not ready');
+      return;
+    }
+
+    const origin: [number, number] = [currentProperty.longitude, currentProperty.latitude];
+    const destination: [number, number] = [amenity.longitude, amenity.latitude];
+
+    console.log('📍 Route request:', { origin, destination, travelMode });
+
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/${travelMode}/${origin.join(',')};${destination.join(',')}?` +
+        `geometries=geojson&access_token=${MAPBOX_TOKEN}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Directions API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.routes && data.routes[0]) {
+        const route = data.routes[0];
+
+        console.log('✅ Route found:', {
+          distance: route.distance,
+          duration: route.duration,
+          coordinates: route.geometry.coordinates.length
+        });
+
+        setRouteInfo({
+          distance: route.distance,
+          duration: route.duration,
+          geometry: route.geometry,
+          mode: travelMode,
+        });
+
+        // Update route layer
+        const routeSource = map.current.getSource('route') as mapboxgl.GeoJSONSource;
+        if (routeSource) {
+          // Create proper GeoJSON feature
+          const routeFeature = {
+            type: 'Feature' as const,
+            geometry: route.geometry,
+            properties: {
+              distance: route.distance,
+              duration: route.duration
+            }
+          };
+
+          routeSource.setData(routeFeature);
+          console.log('🗺️ Route layer updated with', route.geometry.coordinates.length, 'coordinates');
+        } else {
+          console.log('❌ Route source not found - creating it now');
+
+          // Fallback: Try to create the route layer if it doesn't exist
+          if (!map.current.getSource('route')) {
+            map.current.addSource('route', {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                geometry: route.geometry,
+                properties: {}
+              }
+            });
+
+            map.current.addLayer({
+              id: 'route-line',
+              type: 'line',
+              source: 'route',
+              paint: {
+                'line-color': '#3B82F6',
+                'line-width': 8,
+                'line-opacity': 1.0,
+              }
+            }, 'amenities-regular');
+          }
+        }
+
+        // Fit map to show full route
+        try {
+          const coordinates = route.geometry.coordinates;
+          if (coordinates && coordinates.length > 0) {
+            const bounds = new mapboxgl.LngLatBounds()
+              .extend(coordinates[0] as [number, number])
+              .extend(coordinates[coordinates.length - 1] as [number, number]);
+
+            // Extend bounds to include some padding
+            for (const coord of coordinates) {
+              bounds.extend(coord as [number, number]);
+            }
+
+            map.current.fitBounds(bounds, {
+              padding: 50,
+              maxZoom: 18
+            });
+          }
+        } catch (boundsError) {
+          console.log('Bounds calculation failed, centering on destination');
+          // Fallback: just center on the amenity
+          map.current.flyTo({
+            center: [amenity.longitude, amenity.latitude],
+            zoom: 16
+          });
+        }
+
+        // Clear any existing popups
+        const popups = document.getElementsByClassName('mapboxgl-popup');
+        Array.from(popups).forEach(popup => popup.remove());
+      } else {
+        console.log('❌ No routes returned from API - trying fallback');
+
+        // Fallback: Create a simple straight line route
+        const fallbackRoute = {
+          type: 'LineString' as const,
+          coordinates: [
+            [currentProperty.longitude, currentProperty.latitude],
+            [amenity.longitude, amenity.latitude]
+          ]
+        };
+
+        setRouteInfo({
+          distance: Math.round(calculateDistance(currentProperty.latitude, currentProperty.longitude, amenity.latitude, amenity.longitude)),
+          duration: Math.round(calculateDistance(currentProperty.latitude, currentProperty.longitude, amenity.latitude, amenity.longitude) * 12), // Rough walking time estimate
+          geometry: fallbackRoute,
+          mode: travelMode // Use current travel mode instead of 'fallback'
+        });
+
+        // Update route layer with fallback
+        const routeSource = map.current.getSource('route') as mapboxgl.GeoJSONSource;
+        if (routeSource) {
+          routeSource.setData({
+            type: 'Feature' as const,
+            geometry: fallbackRoute,
+            properties: {}
+          });
+        }
+
+        // Center on the amenity
+        map.current.flyTo({
+          center: [amenity.longitude, amenity.latitude],
+          zoom: 16
+        });
+
+        console.log('✅ Fallback route created');
+        return; // Don't throw error for fallback
+      }
+    } catch (error) {
+      console.error('Failed to fetch route:', error);
+
+      // Provide user-friendly error messages
+      let errorMessage = 'Unable to get directions. Try Google Maps link above.';
+      if (error instanceof Error) {
+        if (error.message.includes('Rate limited') || error.message.includes('429')) {
+          errorMessage = 'Too many requests. Please wait a moment and try again.';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'Network error. Check your connection and try again.';
+        }
+      }
+
+      // Show error popup
+      if (map.current) {
+        new mapboxgl.Popup()
+          .setLngLat([amenity.longitude, amenity.latitude])
+          .setHTML(`<div style="color: #ef4444; padding: 8px;">${errorMessage}</div>`)
+          .addTo(map.current);
+      }
+    }
+  };
+
+  // Set up global function for popup buttons
+  useEffect(() => {
+    (window as any).getDirections = (amenityId: string) => {
+      console.log('🎯 getDirections called with amenityId:', amenityId);
+      const amenity = amenities.find(a => a.id === amenityId);
+      console.log('📍 Found amenity:', amenity);
+      if (amenity) {
+        fetchAndDisplayRoute(amenity);
+      } else {
+        console.log('❌ Amenity not found in current amenities list');
+      }
+    };
+  }, [amenities]);
+
+  // Clear route when travel mode changes
+  useEffect(() => {
+    if (routeInfo && map.current) {
+      (map.current.getSource('route') as mapboxgl.GeoJSONSource)?.setData({
+        type: 'FeatureCollection',
+        features: []
+      });
+      setRouteInfo(null);
+    }
+  }, [travelMode]);
 
   // Resize map when filter panel is toggled
   useEffect(() => {
@@ -1321,6 +2245,25 @@ export default function MapPage() {
       }, 250);
     }
   }, [showFilters]);
+
+  // Resize map on window resize and initial load
+  useEffect(() => {
+    const handleResize = () => {
+      if (map.current) {
+        map.current.resize();
+      }
+    };
+
+    // Resize on mount
+    setTimeout(handleResize, 100);
+
+    // Resize on window resize
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mapReady]);
 
   // Format sold date for display
   const formatSoldDate = (dateStr: string | undefined): string => {
@@ -1862,7 +2805,7 @@ export default function MapPage() {
       </div>
       
       {/* Map */}
-      <div className="flex-1 relative" style={{ minHeight: '500px' }}>
+      <div className="flex-1 relative">
         <div ref={mapContainer} className="absolute inset-0" style={{ width: '100%', height: '100%' }} />
         
         {/* Loading indicator - non-blocking */}
@@ -1874,22 +2817,164 @@ export default function MapPage() {
             </div>
           </div>
         )}
+
+        {/* Amenities Mode Indicator */}
+        {showAmenities && (selectedProperty || selectedListing || selectedRental) && (
+          <div className="absolute top-4 left-4 z-10 bg-blue-600/95 backdrop-blur-xl rounded-lg px-4 py-3 border border-blue-400 shadow-xl">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div>
+                  <div className="text-white text-sm font-medium">Exploring Nearby</div>
+                  <div className="text-blue-200 text-xs">
+                    {amenities.length > 0 ? `${amenities.filter(a => categoryFilters[a.category]).length} amenities visible` : 'Loading...'}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAmenities(false)}
+                className="px-3 py-1 text-xs bg-blue-700 hover:bg-blue-800 text-white rounded-md transition-colors font-medium"
+              >
+                Exit
+              </button>
+            </div>
+          </div>
+        )}
         
         {/* Selected Property Panel */}
         {selectedProperty && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 max-h-[75vh] overflow-y-auto z-50">
-            <button 
-              onClick={() => setSelectedProperty(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl z-10"
-            >
-              ✕
-            </button>
+          <div
+            className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 max-h-[75vh] overflow-y-auto z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header with Minimize, Share and Close buttons */}
+            <div className="absolute top-4 right-4 flex gap-2 z-10">
+              <button
+                onClick={() => setMinimizeProperty(!minimizeProperty)}
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
+                title={minimizeProperty ? "Expand property card" : "Minimize property card"}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={minimizeProperty ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  soldShare.shareProperty();
+                  analytics.propertyShared('sold');
+                }}
+                disabled={soldShare.isGenerating}
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors flex items-center gap-1 border border-gray-700"
+                title="Share this property"
+              >
+                {soldShare.isGenerating ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('Close button clicked for property:', selectedProperty?.address);
+                  isClosingRef.current = true;
+                  setSelectedProperty(null);
+                  setTimeout(() => {
+                    isClosingRef.current = false;
+                  }, 100);
+                }}
+                className="text-gray-500 hover:text-white text-xl p-1 rounded hover:bg-gray-700 transition-colors"
+                title="Close property card"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Share Error Notification */}
+            {soldShare.error && (
+              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
+                {soldShare.error}
+              </div>
+            )}
             
-            {/* Address */}
-            <h3 className="font-semibold text-white pr-8 mb-3 text-lg leading-tight">
-              {selectedProperty.address}
-            </h3>
-            
+            {/* Minimized View */}
+            {minimizeProperty ? (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white text-sm leading-tight truncate pr-32">
+                    {selectedProperty.address}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-gray-300 text-xs">
+                      €{selectedProperty.soldPrice?.toLocaleString() || 'N/A'}
+                    </span>
+                    {selectedProperty.beds && (
+                      <span className="text-gray-400 text-xs">• {selectedProperty.beds} bed</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Close button clicked for minimized property:', selectedProperty?.address);
+                    isClosingRef.current = true;
+                    setSelectedProperty(null);
+                    setTimeout(() => {
+                      isClosingRef.current = false;
+                    }, 100);
+                  }}
+                  className="text-gray-500 hover:text-white text-xl ml-2 p-1 rounded hover:bg-gray-700 transition-colors"
+                  title="Close property card"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Header spacing to avoid overlap with header buttons */}
+                <div className="h-12"></div>
+
+                {/* Address */}
+                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                  {selectedProperty.address}
+                </h3>
+
+            {/* Property Insights */}
+            {walkabilityScore && (
+              <div className="mb-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-300">Walkability Score</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300"
+                        style={{ width: `${walkabilityScore.score * 10}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-semibold text-white min-w-[2rem]">{walkabilityScore.score}/10</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-gray-400 capitalize">{walkabilityScore.rating}</div>
+
+                {walkabilityScore.nearestDartLuas && walkabilityScore.nearestDartLuas.distance <= 500 && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-300">{walkabilityScore.nearestDartLuas.type} station</span>
+                    <span className="text-white font-medium">{walkabilityScore.nearestDartLuas.distance}m away</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Price with year badge */}
             <div className="flex items-center gap-3 mb-4">
               <div className="text-3xl font-bold text-white font-mono">
@@ -1901,33 +2986,127 @@ export default function MapPage() {
             </div>
             
             {/* Property details grid */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-2 gap-2 mb-3">
               {selectedProperty.beds && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Bedrooms</div>
-                  <div className="text-white font-semibold">{selectedProperty.beds}</div>
+                  <div className="text-white font-semibold text-sm">{selectedProperty.beds}</div>
                 </div>
               )}
               {selectedProperty.baths && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Bathrooms</div>
-                  <div className="text-white font-semibold">{selectedProperty.baths}</div>
+                  <div className="text-white font-semibold text-sm">{selectedProperty.baths}</div>
                 </div>
               )}
               {selectedProperty.propertyType && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Type</div>
-                  <div className="text-white font-semibold">{selectedProperty.propertyType}</div>
+                  <div className="text-white font-semibold text-sm">{selectedProperty.propertyType}</div>
                 </div>
               )}
               {selectedProperty.areaSqm && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Floor Area</div>
-                  <div className="text-white font-semibold">{selectedProperty.areaSqm} m²</div>
+                  <div className="text-white font-semibold text-sm">{selectedProperty.areaSqm} m²</div>
                 </div>
               )}
             </div>
-            
+
+            {/* Nearby Amenities Section */}
+            <div className="mt-4 pt-4 border-t border-gray-700 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-gray-300">Nearby Amenities</h4>
+                {showAmenities && amenities.length > 0 && (
+                  <span className="text-xs text-gray-500">
+                    {amenities.filter(a => categoryFilters[a.category]).length} found
+                  </span>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  const newShowAmenities = !showAmenities;
+                  setShowAmenities(newShowAmenities);
+                  if (newShowAmenities) {
+                    // Track when amenities exploration starts - determine property type
+                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
+                    analytics.amenitiesExplored(propertyType);
+                  } else {
+                    // Track when amenities mode is exited
+                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
+                    analytics.amenitiesExited(propertyType);
+                  }
+                }}
+                disabled={loadingAmenities}
+                className={`w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-3 ${
+                  showAmenities
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                }`}
+              >
+                {loadingAmenities ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Loading nearby amenities...</span>
+                  </>
+                ) : showAmenities ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Hide Amenities</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Explore Nearby</span>
+                  </>
+                )}
+              </button>
+
+              {amenitiesError && (
+                <p className="text-red-400 text-xs mt-2">{amenitiesError}</p>
+              )}
+
+              {/* Amenities Controls */}
+              {showAmenities && amenities.length > 0 && (
+                <div className="mt-4 space-y-4">
+                  {/* Category Filters */}
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Categories</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(categoryFilters).map(([category, enabled]) => {
+                        const count = amenities.filter(a => a.category === category).length;
+                        return (
+                          <button
+                            key={category}
+                            onClick={() => setCategoryFilters(prev => ({ ...prev, [category]: !enabled }))}
+                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-between ${
+                              enabled
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-600'
+                            }`}
+                          >
+                            <span>{getCategoryDisplayName(category as any)}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded ${
+                              enabled ? 'bg-white/20' : 'bg-gray-600'
+                            }`}>
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                </div>
+              )}
+            </div>
+
             {/* Price analysis */}
             <div className="border-t border-gray-700 pt-4 space-y-2">
               {selectedProperty.askingPrice && selectedProperty.askingPrice > 0 && (
@@ -2014,85 +3193,262 @@ export default function MapPage() {
                 </div>
               )}
             </div>
-            
-            {/* Share Button */}
-            <div className="mt-4 pt-4 border-t border-gray-700">
-              <button
-                onClick={() => {
-                  soldShare.shareProperty();
-                  analytics.propertyShared('sold');
-                }}
-                disabled={soldShare.isGenerating}
-                className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                {soldShare.isGenerating ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>📸</span>
-                    <span>Share Property</span>
-                  </>
-                )}
-              </button>
-              {soldShare.error && (
-                <p className="text-red-400 text-xs mt-2">{soldShare.error}</p>
-              )}
-            </div>
+            </>
+            )}
+
           </div>
         )}
         
         {/* Selected Listing Panel (For Sale) */}
         {selectedListing && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-cyan-700 max-h-[75vh] overflow-y-auto z-50">
-            <button 
-              onClick={() => setSelectedListing(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl z-10"
-            >
-              ✕
-            </button>
+          <div
+            className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-cyan-700 max-h-[75vh] overflow-y-auto z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header with Minimize, Share and Close buttons */}
+            <div className="absolute top-4 right-4 flex gap-2 z-10">
+              <button
+                onClick={() => setMinimizeListing(!minimizeListing)}
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
+                title={minimizeListing ? "Expand property card" : "Minimize property card"}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={minimizeListing ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  listingShare.shareProperty();
+                  analytics.propertyShared('forSale');
+                }}
+                disabled={listingShare.isGenerating}
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors flex items-center gap-1 border border-gray-700"
+                title="Share this property"
+              >
+                {listingShare.isGenerating ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('Close button clicked for listing:', selectedListing?.address);
+                  isClosingRef.current = true;
+                  setSelectedListing(null);
+                  setTimeout(() => {
+                    isClosingRef.current = false;
+                  }, 100);
+                }}
+                className="text-gray-500 hover:text-white text-xl p-1 rounded hover:bg-gray-700 transition-colors"
+                title="Close property card"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Share Error Notification */}
+            {listingShare.error && (
+              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
+                {listingShare.error}
+              </div>
+            )}
             
-            {/* Address */}
-            <h3 className="font-semibold text-white pr-8 mb-3 text-lg leading-tight">
-              {selectedListing.address}
-            </h3>
-            
+            {/* Minimized View */}
+            {minimizeListing ? (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white text-sm leading-tight truncate pr-32">
+                    {selectedListing.address}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-cyan-300 text-xs">
+                      €{selectedListing.askingPrice?.toLocaleString() || 'N/A'}
+                    </span>
+                    {selectedListing.beds && (
+                      <span className="text-gray-400 text-xs">• {selectedListing.beds} bed</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Header spacing to avoid overlap with header buttons */}
+                <div className="h-12"></div>
+
+                {/* Address */}
+                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                  {selectedListing.address}
+                </h3>
+
+            {/* Property Insights */}
+            {walkabilityScore && (
+              <div className="mb-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-300">Walkability Score</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300"
+                        style={{ width: `${walkabilityScore.score * 10}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-semibold text-white min-w-[2rem]">{walkabilityScore.score}/10</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-gray-400 capitalize">{walkabilityScore.rating}</div>
+
+                {walkabilityScore.nearestDartLuas && walkabilityScore.nearestDartLuas.distance <= 500 && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-300">{walkabilityScore.nearestDartLuas.type} station</span>
+                    <span className="text-white font-medium">{walkabilityScore.nearestDartLuas.distance}m away</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Nearby Amenities Section */}
+            <div className="mt-4 pt-4 border-t border-gray-700 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-gray-300">Nearby Amenities</h4>
+                {showAmenities && amenities.length > 0 && (
+                  <span className="text-xs text-gray-500">
+                    {amenities.filter(a => categoryFilters[a.category]).length} found
+                  </span>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  const newShowAmenities = !showAmenities;
+                  setShowAmenities(newShowAmenities);
+                  if (newShowAmenities) {
+                    // Track when amenities exploration starts - determine property type
+                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
+                    analytics.amenitiesExplored(propertyType);
+                  } else {
+                    // Track when amenities mode is exited
+                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
+                    analytics.amenitiesExited(propertyType);
+                  }
+                }}
+                disabled={loadingAmenities}
+                className={`w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-3 ${
+                  showAmenities
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                }`}
+              >
+                {loadingAmenities ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Loading nearby amenities...</span>
+                  </>
+                ) : showAmenities ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Hide Amenities</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Explore Nearby</span>
+                  </>
+                )}
+              </button>
+
+              {amenitiesError && (
+                <p className="text-red-400 text-xs mt-2">{amenitiesError}</p>
+              )}
+
+              {/* Amenities Controls */}
+              {showAmenities && amenities.length > 0 && (
+                <div className="mt-4 space-y-4">
+                  {/* Category Filters */}
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Categories</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(categoryFilters).map(([category, enabled]) => {
+                        const count = amenities.filter(a => a.category === category).length;
+                        return (
+                          <button
+                            key={category}
+                            onClick={() => setCategoryFilters(prev => ({ ...prev, [category]: !enabled }))}
+                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-between ${
+                              enabled
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-600'
+                            }`}
+                          >
+                            <span>{getCategoryDisplayName(category as any)}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded ${
+                              enabled ? 'bg-white/20' : 'bg-gray-600'
+                            }`}>
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                </div>
+              )}
+            </div>
+
             {/* Price with For Sale badge */}
             <div className="flex items-center gap-3 mb-4">
               <div className="text-3xl font-bold text-white font-mono">
                 {formatFullPrice(selectedListing.askingPrice)}
               </div>
-              <div className="px-3 py-1 rounded-full bg-cyan-600 text-white text-sm font-medium">
-                🏷️ For Sale
+              <div className="px-3 py-1 rounded-full bg-cyan-600 text-white text-sm font-medium flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 7V3a2 2 0 012-2z" />
+                </svg>
+                For Sale
               </div>
             </div>
             
             {/* Property details grid */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-2 gap-2 mb-3">
               {selectedListing.beds && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Bedrooms</div>
-                  <div className="text-white font-semibold">{selectedListing.beds}</div>
+                  <div className="text-white font-semibold text-sm">{selectedListing.beds}</div>
                 </div>
               )}
               {selectedListing.baths && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Bathrooms</div>
-                  <div className="text-white font-semibold">{selectedListing.baths}</div>
+                  <div className="text-white font-semibold text-sm">{selectedListing.baths}</div>
                 </div>
               )}
               {selectedListing.propertyType && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Type</div>
-                  <div className="text-white font-semibold">{selectedListing.propertyType}</div>
+                  <div className="text-white font-semibold text-sm">{selectedListing.propertyType}</div>
                 </div>
               )}
               {selectedListing.berRating && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">BER Rating</div>
-                  <div className="text-white font-semibold">{selectedListing.berRating}</div>
+                  <div className="text-white font-semibold text-sm">{selectedListing.berRating}</div>
                 </div>
               )}
             </div>
@@ -2151,97 +3507,274 @@ export default function MapPage() {
                 </p>
               </div>
             )}
-            
-            {/* Share Button */}
-            <div className="mt-4 pt-4 border-t border-gray-700">
-              <button
-                onClick={() => {
-                  listingShare.shareProperty();
-                  analytics.propertyShared('forSale');
-                }}
-                disabled={listingShare.isGenerating}
-                className="w-full px-4 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                {listingShare.isGenerating ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>📸</span>
-                    <span>Share Property</span>
-                  </>
-                )}
-              </button>
-              {listingShare.error && (
-                <p className="text-red-400 text-xs mt-2">{listingShare.error}</p>
-              )}
-            </div>
+            </>
+            )}
+
           </div>
         )}
 
         {/* Selected Rental Panel */}
         {selectedRental && (
-          <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-purple-600 max-h-[75vh] overflow-y-auto z-50">
-            <button 
-              onClick={() => setSelectedRental(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white text-xl z-10"
-            >
-              ✕
-            </button>
+          <div
+            className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-purple-600 max-h-[75vh] overflow-y-auto z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header with Minimize, Share and Close buttons */}
+            <div className="absolute top-4 right-4 flex gap-2 z-10">
+              <button
+                onClick={() => setMinimizeRental(!minimizeRental)}
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
+                title={minimizeRental ? "Expand property card" : "Minimize property card"}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={minimizeRental ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  rentalShare.shareProperty();
+                  analytics.propertyShared('rental');
+                }}
+                disabled={rentalShare.isGenerating}
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors flex items-center gap-1 border border-gray-700"
+                title="Share this property"
+              >
+                {rentalShare.isGenerating ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('Close button clicked for rental:', selectedRental?.address);
+                  isClosingRef.current = true;
+                  setSelectedRental(null);
+                  setTimeout(() => {
+                    isClosingRef.current = false;
+                  }, 100);
+                }}
+                className="text-gray-500 hover:text-white text-xl p-1 rounded hover:bg-gray-700 transition-colors"
+                title="Close property card"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Share Error Notification */}
+            {rentalShare.error && (
+              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
+                {rentalShare.error}
+              </div>
+            )}
             
-            {/* Address */}
-            <h3 className="font-semibold text-white pr-8 mb-3 text-lg leading-tight">
-              {selectedRental.address}
-            </h3>
-            
+            {/* Minimized View */}
+            {minimizeRental ? (
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white text-sm leading-tight truncate pr-32">
+                    {selectedRental.address}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-purple-300 text-xs">
+                      €{selectedRental.monthlyRent?.toLocaleString() || 'N/A'}/mo
+                    </span>
+                    {selectedRental.beds && (
+                      <span className="text-gray-400 text-xs">• {selectedRental.beds} bed</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Header spacing to avoid overlap with header buttons */}
+                <div className="h-12"></div>
+
+                {/* Address */}
+                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                  {selectedRental.address}
+                </h3>
+
+            {/* Property Insights */}
+            {walkabilityScore && (
+              <div className="mb-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-300">Walkability Score</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300"
+                        style={{ width: `${walkabilityScore.score * 10}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-semibold text-white min-w-[2rem]">{walkabilityScore.score}/10</span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-gray-400 capitalize">{walkabilityScore.rating}</div>
+
+                {walkabilityScore.nearestDartLuas && walkabilityScore.nearestDartLuas.distance <= 500 && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-300">{walkabilityScore.nearestDartLuas.type} station</span>
+                    <span className="text-white font-medium">{walkabilityScore.nearestDartLuas.distance}m away</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Nearby Amenities Section */}
+            <div className="mt-4 pt-4 border-t border-gray-700 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-gray-300">Nearby Amenities</h4>
+                {showAmenities && amenities.length > 0 && (
+                  <span className="text-xs text-gray-500">
+                    {amenities.filter(a => categoryFilters[a.category]).length} found
+                  </span>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  const newShowAmenities = !showAmenities;
+                  setShowAmenities(newShowAmenities);
+                  if (newShowAmenities) {
+                    // Track when amenities exploration starts - determine property type
+                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
+                    analytics.amenitiesExplored(propertyType);
+                  } else {
+                    // Track when amenities mode is exited
+                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
+                    analytics.amenitiesExited(propertyType);
+                  }
+                }}
+                disabled={loadingAmenities}
+                className={`w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-3 ${
+                  showAmenities
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                }`}
+              >
+                {loadingAmenities ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Loading nearby amenities...</span>
+                  </>
+                ) : showAmenities ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Hide Amenities</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Explore Nearby</span>
+                  </>
+                )}
+              </button>
+
+              {amenitiesError && (
+                <p className="text-red-400 text-xs mt-2">{amenitiesError}</p>
+              )}
+
+              {/* Amenities Controls */}
+              {showAmenities && amenities.length > 0 && (
+                <div className="mt-4 space-y-4">
+                  {/* Category Filters */}
+                  <div>
+                    <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Categories</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(categoryFilters).map(([category, enabled]) => {
+                        const count = amenities.filter(a => a.category === category).length;
+                        return (
+                          <button
+                            key={category}
+                            onClick={() => setCategoryFilters(prev => ({ ...prev, [category]: !enabled }))}
+                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-between ${
+                              enabled
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-600'
+                            }`}
+                          >
+                            <span>{getCategoryDisplayName(category as any)}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded ${
+                              enabled ? 'bg-white/20' : 'bg-gray-600'
+                            }`}>
+                              {count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                </div>
+              )}
+            </div>
+
             {/* Rent with badge */}
             <div className="flex items-center gap-3 mb-4">
               <div className="text-3xl font-bold text-white font-mono">
                 €{selectedRental.monthlyRent.toLocaleString()}/mo
               </div>
-              <div className="px-3 py-1 rounded-full bg-purple-500 text-white text-sm font-medium">
-                🏘️ Rental
+              <div className="px-3 py-1 rounded-full bg-purple-500 text-white text-sm font-medium flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                Rental
               </div>
             </div>
             
             {/* Property details grid */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-3 gap-2 mb-3">
               {selectedRental.beds && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Bedrooms</div>
-                  <div className="text-white font-semibold">{selectedRental.beds}</div>
+                  <div className="text-white font-semibold text-sm">{selectedRental.beds}</div>
                 </div>
               )}
               {selectedRental.baths && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Bathrooms</div>
-                  <div className="text-white font-semibold">{selectedRental.baths}</div>
+                  <div className="text-white font-semibold text-sm">{selectedRental.baths}</div>
                 </div>
               )}
               {selectedRental.propertyType && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
                   <div className="text-gray-500 text-xs">Type</div>
-                  <div className="text-white font-semibold">{selectedRental.propertyType}</div>
+                  <div className="text-white font-semibold text-sm">{selectedRental.propertyType}</div>
                 </div>
               )}
               {selectedRental.berRating && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
-                  <div className="text-gray-500 text-xs">BER Rating</div>
-                  <div className="text-white font-semibold">{selectedRental.berRating}</div>
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
+                  <div className="text-gray-500 text-xs">BER</div>
+                  <div className="text-white font-semibold text-sm">{selectedRental.berRating}</div>
                 </div>
               )}
               {selectedRental.furnishing && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
-                  <div className="text-gray-500 text-xs">Furnishing</div>
-                  <div className="text-white font-semibold">{selectedRental.furnishing}</div>
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
+                  <div className="text-gray-500 text-xs">Furnished</div>
+                  <div className="text-white font-semibold text-sm">{selectedRental.furnishing}</div>
                 </div>
               )}
               {selectedRental.dublinPostcode && (
-                <div className="bg-gray-800 rounded-lg px-3 py-2">
-                  <div className="text-gray-500 text-xs">Postcode</div>
-                  <div className="text-white font-semibold">{selectedRental.dublinPostcode}</div>
+                <div className="bg-gray-800 rounded-md px-2 py-1.5">
+                  <div className="text-gray-500 text-xs">Area</div>
+                  <div className="text-white font-semibold text-sm">{selectedRental.dublinPostcode}</div>
                 </div>
               )}
             </div>
@@ -2261,33 +3794,9 @@ export default function MapPage() {
                 </div>
               )}
             </div>
-            
-            {/* Share Button */}
-            <div className="mt-4 pt-4 border-t border-gray-700">
-              <button
-                onClick={() => {
-                  rentalShare.shareProperty();
-                  analytics.propertyShared('rental');
-                }}
-                disabled={rentalShare.isGenerating}
-                className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                {rentalShare.isGenerating ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>📸</span>
-                    <span>Share Property</span>
-                  </>
-                )}
-              </button>
-              {rentalShare.error && (
-                <p className="text-red-400 text-xs mt-2">{rentalShare.error}</p>
-              )}
-            </div>
+            </>
+            )}
+
           </div>
         )}
         
@@ -2438,4 +3947,11 @@ export default function MapPage() {
       </div>
     </div>
   );
+}
+
+// Global function for amenity popup buttons
+if (typeof window !== 'undefined') {
+  (window as any).getDirections = (amenityId: string) => {
+    // This will be set by the component when amenities are loaded
+  };
 }

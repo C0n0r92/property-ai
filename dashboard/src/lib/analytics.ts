@@ -103,5 +103,22 @@ export const analytics = {
   propertyShared: (propertyType: 'sold' | 'forSale' | 'rental') => {
     trackEvent({ action: 'property_shared', category: 'feature', label: propertyType });
   },
+
+  // Amenities feature events
+  amenitiesExplored: (propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'amenities_explored', category: 'feature', label: propertyType });
+  },
+
+  amenitiesLoaded: (amenityCount: number, propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'amenities_loaded', category: 'feature', label: propertyType, value: amenityCount });
+  },
+
+  amenitiesExited: (propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'amenities_exited', category: 'feature', label: propertyType });
+  },
+
+  amenityClicked: (amenityType: string, amenityName: string) => {
+    trackEvent({ action: 'amenity_clicked', category: 'feature', label: `${amenityType}:${amenityName}` });
+  },
 };
 
