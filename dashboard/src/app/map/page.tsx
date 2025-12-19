@@ -82,6 +82,7 @@ export default function MapPage() {
   const [selectedQuarter, setSelectedQuarter] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [recentFilter, setRecentFilter] = useState<'6m' | '12m' | null>(null);
+  const [timeFilter, setTimeFilter] = useState<'today' | 'thisWeek' | 'thisMonth' | 'lastWeek' | 'lastMonth' | null>(null);
   
   const [stats, setStats] = useState({ total: 0, avgPrice: 0, avgPricePerSqm: 0, overAsking: 0, underAsking: 0 });
   const [listingStats, setListingStats] = useState({ totalListings: 0, medianPrice: 0, avgPricePerSqm: 0 });
@@ -291,8 +292,18 @@ export default function MapPage() {
       west: -10.7,
     };
     
+    // Build time filter parameter
+    let timeFilterParam = '';
+    if (timeFilter) {
+      timeFilterParam = `&timeFilter=${timeFilter}`;
+    } else if (recentFilter) {
+      // Map existing filters to new timeFilter values
+      if (recentFilter === '6m') timeFilterParam = '&timeFilter=last6Months';
+      if (recentFilter === '12m') timeFilterParam = '&timeFilter=last12Months';
+    }
+
     // Fetch map data with all Ireland bounds and selected sources
-    fetch(`/api/map-data?sources=${sources.join(',')}&north=${irelandBounds.north}&south=${irelandBounds.south}&east=${irelandBounds.east}&west=${irelandBounds.west}&limit=100000`)
+    fetch(`/api/map-data?sources=${sources.join(',')}&north=${irelandBounds.north}&south=${irelandBounds.south}&east=${irelandBounds.east}&west=${irelandBounds.west}&limit=100000${timeFilterParam}`)
       .then(res => res.json())
       .then(data => {
         // Update properties if sold is selected
@@ -364,7 +375,7 @@ export default function MapPage() {
       })
       .catch(err => console.error('Error loading stats:', err));
       
-  }, [dataSources.sold, dataSources.forSale, dataSources.rentals]);
+  }, [dataSources.sold, dataSources.forSale, dataSources.rentals, timeFilter, recentFilter, selectedYear]);
 
   // Get available years from the data
   const availableYears = useMemo(() => {
@@ -495,6 +506,7 @@ export default function MapPage() {
     setSelectedQuarter(null);
     setSelectedMonth(null);
     setRecentFilter(null);
+    setTimeFilter(null);
   };
 
   // Filter listings based on time filters (using scrapedAt date)
@@ -730,10 +742,15 @@ export default function MapPage() {
 
   // Helper to get current time filter description
   const getTimeFilterLabel = (): string => {
+    if (timeFilter === 'today') return 'Today';
+    if (timeFilter === 'thisWeek') return 'This Week';
+    if (timeFilter === 'thisMonth') return 'This Month';
+    if (timeFilter === 'lastWeek') return 'Last Week';
+    if (timeFilter === 'lastMonth') return 'Last Month';
     if (recentFilter === '6m') return 'Last 6 months';
     if (recentFilter === '12m') return 'Last 12 months';
     if (selectedYear === null) return 'All Time';
-    
+
     let label = selectedYear.toString();
     if (selectedQuarter !== null) {
       label += ` Q${selectedQuarter}`;
@@ -1544,18 +1561,39 @@ export default function MapPage() {
 
             {/* TIME PERIOD Section */}
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Time Period</label>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium">Time Period</label>
+                <div className="group relative">
+                  <span className="text-xs text-gray-400 hover:text-gray-300 cursor-help border border-gray-400 rounded-full w-4 h-4 flex items-center justify-center">i</span>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 border border-gray-600">
+                    Time indicates when we captured the data, not when the listing was posted
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-600"></div>
+                  </div>
+                </div>
+              </div>
               <div className="flex flex-col gap-1">
                 <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" checked={selectedYear === null && recentFilter === null} onChange={() => clearTimeFilters()} className="accent-indigo-500" />
+                  <input type="radio" name="timePeriod" checked={selectedYear === null && recentFilter === null && timeFilter === null} onChange={() => clearTimeFilters()} className="accent-indigo-500" />
                   All Time
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" checked={recentFilter === '6m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); }} className="accent-indigo-500" />
+                  <input type="radio" name="timePeriod" checked={timeFilter === 'today'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('today'); }} className="accent-indigo-500" />
+                  Today
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" name="timePeriod" checked={timeFilter === 'thisWeek'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('thisWeek'); }} className="accent-indigo-500" />
+                  This Week
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" name="timePeriod" checked={timeFilter === 'thisMonth'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('thisMonth'); }} className="accent-indigo-500" />
+                  This Month
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" name="timePeriod" checked={recentFilter === '6m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); setTimeFilter(null); }} className="accent-indigo-500" />
                   Last 6 Months
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" checked={recentFilter === '12m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('12m'); }} className="accent-indigo-500" />
+                  <input type="radio" name="timePeriod" checked={recentFilter === '12m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('12m'); setTimeFilter(null); }} className="accent-indigo-500" />
                   Last 12 Months
                 </label>
               </div>

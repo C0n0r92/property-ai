@@ -1,21 +1,25 @@
 {
-  "name": "daft-scraper",
-  "version": "1.0.0",
-  "description": "Scraper for Daft.ie sold properties",
+  "name": "gaff-intel-scraper",
+  "version": "2.0.0",
+  "description": "Property data scraper for Gaff Intel",
   "type": "module",
   "scripts": {
-    "pipeline": "npx tsx src/pipeline.ts",
-    "pipeline-open": "npx tsx src/pipeline-open.ts",
-    "pipeline-rentals": "npx tsx src/pipeline-rentals.ts",
-    "scrape:sold": "npx tsx src/pipeline.ts",
-    "scrape:listings": "npx tsx src/pipeline-open.ts",
-    "scrape:rentals": "npx tsx src/pipeline-rentals.ts",
-    "consolidate": "npx tsx src/consolidate.ts",
-    "cleanup": "npx tsx src/pipeline.ts --cleanup",
-    "scrape": "npx tsx src/scrape-fast.ts",
-    "scrape:parallel": "npx tsx src/scrape-parallel.ts",
-    "scrape:worker": "npx tsx src/worker.ts",
-    "geocode": "npx tsx src/geocode.ts"
+    "// DATA COLLECTION": "========================================",
+    "scrape:sold": "tsx src/pipeline-incremental.ts",
+    "scrape:sold:full": "tsx src/pipeline-incremental.ts --full",
+    "scrape:listings": "tsx src/pipeline-open.ts",
+    "scrape:rentals": "tsx src/pipeline-rentals.ts",
+
+    "// CONSOLIDATION": "========================================",
+    "consolidate": "tsx src/consolidate-new.ts",
+
+    "// CONVENIENCE": "========================================",
+    "update": "npm run scrape:sold && npm run scrape:listings && npm run scrape:rentals && npm run consolidate",
+    "update:parallel": "tsx src/update-parallel.ts",
+    "update:daily": "npm run update:parallel",
+
+    "// MIGRATION": "========================================",
+    "migrate": "tsx src/migrate-data.ts"
   },
   "dependencies": {
     "playwright": "^1.52.0"

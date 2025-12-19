@@ -10,7 +10,39 @@
  */
 
 import { chromium, Page } from 'playwright';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import { geocodeAddress } from './geocode.js';
+import { acceptCookiesAndPopups, navigateToNextPage, createBrowserContextOptions, BaseDaftScraper } from './scraper-utils.js';
+
+// ============== Retry Utility ==============
+
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelayMs: number = 1000,
+  operation: string = 'operation'
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      
+      if (attempt < maxRetries) {
+        const delay = baseDelayMs * Math.pow(2, attempt - 1);
+        console.warn(`⚠ ${operation} failed (attempt ${attempt}/${maxRetries}), retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error(`✗ ${operation} failed after ${maxRetries} attempts`);
+      }
+    }
+  }
+  
+  throw lastError || new Error(`${operation} failed after ${maxRetries} attempts`);
+}
 
 // ============== Types ==============
 
@@ -39,8 +71,21 @@ interface RentalListing {
 
 const BASE_URL = 'https://www.daft.ie/property-for-rent/dublin?sort=publishDateDesc';
 const NOMINATIM_URL = 'http://localhost:8080';
-const OUTPUT_FILE = './data/rentals.json';
-const DELAY_MS = 2000;
+const OUTPUT_DIR = './data/rentals';
+const DELAY_MS = 5000; // Increased delay to avoid detection
+
+// ============== Utility Functions ==============
+
+function getTodayFileName(): string {
+  const today = new Date().toISOString().split('T')[0];
+  return `rentals-${today}.json`;
+}
+
+function ensureDir(dir: string): void {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+}
 
 // Parse command line args
 const args = process.argv.slice(2);
@@ -72,159 +117,159 @@ function extractDublinPostcode(address: string): string | null {
   return null;
 }
 
-function cleanAddressForGeocoding(address: string): string {
-  let cleaned = address
-    .replace(/([AD]\d{2}\s?[A-Z0-9]{4})/gi, '')
-    .replace(/,\s*,/g, ',')
-    .replace(/,\s*$/g, '')
-    .replace(/^\s*,/g, '')
-    .trim();
-  
-  if (!cleaned.toLowerCase().includes('dublin')) {
-    cleaned += ', Dublin, Ireland';
-  } else if (!cleaned.toLowerCase().includes('ireland')) {
-    cleaned += ', Ireland';
-  }
-  
-  return cleaned;
-}
-
-function getAddressVariations(address: string): string[] {
-  const variations: string[] = [];
-  const cleaned = cleanAddressForGeocoding(address);
-  
-  variations.push(cleaned);
-  
-  // Try without house number/name at start
-  const withoutPrefix = cleaned.replace(/^[\d\w\s]+,\s*/, '');
-  if (withoutPrefix !== cleaned) {
-    variations.push(withoutPrefix);
-  }
-  
-  // Try with just area + Dublin
-  const parts = cleaned.split(',').map(p => p.trim());
-  if (parts.length >= 3) {
-    const dublinPart = parts.find(p => p.toLowerCase().includes('dublin'));
-    const areaPart = parts[parts.length - 3];
-    if (dublinPart && areaPart) {
-      variations.push(`${areaPart}, ${dublinPart}, Ireland`);
-    }
-  }
-  
-  return [...new Set(variations)];
-}
-
-async function geocodeAddress(address: string): Promise<{ lat: number; lon: number; display: string } | null> {
-  const variations = getAddressVariations(address);
-  
-  for (const variation of variations) {
-    try {
-      const url = `${NOMINATIM_URL}/search?q=${encodeURIComponent(variation)}&format=json&limit=1&countrycodes=ie`;
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      if (data && data.length > 0) {
-        const result = data[0];
-        const lat = parseFloat(result.lat);
-        const lon = parseFloat(result.lon);
-        
-        // Validate it's in Dublin area
-        if (lat >= 53.2 && lat <= 53.5 && lon >= -6.5 && lon <= -6.0) {
-          return { lat, lon, display: result.display_name };
-        }
-      }
-    } catch (error) {
-      // Continue to next variation
-    }
-    
-    await new Promise(r => setTimeout(r, 100));
-  }
-  
-  return null;
-}
 
 // ============== Scraping ==============
 
-async function extractListingsFromPage(page: Page, pageNum: number): Promise<RentalListing[]> {
-  return await page.evaluate((pageNumber) => {
-    const listings: any[] = [];
-    const cards = document.querySelectorAll('[data-testid="card-container"]');
-    
-    cards.forEach(card => {
-      try {
-        // Get address
-        const addressEl = card.querySelector('[data-tracking="srp_address"]');
-        const address = addressEl?.textContent?.trim() || '';
-        
-        // Get price (monthly rent)
-        const priceEl = card.querySelector('[data-tracking="srp_price"]');
-        const priceText = priceEl?.textContent?.trim() || '';
-        const rentMatch = priceText.match(/€([\d,]+)/);
-        const monthlyRent = rentMatch ? parseInt(rentMatch[1].replace(/,/g, '')) : 0;
-        
-        // Get link
-        const linkEl = card.querySelector('a[href*="/for-rent/"]') as HTMLAnchorElement;
-        const sourceUrl = linkEl?.href || '';
-        
-        // Get metadata
-        const metaEl = card.querySelector('[data-tracking="srp_meta"]');
-        const metaText = metaEl?.textContent?.trim() || '';
-        
-        // Parse beds/baths
-        const bedsMatch = metaText.match(/(\d+)\s*Bed/i);
-        const bathsMatch = metaText.match(/(\d+)\s*Bath/i);
-        const beds = bedsMatch ? parseInt(bedsMatch[1]) : null;
-        const baths = bathsMatch ? parseInt(bathsMatch[1]) : null;
-        
-        // Parse area
-        const areaMatch = metaText.match(/([\d.]+)\s*m²/i);
-        const areaSqm = areaMatch ? parseFloat(areaMatch[1]) : null;
-        
-        // Property type
-        let propertyType = 'Unknown';
-        if (metaText.toLowerCase().includes('apartment')) propertyType = 'Apartment';
-        else if (metaText.toLowerCase().includes('house')) propertyType = 'House';
-        else if (metaText.toLowerCase().includes('studio')) propertyType = 'Studio';
-        else if (metaText.toLowerCase().includes('flat')) propertyType = 'Flat';
-        
-        // BER Rating
-        const berMatch = metaText.match(/BER:\s*([A-G]\d?)/i);
-        const berRating = berMatch ? berMatch[1].toUpperCase() : null;
-        
-        // Furnishing
-        let furnishing = null;
-        if (metaText.toLowerCase().includes('unfurnished')) furnishing = 'Unfurnished';
-        else if (metaText.toLowerCase().includes('furnished')) furnishing = 'Furnished';
-        
-        if (address && monthlyRent > 0) {
-          listings.push({
-            address,
-            monthlyRent,
-            beds,
-            baths,
-            areaSqm,
-            propertyType,
-            berRating,
-            furnishing,
-            sourceUrl,
-            sourcePage: pageNumber,
-            latitude: null,
-            longitude: null,
-            eircode: null,
-            nominatimAddress: null,
-            rentPerSqm: null,
-            rentPerBed: null,
-            dublinPostcode: null,
-            scrapedAt: new Date().toISOString(),
-          });
+// ============== Rental Scraper Class ==============
+
+class RentalScraper extends BaseDaftScraper<RentalListing> {
+  private existingUrls = new Set<string>();
+  private newListings = 0;
+
+  constructor(baseUrl: string) {
+    super(baseUrl);
+  }
+
+  protected async collectDataFromPage(pageNum: number): Promise<any[]> {
+    return await this.page.evaluate((pageNumber) => {
+      const listings: any[] = [];
+      const cards = document.querySelectorAll('[data-testid="card-container"]');
+
+      cards.forEach(card => {
+        try {
+          // Get address
+          const addressEl = card.querySelector('[data-tracking="srp_address"]');
+          const address = addressEl?.textContent?.trim() || '';
+
+          // Get price (monthly rent)
+          const priceEl = card.querySelector('[data-tracking="srp_price"]');
+          const priceText = priceEl?.textContent?.trim() || '';
+          const rentMatch = priceText.match(/€([\d,]+)/);
+          const monthlyRent = rentMatch ? parseInt(rentMatch[1].replace(/,/g, '')) : 0;
+
+          // Get link
+          const linkEl = card.querySelector('a[href*="/for-rent/"]') as HTMLAnchorElement;
+          const sourceUrl = linkEl?.href || '';
+
+          // Get metadata
+          const metaEl = card.querySelector('[data-tracking="srp_meta"]');
+          const metaText = metaEl?.textContent?.trim() || '';
+
+          // Parse beds/baths
+          const bedsMatch = metaText.match(/(\d+)\s*Bed/i);
+          const bathsMatch = metaText.match(/(\d+)\s*Bath/i);
+          const beds = bedsMatch ? parseInt(bedsMatch[1]) : null;
+          const baths = bathsMatch ? parseInt(bathsMatch[1]) : null;
+
+          // Parse area
+          const areaMatch = metaText.match(/([\d.]+)\s*m²/i);
+          const areaSqm = areaMatch ? parseFloat(areaMatch[1]) : null;
+
+          // Property type
+          let propertyType = 'Unknown';
+          if (metaText.toLowerCase().includes('apartment')) propertyType = 'Apartment';
+          else if (metaText.toLowerCase().includes('house')) propertyType = 'House';
+          else if (metaText.toLowerCase().includes('studio')) propertyType = 'Studio';
+          else if (metaText.toLowerCase().includes('flat')) propertyType = 'Flat';
+
+          // BER Rating
+          const berMatch = metaText.match(/BER:\s*([A-G]\d?)/i);
+          const berRating = berMatch ? berMatch[1].toUpperCase() : null;
+
+          // Furnishing
+          let furnishing = null;
+          if (metaText.toLowerCase().includes('unfurnished')) furnishing = 'Unfurnished';
+          else if (metaText.toLowerCase().includes('furnished')) furnishing = 'Furnished';
+
+          if (address && monthlyRent > 0) {
+            listings.push({
+              address,
+              monthlyRent,
+              beds,
+              baths,
+              areaSqm,
+              propertyType,
+              berRating,
+              furnishing,
+              sourceUrl,
+              pageNumber,
+            });
+          }
+        } catch (e) {
+          // Skip problematic cards
         }
-      } catch (e) {
-        // Skip problematic cards
-      }
-    });
-    
+      });
+
+      return listings;
+    }, pageNum);
+  }
+
+  protected async processItem(rawItem: any): Promise<RentalListing | null> {
+    // Check for duplicates
+    if (this.existingUrls.has(rawItem.sourceUrl)) return null;
+
+    // Extract eircode and postcode
+    const eircode = extractEircode(rawItem.address);
+    const dublinPostcode = extractDublinPostcode(rawItem.address);
+
+    // Geocode with retry
+    const geo = await retryWithBackoff(
+      () => geocodeAddress(rawItem.address),
+      2,
+      500,
+      `Geocoding ${rawItem.address.substring(0, 30)}...`
+    ).catch(() => null);
+
+    // Calculate per-unit metrics
+    let rentPerSqm: number | null = null;
+    if (rawItem.areaSqm && rawItem.areaSqm > 0) {
+      rentPerSqm = Math.round((rawItem.monthlyRent / rawItem.areaSqm) * 100) / 100;
+    }
+
+    let rentPerBed: number | null = null;
+    if (rawItem.beds && rawItem.beds > 0) {
+      rentPerBed = Math.round(rawItem.monthlyRent / rawItem.beds);
+    }
+
+    const listing: RentalListing = {
+      address: rawItem.address,
+      monthlyRent: rawItem.monthlyRent,
+      beds: rawItem.beds,
+      baths: rawItem.baths,
+      areaSqm: rawItem.areaSqm,
+      propertyType: rawItem.propertyType,
+      berRating: rawItem.berRating,
+      furnishing: rawItem.furnishing,
+      sourceUrl: rawItem.sourceUrl,
+      sourcePage: rawItem.pageNumber,
+      latitude: geo?.latitude || null,
+      longitude: geo?.longitude || null,
+      eircode,
+      nominatimAddress: geo?.nominatimAddress || null,
+      rentPerSqm,
+      rentPerBed,
+      dublinPostcode,
+      scrapedAt: new Date().toISOString(),
+    };
+
+    this.existingUrls.add(rawItem.sourceUrl);
+    this.newListings++;
+
+    const geoStatus = geo ? '✓' : '✗';
+    console.log(`  [${geoStatus}] €${listing.monthlyRent}/mo - ${listing.beds || '?'}bed - ${listing.address.substring(0, 50)}...`);
+
+    return listing;
+  }
+
+  async run(maxListings?: number): Promise<RentalListing[]> {
+    await this.initializeBrowser();
+    await this.navigateToInitialPage();
+
+    const listings = await this.runScrapingLoop(Infinity, maxListings);
+
+    await this.cleanup();
     return listings;
-  }, pageNum);
+  }
 }
 
 async function scrapeRentals(): Promise<void> {
@@ -233,7 +278,7 @@ async function scrapeRentals(): Promise<void> {
   if (MAX_LISTINGS !== Infinity) {
     console.log(`Max listings: ${MAX_LISTINGS}`);
   }
-  
+
   // Check Nominatim
   console.log('\nChecking Nominatim...');
   const nominatimReady = await checkNominatim();
@@ -243,113 +288,33 @@ async function scrapeRentals(): Promise<void> {
     process.exit(1);
   }
   console.log('✓ Nominatim is ready\n');
-  
-  // Load existing data
-  let allListings: RentalListing[] = [];
-  if (existsSync(OUTPUT_FILE)) {
-    try {
-      allListings = JSON.parse(readFileSync(OUTPUT_FILE, 'utf-8'));
-      console.log(`Loaded ${allListings.length} existing rentals`);
-    } catch {
-      allListings = [];
-    }
-  }
-  
-  const existingUrls = new Set(allListings.map(l => l.sourceUrl));
-  
-  // Launch browser
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-  });
-  const page = await context.newPage();
-  
-  let pageNum = 1;
-  let newListings = 0;
-  let consecutiveEmpty = 0;
-  
+
+  // Use the new RentalScraper class
+  const scraper = new RentalScraper(BASE_URL);
+
   try {
-    while (newListings < MAX_LISTINGS) {
-      const url = pageNum === 1 ? BASE_URL : `${BASE_URL}&pageNo=${pageNum}`;
-      console.log(`Going to page ${pageNum}...`);
-      
-      await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-      await page.waitForTimeout(1500);
-      
-      const pageListings = await extractListingsFromPage(page, pageNum);
-      
-      if (pageListings.length === 0) {
-        consecutiveEmpty++;
-        if (consecutiveEmpty >= 3) {
-          console.log('No more listings found');
-          break;
-        }
-      } else {
-        consecutiveEmpty = 0;
-      }
-      
-      // Process new listings
-      for (const listing of pageListings) {
-        if (existingUrls.has(listing.sourceUrl)) continue;
-        if (newListings >= MAX_LISTINGS) break;
-        
-        // Extract eircode and postcode
-        listing.eircode = extractEircode(listing.address);
-        listing.dublinPostcode = extractDublinPostcode(listing.address);
-        
-        // Geocode
-        const geo = await geocodeAddress(listing.address);
-        if (geo) {
-          listing.latitude = geo.lat;
-          listing.longitude = geo.lon;
-          listing.nominatimAddress = geo.display;
-        }
-        
-        // Calculate per-unit metrics
-        if (listing.areaSqm && listing.areaSqm > 0) {
-          listing.rentPerSqm = Math.round((listing.monthlyRent / listing.areaSqm) * 100) / 100;
-        }
-        if (listing.beds && listing.beds > 0) {
-          listing.rentPerBed = Math.round(listing.monthlyRent / listing.beds);
-        }
-        
-        allListings.push(listing);
-        existingUrls.add(listing.sourceUrl);
-        newListings++;
-        
-        const geoStatus = geo ? '✓' : '✗';
-        console.log(`  [${geoStatus}] €${listing.monthlyRent}/mo - ${listing.beds || '?'}bed - ${listing.address.substring(0, 50)}...`);
-      }
-      
-      // Save progress
-      writeFileSync(OUTPUT_FILE, JSON.stringify(allListings, null, 2));
-      
-      // Check for next page
-      const hasNextPage = await page.$('[data-testid="next-page-link"]');
-      if (!hasNextPage) {
-        console.log('Reached last page');
-        break;
-      }
-      
-      pageNum++;
-      await page.waitForTimeout(DELAY_MS);
-    }
-  } finally {
-    await browser.close();
+    const allListings = await scraper.run(MAX_LISTINGS);
+
+    // Save final results
+    ensureDir(OUTPUT_DIR);
+    const outputFile = join(OUTPUT_DIR, getTodayFileName());
+    writeFileSync(outputFile, JSON.stringify(allListings, null, 2));
+
+    // Generate summary
+    const geocoded = allListings.filter(l => l.latitude).length;
+    const geocodeRate = ((geocoded / allListings.length) * 100).toFixed(1);
+
+    console.log('\n=== Summary ===');
+    console.log(`Total rentals: ${allListings.length}`);
+    console.log(`Geocoded: ${geocoded} (${geocodeRate}%)`);
+    console.log(`Output: ${OUTPUT_DIR}/${getTodayFileName()}`);
+
+    // Generate area summary
+    generateAreaSummary(allListings);
+
+  } catch (error) {
+    console.error('Error during scraping:', error);
   }
-  
-  // Generate summary
-  const geocoded = allListings.filter(l => l.latitude).length;
-  const geocodeRate = ((geocoded / allListings.length) * 100).toFixed(1);
-  
-  console.log('\n=== Summary ===');
-  console.log(`Total rentals: ${allListings.length}`);
-  console.log(`New this run: ${newListings}`);
-  console.log(`Geocoded: ${geocoded} (${geocodeRate}%)`);
-  console.log(`Output: ${OUTPUT_FILE}`);
-  
-  // Generate area summary
-  generateAreaSummary(allListings);
 }
 
 function generateAreaSummary(listings: RentalListing[]): void {

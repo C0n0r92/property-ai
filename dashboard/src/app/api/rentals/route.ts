@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   const propertyTypes = searchParams.get('propertyTypes')?.split(',').filter(Boolean);
   const berRatings = searchParams.get('berRatings')?.split(',').filter(Boolean);
   const furnishing = searchParams.get('furnishing');
+  const timeFilter = searchParams.get('timeFilter');
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '50');
   const sortBy = searchParams.get('sortBy') || 'monthlyRent';
@@ -47,11 +48,48 @@ export async function GET(request: NextRequest) {
   
   // Filter by furnishing
   if (furnishing) {
-    rentals = rentals.filter(r => 
+    rentals = rentals.filter(r =>
       r.furnishing?.toLowerCase().includes(furnishing.toLowerCase())
     );
   }
-  
+
+  // Time filter
+  if (timeFilter) {
+    rentals = rentals.filter(r => {
+      const scrapedDate = new Date(r.scrapedAt);
+      const now = new Date();
+
+      switch (timeFilter) {
+        case 'today':
+          return scrapedDate.toDateString() === now.toDateString();
+        case 'thisWeek': {
+          const startOfWeek = new Date(now);
+          startOfWeek.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+          startOfWeek.setHours(0, 0, 0, 0);
+          return scrapedDate >= startOfWeek;
+        }
+        case 'thisMonth': {
+          return scrapedDate.getMonth() === now.getMonth() && scrapedDate.getFullYear() === now.getFullYear();
+        }
+        case 'lastWeek': {
+          const startOfLastWeek = new Date(now);
+          startOfLastWeek.setDate(now.getDate() - now.getDay() - 7);
+          startOfLastWeek.setHours(0, 0, 0, 0);
+          const endOfLastWeek = new Date(startOfLastWeek);
+          endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
+          endOfLastWeek.setHours(23, 59, 59, 999);
+          return scrapedDate >= startOfLastWeek && scrapedDate <= endOfLastWeek;
+        }
+        case 'lastMonth': {
+          const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+          return scrapedDate.getMonth() === lastMonth.getMonth() && scrapedDate.getFullYear() === lastMonth.getFullYear();
+        }
+        default:
+          return true;
+      }
+    });
+  }
+
   // Sort
   rentals.sort((a, b) => {
     let comparison = 0;

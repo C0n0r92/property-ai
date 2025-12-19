@@ -36,6 +36,7 @@ function loadData(): ConsolidatedData {
     const possiblePaths = [
       join(process.cwd(), 'public', 'data.json'),  // Production (deployed dashboard)
       join(process.cwd(), '..', 'scraper', 'data', 'data.json'),  // Development (monorepo)
+      join(process.cwd(), '..', 'scraper', 'data', 'consolidated', 'data.json'),  // Consolidated directory
     ];
     
     for (const consolidatedPath of possiblePaths) {
