@@ -15,7 +15,7 @@ import { usePropertyShare } from '@/hooks/usePropertyShare';
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
-type DifferenceFilter = 'all' | 'over' | 'under' | 'exact';
+type DifferenceFilter = number | null;
 
 // Data source selection - allows any combination
 interface DataSourceSelection {
@@ -88,7 +88,7 @@ export default function MapPage() {
   const [mapReady, setMapReady] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(11); // Track zoom for legend display
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
-  const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>('all');
+  const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
   
   // Data source toggle: allows any combination of sold, forSale, rentals
   const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: false });
@@ -154,7 +154,7 @@ export default function MapPage() {
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minArea, setMinArea] = useState<number | null>(null);
   const [maxArea, setMaxArea] = useState<number | null>(null);
-  const [yieldFilter, setYieldFilter] = useState<'any' | 'high' | 'medium' | 'low' | null>(null);
+  const [yieldFilter, setYieldFilter] = useState<number | null>(null);
 
   // Property sharing hooks
   const soldShare = usePropertyShare(soldSnapshotRef, selectedProperty, 'sold');
@@ -226,7 +226,7 @@ export default function MapPage() {
     setMinArea(null);
     setMaxArea(null);
     setYieldFilter(null);
-    setDifferenceFilter('all');
+    setDifferenceFilter(null);
     analytics.filtersCleared();
   };
 
@@ -481,21 +481,11 @@ export default function MapPage() {
     }
     
     // Apply difference filter
-    if (differenceFilter !== 'all') {
+    if (differenceFilter !== null) {
       filtered = filtered.filter(p => {
         if (!p.askingPrice || p.askingPrice === 0) return false;
-        const diff = p.soldPrice - p.askingPrice;
-        
-        switch (differenceFilter) {
-          case 'over':
-            return diff > 0; // Sold over asking (bidding wars)
-          case 'under':
-            return diff < 0; // Sold under asking (deals!)
-          case 'exact':
-            return diff === 0; // Sold at asking
-          default:
-            return true;
-        }
+        const percentDiff = ((p.soldPrice - p.askingPrice) / p.askingPrice) * 100;
+        return percentDiff >= differenceFilter;
       });
     }
     
@@ -531,16 +521,10 @@ export default function MapPage() {
     }
     
     // Apply yield filter
-    if (yieldFilter !== null && yieldFilter !== 'any') {
+    if (yieldFilter !== null) {
       filtered = filtered.filter(p => {
         const y = p.yieldEstimate?.grossYield;
-        if (y === undefined || y === null) return false;
-        switch (yieldFilter) {
-          case 'high': return y >= 10;
-          case 'medium': return y >= 5 && y < 10;
-          case 'low': return y < 5;
-          default: return true;
-        }
+        return y !== undefined && y !== null && y >= yieldFilter;
       });
     }
     
@@ -630,16 +614,10 @@ export default function MapPage() {
     }
     
     // Apply yield filter
-    if (yieldFilter !== null && yieldFilter !== 'any') {
+    if (yieldFilter !== null) {
       filtered = filtered.filter(l => {
         const y = l.yieldEstimate?.grossYield;
-        if (y === undefined || y === null) return false;
-        switch (yieldFilter) {
-          case 'high': return y >= 10;
-          case 'medium': return y >= 5 && y < 10;
-          case 'low': return y < 5;
-          default: return true;
-        }
+        return y !== undefined && y !== null && y >= yieldFilter;
       });
     }
     
@@ -733,14 +711,14 @@ export default function MapPage() {
     if (selectedQuarter !== null) count++;
     if (selectedMonth !== null) count++;
     if (recentFilter !== null) count++;
-    if (differenceFilter !== 'all') count++;
+    if (differenceFilter !== null) count++;
     if (bedsFilter !== null) count++;
     if (propertyTypeFilter !== null) count++;
     if (minPrice !== null) count++;
     if (maxPrice !== null) count++;
     if (minArea !== null) count++;
     if (maxArea !== null) count++;
-    if (yieldFilter !== null && yieldFilter !== 'any') count++;
+    if (yieldFilter !== null) count++;
     return count;
   }, [selectedYear, selectedQuarter, selectedMonth, recentFilter, differenceFilter, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
 
@@ -2480,6 +2458,14 @@ export default function MapPage() {
       {/* Collapsible Filter Panel */}
       {showFilters && (
         <div className="bg-[#0d1117] border-b border-gray-800 px-2 py-3 md:px-4 md:py-4 animate-in slide-in-from-top duration-200">
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => setShowFilters(false)}
+              className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
+            >
+              Done
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
             {/* VIEW MODE Section */}
             <div>
@@ -2520,10 +2506,6 @@ export default function MapPage() {
                   All Time
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" name="timePeriod" checked={timeFilter === 'today'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('today'); }} className="accent-indigo-500" />
-                  Today
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
                   <input type="radio" name="timePeriod" checked={timeFilter === 'thisWeek'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('thisWeek'); }} className="accent-indigo-500" />
                   This Week
                 </label>
@@ -2534,10 +2516,6 @@ export default function MapPage() {
                 <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
                   <input type="radio" name="timePeriod" checked={recentFilter === '6m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); setTimeFilter(null); }} className="accent-indigo-500" />
                   Last 6 Months
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" name="timePeriod" checked={recentFilter === '12m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('12m'); setTimeFilter(null); }} className="accent-indigo-500" />
-                  Last 12 Months
                 </label>
               </div>
               <div className="flex gap-2 mt-2">
@@ -2629,48 +2607,66 @@ export default function MapPage() {
               </div>
             </div>
 
-            {/* SALE TYPE Section - only for sold */}
-            {dataSources.sold && (
+            {/* YIELD Section - only for sold and forSale */}
+            {(dataSources.sold || dataSources.forSale) && (
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Sale Type</label>
-                <div className="flex flex-col gap-1">
-                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                    <input type="radio" checked={differenceFilter === 'all'} onChange={() => setDifferenceFilter('all')} className="accent-indigo-500" />
-                    All Sales
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                    <input type="radio" checked={differenceFilter === 'over'} onChange={() => setDifferenceFilter('over')} className="accent-red-500" />
-                    🔥 Bidding Wars
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                    <input type="radio" checked={differenceFilter === 'under'} onChange={() => setDifferenceFilter('under')} className="accent-green-500" />
-                    💰 Deals
-                  </label>
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">
+                  Min Est. Yield: {yieldFilter !== null ? `${yieldFilter}%` : 'Any'}
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="15"
+                  step="0.5"
+                  value={yieldFilter ?? 0}
+                  onChange={(e) => setYieldFilter(e.target.value === '0' ? null : parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                  style={{
+                    background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(yieldFilter ?? 0) / 15 * 100}%, #374151 ${(yieldFilter ?? 0) / 15 * 100}%, #374151 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>0%</span>
+                  <span>15%</span>
                 </div>
               </div>
             )}
 
-            {/* YIELD Section - only for sold and forSale */}
-            {(dataSources.sold || dataSources.forSale) && (
+            {/* SALE TYPE Section - only for sold */}
+            {dataSources.sold && (
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Est. Yield</label>
-                <div className="flex flex-col gap-1">
-                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                    <input type="radio" checked={yieldFilter === null || yieldFilter === 'any'} onChange={() => setYieldFilter(null)} className="accent-indigo-500" />
-                    Any
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                    <input type="radio" checked={yieldFilter === 'high'} onChange={() => setYieldFilter('high')} className="accent-green-500" />
-                    High (10%+)
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                    <input type="radio" checked={yieldFilter === 'medium'} onChange={() => setYieldFilter('medium')} className="accent-yellow-500" />
-                    Medium (5-10%)
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                    <input type="radio" checked={yieldFilter === 'low'} onChange={() => setYieldFilter('low')} className="accent-orange-500" />
-                    Low (&lt;5%)
-                  </label>
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">
+                  Difference to Asking Price: {differenceFilter !== null ? `${differenceFilter > 0 ? '+' : ''}${differenceFilter}%` : 'Any'}
+                </label>
+                <input
+                  type="range"
+                  min="-20"
+                  max="50"
+                  step="5"
+                  value={differenceFilter ?? 0}
+                  onChange={(e) => {
+                    const newValue = e.target.value === '0' ? null : parseInt(e.target.value);
+                    setDifferenceFilter(newValue);
+                    if (newValue !== null) {
+                      // Turn off forSale and rentals when difference filter is activated
+                      setDataSources(prev => ({ ...prev, sold: true, forSale: false, rentals: false }));
+                    }
+                  }}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                  style={{
+                    background: differenceFilter !== null && differenceFilter !== 0
+                      ? `linear-gradient(to right, #22c55e 0%, #22c55e ${Math.max(0, (differenceFilter + 20) / 70 * 100)}%, #6366f1 ${Math.max(0, (differenceFilter + 20) / 70 * 100)}%, #6366f1 100%)`
+                      : undefined
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>-20%</span>
+                  <span>+50%</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {differenceFilter === null || differenceFilter === 0 ? 'Shows all sales' :
+                   differenceFilter > 0 ? `Only bidding wars (+${differenceFilter}% or more)` :
+                   `Only deals (${differenceFilter}% or less)`}
                 </div>
               </div>
             )}
@@ -2678,9 +2674,11 @@ export default function MapPage() {
 
           {/* Clear and Close */}
           <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-800">
-            <div className="text-xs md:text-sm text-gray-500">
-              {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'No filters applied'}
-            </div>
+            {activeFilterCount > 0 && (
+              <div className="text-xs md:text-sm text-gray-500">
+                {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
+              </div>
+            )}
             <div className="flex gap-2">
               {activeFilterCount > 0 && (
                 <button
@@ -2690,12 +2688,6 @@ export default function MapPage() {
                   Clear All
                 </button>
               )}
-              <button
-                onClick={() => setShowFilters(false)}
-                className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
-              >
-                Done
-              </button>
             </div>
           </div>
         </div>
@@ -2796,12 +2788,6 @@ export default function MapPage() {
             </div>
           </>
         )}
-        
-        <div className="ml-auto flex items-center gap-3 text-gray-500 shrink-0">
-          {activeFilterCount > 0 && (
-            <span className="text-indigo-400 text-xs">{activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
-          )}
-        </div>
       </div>
       
       {/* Map */}
