@@ -23,12 +23,12 @@ export function scorePlanningApplication(
   const reasons: string[] = [];
 
   // 1. Spatial proximity (baseline from search radius)
-  if (context.searchRadius === 30) {
+  if (context.searchRadius === 50) {
     score += 3;
-    reasons.push('Within 30m radius');
-  } else if (context.searchRadius === 75) {
+    reasons.push('Within 50m radius');
+  } else if (context.searchRadius === 100) {
     score += 2;
-    reasons.push('Within 75m radius');
+    reasons.push('Within 100m radius');
   } else if (context.searchRadius === 150) {
     score += 1;
     reasons.push('Within 150m radius');
