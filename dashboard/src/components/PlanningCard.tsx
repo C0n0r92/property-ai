@@ -20,6 +20,9 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
   const [error, setError] = useState<string | null>(null);
   const [showLowConfidence, setShowLowConfidence] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<PlanningApplicationWithScore | null>(null);
+  const [fullDescription, setFullDescription] = useState<string | null>(null);
+  const [loadingFullDesc, setLoadingFullDesc] = useState(false);
+  const [attemptedLoad, setAttemptedLoad] = useState(false);
 
   const fetchPlanningData = async (expandedSearch = false) => {
     setLoading(true);
@@ -93,7 +96,16 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - 3) + '...';
+
+    // Try to truncate at word boundary
+    let truncated = text.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+
+    if (lastSpace > maxLength * 0.7) { // Only use word boundary if it's not too far back
+      truncated = truncated.substring(0, lastSpace);
+    }
+
+    return truncated + '...';
   };
 
   const getDecisionColor = (decision: string) => {
@@ -114,7 +126,42 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
 
   const handleApplicationSelect = (application: PlanningApplicationWithScore) => {
     setSelectedApplication(application);
+    setFullDescription(null); // Reset full description when selecting new application
+    setLoadingFullDesc(false); // Reset loading state
+    setAttemptedLoad(false); // Reset attempted load state
     analytics.planningApplicationClicked(application.application.ApplicationNumber, propertyType);
+  };
+
+  const fetchFullDescription = async (objectId: number, originalDescription: string) => {
+    setLoadingFullDesc(true);
+    try {
+      // Query the specific application by OBJECTID to get complete data
+      const response = await fetch(
+        `https://services.arcgis.com/NzlPQPKn5QF9v2US/arcgis/rest/services/IrishPlanningApplications/FeatureServer/0/query?where=OBJECTID=${objectId}&outFields=*&f=json`
+      );
+      const data = await response.json();
+
+      if (data.features && data.features[0]) {
+        const fullDesc = data.features[0].attributes.DevelopmentDescription;
+        console.log(`Full description for OBJECTID ${objectId}:`, fullDesc);
+        console.log(`Length: ${fullDesc?.length || 0} characters`);
+
+        // Only show additional details if they're actually different from what's already displayed
+        if (fullDesc && fullDesc.trim() && fullDesc.trim() !== originalDescription?.trim()) {
+          setFullDescription(fullDesc);
+        } else {
+          setFullDescription(null); // Don't show additional details if they're the same
+        }
+      } else {
+        setFullDescription(null);
+      }
+    } catch (error) {
+      console.error('Error fetching full description:', error);
+      setFullDescription('Error loading full description');
+    } finally {
+      setLoadingFullDesc(false);
+      setAttemptedLoad(true);
+    }
   };
 
   return (
@@ -126,6 +173,10 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
         onClose={() => setSelectedApplication(null)}
         formatDate={formatDate}
         getDecisionColor={getDecisionColor}
+        fetchFullDescription={fetchFullDescription}
+        fullDescription={fullDescription}
+        loadingFullDesc={loadingFullDesc}
+        attemptedLoad={attemptedLoad}
       />
 
       <AnimatePresence mode="wait">
@@ -352,9 +403,13 @@ interface PlanningDetailsModalProps {
   onClose: () => void;
   formatDate: (timestamp: number) => string;
   getDecisionColor: (decision: string) => string;
+  fetchFullDescription: (objectId: number, originalDescription: string) => void;
+  fullDescription: string | null;
+  loadingFullDesc: boolean;
+  attemptedLoad: boolean;
 }
 
-function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDecisionColor }: PlanningDetailsModalProps) {
+function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDecisionColor, fetchFullDescription, fullDescription, loadingFullDesc, attemptedLoad }: PlanningDetailsModalProps) {
   if (!isOpen || !application) return null;
 
   const { application: app, confidence, matchReasons } = application;
@@ -401,7 +456,58 @@ function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDec
           {app.DevelopmentDescription && (
             <div>
               <h3 className="text-white font-medium mb-2">Development Description</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">{app.DevelopmentDescription}</p>
+
+              {/* Description display */}
+              <div>
+                <p className="text-gray-300 text-sm leading-relaxed mb-3">{app.DevelopmentDescription}</p>
+
+                {/* Additional details option */}
+                {!fullDescription && !loadingFullDesc && !attemptedLoad && (
+                  <div className="bg-blue-900/20 border border-blue-600/30 rounded p-3">
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-400 text-sm">ℹ️</span>
+                      <div className="flex-1">
+                        <p className="text-blue-200 text-xs mb-2">
+                          Need more details? Try loading additional information from our database.
+                        </p>
+                        <button
+                          onClick={() => fetchFullDescription(app.OBJECTID, app.DevelopmentDescription)}
+                          className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors"
+                        >
+                          📖 Load More Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Show additional details if loaded and different */}
+                {fullDescription && (
+                  <div className="bg-gray-700/50 border border-gray-600 rounded p-3">
+                    <p className="text-gray-300 text-xs mb-2 font-medium">📄 Additional Details from Database</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">{fullDescription}</p>
+                    {app.LinkAppDetails && (
+                      <div className="mt-3 pt-2 border-t border-gray-600">
+                        <a
+                          href={app.LinkAppDetails}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1"
+                        >
+                          🔗 View complete application on official portal →
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {loadingFullDesc && (
+                  <div className="flex items-center gap-2 text-blue-200 text-xs">
+                    <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                    Loading additional details...
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -486,18 +592,23 @@ function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDec
             </div>
           )}
 
-          {/* External Link */}
+          {/* Additional Resources */}
           {app.LinkAppDetails && (
             <div className="pt-4 border-t border-gray-700">
-              <a
-                href={app.LinkAppDetails}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-              >
-                <span>🔗 View Official Portal</span>
-                <span className="text-xs">(opens in new tab)</span>
-              </a>
+              <div className="text-center">
+                <a
+                  href={app.LinkAppDetails}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors font-medium"
+                >
+                  <span>🔗 View Complete Application Details</span>
+                  <span className="text-xs">↗️</span>
+                </a>
+                <p className="text-gray-400 text-xs mt-2">
+                  Includes full documents, maps, and current status
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -548,7 +659,7 @@ function PlanningApplicationItem({ item, formatDate, truncateText, getDecisionCo
       {/* Description */}
       {application.DevelopmentDescription && (
         <div className="text-gray-300 text-sm mb-2 leading-relaxed">
-          {truncateText(application.DevelopmentDescription, 100)}
+          {truncateText(application.DevelopmentDescription, 150)}
         </div>
       )}
 
@@ -566,23 +677,13 @@ function PlanningApplicationItem({ item, formatDate, truncateText, getDecisionCo
           {application.ApplicationType || 'Unknown type'}
         </span>
         {hasFullDetails ? (
-          <div className="flex items-center gap-1 text-blue-400 text-xs">
-            <span>Click to view details</span>
-            <span>📋</span>
+          <div className="flex items-center gap-1 text-blue-400 text-xs font-medium">
+            <span>📋 Click to view details</span>
           </div>
         ) : (
           <span className="text-gray-500 text-xs">No details available</span>
         )}
       </div>
-
-      {/* Click indicator */}
-      {hasFullDetails && (
-        <div className="mt-2 pt-2 border-t border-gray-700">
-          <div className="flex items-center justify-center gap-1 text-blue-300 text-xs">
-            <span>🖱️ Click anywhere to view application details</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

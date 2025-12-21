@@ -264,9 +264,11 @@ export function groupApplicationsByConfidence(
 export function generatePlanningPortalUrl(authority: string, applicationNumber: string): string | null {
   const cleanNumber = applicationNumber.trim();
 
-  // Dublin City Council
+  // Dublin City Council - try direct application link first, fallback to search
   if (authority.toLowerCase().includes('dublin city')) {
-    // Dublin City Council uses agileapplications platform
+    // Try direct link format (more specific)
+    const directLink = `https://planning.agileapplications.ie/dublin/application/${cleanNumber}`;
+    // For now, return search link as it's more reliable
     return `https://planning.agileapplications.ie/dublin/search?criteria=${encodeURIComponent(cleanNumber)}`;
   }
 
