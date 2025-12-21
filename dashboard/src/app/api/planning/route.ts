@@ -88,7 +88,7 @@ async function fetchPlanningApplications(
     const [x, y] = latLngToWebMercator(lat, lng);
 
   // Progressive radius search
-  const radii: (30 | 75 | 150)[] = expandedSearch ? [30, 75, 150] : [30, 75];
+  const radii: (50 | 100 | 150)[] = expandedSearch ? [50, 100, 150] : [50, 100];
 
   for (const radius of radii) {
     try {
@@ -136,7 +136,7 @@ async function fetchPlanningApplications(
 /**
  * Query ArcGIS FeatureServer API
  */
-async function queryArcGIS(x: number, y: number, radius: 30 | 75 | 150): Promise<PlanningApplication[]> {
+async function queryArcGIS(x: number, y: number, radius: 50 | 100 | 150): Promise<PlanningApplication[]> {
   const baseUrl = 'https://services.arcgis.com/NzlPQPKn5QF9v2US/arcgis/rest/services/IrishPlanningApplications/FeatureServer/0/query';
 
   const params = new URLSearchParams({

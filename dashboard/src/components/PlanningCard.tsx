@@ -23,6 +23,7 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
   const [fullDescription, setFullDescription] = useState<string | null>(null);
   const [loadingFullDesc, setLoadingFullDesc] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [yearFilter, setYearFilter] = useState<string>('all');
   const [attemptedLoad, setAttemptedLoad] = useState(false);
 
   const fetchPlanningData = async (expandedSearch = false) => {
@@ -130,27 +131,63 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
     setFullDescription(null); // Reset full description when selecting new application
     setLoadingFullDesc(false); // Reset loading state
     setAttemptedLoad(false); // Reset attempted load state
+    // Keep filters as they are - users might want to browse filtered results
     analytics.planningApplicationClicked(application.application.ApplicationNumber, propertyType);
   };
 
-  // Filter applications by status
+  // Get available years from planning applications
+  const availableYears = useMemo(() => {
+    if (!data) return [];
+
+    const years = new Set<number>();
+    [...data.highConfidence, ...data.mediumConfidence, ...data.lowConfidence].forEach(app => {
+      const date = app.application.ReceivedDate || app.application.DecisionDate;
+      if (date) {
+        // ArcGIS dates are in milliseconds, not seconds
+        years.add(new Date(date).getFullYear());
+      }
+    });
+
+    return Array.from(years).sort((a, b) => b - a); // Most recent first
+  }, [data]);
+
+  // Filter applications by status and year
   const filteredApplications = useMemo(() => {
     if (!data) return { highConfidence: [], mediumConfidence: [], lowConfidence: [] };
 
-    const filterByStatus = (apps: PlanningApplicationWithScore[]) => {
-      if (statusFilter === 'all') return apps;
-      return apps.filter(app =>
-        app.application.Decision?.toLowerCase().includes(statusFilter.toLowerCase()) ||
-        (statusFilter === 'pending' && !app.application.Decision)
-      );
+    const filterApplications = (apps: PlanningApplicationWithScore[]) => {
+      let filtered = apps;
+
+      // Status filter
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(app =>
+          app.application.Decision?.toLowerCase().includes(statusFilter.toLowerCase()) ||
+          (statusFilter === 'pending' && !app.application.Decision)
+        );
+      }
+
+      // Year filter
+      if (yearFilter !== 'all') {
+        const filterYear = parseInt(yearFilter);
+        filtered = filtered.filter(app => {
+          const date = app.application.ReceivedDate || app.application.DecisionDate;
+          if (!date) return false;
+
+          // ArcGIS dates are in milliseconds, not seconds
+          const appYear = new Date(date).getFullYear();
+          return appYear === filterYear;
+        });
+      }
+
+      return filtered;
     };
 
     return {
-      highConfidence: filterByStatus(data.highConfidence),
-      mediumConfidence: filterByStatus(data.mediumConfidence),
-      lowConfidence: filterByStatus(data.lowConfidence),
+      highConfidence: filterApplications(data.highConfidence),
+      mediumConfidence: filterApplications(data.mediumConfidence),
+      lowConfidence: filterApplications(data.lowConfidence),
     };
-  }, [data, statusFilter]);
+  }, [data, statusFilter, yearFilter]);
 
   // Get unique statuses for filter options
   const availableStatuses = useMemo(() => {
@@ -260,21 +297,60 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
               </button>
             </div>
 
-            {/* Status Filter */}
-            {availableStatuses.length > 0 && (
+            {/* Filters */}
+            {(availableStatuses.length > 0 || availableYears.length > 0) && (
               <div className="mb-4">
-                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Filter by Status</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  {availableStatuses.map(status => (
-                    <option key={status} value={status.toLowerCase()}>{status}</option>
-                  ))}
-                </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Status Filter */}
+                  {availableStatuses.length > 0 && (
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1 block">Status</label>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                      >
+                        <option value="all">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        {availableStatuses.map(status => (
+                          <option key={status} value={status.toLowerCase()}>{status}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Year Filter */}
+                  {availableYears.length > 0 && (
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1 block">Year</label>
+                      <select
+                        value={yearFilter}
+                        onChange={(e) => setYearFilter(e.target.value)}
+                        className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                      >
+                        <option value="all">All Years</option>
+                        {availableYears.map(year => (
+                          <option key={year} value={year.toString()}>{year}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Clear Filters */}
+                {(statusFilter !== 'all' || yearFilter !== 'all') && (
+                  <div className="flex justify-end mt-2">
+                    <button
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setYearFilter('all');
+                      }}
+                      className="px-3 py-1 text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

@@ -103,7 +103,7 @@ function latLngToWebMercator(lat, lng) {
 
 1. **Spatial Query (Primary)**
    - Convert property coords to Web Mercator
-   - Query with radius: 30m → 75m → 150m (progressive)
+   - Query with radius: 50m → 100m → 150m (progressive)
    - API returns all applications within radius
    - **Distance calculated by ArcGIS, not us**
 

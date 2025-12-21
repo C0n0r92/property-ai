@@ -229,7 +229,7 @@ export interface PlanningResponse {
   mediumConfidence: PlanningApplicationWithScore[];
   lowConfidence: PlanningApplicationWithScore[];
   totalCount: number;
-  searchRadius: 30 | 75 | 150 | null;
+  searchRadius: 50 | 100 | 150 | null;
   cached: boolean;
 }
 

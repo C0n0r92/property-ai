@@ -8,7 +8,7 @@ import { PlanningApplication, PlanningApplicationWithScore } from '@/types/prope
 export interface MatchingContext {
   propertyAddress: string;
   dublinPostcode?: string;
-  searchRadius: 30 | 75 | 150;
+  searchRadius: 50 | 100 | 150;
 }
 
 /**

@@ -110,6 +110,7 @@ export default function MapPage() {
   const [searchResults, setSearchResults] = useState<Array<{ place_name: string; center: [number, number] }>>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchedLocation, setSearchedLocation] = useState<{ name: string; coords: [number, number] } | null>(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Collapsible filter panel state - hidden on mobile, open on desktop by default
@@ -343,9 +344,10 @@ export default function MapPage() {
   const searchLocation = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
+      setSearchedLocation(null); // Clear previous search marker
       return;
     }
-    
+
     setIsSearching(true);
     try {
       // Bias search towards Dublin
@@ -368,6 +370,12 @@ export default function MapPage() {
   // Debounced search
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
+
+    // Clear searched location if search is cleared
+    if (!value.trim()) {
+      setSearchedLocation(null);
+    }
+
     if (searchTimeout.current) {
       clearTimeout(searchTimeout.current);
     }
@@ -1738,9 +1746,94 @@ export default function MapPage() {
       const currentProperty = selectedProperty || selectedListing || selectedRental;
       if (currentProperty?.latitude && currentProperty?.longitude) {
         addPlanningRadius();
+        // Clear searched location when focusing on a property
+        setSearchedLocation(null);
       }
     }
   }, [selectedProperty, selectedListing, selectedRental, mapReady, addPlanningRadius]);
+
+  // Add/remove searched location marker
+  useEffect(() => {
+    if (!map.current || !mapReady) return;
+
+    // Remove existing searched location marker
+    try {
+      if (map.current.getLayer('searched-location-marker-stroke')) {
+        map.current.removeLayer('searched-location-marker-stroke');
+      }
+      if (map.current.getLayer('searched-location-marker')) {
+        map.current.removeLayer('searched-location-marker');
+      }
+      if (map.current.getSource('searched-location-triangle')) {
+        map.current.removeSource('searched-location-triangle');
+      }
+    } catch (error) {
+      // Layer/source might not exist, ignore
+    }
+
+    // Add new marker if we have a searched location
+    if (searchedLocation) {
+
+      // Create a triangle shape pointing upward
+      const trianglePoints = [];
+      const center = searchedLocation.coords;
+      const size = 20; // Size of the triangle
+
+      // Triangle points: top, bottom-right, bottom-left
+      trianglePoints.push([
+        center[0],
+        center[1] + (size / 111320) // Top point (north)
+      ]);
+      trianglePoints.push([
+        center[0] + (size * Math.cos(Math.PI * 7/6) / 111320), // Bottom-right
+        center[1] + (size * Math.sin(Math.PI * 7/6) / 111320)
+      ]);
+      trianglePoints.push([
+        center[0] + (size * Math.cos(Math.PI * 11/6) / 111320), // Bottom-left
+        center[1] + (size * Math.sin(Math.PI * 11/6) / 111320)
+      ]);
+      // Close the triangle
+      trianglePoints.push(trianglePoints[0]);
+
+      const triangleGeoJson = {
+        type: 'Feature' as const,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [trianglePoints]
+        },
+        properties: {}
+      };
+
+      map.current.addSource('searched-location-triangle', {
+        type: 'geojson',
+        data: triangleGeoJson
+      });
+
+      map.current.addLayer({
+        id: 'searched-location-marker',
+        type: 'fill',
+        source: 'searched-location-triangle',
+        paint: {
+          'fill-color': '#F97316', // Orange color
+          'fill-opacity': 0.9
+        }
+      });
+
+      // Add a stroke/border to the triangle
+      map.current.addLayer({
+        id: 'searched-location-marker-stroke',
+        type: 'line',
+        source: 'searched-location-triangle',
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 3,
+          'line-opacity': 1
+        }
+      });
+
+      console.log('Added searched location marker:', searchedLocation.name);
+    }
+  }, [searchedLocation, mapReady]);
 
   // Update amenities map layers when category filters change (debounced)
   useEffect(() => {
@@ -2545,7 +2638,12 @@ export default function MapPage() {
                 {searchResults.map((result, index) => (
                   <button
                     key={index}
-                    onClick={() => flyToLocation(result.center, 15)}
+                    onClick={() => {
+                      flyToLocation(result.center, 15);
+                      setSearchedLocation({ name: result.place_name, coords: result.center });
+                      setShowSearchResults(false);
+                      setSearchQuery(result.place_name);
+                    }}
                     className="w-full px-4 py-3 text-left hover:bg-gray-700 text-white text-sm border-b border-gray-700 last:border-b-0 transition-colors"
                   >
                     <div className="flex items-center gap-2">
