@@ -536,13 +536,17 @@ export default function MapPage() {
   // Get available years from the data
   const availableYears = useMemo(() => {
     const years = new Set<number>();
-    properties.forEach(p => {
-      if (p.soldDate) {
-        years.add(new Date(p.soldDate).getFullYear());
+
+    // Include years from all data sources
+    [...properties, ...listings, ...rentals].forEach(item => {
+      const dateField = item.soldDate || item.listedDate || item.rentedDate;
+      if (dateField) {
+        years.add(new Date(dateField).getFullYear());
       }
     });
+
     return Array.from(years).sort((a, b) => b - a); // Most recent first
-  }, [properties]);
+  }, [properties, listings, rentals]);
 
   // Filter properties based on difference and time filters
   const filteredProperties = useMemo(() => {
@@ -2620,8 +2624,16 @@ export default function MapPage() {
 
       {/* Collapsible Filter Panel */}
       {showFilters && (
-        <div className="bg-[#0d1117] border-b border-gray-800 px-2 py-3 md:px-4 md:py-4 animate-in slide-in-from-top duration-200">
-          <div className="flex justify-end mb-4">
+        <div className="bg-[#0d1117] border-b border-gray-800 px-2 py-2 md:px-3 md:py-3 animate-in slide-in-from-top duration-200">
+          <div className="flex justify-end items-center mb-2 gap-2">
+            {activeFilterCount > 0 && (
+              <button
+                onClick={handleClearFilters}
+                className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
+              >
+                Clear All
+              </button>
+            )}
             <button
               onClick={() => setShowFilters(false)}
               className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
@@ -2629,11 +2641,11 @@ export default function MapPage() {
               Done
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
             {/* VIEW MODE Section */}
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">View</label>
-              <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1 block">View</label>
+              <div className="flex flex-col gap-0.5">
                 <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
                   <input type="radio" checked={viewMode === 'clusters'} onChange={() => handleViewModeChange('clusters')} className="accent-indigo-500" />
                   Clusters
@@ -2653,7 +2665,7 @@ export default function MapPage() {
 
             {/* TIME PERIOD Section */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-1">
                 <label className="text-xs text-gray-500 uppercase tracking-wider font-medium">Time Period</label>
                 <div className="group relative">
                   <span className="text-xs text-gray-400 hover:text-gray-300 cursor-help border border-gray-400 rounded-full w-4 h-4 flex items-center justify-center">i</span>
@@ -2663,32 +2675,28 @@ export default function MapPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" name="timePeriod" checked={selectedYear === null && recentFilter === null && timeFilter === null} onChange={() => clearTimeFilters()} className="accent-indigo-500" />
-                  All Time
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" name="timePeriod" checked={timeFilter === 'thisWeek'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('thisWeek'); }} className="accent-indigo-500" />
-                  This Week
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" name="timePeriod" checked={timeFilter === 'thisMonth'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('thisMonth'); }} className="accent-indigo-500" />
-                  This Month
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
-                  <input type="radio" name="timePeriod" checked={recentFilter === '6m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); setTimeFilter(null); }} className="accent-indigo-500" />
-                  Last 6 Months
-                </label>
-              </div>
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-1.5 mb-2">
                 <select
                   value={selectedYear ?? ''}
-                  onChange={(e) => { setSelectedYear(e.target.value ? parseInt(e.target.value) : null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); }}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'all') {
+                      setSelectedYear(null);
+                      setSelectedQuarter(null);
+                      setSelectedMonth(null);
+                      setRecentFilter(null);
+                      setTimeFilter(null);
+                    } else {
+                      setSelectedYear(parseInt(value));
+                      setSelectedQuarter(null);
+                      setSelectedMonth(null);
+                      setRecentFilter(null);
+                    }
+                  }}
                   className="flex-1 px-2 py-2 md:py-1 text-sm md:text-xs bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
                 >
-                  <option value="">Year</option>
-                  {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+                  <option value="all">All Time</option>
+                  {availableYears.map(y => <option key={y} value={y.toString()}>{y}</option>)}
                 </select>
                 {selectedYear !== null && (
                   <select
@@ -2704,15 +2712,29 @@ export default function MapPage() {
                   </select>
                 )}
               </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" name="timePeriod" checked={timeFilter === 'thisWeek'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('thisWeek'); }} className="accent-indigo-500" />
+                  This Week
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" name="timePeriod" checked={timeFilter === 'thisMonth'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter(null); setTimeFilter('thisMonth'); }} className="accent-indigo-500" />
+                  This Month
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                  <input type="radio" name="timePeriod" checked={recentFilter === '6m'} onChange={() => { setSelectedYear(null); setSelectedQuarter(null); setSelectedMonth(null); setRecentFilter('6m'); setTimeFilter(null); }} className="accent-indigo-500" />
+                  Last 6 Months
+                </label>
+              </div>
             </div>
 
             {/* PROPERTY Section */}
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Property</label>
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1 block">Property</label>
               <select
                 value={bedsFilter ?? ''}
                 onChange={(e) => setBedsFilter(e.target.value ? parseInt(e.target.value) : null)}
-                className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none mb-2"
+                className="w-full px-2 py-2 md:py-1.5 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none mb-1"
               >
                 <option value="">Any Beds</option>
                 <option value="1">1 Bed</option>
@@ -2733,10 +2755,10 @@ export default function MapPage() {
 
             {/* PRICE Section */}
             <div>
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1 block">
                 {dataSources.rentals ? 'Monthly Rent' : 'Price'}
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <input
                   type="number"
                   placeholder="Min €"
@@ -2773,7 +2795,7 @@ export default function MapPage() {
             {/* YIELD Section - only for sold and forSale */}
             {(dataSources.sold || dataSources.forSale) && (
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1 block">
                   Min Est. Yield: {yieldFilter !== null ? `${yieldFilter}%` : 'Any'}
                 </label>
                 <input
@@ -2798,7 +2820,7 @@ export default function MapPage() {
             {/* SALE TYPE Section - only for sold */}
             {dataSources.sold && (
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1 block">
                   Difference to Asking Price: {differenceFilter !== null ? `${differenceFilter > 0 ? '+' : ''}${differenceFilter}%` : 'Any'}
                 </label>
                 <input
@@ -2835,24 +2857,6 @@ export default function MapPage() {
             )}
           </div>
 
-          {/* Clear and Close */}
-          <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-800">
-            {activeFilterCount > 0 && (
-              <div className="text-xs md:text-sm text-gray-500">
-                {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
-              </div>
-            )}
-            <div className="flex gap-2">
-              {activeFilterCount > 0 && (
-                <button
-                  onClick={handleClearFilters}
-                  className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded transition-colors"
-                >
-                  Clear All
-                </button>
-              )}
-            </div>
-          </div>
         </div>
       )}
 
