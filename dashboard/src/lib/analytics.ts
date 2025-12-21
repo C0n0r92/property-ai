@@ -120,5 +120,26 @@ export const analytics = {
   amenityClicked: (amenityType: string, amenityName: string) => {
     trackEvent({ action: 'amenity_clicked', category: 'feature', label: `${amenityType}:${amenityName}` });
   },
+
+  // Planning permission events
+  planningCardViewed: (propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'planning_card_viewed', category: 'feature', label: propertyType });
+  },
+
+  planningDataLoaded: (applicationCount: number, confidenceLevel: 'high' | 'medium' | 'low' | 'mixed', propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'planning_data_loaded', category: 'feature', label: `${propertyType}:${confidenceLevel}`, value: applicationCount });
+  },
+
+  planningApplicationClicked: (applicationNumber: string, propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'planning_application_clicked', category: 'feature', label: `${propertyType}:${applicationNumber}` });
+  },
+
+  planningExpandedSearch: (propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'planning_expanded_search', category: 'feature', label: propertyType });
+  },
+
+  planningCardFlipped: (direction: 'front' | 'back', propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'planning_card_flipped', category: 'feature', label: `${propertyType}:${direction}` });
+  },
 };
 

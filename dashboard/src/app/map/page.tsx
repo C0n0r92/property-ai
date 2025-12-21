@@ -9,6 +9,7 @@ import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
 import { analytics } from '@/lib/analytics';
 import { fetchAmenities, calculateWalkabilityScore, getCategoryIcon, formatCategory, getCategoryDisplayName, calculateDistance } from '@/lib/amenities';
 import { PropertySnapshot } from '@/components/PropertySnapshot';
+import { PlanningCard } from '@/components/PlanningCard';
 import { usePropertyShare } from '@/hooks/usePropertyShare';
 
 // Mapbox access token
@@ -134,6 +135,114 @@ export default function MapPage() {
   const [selectedAmenity, setSelectedAmenity] = useState<Amenity | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [travelMode, setTravelMode] = useState<'walking' | 'cycling' | 'driving'>('walking');
+
+  // Planning radius visualization function
+  const addPlanningRadius = useCallback(() => {
+    if (!map.current || !map.current.isStyleLoaded()) {
+      console.log('Map not ready for planning radius');
+      return;
+    }
+
+    const currentProperty = selectedProperty || selectedListing || selectedRental;
+    if (!currentProperty?.latitude || !currentProperty?.longitude) return;
+
+    // Only show radius at reasonable zoom levels (zoomed in enough to see 150m)
+    const currentZoom = map.current.getZoom();
+    if (currentZoom < 12) {
+      console.log('Zoom level too low for radius visibility:', currentZoom);
+      return;
+    }
+
+    console.log('Adding planning radius for:', currentProperty.address, 'at', currentProperty.latitude, currentProperty.longitude, 'zoom:', currentZoom);
+
+    // Create a circle with 150m radius (our max search radius, made larger for visibility)
+    const center = [currentProperty.longitude, currentProperty.latitude];
+    const radiusKm = 0.15; // 150 meters in kilometers
+
+    // Create circle coordinates (approximate)
+    const points = 64;
+    const coords = [];
+    for (let i = 0; i <= points; i++) {
+      const angle = (i * 360) / points;
+      const radian = (angle * Math.PI) / 180;
+      const lat = currentProperty.latitude + (radiusKm / 111.32) * Math.cos(radian);
+      const lng = currentProperty.longitude + (radiusKm / (111.32 * Math.cos(currentProperty.latitude * Math.PI / 180))) * Math.sin(radian);
+      coords.push([lng, lat]);
+    }
+
+    const circleGeoJson = {
+      type: 'Feature' as const,
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [coords]
+      },
+      properties: {}
+    };
+
+    console.log('Planning radius GeoJSON:', circleGeoJson);
+
+    try {
+      // Add source and layers
+      map.current?.addSource('planning-radius', {
+        type: 'geojson',
+        data: circleGeoJson
+      });
+
+      // Fill layer - make it more visible
+      map.current?.addLayer({
+        id: 'planning-radius-fill',
+        type: 'fill',
+        source: 'planning-radius',
+        paint: {
+          'fill-color': '#3b82f6',
+          'fill-opacity': 0.2  // Increased opacity
+        }
+      });
+
+      // Outline layer - make it thicker
+      map.current?.addLayer({
+        id: 'planning-radius-outline',
+        type: 'line',
+        source: 'planning-radius',
+        paint: {
+          'line-color': '#3b82f6',
+          'line-width': 3,  // Thicker line
+          'line-dasharray': [5, 3]  // More visible dash pattern
+        }
+      });
+
+      // Add a center marker for the property
+      const centerGeoJson = {
+        type: 'Feature' as const,
+        geometry: {
+          type: 'Point' as const,
+          coordinates: center
+        },
+        properties: {}
+      };
+
+      map.current?.addSource('planning-center', {
+        type: 'geojson',
+        data: centerGeoJson
+      });
+
+      map.current?.addLayer({
+        id: 'planning-center-marker',
+        type: 'circle',
+        source: 'planning-center',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': '#3b82f6',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+
+      console.log('Planning radius and center marker added successfully');
+    } catch (error) {
+      console.error('Error adding planning radius layers:', error);
+    }
+  }, [selectedProperty, selectedListing, selectedRental]);
 
   // Loading and error states
   const [loadingAmenities, setLoadingAmenities] = useState(false);
@@ -932,12 +1041,29 @@ export default function MapPage() {
     
     if (!map.current) return;
     
-    const layersToRemove = ['clusters', 'cluster-count', 'unclustered-point', 'properties-points', 'selected-property-point', 'selected-property-star'];
+    // Remove existing layers first
+    const layersToRemove = ['clusters', 'cluster-count', 'unclustered-point', 'properties-points', 'selected-property-point', 'selected-property-star', 'planning-radius-fill', 'planning-radius-outline', 'planning-center-marker'];
     layersToRemove.forEach(layer => {
-      if (map.current?.getLayer(layer)) map.current?.removeLayer(layer);
+      try {
+        if (map.current?.getLayer(layer)) {
+          map.current.removeLayer(layer);
+        }
+      } catch (error) {
+        // Layer might not exist, continue silently
+      }
     });
-    if (map.current?.getSource('properties')) map.current?.removeSource('properties');
-    if (map.current?.getSource('properties-clustered')) map.current?.removeSource('properties-clustered');
+
+    // Then remove sources
+    const sourcesToRemove = ['properties', 'properties-clustered', 'planning-radius', 'planning-center'];
+    sourcesToRemove.forEach(source => {
+      try {
+        if (map.current?.getSource(source)) {
+          map.current.removeSource(source);
+        }
+      } catch (error) {
+        // Source might not exist, continue silently
+      }
+    });
 
     if (viewMode === 'clusters') {
       // Add clustered source
@@ -1568,10 +1694,50 @@ export default function MapPage() {
     }
     }; // End of doSetupLayers
     
+
     // Start the setup process
     setupLayers();
 
-  }, [mapReady, activeData, viewMode, dataSources, rentals, listings, properties]);
+  }, [mapReady, activeData, viewMode, dataSources, rentals, listings, properties, selectedProperty, selectedListing, selectedRental]);
+
+  // Separate effect for planning radius (only when selected property changes)
+  useEffect(() => {
+    if (!mapReady || !map.current) return;
+
+    // Remove existing planning radius layers
+    const planningLayers = ['planning-radius-fill', 'planning-radius-outline', 'planning-center-marker'];
+    planningLayers.forEach(layer => {
+      try {
+        if (map.current?.getLayer(layer)) {
+          map.current.removeLayer(layer);
+        }
+      } catch (error) {
+        // Layer might not exist
+      }
+    });
+
+    const planningSources = ['planning-radius', 'planning-center'];
+    planningSources.forEach(source => {
+      try {
+        if (map.current?.getSource(source)) {
+          map.current.removeSource(source);
+        }
+      } catch (error) {
+        // Source might not exist
+      }
+    });
+
+    // Add new planning radius if a property is selected
+    if (selectedProperty || selectedListing || selectedRental) {
+      const currentProperty = selectedProperty || selectedListing || selectedRental;
+      if (currentProperty?.latitude && currentProperty?.longitude) {
+        // Wait a bit for map to be ready
+        setTimeout(() => {
+          addPlanningRadius();
+        }, 100);
+      }
+    }
+  }, [selectedProperty, selectedListing, selectedRental, mapReady]);
 
   // Update amenities map layers when category filters change (debounced)
   useEffect(() => {
@@ -3184,7 +3350,38 @@ export default function MapPage() {
 
           </div>
         )}
-        
+
+        {/* Planning Property Highlight */}
+        {(selectedProperty || selectedListing || selectedRental) && (
+          <div className="absolute top-20 left-4 z-30">
+            <div className="bg-blue-600/90 backdrop-blur-xl rounded-lg px-3 py-2 border border-blue-400 shadow-lg">
+              <div className="text-white text-sm font-medium">
+                🏗️ Viewing Planning Data
+              </div>
+              <div className="text-blue-200 text-xs">
+                {selectedProperty?.address || selectedListing?.address || selectedRental?.address}
+              </div>
+              <div className="text-blue-100 text-xs mt-1">
+                🔍 150m planning search area shown on map
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Planning Card for Sold Properties */}
+        {selectedProperty && (
+          <div className="absolute top-4 right-4 md:right-4 md:w-[400px] z-40">
+            <PlanningCard
+              key={`planning-${selectedProperty.address}`}
+              latitude={selectedProperty.latitude || 0}
+              longitude={selectedProperty.longitude || 0}
+              address={selectedProperty.address}
+              dublinPostcode={selectedProperty.dublinPostcode || undefined}
+              propertyType="sold"
+            />
+          </div>
+        )}
+
         {/* Selected Listing Panel (For Sale) */}
         {selectedListing && (
           <div
@@ -3785,7 +3982,35 @@ export default function MapPage() {
 
           </div>
         )}
-        
+
+        {/* Planning Card for Listings */}
+        {selectedListing && (
+          <div className="absolute top-4 right-4 md:right-4 md:w-[400px] z-40">
+            <PlanningCard
+              key={`planning-${selectedListing.address}`}
+              latitude={selectedListing.latitude || 0}
+              longitude={selectedListing.longitude || 0}
+              address={selectedListing.address}
+              dublinPostcode={selectedListing.dublinPostcode || undefined}
+              propertyType="forSale"
+            />
+          </div>
+        )}
+
+        {/* Planning Card for Rentals */}
+        {selectedRental && (
+          <div className="absolute top-4 right-4 md:right-4 md:w-[400px] z-40">
+            <PlanningCard
+              key={`planning-${selectedRental.address}`}
+              latitude={selectedRental.latitude || 0}
+              longitude={selectedRental.longitude || 0}
+              address={selectedRental.address}
+              dublinPostcode={selectedRental.dublinPostcode || undefined}
+              propertyType="rental"
+            />
+          </div>
+        )}
+
         {/* Stats overlay - hidden when property/listing/rental panel is open */}
         {!selectedProperty && !selectedListing && !selectedRental && (
           <div className="absolute top-4 left-4 hidden md:block">
