@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlanningApplicationWithScore, PlanningResponse } from '@/types/property';
 import { analytics } from '@/lib/analytics';
@@ -22,6 +22,7 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
   const [selectedApplication, setSelectedApplication] = useState<PlanningApplicationWithScore | null>(null);
   const [fullDescription, setFullDescription] = useState<string | null>(null);
   const [loadingFullDesc, setLoadingFullDesc] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [attemptedLoad, setAttemptedLoad] = useState(false);
 
   const fetchPlanningData = async (expandedSearch = false) => {
@@ -132,6 +133,39 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
     analytics.planningApplicationClicked(application.application.ApplicationNumber, propertyType);
   };
 
+  // Filter applications by status
+  const filteredApplications = useMemo(() => {
+    if (!data) return { highConfidence: [], mediumConfidence: [], lowConfidence: [] };
+
+    const filterByStatus = (apps: PlanningApplicationWithScore[]) => {
+      if (statusFilter === 'all') return apps;
+      return apps.filter(app =>
+        app.application.Decision?.toLowerCase().includes(statusFilter.toLowerCase()) ||
+        (statusFilter === 'pending' && !app.application.Decision)
+      );
+    };
+
+    return {
+      highConfidence: filterByStatus(data.highConfidence),
+      mediumConfidence: filterByStatus(data.mediumConfidence),
+      lowConfidence: filterByStatus(data.lowConfidence),
+    };
+  }, [data, statusFilter]);
+
+  // Get unique statuses for filter options
+  const availableStatuses = useMemo(() => {
+    if (!data) return [];
+
+    const statuses = new Set<string>();
+    [...data.highConfidence, ...data.mediumConfidence, ...data.lowConfidence].forEach(app => {
+      if (app.application.Decision) {
+        statuses.add(app.application.Decision);
+      }
+    });
+
+    return Array.from(statuses).sort();
+  }, [data]);
+
   const fetchFullDescription = async (objectId: number, originalDescription: string) => {
     setLoadingFullDesc(true);
     try {
@@ -226,6 +260,24 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
               </button>
             </div>
 
+            {/* Status Filter */}
+            {availableStatuses.length > 0 && (
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Filter by Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded text-gray-300 focus:border-indigo-500 focus:outline-none"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  {availableStatuses.map(status => (
+                    <option key={status} value={status.toLowerCase()}>{status}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Content */}
             {error ? (
               <div className="text-center py-8">
@@ -241,10 +293,10 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
             ) : data ? (
               <div className="space-y-3">
                 {/* High Confidence */}
-                {data.highConfidence.length > 0 && (
+                {filteredApplications.highConfidence.length > 0 && (
                   <ApplicationSection
                     title="✅ At This Address"
-                    applications={data.highConfidence}
+                    applications={filteredApplications.highConfidence}
                     confidence="high"
                     formatDate={formatDate}
                     truncateText={truncateText}
@@ -254,10 +306,10 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
                 )}
 
                 {/* Medium Confidence */}
-                {data.mediumConfidence.length > 0 && (
+                {filteredApplications.mediumConfidence.length > 0 && (
                   <ApplicationSection
                     title="⚠️ Possible Matches"
-                    applications={data.mediumConfidence}
+                    applications={filteredApplications.mediumConfidence}
                     confidence="medium"
                     formatDate={formatDate}
                     truncateText={truncateText}
@@ -267,10 +319,10 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
                 )}
 
                 {/* Low Confidence */}
-                {data.lowConfidence.length > 0 && (
+                {filteredApplications.lowConfidence.length > 0 && (
                   <ApplicationSection
                     title="🏠 Nearby Properties"
-                    applications={data.lowConfidence}
+                    applications={filteredApplications.lowConfidence}
                     confidence="low"
                     showByDefault={showLowConfidence}
                     onToggle={() => setShowLowConfidence(!showLowConfidence)}
@@ -648,7 +700,7 @@ function PlanningApplicationItem({ item, formatDate, truncateText, getDecisionCo
             {hasFullDetails && <span className="text-blue-400 text-xs">🔗</span>}
           </div>
           <div className={`inline-block px-2 py-1 text-xs rounded mt-1 ${getDecisionColor(application.Decision || 'Pending')}`}>
-            {application.Decision ? truncateText(application.Decision, 12) : '⏳ Pending'}
+            {application.Decision ? application.Decision : '⏳ Pending'}
           </div>
         </div>
         <div className="text-gray-400 text-xs ml-2 flex-shrink-0">
