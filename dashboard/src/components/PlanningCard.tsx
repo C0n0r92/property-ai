@@ -192,7 +192,7 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
             onClick={handleFlip}
           >
             <div className="flex flex-col items-center justify-center text-center min-h-[120px]">
-              <div className="text-white text-lg font-medium mb-2">Planning History</div>
+              <div className="text-white text-lg font-medium mb-2">Planning Permission History</div>
               <div className="text-gray-400 text-sm">View planning applications</div>
               {loading && (
                 <div className="mt-3 flex items-center gap-2">
@@ -215,7 +215,7 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-white text-lg font-semibold">🏗️ Planning History</h3>
+                <h3 className="text-white text-lg font-semibold">🏗️ Planning Permission History</h3>
                 <div className="text-gray-400 text-sm">{data?.totalCount || 0} applications found</div>
               </div>
               <button
