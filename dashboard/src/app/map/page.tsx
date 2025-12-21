@@ -537,16 +537,18 @@ export default function MapPage() {
   const availableYears = useMemo(() => {
     const years = new Set<number>();
 
-    // Include years from all data sources
-    [...properties, ...listings, ...rentals].forEach(item => {
-      const dateField = item.soldDate || item.listedDate || item.rentedDate;
-      if (dateField) {
-        years.add(new Date(dateField).getFullYear());
+    // Include years from properties (sold dates)
+    properties.forEach(item => {
+      if (item.soldDate) {
+        years.add(new Date(item.soldDate).getFullYear());
       }
     });
 
+    // For now, we'll only use sold dates from properties
+    // Listings and rentals use scrapedAt which isn't meaningful for year filtering
+
     return Array.from(years).sort((a, b) => b - a); // Most recent first
-  }, [properties, listings, rentals]);
+  }, [properties]);
 
   // Filter properties based on difference and time filters
   const filteredProperties = useMemo(() => {
