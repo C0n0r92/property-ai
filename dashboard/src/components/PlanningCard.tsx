@@ -415,12 +415,12 @@ function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDec
   const { application: app, confidence, matchReasons } = application;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-900 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-end sm:items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-gray-900 rounded-t-xl sm:rounded-xl max-w-2xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-700">
           <div>
-            <h2 className="text-xl font-semibold text-white">Planning Application Details</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-white">Planning Application Details</h2>
             <div className="text-gray-400 text-sm mt-1">{app.ApplicationNumber}</div>
           </div>
           <button
@@ -432,11 +432,11 @@ function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDec
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
           {/* Status and Decision */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`px-3 py-1 rounded text-sm font-medium ${getDecisionColor(app.Decision || 'Pending')}`}>
+              <div className={`px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-medium ${getDecisionColor(app.Decision || 'Pending')}`}>
                 {app.Decision || '⏳ Pending'}
               </div>
               <div className="text-gray-400 text-sm">
@@ -472,7 +472,7 @@ function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDec
                         </p>
                         <button
                           onClick={() => fetchFullDescription(app.OBJECTID, app.DevelopmentDescription)}
-                          className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors"
+                          className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors w-full sm:w-auto min-h-[44px] flex items-center justify-center"
                         >
                           📖 Load More Details
                         </button>
@@ -594,13 +594,13 @@ function PlanningDetailsModal({ application, isOpen, onClose, formatDate, getDec
 
           {/* Additional Resources */}
           {app.LinkAppDetails && (
-            <div className="pt-4 border-t border-gray-700">
+            <div className="pt-3 sm:pt-4 border-t border-gray-700">
               <div className="text-center">
                 <a
                   href={app.LinkAppDetails}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors font-medium"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors font-medium w-full sm:w-auto justify-center"
                 >
                   <span>🔗 View Complete Application Details</span>
                   <span className="text-xs">↗️</span>

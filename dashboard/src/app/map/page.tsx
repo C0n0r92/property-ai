@@ -138,7 +138,7 @@ export default function MapPage() {
 
   // Planning radius visualization function
   const addPlanningRadius = useCallback(() => {
-    if (!map.current || !map.current.isStyleLoaded()) {
+    if (!map.current || !mapReady) {
       console.log('Map not ready for planning radius');
       return;
     }
@@ -1731,13 +1731,10 @@ export default function MapPage() {
     if (selectedProperty || selectedListing || selectedRental) {
       const currentProperty = selectedProperty || selectedListing || selectedRental;
       if (currentProperty?.latitude && currentProperty?.longitude) {
-        // Wait a bit for map to be ready
-        setTimeout(() => {
-          addPlanningRadius();
-        }, 100);
+        addPlanningRadius();
       }
     }
-  }, [selectedProperty, selectedListing, selectedRental, mapReady]);
+  }, [selectedProperty, selectedListing, selectedRental, mapReady, addPlanningRadius]);
 
   // Update amenities map layers when category filters change (debounced)
   useEffect(() => {
