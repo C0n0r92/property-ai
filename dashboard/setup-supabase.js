@@ -13,8 +13,8 @@ console.log('🚀 Irish Property Data - Supabase Setup\n');
 // Check if .env.local exists
 const envPath = path.join(__dirname, '.env.local');
 const envExample = `# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://yyaidpayutmomsnuuomy.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YWlkcGF5dXRtb21zbnV1b215Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3ODgyMDIsImV4cCI6MjA1MDM2NDIwMn0.sb_publishable_gqX54aA3JC1jIpbbaDch5w_dy1j19l4
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # Existing configuration (keep these)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-43FMLL1ZG0
@@ -40,8 +40,8 @@ if (!fs.existsSync(envPath)) {
 
     // Add Supabase config at the top
     const supabaseConfig = `# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://yyaidpayutmomsnuuomy.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YWlkcGF5dXRtb21zbnV1b215Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3ODgyMDIsImV4cCI6MjA1MDM2NDIwMn0.sb_publishable_gqX54aA3JC1jIpbbaDch5w_dy1j19l4
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 
 `;
