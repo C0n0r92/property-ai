@@ -104,6 +104,14 @@ export const analytics = {
     trackEvent({ action: 'property_shared', category: 'feature', label: propertyType });
   },
 
+  propertySaved: (propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'property_saved', category: 'engagement', label: propertyType });
+  },
+
+  propertyUnsaved: (propertyType: 'sold' | 'forSale' | 'rental') => {
+    trackEvent({ action: 'property_unsaved', category: 'engagement', label: propertyType });
+  },
+
   // Amenities feature events
   amenitiesExplored: (propertyType: 'sold' | 'forSale' | 'rental') => {
     trackEvent({ action: 'amenities_explored', category: 'feature', label: propertyType });

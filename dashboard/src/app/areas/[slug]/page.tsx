@@ -357,7 +357,7 @@ export default function AreaPage() {
           
           <div className="mt-6 p-4 bg-[var(--background)]/50 rounded-lg border border-[var(--border)]">
             <div className="text-sm text-[var(--muted-foreground)]">
-              💡 <strong>Investment Insight:</strong> {
+              <strong>Investment Insight:</strong> {
                 yieldData.avgYield > 5 
                   ? `${areaName} offers above-average rental yields for Dublin, making it attractive for buy-to-let investors.`
                   : yieldData.avgYield > 4

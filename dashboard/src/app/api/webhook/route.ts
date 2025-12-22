@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { upgradeToPremium, downgradeToFree, syncStripeSubscription, getUserByEmail, getUserByStripeCustomerId } from '@/lib/user-tier';
 
 // Lazy initialization to avoid build-time errors
 function getStripe() {
@@ -46,27 +47,119 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Handle the event
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
-    
-    // Here you would typically:
-    // 1. Get the user email from session.customer_email or session.customer
-    // 2. Update user's payment status in your database
-    // 3. Grant access to Pro features
-    
-    // For now, we'll just log it
-    // In production, you'd update a database record
-    console.log('Payment successful:', {
-      sessionId: session.id,
-      customerEmail: session.customer_email,
-      amount: session.amount_total,
-      plan: session.metadata?.plan,
-    });
+  // Handle different event types
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        
+        console.log('Payment successful:', {
+          sessionId: session.id,
+          customerEmail: session.customer_email,
+          amount: session.amount_total,
+          plan: session.metadata?.plan,
+          customerId: session.customer,
+          subscriptionId: session.subscription,
+        });
 
-    // TODO: Update user's hasPaid status in database
-    // Example:
-    // await updateUserPaymentStatus(session.customer_email, true);
+        // Get user ID from metadata (passed during checkout) or email
+        let userId: string | null | undefined = session.metadata?.user_id;
+
+        if (!userId && session.customer_email) {
+          userId = await getUserByEmail(session.customer_email);
+        }
+
+        if (!userId) {
+          console.error('Could not find user for completed checkout session');
+          return NextResponse.json({ received: true });
+        }
+
+        // Upgrade user to premium
+        const success = await upgradeToPremium(userId, {
+          customerId: session.customer as string,
+          subscriptionId: session.subscription as string,
+          plan: session.metadata?.plan || 'unknown',
+          amount: session.amount_total || 0,
+        });
+
+        if (!success) {
+          console.error('Failed to upgrade user to premium');
+        }
+
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        
+        console.log('Subscription cancelled:', {
+          subscriptionId: subscription.id,
+          customerId: subscription.customer,
+        });
+
+        // Find user by Stripe customer ID
+        const userId = await getUserByStripeCustomerId(subscription.customer as string);
+
+        if (!userId) {
+          console.error('Could not find user for cancelled subscription');
+          return NextResponse.json({ received: true });
+        }
+
+        // Downgrade user to free
+        const success = await downgradeToFree(userId);
+
+        if (!success) {
+          console.error('Failed to downgrade user to free');
+        }
+
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        
+        console.log('Subscription updated:', {
+          subscriptionId: subscription.id,
+          customerId: subscription.customer,
+          status: subscription.status,
+        });
+
+        // Find user by Stripe customer ID
+        const userId = await getUserByStripeCustomerId(subscription.customer as string);
+
+        if (!userId) {
+          console.error('Could not find user for updated subscription');
+          return NextResponse.json({ received: true });
+        }
+
+        // Sync subscription status
+        const success = await syncStripeSubscription(
+          userId,
+          subscription.id,
+          subscription.status
+        );
+
+        if (!success) {
+          console.error('Failed to sync subscription status');
+        }
+
+        // If subscription became inactive, downgrade to free
+        if (['canceled', 'unpaid', 'incomplete_expired'].includes(subscription.status)) {
+          await downgradeToFree(userId);
+        }
+
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+  } catch (error) {
+    console.error('Error processing webhook event:', error);
+    return NextResponse.json(
+      { error: 'Error processing webhook' },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ received: true });

@@ -1,14 +1,14 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
 import { Suspense } from 'react';
 import GoogleAnalytics from './GoogleAnalytics';
 import CookieConsent from './CookieConsent';
 import PostHogProvider, { PostHogPageview } from './PostHogProvider';
+import { AuthProvider } from './auth/AuthProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <PostHogProvider>
         {children}
         <Suspense fallback={null}>
@@ -17,7 +17,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <GoogleAnalytics />
         <CookieConsent />
       </PostHogProvider>
-    </SessionProvider>
+    </AuthProvider>
   );
 }
 

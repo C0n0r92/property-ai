@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { getCurrentUser } from '@/lib/auth-utils';
 
 // Lazy initialization to avoid build-time errors
 function getStripe() {
@@ -13,6 +14,16 @@ function getStripe() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Please sign in to continue' },
+        { status: 401 }
+      );
+    }
+
     const stripe = getStripe();
     const { plan } = await request.json();
 
@@ -29,6 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
+      customer_email: user.email,
       payment_method_types: ['card'],
       line_items: [
         {
@@ -39,8 +51,8 @@ export async function POST(request: NextRequest) {
                 ? 'Irish Property Data Pro - Lifetime Access' 
                 : 'Irish Property Data Pro - Monthly Subscription',
               description: plan === 'one-time'
-                ? 'One-time payment for lifetime access to Pro Insights'
-                : 'Monthly subscription to Pro Insights',
+                ? 'One-time payment for lifetime access to Pro Insights and Saved Properties'
+                : 'Monthly subscription to Pro Insights and Saved Properties',
             },
             unit_amount: amount,
             ...(plan === 'monthly' && { recurring: { interval: 'month' } }),
@@ -49,10 +61,11 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: plan === 'one-time' ? 'payment' : 'subscription',
-      success_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/insights?payment=success`,
-      cancel_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/insights?payment=cancelled`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/insights?payment=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/insights?payment=cancelled`,
       metadata: {
         plan,
+        user_id: user.id, // Pass user ID to webhook
       },
     });
 

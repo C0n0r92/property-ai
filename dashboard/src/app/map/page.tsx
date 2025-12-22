@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { formatFullPrice } from '@/lib/format';
@@ -10,6 +11,8 @@ import { analytics } from '@/lib/analytics';
 import { fetchAmenities, calculateWalkabilityScore, getCategoryIcon, formatCategory, getCategoryDisplayName, calculateDistance } from '@/lib/amenities';
 import { PropertySnapshot } from '@/components/PropertySnapshot';
 import { PlanningCard } from '@/components/PlanningCard';
+import { useSavedProperties } from '@/hooks/useSavedProperties';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { usePropertyShare } from '@/hooks/usePropertyShare';
 
 // Mapbox access token
@@ -23,6 +26,7 @@ interface DataSourceSelection {
   sold: boolean;
   forSale: boolean;
   rentals: boolean;
+  savedOnly: boolean;
 }
 
 // Month names for display
@@ -58,6 +62,9 @@ const DUBLIN_AREAS = [
 ];
 
 export default function MapPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const spiderfyManager = useRef<SpiderfyManager | null>(null);
@@ -73,14 +80,6 @@ export default function MapPage() {
   const [selectedRental, setSelectedRental] = useState<RentalListing | null>(null);
   const isClosingRef = useRef(false);
 
-  // Temporary: Auto-select first listing for testing selected property highlighting
-  // DISABLED: This was causing cards to reopen immediately after closing
-  // useEffect(() => {
-  //   if (listings.length > 0 && !selectedListing && !selectedProperty && !selectedRental) {
-  //     console.log('Auto-selecting first listing for testing:', listings[0].address);
-  //     setSelectedListing(listings[0]);
-  //   }
-  // }, [listings, selectedListing, selectedProperty, selectedRental]);
 
   // Property card minimize states
   const [minimizeProperty, setMinimizeProperty] = useState(false);
@@ -92,7 +91,7 @@ export default function MapPage() {
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
   
   // Data source toggle: allows any combination of sold, forSale, rentals
-  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: false });
+  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: false, savedOnly: false });
   
   // Hierarchical time filter state (only for sold properties)
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -137,10 +136,73 @@ export default function MapPage() {
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [travelMode, setTravelMode] = useState<'walking' | 'cycling' | 'driving'>('walking');
 
+  // Handle query parameters for focusing on specific properties
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const focusId = urlParams.get('focus');
+    const focusType = urlParams.get('type');
+
+    if (focusId && focusType && !loading) {
+      // Wait a bit for data to load, then find and focus the property
+      const timer = setTimeout(() => {
+        if (focusType === 'listing') {
+          // Check sold properties first (they use address as ID)
+          const property = properties.find(p => p.address === focusId);
+          if (property) {
+            setSelectedProperty(property);
+            // Center map on the property
+            if (map.current && property.latitude && property.longitude) {
+              map.current.flyTo({
+                center: [property.longitude, property.latitude],
+                zoom: 16
+              });
+            }
+            return;
+          }
+
+          // Check listings
+          const listing = listings.find(l => l.address === focusId);
+          if (listing) {
+            setSelectedListing(listing);
+            // Center map on the listing
+            if (map.current && listing.latitude && listing.longitude) {
+              map.current.flyTo({
+                center: [listing.longitude, listing.latitude],
+                zoom: 16
+              });
+            }
+            return;
+          }
+        } else if (focusType === 'rental') {
+          // Check rentals
+          const rental = rentals.find(r => r.address === focusId);
+          if (rental) {
+            setSelectedRental(rental);
+            // Center map on the rental
+            if (map.current && rental.latitude && rental.longitude) {
+              map.current.flyTo({
+                center: [rental.longitude, rental.latitude],
+                zoom: 16
+              });
+            }
+            return;
+          }
+        }
+
+        // Clean up URL parameters after processing
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('focus');
+        newUrl.searchParams.delete('type');
+        window.history.replaceState({}, '', newUrl.toString());
+      }, 2000); // Wait 2 seconds for data to load
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading, properties, listings, rentals]);
+
   // Planning radius visualization function
   const addPlanningRadius = useCallback(() => {
     if (!map.current || !mapReady) {
-      console.log('Map not ready for planning radius');
       return;
     }
 
@@ -150,11 +212,9 @@ export default function MapPage() {
     // Only show radius at reasonable zoom levels (zoomed in enough to see 150m)
     const currentZoom = map.current.getZoom();
     if (currentZoom < 12) {
-      console.log('Zoom level too low for radius visibility:', currentZoom);
       return;
     }
 
-    console.log('Adding planning radius for:', currentProperty.address, 'at', currentProperty.latitude, currentProperty.longitude, 'zoom:', currentZoom);
 
     // Create a circle with 150m radius (our max search radius, made larger for visibility)
     const center = [currentProperty.longitude, currentProperty.latitude];
@@ -180,7 +240,6 @@ export default function MapPage() {
       properties: {}
     };
 
-    console.log('Planning radius GeoJSON:', circleGeoJson);
 
     try {
       // Add source and layers
@@ -650,9 +709,14 @@ export default function MapPage() {
         return y !== undefined && y !== null && y >= yieldFilter;
       });
     }
-    
+
+    // Apply saved only filter
+    if (dataSources.savedOnly && user?.tier === 'premium') {
+      filtered = filtered.filter(p => isSaved(p.address, 'listing'));
+    }
+
     return filtered;
-  }, [properties, differenceFilter, selectedYear, selectedQuarter, selectedMonth, recentFilter, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
+  }, [properties, dataSources, user, differenceFilter, selectedYear, selectedQuarter, selectedMonth, recentFilter, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
 
   // Helper to clear time filters
   const clearTimeFilters = () => {
@@ -743,9 +807,14 @@ export default function MapPage() {
         return y !== undefined && y !== null && y >= yieldFilter;
       });
     }
-    
+
+    // Apply saved only filter
+    if (dataSources.savedOnly && user?.tier === 'premium') {
+      filtered = filtered.filter(l => isSaved(l.address, 'listing'));
+    }
+
     return filtered;
-  }, [listings, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
+  }, [listings, dataSources, user, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
 
   // Filter rentals based on filters
   const filteredRentals = useMemo(() => {
@@ -781,9 +850,14 @@ export default function MapPage() {
     if (maxArea !== null) {
       filtered = filtered.filter(r => (r.areaSqm || 0) <= maxArea);
     }
-    
+
+    // Apply saved only filter
+    if (dataSources.savedOnly && user?.tier === 'premium') {
+      filtered = filtered.filter(r => isSaved(r.address, 'rental'));
+    }
+
     return filtered;
-  }, [rentals, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea]);
+  }, [rentals, dataSources, user, bedsFilter, propertyTypeFilter, minPrice, maxPrice, minArea, maxArea]);
 
   // Get active data based on selected data sources
   const activeData = useMemo(() => {
@@ -2558,40 +2632,59 @@ export default function MapPage() {
             <button
               onClick={() => toggleDataSource('forSale')}
               className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
-                dataSources.forSale 
-                  ? 'bg-rose-500 text-white shadow-sm' 
+                dataSources.forSale
+                  ? 'bg-rose-500 text-white shadow-sm'
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
               title="Toggle for sale listings"
             >
-              For Sale
+              Sale
             </button>
             <button
               onClick={() => toggleDataSource('rentals')}
               className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
-                dataSources.rentals 
-                  ? 'bg-purple-500 text-white shadow-sm' 
+                dataSources.rentals
+                  ? 'bg-purple-500 text-white shadow-sm'
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
               title="Toggle rental listings"
             >
               Rentals
             </button>
+            {user?.tier === 'premium' && (
+              <button
+                onClick={() => toggleDataSource('savedOnly')}
+                className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
+                  dataSources.savedOnly
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}
+                title="Show only saved properties"
+              >
+                Saved
+              </button>
+            )}
           </div>
           
           {/* Count display - shows totals for all selected sources */}
           <span className="hidden sm:inline text-gray-400 text-sm font-medium">
             {loading ? 'Loading...' : (
               <>
-                {activeData.length.toLocaleString()} total
-                {activeSourceCount > 1 && (
-                  <span className="text-gray-500 ml-1">
-                    ({[
-                      dataSources.sold && `${filteredProperties.length.toLocaleString()} sold`,
-                      dataSources.forSale && `${filteredListings.length.toLocaleString()} for sale`,
-                      dataSources.rentals && `${filteredRentals.length.toLocaleString()} rentals`
-                    ].filter(Boolean).join(' · ')})
-                  </span>
+                {dataSources.savedOnly ? (
+                  `${activeData.length.toLocaleString()} saved ${activeData.length === 1 ? 'property' : 'properties'}`
+                ) : (
+                  <>
+                    {activeData.length.toLocaleString()} total
+                    {activeSourceCount > 1 && (
+                      <span className="text-gray-500 ml-1">
+                        ({[
+                          dataSources.sold && `${filteredProperties.length.toLocaleString()} sold`,
+                          dataSources.forSale && `${filteredListings.length.toLocaleString()} sale`,
+                          dataSources.rentals && `${filteredRentals.length.toLocaleString()} rentals`
+                        ].filter(Boolean).join(' · ')})
+                      </span>
+                    )}
+                  </>
                 )}
               </>
             )}
@@ -2734,12 +2827,6 @@ export default function MapPage() {
                 Clear All
               </button>
             )}
-            <button
-              onClick={() => setShowFilters(false)}
-              className="px-4 py-2 md:px-3 md:py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded transition-colors"
-            >
-              Done
-            </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
             {/* VIEW MODE Section */}
@@ -3134,6 +3221,39 @@ export default function MapPage() {
                   </>
                 )}
               </button>
+              {user && (
+                <button
+                  onClick={async () => {
+                    const propertyId = selectedProperty.address; // Use address as unique ID
+                    const alreadySaved = isSaved(propertyId, 'listing');
+
+                    if (alreadySaved) {
+                      const result = await unsaveProperty(propertyId, 'listing');
+                      if (result.success) {
+                        analytics.propertyUnsaved('sold');
+                      }
+                    } else {
+                      const result = await saveProperty(
+                        propertyId,
+                        'listing',
+                        selectedProperty,
+                        undefined
+                      );
+                      if (result.success) {
+                        analytics.propertySaved('sold');
+                      }
+                    }
+                  }}
+                  className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
+                    isSaved(selectedProperty.address, 'listing')
+                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
+                      : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
+                  }`}
+                  title={isSaved(selectedProperty.address, 'listing') ? 'Remove from saved properties' : 'Save this property'}
+                >
+                  {isSaved(selectedProperty.address, 'listing') ? 'Saved' : 'Save'}
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -3523,6 +3643,39 @@ export default function MapPage() {
                   </>
                 )}
               </button>
+              {user && (
+                <button
+                  onClick={async () => {
+                    const propertyId = selectedListing.address; // Use address as unique ID
+                    const alreadySaved = isSaved(propertyId, 'listing');
+
+                    if (alreadySaved) {
+                      const result = await unsaveProperty(propertyId, 'listing');
+                      if (result.success) {
+                        analytics.propertyUnsaved('forSale');
+                      }
+                    } else {
+                      const result = await saveProperty(
+                        propertyId,
+                        'listing',
+                        selectedListing,
+                        undefined
+                      );
+                      if (result.success) {
+                        analytics.propertySaved('forSale');
+                      }
+                    }
+                  }}
+                  className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
+                    isSaved(selectedListing.address, 'listing')
+                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
+                      : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
+                  }`}
+                  title={isSaved(selectedListing.address, 'listing') ? 'Remove from saved properties' : 'Save this property'}
+                >
+                  {isSaved(selectedListing.address, 'listing') ? 'Saved' : 'Save'}
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -3837,6 +3990,39 @@ export default function MapPage() {
                   </>
                 )}
               </button>
+              {user && (
+                <button
+                  onClick={async () => {
+                    const propertyId = selectedRental.address; // Use address as unique ID
+                    const alreadySaved = isSaved(propertyId, 'rental');
+
+                    if (alreadySaved) {
+                      const result = await unsaveProperty(propertyId, 'rental');
+                      if (result.success) {
+                        analytics.propertyUnsaved('rental');
+                      }
+                    } else {
+                      const result = await saveProperty(
+                        propertyId,
+                        'rental',
+                        selectedRental,
+                        undefined
+                      );
+                      if (result.success) {
+                        analytics.propertySaved('rental');
+                      }
+                    }
+                  }}
+                  className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
+                    isSaved(selectedRental.address, 'rental')
+                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
+                      : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
+                  }`}
+                  title={isSaved(selectedRental.address, 'rental') ? 'Remove from saved properties' : 'Save this property'}
+                >
+                  {isSaved(selectedRental.address, 'rental') ? 'Saved' : 'Save'}
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();

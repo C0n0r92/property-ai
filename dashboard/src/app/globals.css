@@ -11,6 +11,13 @@
   --foreground: #FAFAFA;
   --foreground-secondary: #A1A1AA;
   --foreground-muted: #71717A;
+
+  /* Component states */
+  --muted: #1A1A21;
+  --muted-hover: #22222B;
+  --muted-foreground: #71717A;
+  --card: #1A1A21;
+  --primary: #3B82F6;
   
   /* Accent - Electric blue */
   --accent: #3B82F6;

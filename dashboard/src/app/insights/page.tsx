@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { loadStripe } from '@stripe/stripe-js';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { formatFullPrice } from '@/lib/format';
@@ -62,12 +62,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
     const amount = selectedPlan === 'one-time' ? 20 : 5;
     analytics.paymentCheckoutStarted(selectedPlan, amount);
     
-    // Show under development message
-    alert('🚧 Under Development\n\nPro access is coming soon! We\'re working hard to bring you premium insights.');
-    return;
-    
-    // Stripe checkout disabled for now
-    /*
+    // Re-enabled Stripe checkout with Supabase integration
     setLoading(true);
     try {
       const response = await fetch('/api/checkout', {
@@ -75,6 +70,11 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan: selectedPlan }),
       });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
 
       const { url } = await response.json();
       if (url) {
@@ -84,40 +84,44 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Failed to start checkout. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to start checkout. Please try again.');
       setLoading(false);
     }
-    */
   };
   
   const features = [
     {
-      icon: '🧠',
+      icon: '',
       title: 'AI Price Predictions',
       desc: 'Get ML-powered fair value estimates for any Dublin property based on 40,000+ sales'
     },
     {
-      icon: '📊',
+      icon: '',
       title: 'Hidden Deal Finder',
       desc: 'Instantly identify underpriced properties before they get snapped up'
     },
     {
-      icon: '📈',
+      icon: '',
       title: 'Area Trend Forecasts',
       desc: '6-month price predictions for every Dublin neighbourhood with confidence scores'
     },
     {
-      icon: '🎯',
+      icon: '',
       title: 'Bidding War Predictor',
       desc: 'Know which properties will likely go over asking price and by how much'
     },
     {
-      icon: '💡',
+      icon: '',
       title: 'Investment Scoring',
       desc: 'Rental yield estimates, price appreciation potential, and risk ratings'
     },
     {
-      icon: '⏰',
+      icon: '',
+      title: 'Save & Track Properties',
+      desc: 'Save your favorite properties, add personal notes, and track them over time with organized collections'
+    },
+    {
+      icon: '',
       title: 'Market Timing Alerts',
       desc: 'Get notified when market conditions favour buyers or sellers in your target area'
     },
@@ -147,7 +151,6 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
           
           <div className="relative text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-sm font-medium mb-4">
-              <span className="animate-pulse">🔥</span>
               <span>Limited Time Offer</span>
             </div>
             
@@ -266,7 +269,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
 
 export default function InsightsPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { user, loading: authLoading } = useAuth();
   const [data, setData] = useState<{
     stats: Stats;
     areaStats: AreaStat[];
@@ -275,12 +278,12 @@ export default function InsightsPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'count' | 'medianPrice' | 'change6m'>('count');
-  
-  // Check if user has paid from session
-  const hasPaid = (session?.user as any)?.hasPaid || false;
-  
+
+  // Check if user has premium tier
+  const hasPaid = user?.tier === 'premium';
+
   useEffect(() => {
-    // Only fetch data if user has paid
+    // Only fetch data if user has premium tier
     if (hasPaid) {
       fetch('/api/stats')
         .then(res => res.json())
@@ -290,8 +293,27 @@ export default function InsightsPage() {
       setLoading(false);
     }
   }, [hasPaid]);
-  
-  // Show payment modal if user hasn't paid (check FIRST before data checks)
+
+  // Show loading while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    router.push('/login');
+    return (
+      <div className="min-h-[calc(100vh-64px)] bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-white">Redirecting to login...</div>
+      </div>
+    );
+  }
+
+  // Show payment modal if user doesn't have premium tier
   if (!hasPaid) {
     return (
       <div className="min-h-[calc(100vh-64px)] bg-[#0a0a0a]">
