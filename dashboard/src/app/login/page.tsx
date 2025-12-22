@@ -1,15 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { SignInButton } from '@/components/auth/SignInButton';
 
-export default function LoginPage() {
+function LoginContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error');
 
   // Redirect if already logged in
   useEffect(() => {
@@ -39,17 +37,9 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-lg p-6">
-          {error && (
-            <div className="mb-4 p-3 bg-red-900/20 border border-red-700 rounded-md">
-              <p className="text-red-400 text-sm">
-                {error === 'email_confirmation_failed' && 'Email confirmation failed. Please try again.'}
-                {error === 'auth_failed' && 'Authentication failed. Please try again.'}
-                {error === 'Invalid login credentials' && 'Invalid email or password. Please try again.'}
-                {error === 'Email not confirmed' && 'Please check your email and confirm your account before signing in.'}
-                {error}
-              </p>
-            </div>
-          )}
+          <Suspense fallback={<div></div>}>
+            <ErrorMessage />
+          </Suspense>
 
           <SignInButton />
 
@@ -65,4 +55,27 @@ export default function LoginPage() {
       </div>
     </div>
   );
+}
+
+function ErrorMessage() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+
+  if (!error) return null;
+
+  return (
+    <div className="mb-4 p-3 bg-red-900/20 border border-red-700 rounded-md">
+      <p className="text-red-400 text-sm">
+        {error === 'email_confirmation_failed' && 'Email confirmation failed. Please try again.'}
+        {error === 'auth_failed' && 'Authentication failed. Please try again.'}
+        {error === 'Invalid login credentials' && 'Invalid email or password. Please try again.'}
+        {error === 'Email not confirmed' && 'Please check your email and confirm your account before signing in.'}
+        {error}
+      </p>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return <LoginContent />;
 }
