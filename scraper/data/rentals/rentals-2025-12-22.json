@@ -1,0 +1,22 @@
+[
+  {
+    "address": "Raglan Road, Ballsbridge, Dublin 4",
+    "monthlyRent": 2595,
+    "beds": 2,
+    "baths": 1,
+    "areaSqm": null,
+    "propertyType": "Apartment",
+    "berRating": null,
+    "furnishing": null,
+    "sourceUrl": "",
+    "sourcePage": 1,
+    "latitude": 53.3291947,
+    "longitude": -6.2313316,
+    "eircode": null,
+    "nominatimAddress": "Ballsbridge, Pembroke East E ED, Dublin, Dublin 4, Leinster, D04 C7K6, Éire / Ireland",
+    "rentPerSqm": null,
+    "rentPerBed": 1298,
+    "dublinPostcode": "D4",
+    "scrapedAt": "2025-12-22T16:17:26.410Z"
+  }
+]

@@ -91,8 +91,27 @@ export abstract class BaseDaftScraper<T> {
    */
   protected async scrollToBottom(): Promise<void> {
     console.log('Scrolling to bottom...');
-    await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await this.page.waitForTimeout(1000);
+
+    // Scroll gradually to ensure lazy loading and pagination button visibility
+    await this.page.evaluate(async () => {
+      const scrollStep = 500;
+      const scrollDelay = 200;
+
+      let currentScroll = 0;
+      const maxScroll = document.body.scrollHeight;
+
+      while (currentScroll < maxScroll) {
+        window.scrollTo(0, currentScroll);
+        currentScroll += scrollStep;
+        await new Promise(resolve => setTimeout(resolve, scrollDelay));
+      }
+
+      // Final scroll to bottom
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    // Wait a bit longer for content to load
+    await this.page.waitForTimeout(2000);
   }
 
   /**
@@ -100,18 +119,40 @@ export abstract class BaseDaftScraper<T> {
    */
   protected async navigateToNextPage(): Promise<boolean> {
     try {
+      console.log('Looking for next page button...');
       const nextBtn = this.page.locator('[data-testid="next-page-link"]');
 
-      if (await nextBtn.isVisible({ timeout: 3000 })) {
-        await nextBtn.click();
-        await this.page.waitForTimeout(2000); // Wait for page to load
+      // Wait for button to be visible and enabled
+      await nextBtn.waitFor({ state: 'visible', timeout: 5000 });
+      console.log('Next page button found and visible');
 
-        console.log(`✅ Navigated to page ${this.currentPage + 1}`);
-        return true;
-      } else {
-        console.log('No next page button found - reached end');
+      // Scroll button into view
+      await nextBtn.scrollIntoViewIfNeeded();
+
+      // Additional wait to ensure it's fully loaded
+      await this.page.waitForTimeout(1000);
+
+      // Check if button is actually clickable
+      const isEnabled = await nextBtn.isEnabled();
+      if (!isEnabled) {
+        console.log('Next page button is disabled - reached end');
         return false;
       }
+
+      console.log('Clicking next page button...');
+      await nextBtn.click();
+
+      // Wait for navigation and new content to load
+      await this.page.waitForTimeout(5000);
+
+      // Check if URL changed (simpler than networkidle)
+      const currentUrl = this.page.url();
+      if (currentUrl.includes(`page=${this.currentPage + 1}`) || currentUrl.includes('?page=2')) {
+        console.log('URL changed successfully');
+      }
+
+      console.log(`✅ Navigated to page ${this.currentPage + 1}`);
+      return true;
     } catch (error) {
       console.log(`⚠️ Navigation to page ${this.currentPage + 1} failed:`, error.message);
       return false;

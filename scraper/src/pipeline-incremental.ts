@@ -61,6 +61,8 @@ const CONFIG = {
   maxPages: 10277,
   // Stop after this many consecutive duplicates (3 pages worth)
   duplicateThreshold: 60,
+  // Also stop if we haven't found new properties in this many pages
+  pagesWithoutNewProperties: 10,
 };
 
 // ============== Types ==============
@@ -164,11 +166,69 @@ class SoldScraper extends BaseDaftScraper<Property> {
   private consecutiveDuplicates = 0;
   private totalNew = 0;
   private isFullMode: boolean;
+  private pagesWithoutNewProperties = 0;
+  private newPropertiesThisPage = 0;
 
   constructor(baseUrl: string, existingIds: Set<string>, isFullMode: boolean) {
     super(baseUrl);
     this.existingIds = existingIds;
     this.isFullMode = isFullMode;
+  }
+
+  protected async runScrapingLoop(maxPages: number = Infinity, maxListings?: number): Promise<Property[]> {
+    const allData: Property[] = [];
+    let totalListings = 0;
+
+    while (this.currentPage <= maxPages && (maxListings === undefined || totalListings < maxListings)) {
+      console.log(`\n--- Page ${this.currentPage}/${maxPages === Infinity ? '∞' : maxPages} ---`);
+
+      this.newPropertiesThisPage = 0;
+
+      // Step 1: Collect all data from current page
+      const pageData = await this.collectDataFromPage(this.currentPage);
+      console.log(`Found ${pageData.length} items on page ${this.currentPage}`);
+
+      // Process each item
+      for (const item of pageData) {
+        if (maxListings !== undefined && totalListings >= maxListings) break;
+
+        const processedItem = await this.processItem(item);
+        if (processedItem) {
+          allData.push(processedItem);
+          totalListings++;
+          this.newPropertiesThisPage++;
+        }
+      }
+
+      console.log(`Page ${this.currentPage}: ${this.newPropertiesThisPage} new properties found`);
+
+      // Check if we should stop due to no new properties
+      if (this.newPropertiesThisPage === 0) {
+        this.pagesWithoutNewProperties++;
+        console.log(`Pages without new properties: ${this.pagesWithoutNewProperties}/${CONFIG.pagesWithoutNewProperties}`);
+        if (!this.isFullMode && this.pagesWithoutNewProperties >= CONFIG.pagesWithoutNewProperties) {
+          console.log(`\n✓ No new properties found in ${this.pagesWithoutNewProperties} consecutive pages.`);
+          console.log('Stopping incremental scrape.\n');
+          throw new Error('CAUGHT_UP');
+        }
+      } else {
+        this.pagesWithoutNewProperties = 0; // Reset counter when we find new properties
+      }
+
+      // Step 2: Scroll to bottom to ensure pagination button is visible
+      await this.scrollToBottom();
+
+      // Step 3: Check if there's a next page and navigate
+      const hasNextPage = await this.navigateToNextPage();
+      if (!hasNextPage) {
+        console.log('Reached last page');
+        break;
+      }
+
+      this.currentPage++;
+    }
+
+    return allData;
   }
 
   protected async collectDataFromPage(pageNum: number): Promise<any[]> {
@@ -233,10 +293,15 @@ class SoldScraper extends BaseDaftScraper<Property> {
     if (this.existingIds.has(id)) {
       this.consecutiveDuplicates++;
 
+      // Log duplicate detection progress
+      if (this.consecutiveDuplicates % 10 === 0) {
+        console.log(`  → ${this.consecutiveDuplicates}/${CONFIG.duplicateThreshold} consecutive duplicates found`);
+      }
+
       // Stop condition for incremental mode
       if (!this.isFullMode && this.consecutiveDuplicates >= CONFIG.duplicateThreshold) {
-        console.log(`\n✓ Caught up! ${this.consecutiveDuplicates} consecutive duplicates.`);
-        console.log('Stopping incremental scrape.\n');
+        console.log(`\n✓ Caught up! Found ${this.consecutiveDuplicates} consecutive duplicates.`);
+        console.log('No new properties found recently - stopping incremental scrape.\n');
         throw new Error('CAUGHT_UP'); // Use error to break out of nested loops
       }
       return null;
@@ -244,6 +309,8 @@ class SoldScraper extends BaseDaftScraper<Property> {
 
     // Reset duplicate counter on new property
     this.consecutiveDuplicates = 0;
+
+    console.log(`  + NEW: ${rawItem.address.substring(0, 40)}...`);
 
     // Geocode with retry
     const geo = await retryWithBackoff(

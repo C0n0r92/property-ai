@@ -111,7 +111,8 @@ const KNOWN_DUBLIN_AREAS = [
 
 function cleanAddressForGeocode(addr: string): string {
   return addr
-    .replace(/,?\s*Dublin,\s*Dublin$/i, ', Dublin')
+    .replace(/,?\s*Dublin,\s*Dublin$/i, ', Dublin');
+}
 
 // ============== Data Parsing ==============
 
@@ -356,6 +357,8 @@ async function runPipeline() {
     process.exit(1);
   }
 
+  console.log('Creating scraper instance...');
+
   // Use the new ForSaleScraper class
   const scraper = new ForSaleScraper(CONFIG.baseUrl);
 
@@ -381,5 +384,6 @@ async function runPipeline() {
 }
 
 // ============== Main Entry Point ==============
+console.log('Starting listings scraper...');
+// Run
 runPipeline().catch(console.error);
-}
