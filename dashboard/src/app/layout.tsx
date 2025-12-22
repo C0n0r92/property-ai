@@ -57,6 +57,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+        {/* Performance optimizations */}
+        <link rel="preconnect" href="https://api.mapbox.com" />
+        <link rel="dns-prefetch" href="https://api.mapbox.com" />
+        <link rel="preconnect" href="https://events.mapbox.com" />
+        <link rel="dns-prefetch" href="https://events.mapbox.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -85,6 +91,33 @@ export default function RootLayout({
                 "@type": "Organization",
                 "name": "Irish Property Data"
               }
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              "name": "Irish Property Data",
+              "description": "Property market intelligence for Ireland",
+              "url": "https://irishpropertydata.com",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "IE",
+                "addressRegion": "Dublin"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "53.3498",
+                "longitude": "-6.2603"
+              },
+              "areaServed": {
+                "@type": "City",
+                "name": "Dublin"
+              },
+              "priceRange": "Free"
             })
           }}
         />

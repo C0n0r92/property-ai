@@ -117,6 +117,36 @@ export function AreaStructuredData({
     ]
   };
 
+  // RealEstateListing schema for recent sales
+  const realEstateListings = recentSales.slice(0, 5).map((sale: any) => ({
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": `${sale.address} - ${areaName}`,
+    "description": `Property sold for ${formatFullPrice(sale.soldPrice)} in ${areaName}, Dublin`,
+    "price": sale.soldPrice,
+    "priceCurrency": "EUR",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": sale.address,
+      "addressLocality": areaName,
+      "addressRegion": "Dublin",
+      "addressCountry": "IE"
+    },
+    "datePosted": sale.soldDate,
+    "listingType": "PropertySold",
+    "propertyType": sale.propertyType || "Residential",
+    "numberOfRooms": sale.bedrooms || null,
+    "floorSize": sale.areaSqm ? {
+      "@type": "QuantitativeValue",
+      "value": sale.areaSqm,
+      "unitCode": "MTK"
+    } : null,
+    "seller": {
+      "@type": "Organization",
+      "name": "Irish Property Data"
+    }
+  }));
+
   // Place schema with real estate data
   const placeSchema = {
     "@context": "https://schema.org",
@@ -176,6 +206,15 @@ export function AreaStructuredData({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(placeSchema) }}
       />
+      {/* RealEstateListing schemas for recent sales */}
+      {realEstateListings.map((listing, index) => (
+        <Script
+          key={`real-estate-listing-${index}`}
+          id={`real-estate-listing-${index}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(listing) }}
+        />
+      ))}
     </>
   );
 }

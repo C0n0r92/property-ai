@@ -7,6 +7,7 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContai
 import { formatFullPrice } from '@/lib/format';
 import { slugToArea, areaToSlug } from '@/lib/areas';
 import { AreaStructuredData } from '@/components/AreaStructuredData';
+import { ShareButton } from '@/components/ShareButton';
 
 interface AreaData {
   area: string;
@@ -220,9 +221,17 @@ export default function AreaPage() {
         </nav>
         
         <h1 className="text-4xl font-bold mb-2">{areaName} House Prices 2025</h1>
-        <p className="text-xl text-[var(--muted-foreground)]">
+        <p className="text-xl text-[var(--muted-foreground)] mb-4">
           Complete market analysis based on {stats.totalSales.toLocaleString()} property sales
         </p>
+        <div className="flex justify-end">
+          <ShareButton
+            areaName={areaName}
+            medianPrice={stats.medianPrice}
+            totalSales={stats.totalSales}
+            url={`https://irishpropertydata.com/areas/${slug}`}
+          />
+        </div>
       </div>
       
       {/* Key Stats Cards */}
@@ -791,6 +800,38 @@ export default function AreaPage() {
         </div>
       </div>
       
+      {/* Related Research */}
+      <div className="card mb-8">
+        <h2 className="text-2xl font-semibold mb-6">Market Research & Analysis</h2>
+        <p className="text-[var(--muted-foreground)] mb-6">
+          Deep-dive research and analysis related to {areaName} and Dublin's property market.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <Link
+            href="/blog/dublin-property-market-q4-2024"
+            className="p-4 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors"
+          >
+            <h3 className="font-semibold mb-2">Dublin Property Market Q4 2024</h3>
+            <p className="text-sm text-[var(--muted-foreground)]">Comprehensive market analysis including {areaName} performance data.</p>
+          </Link>
+          <Link
+            href="/blog/properties-over-asking-dublin"
+            className="p-4 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors"
+          >
+            <h3 className="font-semibold mb-2">Over Asking Price Analysis</h3>
+            <p className="text-sm text-[var(--muted-foreground)]">Market demand indicators and bidding competition in Dublin areas.</p>
+          </Link>
+        </div>
+        <div className="mt-6 text-center">
+          <Link
+            href="/blog"
+            className="text-[var(--primary)] hover:underline font-medium"
+          >
+            View All Research →
+          </Link>
+        </div>
+      </div>
+
       {/* CTA Section */}
       <div className="card bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20">
         <div className="text-center py-8">
@@ -799,13 +840,13 @@ export default function AreaPage() {
             Compare {areaName} with other Dublin neighborhoods and discover the best areas for your budget.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
+            <Link
               href="/areas"
               className="px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
             >
               View All Areas
             </Link>
-            <Link 
+            <Link
               href="/map"
               className="px-6 py-3 bg-[var(--muted)] rounded-lg hover:bg-[var(--muted)]/80 transition-colors font-medium"
             >

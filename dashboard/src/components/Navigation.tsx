@@ -41,6 +41,12 @@ export function Navigation() {
                 Areas
               </Link>
               <Link
+                href="/blog"
+                className="px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
+              >
+                Blog
+              </Link>
+              <Link
                 href="/insights"
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 text-emerald-400 hover:from-emerald-500/20 hover:to-cyan-500/20 transition-colors font-medium flex items-center gap-2"
               >

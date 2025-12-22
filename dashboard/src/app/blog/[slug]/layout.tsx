@@ -1,0 +1,67 @@
+import { Metadata } from 'next';
+import { articles } from './page';
+import { BlogArticleStructuredData } from '@/components/BlogArticleStructuredData';
+
+// Generate metadata for each blog post
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = articles[slug as keyof typeof articles];
+
+  if (!article) {
+    return {
+      title: 'Article Not Found | Irish Property Data',
+    };
+  }
+
+  return {
+    title: `${article.title} | Irish Property Data Research`,
+    description: article.excerpt,
+    keywords: article.tags.join(', '),
+    authors: [{ name: 'Irish Property Data' }],
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      type: 'article',
+      publishedTime: article.date,
+      authors: ['Irish Property Data'],
+      tags: article.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt,
+    },
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
+  };
+}
+
+export default function BlogPostLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = params as any;
+  const article = articles[slug as keyof typeof articles];
+
+  if (!article) {
+    return children;
+  }
+
+  return (
+    <>
+      <BlogArticleStructuredData
+        title={article.title}
+        excerpt={article.excerpt}
+        content={article.content}
+        date={article.date}
+        tags={article.tags}
+        url={`https://irishpropertydata.com/blog/${slug}`}
+      />
+      {children}
+    </>
+  );
+}
