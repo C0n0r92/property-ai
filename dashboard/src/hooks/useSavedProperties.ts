@@ -43,7 +43,7 @@ export function useSavedProperties() {
   }, [fetchSavedProperties]);
 
   // Check if a property is saved
-  const isSaved = useCallback((propertyId: string, propertyType: 'listing' | 'rental'): boolean => {
+  const isSaved = useCallback((propertyId: string, propertyType: 'listing' | 'rental' | 'sold'): boolean => {
     return savedProperties.some(
       (sp) => sp.property_id === propertyId && sp.property_type === propertyType
     );
@@ -52,7 +52,7 @@ export function useSavedProperties() {
   // Save a property
   const saveProperty = useCallback(async (
     propertyId: string,
-    propertyType: 'listing' | 'rental',
+    propertyType: 'listing' | 'rental' | 'sold',
     propertyData: any,
     notes?: string
   ): Promise<{ success: boolean; requiresUpgrade?: boolean; error?: string }> => {
@@ -115,7 +115,7 @@ export function useSavedProperties() {
   // Unsave a property
   const unsaveProperty = useCallback(async (
     propertyId: string,
-    propertyType: 'listing' | 'rental'
+    propertyType: 'listing' | 'rental' | 'sold'
   ): Promise<{ success: boolean; error?: string }> => {
     if (!user) {
       return { success: false, error: 'Not authenticated' };
@@ -158,4 +158,5 @@ export function useSavedProperties() {
     refetch: fetchSavedProperties,
   };
 }
+
 

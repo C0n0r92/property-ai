@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS public.saved_properties (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   property_id TEXT NOT NULL,
-  property_type TEXT NOT NULL CHECK (property_type IN ('listing', 'rental')),
+  property_type TEXT NOT NULL CHECK (property_type IN ('listing', 'rental', 'sold')),
   property_data JSONB NOT NULL,
   notes TEXT,
   metadata JSONB,

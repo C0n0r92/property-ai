@@ -12,7 +12,7 @@ export default function SavedPropertiesPage() {
   const [savedProperties, setSavedProperties] = useState<SavedProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<'all' | 'listing' | 'rental'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'listing' | 'rental' | 'sold'>('all');
   const [editingNote, setEditingNote] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,7 +49,7 @@ export default function SavedPropertiesPage() {
     }
   };
 
-  const handleUnsave = async (propertyId: string, propertyType: 'listing' | 'rental') => {
+  const handleUnsave = async (propertyId: string, propertyType: 'listing' | 'rental' | 'sold') => {
     try {
       const response = await fetch(
         `/api/saved-properties?property_id=${encodeURIComponent(propertyId)}&property_type=${propertyType}`,
@@ -70,7 +70,7 @@ export default function SavedPropertiesPage() {
     }
   };
 
-  const handleUpdateNote = async (propertyId: string, propertyType: 'listing' | 'rental', newNote: string) => {
+  const handleUpdateNote = async (propertyId: string, propertyType: 'listing' | 'rental' | 'sold', newNote: string) => {
     try {
       const response = await fetch('/api/saved-properties', {
         method: 'PATCH',

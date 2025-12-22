@@ -17,7 +17,7 @@ export interface SavedProperty {
   id: string;
   user_id: string;
   property_id: string;
-  property_type: 'listing' | 'rental';
+  property_type: 'listing' | 'rental' | 'sold';
   property_data: any; // This will contain the full property object
   notes: string | null;
   metadata?: {

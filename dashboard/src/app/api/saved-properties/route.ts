@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!['listing', 'rental'].includes(property_type)) {
+    if (!['listing', 'rental', 'sold'].includes(property_type)) {
       return NextResponse.json(
         { error: 'Invalid property type' },
         { status: 400 }

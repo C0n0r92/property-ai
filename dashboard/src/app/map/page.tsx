@@ -61,10 +61,47 @@ const DUBLIN_AREAS = [
   { name: 'Swords', coords: [-6.2180, 53.4600], zoom: 14 },
 ];
 
+// Mobile detection utility
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  return isMobile;
+};
+
+// Skeleton loader component for planning applications
+const PlanningSkeletonLoader = () => (
+  <div className="space-y-3">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="bg-gray-800 rounded-lg p-3 border border-gray-700 animate-pulse">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1 min-w-0">
+            <div className="h-4 bg-gray-600 rounded w-3/4 mb-1"></div>
+            <div className="h-3 bg-gray-600 rounded w-1/2"></div>
+          </div>
+          <div className="h-3 bg-gray-600 rounded w-16"></div>
+        </div>
+        <div className="h-3 bg-gray-600 rounded w-full mb-1"></div>
+        <div className="h-3 bg-gray-600 rounded w-2/3"></div>
+      </div>
+    ))}
+  </div>
+);
+
 export default function MapPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
+  const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const spiderfyManager = useRef<SpiderfyManager | null>(null);
@@ -81,10 +118,6 @@ export default function MapPage() {
   const isClosingRef = useRef(false);
 
 
-  // Property card minimize states
-  const [minimizeProperty, setMinimizeProperty] = useState(false);
-  const [minimizeListing, setMinimizeListing] = useState(false);
-  const [minimizeRental, setMinimizeRental] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(11); // Track zoom for legend display
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
@@ -136,6 +169,10 @@ export default function MapPage() {
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [travelMode, setTravelMode] = useState<'walking' | 'cycling' | 'driving'>('walking');
 
+  // Mobile-specific states
+  const [activeTab, setActiveTab] = useState<'details' | 'planning'>('details');
+  const [isMobileAmenitiesMode, setIsMobileAmenitiesMode] = useState(false);
+
   // Handle query parameters for focusing on specific properties
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -150,6 +187,8 @@ export default function MapPage() {
           const property = properties.find(p => p.address === focusId);
           if (property) {
             setSelectedProperty(property);
+            setActiveTab('details'); // Reset to details tab when focusing property
+            if (isMobile) setShowFilters(false); // Close filters on mobile when focusing property
             // Center map on the property
             if (map.current && property.latitude && property.longitude) {
               map.current.flyTo({
@@ -164,6 +203,8 @@ export default function MapPage() {
           const listing = listings.find(l => l.address === focusId);
           if (listing) {
             setSelectedListing(listing);
+            setActiveTab('details'); // Reset to details tab when focusing listing
+            if (isMobile) setShowFilters(false); // Close filters on mobile when focusing listing
             // Center map on the listing
             if (map.current && listing.latitude && listing.longitude) {
               map.current.flyTo({
@@ -178,6 +219,8 @@ export default function MapPage() {
           const rental = rentals.find(r => r.address === focusId);
           if (rental) {
             setSelectedRental(rental);
+            setActiveTab('details'); // Reset to details tab when focusing rental
+            if (isMobile) setShowFilters(false); // Close filters on mobile when focusing rental
             // Center map on the rental
             if (map.current && rental.latitude && rental.longitude) {
               map.current.flyTo({
@@ -199,6 +242,13 @@ export default function MapPage() {
       return () => clearTimeout(timer);
     }
   }, [loading, properties, listings, rentals]);
+
+  // Auto-close filters on mobile screens
+  useEffect(() => {
+    if (isMobile && showFilters) {
+      setShowFilters(false);
+    }
+  }, [isMobile, showFilters]);
 
   // Planning radius visualization function
   const addPlanningRadius = useCallback(() => {
@@ -470,6 +520,8 @@ export default function MapPage() {
       const fullRental = rentals.find(r => r.address === props?.address);
       if (fullRental) {
         setSelectedRental(fullRental);
+        setActiveTab('details'); // Reset to details tab when selecting new rental
+        if (isMobile) setShowFilters(false); // Close filters on mobile when selecting rental
         analytics.mapPropertyClicked('rental');
       }
       setSelectedProperty(null);
@@ -479,6 +531,8 @@ export default function MapPage() {
       const fullListing = listings.find(l => l.address === props?.address);
       if (fullListing) {
         setSelectedListing(fullListing);
+        setActiveTab('details'); // Reset to details tab when selecting new listing
+        if (isMobile) setShowFilters(false); // Close filters on mobile when selecting listing
         analytics.mapPropertyClicked('forSale');
       }
       setSelectedProperty(null);
@@ -488,6 +542,7 @@ export default function MapPage() {
       const fullProperty = properties.find(p => p.address === props?.address);
       if (fullProperty) {
         setSelectedProperty(fullProperty);
+        setActiveTab('details'); // Reset to details tab when selecting new property
         analytics.mapPropertyClicked('sold');
       }
       setSelectedListing(null);
@@ -1338,9 +1393,11 @@ export default function MapPage() {
           } else {
             // Find the full property object
             const fullProperty = properties.find(p => p.address === props?.address);
-            if (fullProperty && fullProperty.longitude && fullProperty.latitude) {
-              setSelectedProperty(fullProperty);
-            }
+          if (fullProperty && fullProperty.longitude && fullProperty.latitude) {
+            setSelectedProperty(fullProperty);
+            setActiveTab('details'); // Reset to details tab when selecting new property
+            if (isMobile) setShowFilters(false); // Close filters on mobile when selecting property
+          }
             setSelectedListing(null);
             setSelectedRental(null);
           }
@@ -2043,10 +2100,10 @@ export default function MapPage() {
           });
         }
 
-        // Zoom to focus on the selected property
+        // Zoom to focus on the selected property (less zoomed in for better amenities view)
         map.current.flyTo({
           center: [currentProperty.longitude, currentProperty.latitude],
-          zoom: 16,
+          zoom: 14,
           duration: 1000
         });
       } else {
@@ -3184,58 +3241,61 @@ export default function MapPage() {
         {/* Selected Property Panel */}
         {selectedProperty && (
           <div
-            className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 max-h-[75vh] overflow-y-auto z-50"
+            className={`absolute left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-700 z-50 transition-all duration-300 ${
+              isMobile && isMobileAmenitiesMode
+                ? 'top-4 h-16 p-3 flex items-center justify-between max-h-16 overflow-hidden'
+                : 'bottom-4 md:bottom-4 p-4 md:p-5 max-h-[85vh] md:max-h-[85vh] overflow-y-auto'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
+
+            {/* Share Error Notification */}
+            {soldShare.error && (
+              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
+                {soldShare.error}
+              </div>
+            )}
+
             {/* Header with Minimize, Share and Close buttons */}
-            <div className="absolute top-4 right-4 flex gap-2 z-10">
-              <button
-                onClick={() => setMinimizeProperty(!minimizeProperty)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
-                title={minimizeProperty ? "Expand property card" : "Minimize property card"}
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={minimizeProperty ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} />
-                </svg>
-              </button>
+            <div className={`absolute top-4 right-4 flex gap-1 z-10 ${isMobile && isMobileAmenitiesMode ? 'hidden' : ''}`}>
               <button
                 onClick={() => {
                   soldShare.shareProperty();
                   analytics.propertyShared('sold');
                 }}
                 disabled={soldShare.isGenerating}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors flex items-center gap-1 border border-gray-700"
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
                 title="Share this property"
               >
                 {soldShare.isGenerating ? (
                   <>
-                    <div className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating...</span>
+                    <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sharing...
                   </>
                 ) : (
                   <>
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    Share
                   </>
                 )}
               </button>
-              {user && (
+              {user && user.tier === 'premium' && (
                 <button
                   onClick={async () => {
                     const propertyId = selectedProperty.address; // Use address as unique ID
-                    const alreadySaved = isSaved(propertyId, 'listing');
+                    const alreadySaved = isSaved(propertyId, 'sold');
 
                     if (alreadySaved) {
-                      const result = await unsaveProperty(propertyId, 'listing');
+                      const result = await unsaveProperty(propertyId, 'sold');
                       if (result.success) {
                         analytics.propertyUnsaved('sold');
                       }
                     } else {
                       const result = await saveProperty(
                         propertyId,
-                        'listing',
+                        'sold',
                         selectedProperty,
                         undefined
                       );
@@ -3244,16 +3304,23 @@ export default function MapPage() {
                       }
                     }
                   }}
-                  className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
-                    isSaved(selectedProperty.address, 'listing')
+                  className={`px-2 py-1 text-xs rounded transition-colors border ${
+                    isSaved(selectedProperty.address, 'sold')
                       ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
                       : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
                   }`}
-                  title={isSaved(selectedProperty.address, 'listing') ? 'Remove from saved properties' : 'Save this property'}
+                  title={isSaved(selectedProperty.address, 'sold') ? 'Remove from saved properties' : 'Save this property'}
                 >
-                  {isSaved(selectedProperty.address, 'listing') ? 'Saved' : 'Save'}
+                  {isSaved(selectedProperty.address, 'sold') ? 'Saved' : 'Save'}
                 </button>
               )}
+              <button
+                onClick={() => setIsMobileAmenitiesMode(true)}
+                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
+                title="Minimize property card"
+              >
+                −
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -3271,54 +3338,133 @@ export default function MapPage() {
               </button>
             </div>
 
-            {/* Share Error Notification */}
-            {soldShare.error && (
-              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
-                {soldShare.error}
-              </div>
-            )}
-            
-            {/* Minimized View */}
-            {minimizeProperty ? (
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-white text-sm leading-tight truncate pr-32">
-                    {selectedProperty.address}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-gray-300 text-xs">
-                      €{selectedProperty.soldPrice?.toLocaleString() || 'N/A'}
+            {/* Mobile Amenities Mode - Minimized Bar */}
+            {isMobile && isMobileAmenitiesMode ? (
+              <>
+                {/* Property info in minimized bar */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-white text-sm truncate flex-1">
+                      {selectedProperty.address}
+                    </h3>
+                    <span className="text-gray-300 text-xs font-mono">
+                      {formatFullPrice(selectedProperty.soldPrice)}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
                     {selectedProperty.beds && (
-                      <span className="text-gray-400 text-xs">• {selectedProperty.beds} bed</span>
+                      <span className="text-gray-400 text-xs">{selectedProperty.beds} bed</span>
+                    )}
+                    {selectedProperty.baths && (
+                      <span className="text-gray-400 text-xs">• {selectedProperty.baths} bath</span>
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('Close button clicked for minimized property:', selectedProperty?.address);
-                    isClosingRef.current = true;
-                    setSelectedProperty(null);
-                    setTimeout(() => {
-                      isClosingRef.current = false;
-                    }, 100);
-                  }}
-                  className="text-gray-500 hover:text-white text-xl ml-2 p-1 rounded hover:bg-gray-700 transition-colors"
-                  title="Close property card"
-                >
-                  ✕
-                </button>
-              </div>
+
+                {/* Controls */}
+                <div className="flex items-center gap-2 ml-2">
+                  <button
+                    onClick={() => {
+                      setShowAmenities(false);
+                      setIsMobileAmenitiesMode(false);
+                      analytics.amenitiesExited('sold');
+                    }}
+                    className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                  >
+                    Exit
+                  </button>
+                  <button
+                    onClick={() => setIsMobileAmenitiesMode(false)}
+                    className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-md transition-colors"
+                  >
+                    ↑ Expand
+                  </button>
+                </div>
+              </>
             ) : (
               <>
-                {/* Header spacing to avoid overlap with header buttons */}
-                <div className="h-12"></div>
+                {/* Mobile Tab Navigation */}
+                <div className="flex gap-1 mb-2 px-2 pt-12">
+                <button
+                  onClick={() => setActiveTab('details')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                    activeTab === 'details'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                  }`}
+                  style={{ minHeight: '44px' }} // Ensure 44px touch target
+                >
+                  Details
+                </button>
+                <button
+                  onClick={() => setActiveTab('planning')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                    activeTab === 'planning'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                  }`}
+                  style={{ minHeight: '44px' }} // Ensure 44px touch target
+                >
+                  Planning Permission
+                </button>
+                </div>
 
-                {/* Address */}
-                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
-                  {selectedProperty.address}
-                </h3>
+                {/* Header spacing to avoid overlap with header buttons */}
+                <div className="h-2"></div>
+
+                {/* Tab Content */}
+                {activeTab === 'details' ? (
+                  <>
+                    {/* Address */}
+                    <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                      {selectedProperty.address}
+                    </h3>
+
+                    {/* Save Property Button - Inside Card */}
+                    {user && user.tier === 'premium' && (
+                      <div className="mb-4">
+                        <button
+                          onClick={async () => {
+                            const propertyId = selectedProperty.address; // Use address as unique ID
+                            const alreadySaved = isSaved(propertyId, 'sold');
+
+                            if (alreadySaved) {
+                              const result = await unsaveProperty(propertyId, 'sold');
+                              if (result.success) {
+                                analytics.propertyUnsaved('sold');
+                              }
+                            } else {
+                              const result = await saveProperty(
+                                propertyId,
+                                'sold',
+                                selectedProperty,
+                                undefined
+                              );
+                              if (result.success) {
+                                analytics.propertySaved('sold');
+                              }
+                            }
+                          }}
+                          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 border ${
+                            isSaved(selectedProperty.address, 'sold')
+                              ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
+                              : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-500'
+                          }`}
+                        >
+                          {isSaved(selectedProperty.address, 'sold') ? (
+                            <>
+                              <span>❤️</span>
+                              Saved
+                            </>
+                          ) : (
+                            <>
+                              <span>💾</span>
+                              Save Property
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
 
             {/* Property Insights */}
             {walkabilityScore && (
@@ -3357,7 +3503,49 @@ export default function MapPage() {
                 Sold {getSoldMonthYear(selectedProperty.soldDate)}
               </div>
             </div>
-            
+
+            {/* Price analysis - moved up */}
+            <div className="space-y-2 mb-4">
+              {selectedProperty.askingPrice && selectedProperty.askingPrice > 0 && (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500 text-sm">Asking price</span>
+                    <span className="text-gray-300 font-mono">{formatFullPrice(selectedProperty.askingPrice)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500 text-sm">Difference</span>
+                    <span className={`font-semibold text-lg ${
+                      selectedProperty.soldPrice > selectedProperty.askingPrice
+                        ? 'text-red-400'
+                        : selectedProperty.soldPrice < selectedProperty.askingPrice
+                        ? 'text-green-400'
+                        : 'text-gray-300'
+                    }`}>
+                      {selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : ''}
+                      {formatFullPrice(Math.abs(selectedProperty.soldPrice - selectedProperty.askingPrice))}
+                      {selectedProperty.askingPrice > 0 && (
+                        <span className="text-sm ml-1">
+                          ({selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : ''}
+                          {Math.round(((selectedProperty.soldPrice - selectedProperty.askingPrice) / selectedProperty.askingPrice) * 100)}%)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+
+                  {selectedProperty.areaSqm && selectedProperty.areaSqm > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500 text-sm">Price per m²</span>
+                      <span className="text-gray-300 font-mono">
+                        €{Math.round(selectedProperty.soldPrice / selectedProperty.areaSqm).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
+                </>
+              )}
+            </div>
+
             {/* Property details grid */}
             <div className="grid grid-cols-2 gap-2 mb-3">
               {selectedProperty.beds && (
@@ -3401,6 +3589,12 @@ export default function MapPage() {
                 onClick={() => {
                   const newShowAmenities = !showAmenities;
                   setShowAmenities(newShowAmenities);
+
+                  // Mobile: Enable/disable full-screen amenities mode
+                  if (isMobile) {
+                    setIsMobileAmenitiesMode(newShowAmenities);
+                  }
+
                   if (newShowAmenities) {
                     // Track when amenities exploration starts - determine property type
                     const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
@@ -3479,102 +3673,32 @@ export default function MapPage() {
                 </div>
               )}
             </div>
-
-            {/* Price analysis */}
-            <div className="border-t border-gray-700 pt-4 space-y-2">
-              {selectedProperty.askingPrice && selectedProperty.askingPrice > 0 && (
-                <>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 text-sm">Asking price</span>
-                    <span className="text-gray-300 font-mono">{formatFullPrice(selectedProperty.askingPrice)}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 text-sm">Difference</span>
-                    <span className={`font-semibold text-lg ${
-                      selectedProperty.soldPrice > selectedProperty.askingPrice 
-                        ? 'text-red-400' 
-                        : selectedProperty.soldPrice < selectedProperty.askingPrice
-                          ? 'text-green-400'
-                          : 'text-yellow-400'
-                    }`}>
-                      {selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : 
-                       selectedProperty.soldPrice < selectedProperty.askingPrice ? '-' : ''}
-                      €{Math.abs(selectedProperty.soldPrice - selectedProperty.askingPrice).toLocaleString()}
-                      {' '}
-                      ({selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : ''}
-                      {Math.round((selectedProperty.soldPrice - selectedProperty.askingPrice) / selectedProperty.askingPrice * 100)}%)
-                    </span>
-                  </div>
-                </>
-              )}
-              
-              {selectedProperty.pricePerSqm && selectedProperty.pricePerSqm > 0 && (
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Price per m²</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-mono">€{selectedProperty.pricePerSqm.toLocaleString()}</span>
-                    {selectedProperty.pricePerSqm < stats.avgPricePerSqm * 0.85 && (
-                      <span className="px-2 py-0.5 rounded bg-green-600/20 text-green-400 text-xs font-medium">
-                        Good value
-                      </span>
-                    )}
-                    {selectedProperty.pricePerSqm > stats.avgPricePerSqm * 1.2 && (
-                      <span className="px-2 py-0.5 rounded bg-red-600/20 text-red-400 text-xs font-medium">
-                        Premium
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 text-sm">Sold date</span>
-                <span className="text-gray-300">{formatSoldDate(selectedProperty.soldDate)}</span>
-              </div>
-              
-              {/* Yield Estimate */}
-              {selectedProperty.yieldEstimate && (
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-500 text-sm">Est. Gross Yield</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-emerald-400 font-bold font-mono">
-                        {selectedProperty.yieldEstimate.grossYield.toFixed(1)}%
-                      </span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        selectedProperty.yieldEstimate.confidence === 'high' ? 'bg-green-600/20 text-green-400' :
-                        selectedProperty.yieldEstimate.confidence === 'medium' ? 'bg-yellow-600/20 text-yellow-400' :
-                        'bg-orange-600/20 text-orange-400'
-                      }`} title="Confidence level based on available rental data">
-                        {selectedProperty.yieldEstimate.confidence === 'very_low' ? '⚠️ limited data' : `${selectedProperty.yieldEstimate.confidence} confidence`}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Est. Monthly Rent</span>
-                    <span className="text-white font-mono">€{selectedProperty.yieldEstimate.monthlyRent.toLocaleString()}/mo</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm mt-1">
-                    <span className="text-gray-500">Est. Annual Return</span>
-                    <span className="text-white font-mono">€{(selectedProperty.yieldEstimate.monthlyRent * 12).toLocaleString()}/yr</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {selectedProperty.yieldEstimate.note}
-                    <span className="text-gray-600"> • Based on sold price €{selectedProperty.soldPrice.toLocaleString()}</span>
-                  </p>
-                </div>
-              )}
-            </div>
             </>
+                ) : (
+                  // Planning Permission Tab
+                  <div className="space-y-4">
+                    <PlanningCard
+                      key={`planning-mobile-${selectedProperty.address}`}
+                      latitude={selectedProperty.latitude || 0}
+                      longitude={selectedProperty.longitude || 0}
+                      address={selectedProperty.address}
+                      dublinPostcode={selectedProperty.dublinPostcode || undefined}
+                      propertyType="sold"
+                      forceLoad={true}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
           </div>
         )}
 
         {/* Planning Property Highlight */}
-        {(selectedProperty || selectedListing || selectedRental) && (
-          <div className="absolute top-20 left-4 z-30">
+        {(selectedProperty || selectedListing || selectedRental) && !isMobile && (
+          <div className={`absolute left-4 z-30 ${
+            showAmenities ? 'top-16' : 'top-4'
+          }`}>
             <div className="bg-blue-600/90 backdrop-blur-xl rounded-lg px-3 py-2 border border-blue-400 shadow-lg">
               <div className="text-white text-sm font-medium">
                 🏗️ Viewing Planning Data
@@ -3591,7 +3715,11 @@ export default function MapPage() {
 
         {/* Planning Card for Sold Properties */}
         {selectedProperty && (
-          <div className="absolute top-4 right-4 md:right-4 md:w-[400px] z-40">
+          <div className={`absolute z-40 ${
+            isMobile
+              ? 'top-20 left-4' // Position below amenities indicator with proper spacing
+              : 'top-4 right-4 md:w-[400px]' // Original desktop position
+          }`}>
             <PlanningCard
               key={`planning-${selectedProperty.address}`}
               latitude={selectedProperty.latitude || 0}
@@ -3606,20 +3734,15 @@ export default function MapPage() {
         {/* Selected Listing Panel (For Sale) */}
         {selectedListing && (
           <div
-            className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-cyan-700 max-h-[75vh] overflow-y-auto z-50"
+            className={`absolute left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-cyan-700 z-50 transition-all duration-300 ${
+              isMobile && isMobileAmenitiesMode
+                ? 'bottom-4 h-16 p-3 flex items-center justify-between max-h-16 overflow-hidden'
+                : 'bottom-4 md:bottom-4 p-4 md:p-5 max-h-[85vh] md:max-h-[85vh] overflow-y-auto'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header with Minimize, Share and Close buttons */}
-            <div className="absolute top-4 right-4 flex gap-2 z-10">
-              <button
-                onClick={() => setMinimizeListing(!minimizeListing)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
-                title={minimizeListing ? "Expand property card" : "Minimize property card"}
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={minimizeListing ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} />
-                </svg>
-              </button>
+            <div className={`absolute top-4 right-4 flex gap-2 z-10 ${isMobile && isMobileAmenitiesMode ? 'hidden' : ''}`}>
               <button
                 onClick={() => {
                   listingShare.shareProperty();
@@ -3699,33 +3822,114 @@ export default function MapPage() {
                 {listingShare.error}
               </div>
             )}
-            
-            {/* Minimized View */}
-            {minimizeListing ? (
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-white text-sm leading-tight truncate pr-32">
-                    {selectedListing.address}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-cyan-300 text-xs">
-                      €{selectedListing.askingPrice?.toLocaleString() || 'N/A'}
+
+            {/* Minimize Button - Always Available */}
+            <div className="absolute top-4 right-4 z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('Close button clicked for property:', selectedProperty?.address);
+                      isClosingRef.current = true;
+                      setSelectedProperty(null);
+                      setTimeout(() => {
+                        isClosingRef.current = false;
+                      }, 100);
+                    }}
+                    className="text-gray-500 hover:text-white text-xl p-1 rounded hover:bg-gray-700 transition-colors"
+                    title="Close property card"
+                  >
+                    ✕
+                  </button>
+                  <button
+                    onClick={() => setIsMobileAmenitiesMode(true)}
+                    className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
+                    title="Minimize property card"
+                  >
+                    −
+                  </button>
+            </div>
+
+            {/* Mobile Amenities Mode - Minimized Bar */}
+            {isMobile && isMobileAmenitiesMode ? (
+              <>
+                {/* Property info in minimized bar */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-white text-sm truncate flex-1">
+                      {selectedListing.address}
+                    </h3>
+                    <span className="text-cyan-300 text-xs font-mono">
+                      {formatFullPrice(selectedListing.askingPrice)}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
                     {selectedListing.beds && (
-                      <span className="text-gray-400 text-xs">• {selectedListing.beds} bed</span>
+                      <span className="text-gray-400 text-xs">{selectedListing.beds} bed</span>
+                    )}
+                    {selectedListing.baths && (
+                      <span className="text-gray-400 text-xs">• {selectedListing.baths} bath</span>
                     )}
                   </div>
                 </div>
-              </div>
+
+                {/* Controls */}
+                <div className="flex items-center gap-2 ml-2">
+                  <button
+                    onClick={() => {
+                      setShowAmenities(false);
+                      setIsMobileAmenitiesMode(false);
+                      analytics.amenitiesExited('forSale');
+                    }}
+                    className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                  >
+                    Exit
+                  </button>
+                  <button
+                    onClick={() => setIsMobileAmenitiesMode(false)}
+                    className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-md transition-colors"
+                  >
+                    ↑ Expand
+                  </button>
+                </div>
+              </>
             ) : (
               <>
-                {/* Header spacing to avoid overlap with header buttons */}
-                <div className="h-12"></div>
+                {/* Mobile Tab Navigation */}
+                <div className="flex gap-1 mb-2 px-2 pt-12">
+                <button
+                  onClick={() => setActiveTab('details')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                    activeTab === 'details'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                  }`}
+                  style={{ minHeight: '44px' }} // Ensure 44px touch target
+                >
+                  Details
+                </button>
+                <button
+                  onClick={() => setActiveTab('planning')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                    activeTab === 'planning'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                  }`}
+                  style={{ minHeight: '44px' }} // Ensure 44px touch target
+                >
+                  Planning Permission
+                </button>
+                </div>
 
-                {/* Address */}
-                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
-                  {selectedListing.address}
-                </h3>
+                {/* Header spacing to avoid overlap with header buttons */}
+                <div className="h-2"></div>
+
+                {/* Tab Content */}
+                {activeTab === 'details' ? (
+                  <>
+                    {/* Address */}
+                    <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                      {selectedListing.address}
+                    </h3>
 
             {/* Property Insights */}
             {walkabilityScore && (
@@ -3770,6 +3974,12 @@ export default function MapPage() {
                 onClick={() => {
                   const newShowAmenities = !showAmenities;
                   setShowAmenities(newShowAmenities);
+
+                  // Mobile: Enable/disable full-screen amenities mode
+                  if (isMobile) {
+                    setIsMobileAmenitiesMode(newShowAmenities);
+                  }
+
                   if (newShowAmenities) {
                     // Track when amenities exploration starts - determine property type
                     const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
@@ -3945,6 +4155,21 @@ export default function MapPage() {
               </div>
             )}
             </>
+                ) : (
+                  // Planning Permission Tab
+                  <div className="space-y-4">
+                    <PlanningCard
+                      key={`planning-mobile-${selectedListing.address}`}
+                      latitude={selectedListing.latitude || 0}
+                      longitude={selectedListing.longitude || 0}
+                      address={selectedListing.address}
+                      dublinPostcode={selectedListing.dublinPostcode || undefined}
+                      propertyType="forSale"
+                      forceLoad={true}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
           </div>
@@ -3953,20 +4178,15 @@ export default function MapPage() {
         {/* Selected Rental Panel */}
         {selectedRental && (
           <div
-            className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-purple-600 max-h-[75vh] overflow-y-auto z-50"
+            className={`absolute left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-purple-600 z-50 transition-all duration-300 ${
+              isMobile && isMobileAmenitiesMode
+                ? 'bottom-4 h-16 p-3 flex items-center justify-between max-h-16 overflow-hidden'
+                : 'bottom-4 md:bottom-4 p-4 md:p-5 max-h-[85vh] md:max-h-[85vh] overflow-y-auto'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header with Minimize, Share and Close buttons */}
-            <div className="absolute top-4 right-4 flex gap-2 z-10">
-              <button
-                onClick={() => setMinimizeRental(!minimizeRental)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
-                title={minimizeRental ? "Expand property card" : "Minimize property card"}
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={minimizeRental ? "M19 9l-7 7-7-7" : "M5 15l7-7 7 7"} />
-                </svg>
-              </button>
+            <div className={`absolute top-4 right-4 flex gap-2 z-10 ${isMobile && isMobileAmenitiesMode ? 'hidden' : ''}`}>
               <button
                 onClick={() => {
                   rentalShare.shareProperty();
@@ -4046,33 +4266,114 @@ export default function MapPage() {
                 {rentalShare.error}
               </div>
             )}
-            
-            {/* Minimized View */}
-            {minimizeRental ? (
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-white text-sm leading-tight truncate pr-32">
-                    {selectedRental.address}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-purple-300 text-xs">
-                      €{selectedRental.monthlyRent?.toLocaleString() || 'N/A'}/mo
+
+            {/* Minimize Button - Always Available */}
+            <div className="absolute top-4 right-4 z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('Close button clicked for property:', selectedProperty?.address);
+                      isClosingRef.current = true;
+                      setSelectedProperty(null);
+                      setTimeout(() => {
+                        isClosingRef.current = false;
+                      }, 100);
+                    }}
+                    className="text-gray-500 hover:text-white text-xl p-1 rounded hover:bg-gray-700 transition-colors"
+                    title="Close property card"
+                  >
+                    ✕
+                  </button>
+                  <button
+                    onClick={() => setIsMobileAmenitiesMode(true)}
+                    className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
+                    title="Minimize property card"
+                  >
+                    −
+                  </button>
+            </div>
+
+            {/* Mobile Amenities Mode - Minimized Bar */}
+            {isMobile && isMobileAmenitiesMode ? (
+              <>
+                {/* Property info in minimized bar */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-white text-sm truncate flex-1">
+                      {selectedRental.address}
+                    </h3>
+                    <span className="text-purple-300 text-xs font-mono">
+                      €{selectedRental.monthlyRent.toLocaleString()}/mo
                     </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
                     {selectedRental.beds && (
-                      <span className="text-gray-400 text-xs">• {selectedRental.beds} bed</span>
+                      <span className="text-gray-400 text-xs">{selectedRental.beds} bed</span>
+                    )}
+                    {selectedRental.baths && (
+                      <span className="text-gray-400 text-xs">• {selectedRental.baths} bath</span>
                     )}
                   </div>
                 </div>
-              </div>
+
+                {/* Controls */}
+                <div className="flex items-center gap-2 ml-2">
+                  <button
+                    onClick={() => {
+                      setShowAmenities(false);
+                      setIsMobileAmenitiesMode(false);
+                      analytics.amenitiesExited('rental');
+                    }}
+                    className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                  >
+                    Exit
+                  </button>
+                  <button
+                    onClick={() => setIsMobileAmenitiesMode(false)}
+                    className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-md transition-colors"
+                  >
+                    ↑ Expand
+                  </button>
+                </div>
+              </>
             ) : (
               <>
-                {/* Header spacing to avoid overlap with header buttons */}
-                <div className="h-12"></div>
+                {/* Mobile Tab Navigation */}
+                <div className="flex gap-1 mb-2 px-2 pt-12">
+                <button
+                  onClick={() => setActiveTab('details')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                    activeTab === 'details'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                  }`}
+                  style={{ minHeight: '44px' }} // Ensure 44px touch target
+                >
+                  Details
+                </button>
+                <button
+                  onClick={() => setActiveTab('planning')}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
+                    activeTab === 'planning'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
+                  }`}
+                  style={{ minHeight: '44px' }} // Ensure 44px touch target
+                >
+                  Planning Permission
+                </button>
+                </div>
 
-                {/* Address */}
-                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
-                  {selectedRental.address}
-                </h3>
+                {/* Header spacing to avoid overlap with header buttons */}
+                <div className="h-2"></div>
+
+                {/* Tab Content */}
+                {activeTab === 'details' ? (
+                  <>
+                    {/* Address */}
+                    <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                      {selectedRental.address}
+                    </h3>
 
             {/* Property Insights */}
             {walkabilityScore && (
@@ -4117,6 +4418,12 @@ export default function MapPage() {
                 onClick={() => {
                   const newShowAmenities = !showAmenities;
                   setShowAmenities(newShowAmenities);
+
+                  // Mobile: Enable/disable full-screen amenities mode
+                  if (isMobile) {
+                    setIsMobileAmenitiesMode(newShowAmenities);
+                  }
+
                   if (newShowAmenities) {
                     // Track when amenities exploration starts - determine property type
                     const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
@@ -4265,6 +4572,21 @@ export default function MapPage() {
               )}
             </div>
             </>
+                ) : (
+                  // Planning Permission Tab
+                  <div className="space-y-4">
+                    <PlanningCard
+                      key={`planning-mobile-${selectedRental.address}`}
+                      latitude={selectedRental.latitude || 0}
+                      longitude={selectedRental.longitude || 0}
+                      address={selectedRental.address}
+                      dublinPostcode={selectedRental.dublinPostcode || undefined}
+                      propertyType="rental"
+                      forceLoad={true}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
           </div>
@@ -4272,7 +4594,11 @@ export default function MapPage() {
 
         {/* Planning Card for Listings */}
         {selectedListing && (
-          <div className="absolute top-4 right-4 md:right-4 md:w-[400px] z-40">
+          <div className={`absolute z-40 ${
+            isMobile
+              ? 'top-20 left-4' // Position below amenities indicator with proper spacing
+              : 'top-4 right-4 md:w-[400px]' // Original desktop position
+          }`}>
             <PlanningCard
               key={`planning-${selectedListing.address}`}
               latitude={selectedListing.latitude || 0}
@@ -4286,7 +4612,11 @@ export default function MapPage() {
 
         {/* Planning Card for Rentals */}
         {selectedRental && (
-          <div className="absolute top-4 right-4 md:right-4 md:w-[400px] z-40">
+          <div className={`absolute z-40 ${
+            isMobile
+              ? 'top-20 left-4' // Position below amenities indicator with proper spacing
+              : 'top-4 right-4 md:w-[400px]' // Original desktop position
+          }`}>
             <PlanningCard
               key={`planning-${selectedRental.address}`}
               latitude={selectedRental.latitude || 0}
@@ -4297,6 +4627,7 @@ export default function MapPage() {
             />
           </div>
         )}
+
 
         {/* Stats overlay - hidden when property/listing/rental panel is open */}
         {!selectedProperty && !selectedListing && !selectedRental && (

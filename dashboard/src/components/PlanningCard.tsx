@@ -11,10 +11,11 @@ interface PlanningCardProps {
   address: string;
   dublinPostcode?: string;
   propertyType?: 'sold' | 'forSale' | 'rental';
+  forceLoad?: boolean; // Force immediate loading on mobile
 }
 
-export function PlanningCard({ latitude, longitude, address, dublinPostcode, propertyType = 'sold' }: PlanningCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
+export function PlanningCard({ latitude, longitude, address, dublinPostcode, propertyType = 'sold', forceLoad = false }: PlanningCardProps) {
+  const [isFlipped, setIsFlipped] = useState(forceLoad); // Start flipped if forceLoad is true
   const [data, setData] = useState<PlanningResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +26,15 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [attemptedLoad, setAttemptedLoad] = useState(false);
+
+  // Force load data immediately on mobile
+  useEffect(() => {
+    if (forceLoad && !data && !error && !attemptedLoad) {
+      fetchPlanningData();
+      analytics.planningCardViewed(propertyType);
+      setAttemptedLoad(true);
+    }
+  }, [forceLoad, data, error, attemptedLoad, propertyType]);
 
   const fetchPlanningData = async (expandedSearch = false) => {
     setLoading(true);
@@ -48,6 +58,12 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
 
       setData(result);
 
+      // Auto-expand search if no results found at exact location
+      if (result.totalCount === 0 && !expandedSearch) {
+        // Automatically expand search for nearby results
+        setTimeout(() => fetchPlanningData(true), 500); // Small delay for better UX
+        return; // Don't continue with tracking for the initial search
+      }
 
       // Track data loading
       const totalCount = result.totalCount;
@@ -259,18 +275,21 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
             animate={{ opacity: 1, rotateY: 0 }}
             exit={{ opacity: 0, rotateY: 90 }}
             transition={{ duration: 0.3 }}
-            className="bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 cursor-pointer hover:border-gray-600 transition-colors"
+            className="bg-gray-900/95 md:bg-gray-900/95 backdrop-blur-xl rounded-lg md:rounded-xl p-3 md:p-5 shadow-xl md:shadow-2xl border border-gray-700 cursor-pointer hover:border-gray-600 transition-colors"
             onClick={handleFlip}
           >
-            <div className="flex flex-col items-center justify-center text-center min-h-[120px]">
-              <div className="text-white text-lg font-medium mb-2">Planning Permission History</div>
-              <div className="text-gray-400 text-sm">View planning applications</div>
-              {loading && (
-                <div className="mt-3 flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-blue-400 text-xs">Loading...</span>
-                </div>
+            <div className="flex items-center gap-3 min-h-[48px] md:min-h-[120px]">
+              {loading ? (
+                <div className="w-5 h-5 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
               )}
+              <div className="flex-1 md:flex-initial md:text-center">
+                <div className="text-white text-sm md:text-lg font-medium">Planning Permission History</div>
+                <div className="text-gray-400 text-xs md:text-sm">
+                  {loading ? 'Loading...' : 'Tap to view applications'}
+                </div>
+              </div>
             </div>
           </motion.div>
         ) : (
@@ -281,13 +300,15 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
             animate={{ opacity: 1, rotateY: 0 }}
             exit={{ opacity: 0, rotateY: -90 }}
             transition={{ duration: 0.3 }}
-            className="bg-gray-900/95 backdrop-blur-xl rounded-xl p-4 md:p-5 shadow-2xl border border-gray-700 max-h-[70vh] overflow-y-auto"
+            className="bg-gray-900/95 backdrop-blur-xl rounded-lg md:rounded-xl p-3 md:p-5 shadow-xl md:shadow-2xl border border-gray-700 max-h-[60vh] md:max-h-[70vh] overflow-y-auto"
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-2">
               <div>
-                <h3 className="text-white text-lg font-semibold">🏗️ Planning Permission History</h3>
-                <div className="text-gray-400 text-sm">{data?.totalCount || 0} applications found</div>
+                <h3 className="text-white text-base md:text-lg font-semibold">🏗️ Planning Permission History</h3>
+                <div className="text-gray-400 text-xs md:text-sm">
+                  {loading ? 'Loading...' : `${data?.totalCount || 0} applications found`}
+                </div>
               </div>
               <button
                 onClick={() => setIsFlipped(false)}
@@ -299,7 +320,7 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
 
             {/* Filters */}
             {(availableStatuses.length > 0 || availableYears.length > 0) && (
-              <div className="mb-4">
+              <div className="mb-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Status Filter */}
                   {availableStatuses.length > 0 && (
@@ -412,25 +433,33 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
                 {/* No Results */}
                 {data.totalCount === 0 && (
                   <div className="text-center py-8">
-                    <div className="text-gray-400 text-sm mb-2">🔍 No planning applications found</div>
-                    <div className="text-gray-500 text-xs mb-4">
-                      Searched within {data.searchRadius || '150'}m radius
-                    </div>
-                    {(!data.searchRadius || data.searchRadius < 150) && (
-                      <button
-                        onClick={handleExpandSearch}
-                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                      >
-                        🔍 Search wider area (150m)
-                      </button>
+                    {(!data.searchRadius || data.searchRadius < 150) ? (
+                      // Auto-expanding to wider search
+                      <div>
+                        <div className="text-gray-400 text-sm mb-2">🔍 Searching nearby area...</div>
+                        <div className="text-gray-500 text-xs mb-4">
+                          No applications found at exact location, expanding search to 150m radius
+                        </div>
+                        <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                      </div>
+                    ) : (
+                      // Already searched wide area, truly no results
+                      <div>
+                        <div className="text-gray-400 text-sm mb-2">🔍 No planning applications found</div>
+                        <div className="text-gray-500 text-xs">
+                          Searched within {data.searchRadius || '150'}m radius
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                <div className="text-gray-400 text-sm">Loading planning data...</div>
+              <div className="text-center py-16">
+                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-gray-400 text-sm mb-4">Loading planning data...</div>
+                <div className="text-gray-500 text-xs mb-6">Searching for planning applications in this area</div>
+                <div className="text-gray-500 text-xs">This may take a few seconds</div>
               </div>
             )}
           </motion.div>
