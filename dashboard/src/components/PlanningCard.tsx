@@ -58,9 +58,9 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
 
       setData(result);
 
-      // Auto-expand search if no results found at exact location
-      if (result.totalCount === 0 && !expandedSearch) {
-        // Automatically expand search for nearby results
+      // Auto-expand search to show nearby planning permissions
+      if (!expandedSearch) {
+        // Automatically expand search for nearby results regardless of initial results
         setTimeout(() => fetchPlanningData(true), 500); // Small delay for better UX
         return; // Don't continue with tracking for the initial search
       }
