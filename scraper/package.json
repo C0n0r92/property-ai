@@ -22,6 +22,9 @@
     "test:headless": "tsx test-headless.ts",
     "test:geocoding": "tsx test-locationiq.ts",
 
+    "// SETUP": "========================================",
+    "setup-local": "chmod +x setup-local-cron.sh && ./setup-local-cron.sh",
+
     "// MIGRATION": "========================================",
     "migrate": "tsx src/migrate-data.ts",
     "initial-migration": "tsx initial-migration.js"

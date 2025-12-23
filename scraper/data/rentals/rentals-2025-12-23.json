@@ -1,0 +1,22 @@
+[
+  {
+    "address": "Mimosa Hall,Levmoss Park,The Gallops,Dublin 18, Leopardstown, Dublin 18",
+    "monthlyRent": 2550,
+    "beds": 2,
+    "baths": 1,
+    "areaSqm": null,
+    "propertyType": "Apartment",
+    "berRating": null,
+    "furnishing": null,
+    "sourceUrl": "",
+    "sourcePage": 1,
+    "latitude": 53.2747217,
+    "longitude": -6.1927577,
+    "eircode": null,
+    "nominatimAddress": "Leopardstown, Galloping Green South, Stillorgan-Leopardstown DED 1986, Dún Laoghaire-Rathdown, Dublin 18, Leinster, A94 F6Y0, Éire / Ireland",
+    "rentPerSqm": null,
+    "rentPerBed": 1275,
+    "dublinPostcode": "D18",
+    "scrapedAt": "2025-12-23T16:32:15.044Z"
+  }
+]

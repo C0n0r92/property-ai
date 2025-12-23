@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "31laurleenstillorganstillorgandublindublin-2025-10-31-915000",
+    "address": "31 Laurleen Stillorgan, Stillorgan, Dublin, Dublin",
+    "soldDate": "2025-10-31",
+    "soldPrice": 915000,
+    "askingPrice": 915000,
+    "overUnderPercent": 0,
+    "beds": null,
+    "baths": null,
+    "areaSqm": null,
+    "propertyType": "",
+    "sourceUrl": "https://www.daft.ie/sold-properties/dublin?sort=publishDateDesc?page=3",
+    "sourcePage": 3,
+    "latitude": 53.27986875,
+    "longitude": -6.191885446332211,
+    "eircode": "A94 YC85",
+    "nominatimAddress": "31, Laurleen, Galloping Green South, Stillorgan-Leopardstown DED 1986, Blackrock, Dún Laoghaire-Rathdown, County Dublin, Leinster, A94 YC85, Éire / Ireland",
+    "pricePerSqm": null,
+    "scrapedAt": "2025-12-23T16:25:04.565Z"
+  }
+]
