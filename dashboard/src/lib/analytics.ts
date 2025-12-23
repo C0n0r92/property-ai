@@ -155,5 +155,23 @@ export const analytics = {
   planningCardFlipped: (direction: 'front' | 'back', propertyType: 'sold' | 'forSale' | 'rental') => {
     trackEvent({ action: 'planning_card_flipped', category: 'feature', label: `${propertyType}:${direction}` });
   },
+
+  // Blog events
+  blogShared: (platform: string, articleSlug: string) => {
+    trackEvent({ action: 'blog_shared', category: 'engagement', label: `${platform}:${articleSlug}` });
+  },
+
+  blogVoted: (voteType: 'up' | 'down', articleSlug: string) => {
+    trackEvent({ action: 'blog_voted', category: 'engagement', label: `${voteType}:${articleSlug}` });
+  },
+
+  blogArticleViewed: (articleSlug: string) => {
+    trackEvent({ action: 'blog_article_viewed', category: 'engagement', label: articleSlug });
+  },
+
+  // Property reporting events
+  propertyReported: (propertyType: 'sold' | 'listing' | 'rental') => {
+    trackEvent({ action: 'property_reported', category: 'engagement', label: propertyType });
+  },
 };
 

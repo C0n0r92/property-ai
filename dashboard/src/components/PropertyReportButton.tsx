@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { analytics } from '@/lib/analytics';
 
 interface PropertyReportButtonProps {
   propertyId: string;
@@ -94,6 +95,9 @@ export function PropertyReportButton({
       setReportedLat('');
       setReportedLng('');
       alert('Thank you! Your report has been submitted.');
+
+      // Track analytics
+      analytics.propertyReported(propertyType);
     } catch (error) {
       console.error('Error reporting property:', error);
       alert('Failed to submit report. Please try again.');

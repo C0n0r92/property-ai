@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { analytics } from '@/lib/analytics';
 import Link from 'next/link';
 
 interface BlogVoteButtonProps {
@@ -147,6 +148,9 @@ export function BlogVoteButton({ articleSlug, className = '' }: BlogVoteButtonPr
         downVotes: data.downVotes,
         userVote: data.vote_type || null,
       });
+
+      // Track analytics
+      analytics.blogVoted(voteType, articleSlug);
     } catch (error) {
       console.error('Error voting:', error);
       // Fetch fresh data on error
