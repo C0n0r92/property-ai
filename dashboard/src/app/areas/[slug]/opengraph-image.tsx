@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { slugToArea } from '@/lib/areas';
-import { loadProperties, getAreaStats } from '@/lib/data';
+import { loadAreaDataEdge } from '@/lib/data-edge';
 import { formatFullPrice } from '@/lib/format';
 
 export const runtime = 'edge';
@@ -48,8 +48,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   }
 
   // Fetch area data
-  const properties = loadProperties();
-  const areaStats = getAreaStats(properties);
+  const { properties, areaStats } = await loadAreaDataEdge(areaName);
   const areaData = areaStats.find(stat => stat.name === areaName);
 
   if (!areaData) {
@@ -318,3 +317,4 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     }
   );
 }
+

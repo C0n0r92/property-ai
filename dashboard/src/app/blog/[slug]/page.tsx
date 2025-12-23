@@ -2273,7 +2273,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
 
               <article className="bg-white rounded-3xl shadow-lg border border-slate-200 p-8 lg:p-12">
                 <div
-                  className="prose prose-lg prose-slate max-w-none"
+                  className="prose prose-lg prose-slate max-w-none text-slate-900"
                   dangerouslySetInnerHTML={{
                     __html: processMarkdownToHtml(article.content)
                   }}

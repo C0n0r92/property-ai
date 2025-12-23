@@ -1,29 +1,10 @@
-import { Metadata } from 'next';
+'use client'
+
 import Link from 'next/link';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { ArticleCardSkeleton } from '@/components/ArticleCardSkeleton';
 import { getCategoryConfig } from '@/lib/blog-categories';
-
-export const metadata: Metadata = {
-  title: 'Market Research & Intelligence | Irish Property Data',
-  description: 'Professional market analysis and data-driven insights for Dublin\'s property landscape. Access comprehensive research on property trends, investment opportunities, and market analysis.',
-  keywords: ['Dublin property market', 'market research', 'property analysis', 'investment research', 'real estate insights', 'Dublin property trends'],
-  openGraph: {
-    title: 'Market Research & Intelligence | Irish Property Data',
-    description: 'Professional market analysis and data-driven insights for Dublin\'s property landscape.',
-    type: 'website',
-    url: 'https://irishpropertydata.com/blog',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Market Research & Intelligence | Irish Property Data',
-    description: 'Professional market analysis and data-driven insights for Dublin\'s property landscape.',
-  },
-  alternates: {
-    canonical: '/blog',
-  },
-};
 
 // Research articles data
 const researchArticles = [
@@ -170,18 +151,6 @@ const researchArticles = [
     tags: ['Over Asking', 'Market Demand', 'Buyer Competition'],
     author: 'Market Research Team',
     views: 3876,
-  },
-  {
-    id: 'extensions-attic-conversions-property-value-2024',
-    title: 'Extensions & Attic Conversions: Dublin Properties Worth 164% More After Renovations',
-    excerpt: 'Data analysis reveals properties in Dublin 6 with extensions sell for 164% more than similar non-extended homes, backed by planning permission records showing attic conversions and rear extensions.',
-    category: 'Market Analysis',
-    date: '2024-12-29',
-    readTime: '8 min read',
-    featured: true,
-    tags: ['Extensions', 'Attic Conversions', 'Property Value', 'Renovations'],
-    author: 'Market Research Team',
-    views: 5234,
   },
   {
     id: 'detached-houses-dominance',
@@ -354,7 +323,7 @@ export default function BlogPage() {
                 placeholder="Search articles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -397,7 +366,7 @@ export default function BlogPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="date">Latest First</option>
                 <option value="title">Title A-Z</option>
@@ -541,7 +510,7 @@ export default function BlogPage() {
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 text-sm rounded-xl bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+                className="px-4 py-2 text-sm text-slate-700 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -569,7 +538,7 @@ export default function BlogPage() {
                       className={`w-12 h-12 rounded-xl text-sm font-medium transition-all duration-200 ${
                         currentPage === pageNum
                           ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                          : 'bg-white border border-slate-300 hover:bg-slate-50'
+                          : 'text-slate-700 bg-white border border-slate-300 hover:bg-slate-50'
                       }`}
                     >
                       {pageNum}
@@ -581,7 +550,7 @@ export default function BlogPage() {
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 text-sm rounded-xl bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+                className="px-4 py-2 text-sm text-slate-700 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
               >
                 Next
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
