@@ -145,7 +145,7 @@ export default function MapComponent() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchedLocation, setSearchedLocation] = useState<{ name: string; coords: [number, number] } | null>(null);
-  const searchTimeout = useRef<number | null>(null);
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Collapsible filter panel state - hidden on mobile, open on desktop by default
   const [showFilters, setShowFilters] = useState(false);
@@ -1084,6 +1084,8 @@ export default function MapComponent() {
     if (!mapContainer.current || map.current) return;
 
     const initializeMap = async (styleUrl: string = 'mapbox://styles/mapbox/dark-v11') => {
+      if (!mapContainer.current) return;
+
       try {
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
@@ -1123,11 +1125,13 @@ export default function MapComponent() {
     initializeMap();
 
     // Track zoom level for legend display
-    map.current.on('zoom', () => {
-      if (map.current) {
-        setZoomLevel(map.current.getZoom());
-      }
-    });
+    if (map.current) {
+      (map.current as mapboxgl.Map).on('zoom', () => {
+        if (map.current) {
+          setZoomLevel(map.current.getZoom());
+        }
+      });
+    }
 
     return () => {
       spiderfyManager.current?.cleanup();

@@ -75,56 +75,6 @@ This analysis is based on comprehensive transaction data covering all property t
     `,
     relatedArticles: ['properties-over-asking-dublin', 'fastest-growing-areas-dublin', 'dublin-price-per-square-meter'],
   },
-  'properties-over-asking-dublin': {
-    title: 'Where Dublin Properties Go Most Over Asking Price in 2024',
-    excerpt: 'Detailed breakdown of Dublin areas where properties consistently sell above asking price, with market demand indicators.',
-    category: 'Market Analysis',
-    date: '2024-12-22',
-    readTime: '6 min read',
-    tags: ['Over Asking', 'Market Demand', 'Buyer Competition'],
-    content: `
-# Where Dublin Properties Go Most Over Asking Price in 2024
-
-## Executive Summary
-
-This analysis identifies Dublin areas where properties most frequently sell above their asking price, providing insights into market demand and buyer competition based on comprehensive transaction data.
-
-## Areas with Highest Over-Asking Sales
-
-### Top Performing Areas
-
-Analysis of transaction data reveals clear patterns in areas with strongest buyer demand.
-
-### Statistical Breakdown
-
-Detailed percentages and trends for over-asking sales across Dublin areas.
-
-## Market Demand Indicators
-
-### Competition Analysis
-
-Understanding buyer behavior and market competition through over-asking patterns.
-
-### Price Expectations
-
-How over-asking percentages influence seller pricing strategies.
-
-## Implications for Buyers and Sellers
-
-### For Sellers
-
-Strategic insights for pricing properties in high-demand areas.
-
-### For Buyers
-
-Understanding competition levels and bidding strategies.
-
-## Conclusion
-
-Over-asking percentages provide valuable market intelligence for property decisions.
-    `,
-    relatedArticles: ['dublin-property-market-q4-2024', 'fastest-growing-areas-dublin', 'property-types-analysis'],
-  },
   'dublin-rental-yield-analysis': {
     title: 'Dublin Rental Yield Analysis: Best Areas for Property Investment',
     excerpt: 'Comprehensive analysis of rental yields across Dublin areas with investment potential and risk assessment.',

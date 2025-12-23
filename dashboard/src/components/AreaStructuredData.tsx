@@ -1,4 +1,5 @@
 import Script from 'next/script';
+import { formatFullPrice } from '@/lib/format';
 
 interface AreaStructuredDataProps {
   areaName: string;

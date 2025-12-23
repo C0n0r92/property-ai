@@ -20,7 +20,7 @@ export function BlogArticleStructuredData({
   tags,
   url,
   imageUrl
-}: ResearchArticleSchemaProps) {
+}: BlogArticleStructuredDataProps) {
   // Article schema with author information
   const articleSchema = {
     "@context": "https://schema.org",
