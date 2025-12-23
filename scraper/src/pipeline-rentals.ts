@@ -48,6 +48,7 @@ async function retryWithBackoff<T>(
 // ============== Types ==============
 
 interface RentalListing {
+  id: string;
   address: string;
   monthlyRent: number;
   beds: number | null;
@@ -223,8 +224,12 @@ class RentalScraper extends BaseDaftScraper<RentalListing> {
       rentPerBed = Math.round(rawItem.monthlyRent / rawItem.beds);
     }
 
+    // Generate unique ID for this rental
+    const idString = `${rawItem.address}-${rawItem.monthlyRent}-${rawItem.scrapedAt || new Date().toISOString()}`;
+    const id = idString.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 255);
+
     const listing: RentalListing = {
-      address: rawItem.address,
+      id,
       monthlyRent: rawItem.monthlyRent,
       beds: rawItem.beds,
       baths: rawItem.baths,
