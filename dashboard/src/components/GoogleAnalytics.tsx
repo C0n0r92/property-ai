@@ -21,6 +21,33 @@ export default function GoogleAnalytics() {
       measurementId: measurementId ? 'set' : 'not set',
       nodeVersion: process.versions?.node
     });
+
+    // Add debug function to window for manual testing
+    if (typeof window !== 'undefined') {
+      (window as any).debugGA = () => {
+        console.log('[GA Debug] Manual debug check:', {
+          gtag: !!(window as any).gtag,
+          dataLayer: !!(window as any).dataLayer,
+          consent: localStorage.getItem('cookie-consent'),
+          measurementId
+        });
+        return 'GA debug info logged to console';
+      };
+
+      (window as any).testGAEvent = () => {
+        if ((window as any).gtag) {
+          console.log('[GA Debug] Sending test event to GA');
+          (window as any).gtag('event', 'debug_test_event', {
+            event_category: 'debug',
+            event_label: 'manual_test',
+            value: 1
+          });
+          return 'Test event sent to GA - check realtime dashboard';
+        } else {
+          return 'gtag not available - GA not loaded';
+        }
+      };
+    }
   }, []);
 
   if (!isProduction) {
