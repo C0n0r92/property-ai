@@ -51,3 +51,4 @@ console.log('   • Row Level Security policies');
 
 process.exit(0);
 
+

@@ -37,14 +37,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default function BlogPostLayout({
+export default async function BlogPostLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params as any;
+  const { slug } = await params;
   const article = articles[slug as keyof typeof articles];
 
   if (!article) {
