@@ -23,23 +23,181 @@ let cacheTime: number = 0;
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 /**
- * Load unified data.json with caching
+ * Load consolidated data from Supabase with caching
  */
-function loadData(): ConsolidatedData {
+async function loadData(): Promise<ConsolidatedData> {
   const now = Date.now();
-  
+
   if (dataCache && (now - cacheTime) < CACHE_TTL) {
     return dataCache;
   }
-  
+
   try {
+    // Load consolidated data from Supabase
+    console.log('Loading consolidated data from Supabase...');
+
+    const supabase = await createClient();
+
+    // Query consolidated properties
+    const { data: consolidatedData, error } = await supabase
+      .from('consolidated_properties')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('Failed to load consolidated data from Supabase:', error.message);
+      throw error;
+    }
+
+    if (consolidatedData && consolidatedData.length > 0) {
+      console.log(`Loaded ${consolidatedData.length} consolidated properties from Supabase`);
+
+      // Transform consolidated data into the expected format
+      const properties: Property[] = consolidatedData
+        .filter(p => !p.is_listing && !p.is_rental)
+        .map(p => ({
+          id: p.id,
+          address: p.address,
+          propertyType: p.property_type,
+          beds: p.beds,
+          baths: p.baths,
+          areaSqm: p.area_sqm,
+          soldDate: p.sold_date,
+          soldPrice: p.sold_price,
+          askingPrice: p.asking_price,
+          overUnderPercent: p.over_under_percent,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          eircode: p.eircode,
+          dublinPostcode: p.dublin_postcode,
+          pricePerSqm: p.price_per_sqm,
+          sourceUrl: p.source_url,
+          sourcePage: p.source_page,
+          scrapedAt: p.scraped_at,
+          nominatimAddress: p.nominatim_address,
+          yieldEstimate: p.yield_estimate
+        }))
+        .filter(p => {
+          const year = parseInt(p.soldDate?.split('-')[0] || '0');
+          return year >= 2020 && year <= 2025 && p.soldPrice >= 50000 && p.soldPrice <= 20000000;
+        });
+
+      const listings: Listing[] = consolidatedData
+        .filter(p => p.is_listing)
+        .map(p => ({
+          id: p.id,
+          address: p.address,
+          propertyType: p.property_type,
+          beds: p.beds,
+          baths: p.baths,
+          areaSqm: p.area_sqm,
+          askingPrice: p.asking_price,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          eircode: p.eircode,
+          dublinPostcode: p.dublin_postcode,
+          pricePerSqm: p.price_per_sqm,
+          sourceUrl: p.source_url,
+          sourcePage: p.source_page,
+          scrapedAt: p.scraped_at,
+          nominatimAddress: p.nominatim_address,
+          yieldEstimate: p.yield_estimate,
+          priceHistory: p.price_history as any || []
+        }))
+        .filter(l => l.askingPrice >= 50000 && l.askingPrice <= 50000000);
+
+      const rentals: Rental[] = consolidatedData
+        .filter(p => p.is_rental)
+        .map(p => ({
+          id: p.id,
+          address: p.address,
+          propertyType: p.property_type,
+          beds: p.beds,
+          baths: p.baths,
+          areaSqm: p.area_sqm,
+          monthlyRent: p.monthly_rent,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          eircode: p.eircode,
+          dublinPostcode: p.dublin_postcode,
+          rentPerSqm: p.rent_per_sqm,
+          rentPerBed: p.rent_per_bed,
+          sourceUrl: p.source_url,
+          scrapedAt: p.scraped_at,
+          nominatimAddress: p.nominatim_address,
+          rentHistory: p.price_history as any || []
+        }))
+        .filter(r => r.monthlyRent >= 500 && r.monthlyRent <= 20000);
+
+      const consolidatedResult: ConsolidatedData = {
+        properties,
+        listings,
+        rentals,
+        stats: {
+          generated: new Date().toISOString(),
+          propertiesCount: properties.length,
+          listingsCount: listings.length,
+          rentalsCount: rentals.length,
+          yieldCoverage: {
+            properties: properties.filter(p => p.yieldEstimate !== null).length,
+            listings: listings.filter(l => l.yieldEstimate !== null).length
+          }
+        }
+      };
+
+      dataCache = consolidatedResult;
+      cacheTime = now;
+
+      console.log(`Processed consolidated data: ${properties.length} properties, ${listings.length} listings, ${rentals.length} rentals`);
+      return consolidatedResult;
+    }
+  } catch (error) {
+    console.warn('Supabase consolidated data load failed, falling back to individual tables:', error);
+  }
+
+  // Fallback: Load from individual Supabase tables
+  try {
+    console.log('Loading data from individual Supabase tables...');
+
+    const [properties, listings, rentals] = await Promise.all([
+      loadProperties(),
+      loadListings(),
+      loadRentals()
+    ]);
+
+    const consolidatedData: ConsolidatedData = {
+      properties,
+      listings,
+      rentals,
+      stats: {
+        generated: new Date().toISOString(),
+        propertiesCount: properties.length,
+        listingsCount: listings.length,
+        rentalsCount: rentals.length,
+        yieldCoverage: { properties: 0, listings: 0 }
+      }
+    };
+
+    dataCache = consolidatedData;
+    cacheTime = now;
+
+    console.log(`Loaded data from individual tables: ${properties.length} properties, ${listings.length} listings, ${rentals.length} rentals`);
+    return consolidatedData;
+
+  } catch (error) {
+    console.error('Error loading data from individual tables:', error);
+  }
+
+  // Final fallback to JSON files
+  try {
+    console.log('Falling back to JSON files...');
     // Try multiple paths for data.json (production: public folder, dev: scraper folder)
     const possiblePaths = [
       join(process.cwd(), 'public', 'data.json'),  // Production (deployed dashboard)
       join(process.cwd(), '..', 'scraper', 'data', 'data.json'),  // Development (monorepo)
       join(process.cwd(), '..', 'scraper', 'data', 'consolidated', 'data.json'),  // Consolidated directory
     ];
-    
+
     for (const consolidatedPath of possiblePaths) {
       if (existsSync(consolidatedPath)) {
         const data = readFileSync(consolidatedPath, 'utf-8');
@@ -49,14 +207,24 @@ function loadData(): ConsolidatedData {
         return dataCache!;
       }
     }
-    
-    // Fallback to separate files if data.json doesn't exist
-    console.log('data.json not found, falling back to separate files');
-    return loadFromSeparateFiles();
-  } catch (error) {
-    console.error('Error loading consolidated data:', error);
-    return loadFromSeparateFiles();
+  } catch (jsonError) {
+    console.error('Error loading JSON fallback:', jsonError);
   }
+
+  // Final fallback - empty data
+  console.log('No data available, returning empty dataset');
+  return {
+    properties: [],
+    listings: [],
+    rentals: [],
+    stats: {
+      generated: new Date().toISOString(),
+      propertiesCount: 0,
+      listingsCount: 0,
+      rentalsCount: 0,
+      yieldCoverage: { properties: 0, listings: 0 }
+    }
+  };
 }
 
 /**
@@ -165,7 +333,7 @@ export async function loadProperties(): Promise<Property[]> {
   }
 
   // Fallback to existing JSON loading (for backward compatibility)
-  const data = loadData();
+  const data = await loadData();
   return data.properties.filter(p => {
     const year = parseInt(p.soldDate?.split('-')[0] || '0');
     return year >= 2020 && year <= 2025 && p.soldPrice >= 50000 && p.soldPrice <= 20000000;
@@ -230,7 +398,7 @@ export async function loadListings(): Promise<Listing[]> {
   }
 
   // Fallback to existing JSON loading (for backward compatibility)
-  const data = loadData();
+  const data = await loadData();
   return data.listings.filter(l =>
     l.askingPrice >= 50000 && l.askingPrice <= 50000000
   );
@@ -296,7 +464,7 @@ export async function loadRentals(): Promise<RentalListing[]> {
   }
 
   // Fallback to existing JSON loading (for backward compatibility)
-  const data = loadData();
+  const data = await loadData();
   return data.rentals.filter(r =>
     r.monthlyRent >= 500 && r.monthlyRent <= 20000
   );

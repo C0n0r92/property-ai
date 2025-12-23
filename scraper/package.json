@@ -21,6 +21,7 @@
     "// TESTING": "========================================",
     "test:headless": "tsx test-headless.ts",
     "test:geocoding": "tsx test-locationiq.ts",
+    "consolidate": "tsx consolidate-supabase.ts",
 
     "// SETUP": "========================================",
     "setup-local": "chmod +x setup-local-cron.sh && ./setup-local-cron.sh",
