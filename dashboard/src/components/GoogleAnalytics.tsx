@@ -12,39 +12,29 @@ export default function GoogleAnalytics() {
     window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1';
 
-  // Debug logging
+  // Debug functions for troubleshooting
   useEffect(() => {
-    console.log('[GA Debug] Component mounted');
-    console.log('[GA Debug] Environment:', {
-      hostname: typeof window !== 'undefined' ? window.location.hostname : 'undefined',
-      isProduction,
-      measurementId: measurementId ? 'set' : 'not set',
-      nodeVersion: process.versions?.node
-    });
-
-    // Add debug function to window for manual testing
     if (typeof window !== 'undefined') {
       (window as any).debugGA = () => {
-        console.log('[GA Debug] Manual debug check:', {
+        console.log('GA Status:', {
           gtag: !!(window as any).gtag,
           dataLayer: !!(window as any).dataLayer,
           consent: localStorage.getItem('cookie-consent'),
-          measurementId
+          measurementId: measurementId ? 'configured' : 'missing'
         });
         return 'GA debug info logged to console';
       };
 
       (window as any).testGAEvent = () => {
         if ((window as any).gtag) {
-          console.log('[GA Debug] Sending test event to GA');
-          (window as any).gtag('event', 'debug_test_event', {
+          console.log('Sending test event to GA...');
+          (window as any).gtag('event', 'debug_test', {
             event_category: 'debug',
-            event_label: 'manual_test',
-            value: 1
+            event_label: 'manual_test'
           });
-          return 'Test event sent to GA - check realtime dashboard';
+          return 'Test event sent - check GA realtime dashboard';
         } else {
-          return 'gtag not available - GA not loaded';
+          return 'GA not loaded - check debugGA() for status';
         }
       };
     }
@@ -58,16 +48,13 @@ export default function GoogleAnalytics() {
   useEffect(() => {
     // Check if user has consented to cookies
     const consent = localStorage.getItem('cookie-consent');
-    console.log('[GA Debug] Initial cookie consent:', consent);
     if (consent === 'accepted') {
-      console.log('[GA Debug] Setting hasConsent to true');
       setHasConsent(true);
     }
 
     // Listen for consent changes
     const handleConsentChange = () => {
       const newConsent = localStorage.getItem('cookie-consent');
-      console.log('[GA Debug] Cookie consent changed:', newConsent);
       setHasConsent(newConsent === 'accepted');
     };
 
@@ -78,23 +65,14 @@ export default function GoogleAnalytics() {
   }, []);
 
   if (!measurementId || !hasConsent) {
-    console.log('[GA Debug] Not loading GA script:', { measurementId: !!measurementId, hasConsent });
     return null;
   }
-
-  console.log('[GA Debug] Loading GA script with measurement ID:', measurementId);
 
   return (
     <>
       <Script
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-        onLoad={() => {
-          console.log('[GA Debug] GA script loaded successfully');
-        }}
-        onError={() => {
-          console.error('[GA Debug] Failed to load GA script');
-        }}
       />
       <Script
         id="google-analytics"
@@ -107,7 +85,6 @@ export default function GoogleAnalytics() {
             gtag('config', '${measurementId}', {
               page_path: window.location.pathname,
             });
-            console.log('[GA Debug] GA initialized with measurement ID:', '${measurementId}');
           `,
         }}
       />
