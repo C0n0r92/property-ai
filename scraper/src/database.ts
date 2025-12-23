@@ -289,7 +289,7 @@ class DatabaseWriter {
    * Upsert rental listings with price history tracking
    * Set skipExistingCheck=true for initial migrations to avoid query issues
    */
-  async upsertRentals(rentals: RentalRecord[], skipExistingCheck = false): Promise<{
+  async upsertRentals(rentals: any[], skipExistingCheck = false): Promise<{
     inserted: number;
     updated: number;
     failed: number;
@@ -301,15 +301,43 @@ class DatabaseWriter {
 
     console.log(`📤 Upserting ${rentals.length} rental listings...`);
 
+    // Transform rentals to proper format with IDs
+    const transformedRentals: RentalRecord[] = rentals.map(rental => ({
+      id: generateRecordId(rental, 'rentals'),
+      address: rental.address,
+      property_type: rental.propertyType,
+      beds: rental.beds,
+      baths: rental.baths,
+      area_sqm: rental.areaSqm,
+      monthly_rent: rental.monthlyRent,
+      rent_per_sqm: rental.rentPerSqm,
+      furnishing: rental.furnishing,
+      lease_type: rental.leaseType,
+      latitude: rental.latitude,
+      longitude: rental.longitude,
+      eircode: rental.eircode,
+      dublin_postcode: rental.dublinPostcode,
+      ber_rating: rental.berRating,
+      first_seen_date: rental.firstSeenDate || new Date().toISOString().split('T')[0],
+      last_seen_date: rental.lastSeenDate || new Date().toISOString().split('T')[0],
+      days_on_market: rental.daysOnMarket || 0,
+      price_changes: rental.priceChanges || 0,
+      price_history: rental.priceHistory || [],
+      source_url: rental.sourceUrl,
+      scraped_at: rental.scrapedAt || new Date().toISOString(),
+      nominatim_address: rental.nominatimAddress,
+      yield_estimate: rental.yieldEstimate
+    }));
+
     let inserted = 0;
     let updated = 0;
     let failed = 0;
     const errors: string[] = [];
 
     // Process in batches
-    for (let i = 0; i < rentals.length; i += this.batchSize) {
-      const batch = rentals.slice(i, i + this.batchSize);
-      console.log(`  Processing batch ${Math.floor(i / this.batchSize) + 1}/${Math.ceil(rentals.length / this.batchSize)} (${batch.length} records)`);
+    for (let i = 0; i < transformedRentals.length; i += this.batchSize) {
+      const batch = transformedRentals.slice(i, i + this.batchSize);
+      console.log(`  Processing batch ${Math.floor(i / this.batchSize) + 1}/${Math.ceil(transformedRentals.length / this.batchSize)} (${batch.length} records)`);
 
       try {
         let existingMap = new Map();
@@ -463,6 +491,26 @@ class DatabaseWriter {
       return false;
     }
   }
+}
+
+// Generate ID for records that don't have one
+function generateRecordId(record: any, type: string): string {
+  if (record.id) return record.id;
+
+  // Generate ID based on address and other unique fields
+  const baseString = record.address || 'unknown';
+  const uniqueFields = [];
+
+  if (type === 'properties' || type === 'listings') {
+    uniqueFields.push(record.soldPrice || record.askingPrice || 'unknown');
+  } else if (type === 'rentals') {
+    uniqueFields.push(record.monthlyRent || record.monthly_rent || 'unknown');
+  }
+
+  uniqueFields.push(record.scrapedAt || record.scraped_at || new Date().toISOString());
+
+  const idString = `${baseString}-${uniqueFields.join('-')}`;
+  return idString.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 255);
 }
 
 // Export singleton instance
