@@ -19,6 +19,7 @@ import { join } from 'path';
 import type { Listing } from './types';
 import { geocodeAddress } from './geocode.js';
 import { acceptCookiesAndPopups, navigateToNextPage, createBrowserContextOptions, BaseDaftScraper } from './scraper-utils.js';
+import { db, ListingRecord } from './database.js';
 
 // ============== Retry Utility ==============
 
@@ -365,10 +366,8 @@ async function runPipeline() {
   try {
     const listings = await scraper.run(maxPages);
 
-    // Save final results
-    ensureDir(CONFIG.outputDir);
-    const outputFile = join(CONFIG.outputDir, getTodayFileName());
-    writeFileSync(outputFile, JSON.stringify(listings, null, 2));
+    // Save final results (both JSON and Supabase)
+    await saveListings(listings);
 
     // Final stats
     const withCoords = listings.filter(l => l.latitude && l.longitude).length;
@@ -380,6 +379,62 @@ async function runPipeline() {
     console.log(`Output: ${CONFIG.outputDir}/${getTodayFileName()}`);
   } catch (error) {
     console.error('Error during scraping:', error);
+  }
+}
+
+/**
+ * Save listings to both JSON file and Supabase database
+ */
+async function saveListings(listings: Listing[]): Promise<void> {
+  if (listings.length === 0) {
+    console.log('No listings to save');
+    return;
+  }
+
+  const filePath = join(CONFIG.outputDir, getTodayFileName());
+
+  // Save to JSON file (existing behavior)
+  ensureDir(CONFIG.outputDir);
+  writeFileSync(filePath, JSON.stringify(listings, null, 2));
+  console.log(`✅ Saved ${listings.length} listings to JSON: ${filePath}`);
+
+  // Transform for Supabase
+  const supabaseRecords: ListingRecord[] = listings.map(l => ({
+    id: l.id,
+    address: l.address,
+    property_type: l.propertyType,
+    beds: l.beds,
+    baths: l.baths,
+    area_sqm: l.areaSqm,
+    asking_price: l.askingPrice,
+    price_per_sqm: l.pricePerSqm,
+    latitude: l.latitude,
+    longitude: l.longitude,
+    eircode: l.eircode,
+    dublin_postcode: l.dublinPostcode,
+    ber_rating: l.berRating,
+    first_seen_date: l.firstSeenDate,
+    last_seen_date: l.lastSeenDate,
+    days_on_market: l.daysOnMarket,
+    price_changes: l.priceChanges,
+    price_history: l.priceHistory,
+    source_url: l.sourceUrl,
+    scraped_at: l.scrapedAt,
+    nominatim_address: l.nominatimAddress,
+    yield_estimate: l.yieldEstimate
+  }));
+
+  // Save to Supabase
+  try {
+    const result = await db.upsertListings(supabaseRecords);
+    console.log(`✅ Saved ${result.inserted + result.updated} listings to Supabase (${result.inserted} new, ${result.updated} updated)`);
+
+    if (result.failed > 0) {
+      console.warn(`⚠️  ${result.failed} listings failed to save to Supabase`);
+    }
+  } catch (error) {
+    console.error('❌ Failed to save to Supabase:', error);
+    // Don't fail the whole process - JSON backup is still saved
   }
 }
 

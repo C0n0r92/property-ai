@@ -26,7 +26,16 @@ export abstract class BaseDaftScraper<T> {
    * Initialize browser and page
    */
   protected async initializeBrowser(): Promise<void> {
-    this.browser = await chromium.launch({ headless: false });
+    // Run headless with args for server environments (Docker, Digital Ocean, etc.)
+    this.browser = await chromium.launch({ 
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ]
+    });
     this.context = await this.browser.newContext(createBrowserContextOptions());
     this.page = await this.context.newPage();
   }

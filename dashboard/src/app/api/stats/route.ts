@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { loadProperties, getMarketStats, getAreaStats } from '@/lib/data';
 
 export async function GET() {
-  const properties = loadProperties();
+  const properties = await loadProperties();
   const stats = getMarketStats(properties);
   const areaStats = getAreaStats(properties);
   

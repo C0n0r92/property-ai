@@ -3,8 +3,8 @@ import { loadProperties, getMarketStats, getAreaStats } from '@/lib/data';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  
-  let properties = loadProperties();
+
+  let properties = await loadProperties();
   
   // Apply filters
   const minPrice = searchParams.get('minPrice');

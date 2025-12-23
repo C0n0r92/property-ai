@@ -18,10 +18,16 @@
     "update:parallel": "tsx src/update-parallel.ts",
     "update:daily": "npm run update:parallel",
 
+    "// TESTING": "========================================",
+    "test:headless": "tsx test-headless.ts",
+    "test:geocoding": "tsx test-locationiq.ts",
+
     "// MIGRATION": "========================================",
-    "migrate": "tsx src/migrate-data.ts"
+    "migrate": "tsx src/migrate-data.ts",
+    "initial-migration": "tsx initial-migration.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
     "playwright": "^1.52.0"
   },
   "devDependencies": {

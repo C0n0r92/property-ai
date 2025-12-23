@@ -17,6 +17,7 @@ import { writeFileSync, existsSync, readFileSync, readdirSync, mkdirSync } from 
 import { join } from 'path';
 import { geocodeAddress } from './geocode.js';
 import { acceptCookiesAndPopups, navigateToNextPage, createBrowserContextOptions, BaseDaftScraper } from './scraper-utils.js';
+import { db, SoldPropertyRecord } from './database.js';
 
 // ============== Retry Utility ==============
 
@@ -422,12 +423,8 @@ async function runIncrementalPipeline() {
     // Combine with today's existing progress
     const allTodaysProperties = [...todaysProperties, ...newProperties];
 
-    // Save final results
-    ensureDir(CONFIG.outputDir);
-    writeFileSync(
-      join(CONFIG.outputDir, getTodayFileName()),
-      JSON.stringify(allTodaysProperties, null, 2)
-    );
+    // Save final results (both JSON and Supabase)
+    await saveProperties(allTodaysProperties);
 
     // Final summary
     console.log('═'.repeat(60));
@@ -444,11 +441,8 @@ async function runIncrementalPipeline() {
       const newProperties = scraper.getNewProperties();
       const allTodaysProperties = [...todaysProperties, ...newProperties];
 
-      ensureDir(CONFIG.outputDir);
-      writeFileSync(
-        join(CONFIG.outputDir, getTodayFileName()),
-        JSON.stringify(allTodaysProperties, null, 2)
-      );
+      // Save final results (both JSON and Supabase)
+      await saveProperties(allTodaysProperties);
 
       console.log('═'.repeat(60));
       console.log('SCRAPE COMPLETE (CAUGHT UP)');
@@ -460,6 +454,60 @@ async function runIncrementalPipeline() {
     } else {
       console.error('Error during scraping:', e);
     }
+  }
+}
+
+/**
+ * Save properties to both JSON file and Supabase database
+ */
+async function saveProperties(properties: any[]): Promise<void> {
+  if (properties.length === 0) {
+    console.log('No properties to save');
+    return;
+  }
+
+  const filePath = join(CONFIG.outputDir, getTodayFileName());
+
+  // Save to JSON file (existing behavior)
+  ensureDir(CONFIG.outputDir);
+  writeFileSync(filePath, JSON.stringify(properties, null, 2));
+  console.log(`✅ Saved ${properties.length} properties to JSON: ${filePath}`);
+
+  // Transform for Supabase
+  const supabaseRecords: SoldPropertyRecord[] = properties.map(p => ({
+    id: p.id,
+    address: p.address,
+    property_type: p.propertyType,
+    beds: p.beds,
+    baths: p.baths,
+    area_sqm: p.areaSqm,
+    sold_date: p.soldDate,
+    sold_price: p.soldPrice,
+    asking_price: p.askingPrice,
+    over_under_percent: p.overUnderPercent,
+    latitude: p.latitude,
+    longitude: p.longitude,
+    eircode: p.eircode,
+    dublin_postcode: p.dublinPostcode,
+    price_per_sqm: p.pricePerSqm,
+    source_url: p.sourceUrl,
+    source_page: p.sourcePage,
+    scraped_at: p.scrapedAt,
+    nominatim_address: p.nominatimAddress,
+    yield_estimate: p.yieldEstimate
+  }));
+
+  // Save to Supabase
+  try {
+    const result = await db.upsertSoldProperties(supabaseRecords);
+    console.log(`✅ Saved ${result.inserted + result.updated} properties to Supabase (${result.inserted} new, ${result.updated} updated)`);
+
+    if (result.failed > 0) {
+      console.warn(`⚠️  ${result.failed} properties failed to save to Supabase`);
+    }
+  } catch (error) {
+    console.error('❌ Failed to save to Supabase:', error);
+    // Don't fail the whole process - JSON backup is still saved
   }
 }
 

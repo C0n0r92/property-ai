@@ -1,6 +1,10 @@
 /**
- * Shared geocoding utility using Nominatim
+ * Shared geocoding utility using Nominatim or LocationIQ
  * Used by all scrapers for address-to-coordinates conversion
+ * 
+ * Supports both:
+ * - Local Nominatim (Docker): NOMINATIM_URL=http://localhost:8080/search
+ * - LocationIQ Cloud API: LOCATIONIQ_API_KEY=your_key_here
  */
 
 export interface GeocodeResult {
@@ -10,7 +14,15 @@ export interface GeocodeResult {
   nominatimAddress: string;
 }
 
-const NOMINATIM_URL = 'http://localhost:8080/search';
+// Geocoding configuration - supports both local Nominatim and LocationIQ cloud
+const GEOCODING_CONFIG = {
+  // Use LocationIQ if API key is provided, otherwise fall back to local Nominatim
+  useLocationIQ: !!process.env.LOCATIONIQ_API_KEY,
+  locationIQKey: process.env.LOCATIONIQ_API_KEY || '',
+  locationIQUrl: 'https://us1.locationiq.com/v1/search',
+  nominatimUrl: process.env.NOMINATIM_URL || 'http://localhost:8080/search',
+};
+
 const DUBLIN_BOUNDS = {
   minLat: 53.10,
   maxLat: 53.65,
@@ -63,7 +75,7 @@ function extractEircode(displayName: string): string | null {
 }
 
 /**
- * Geocode an address using Nominatim
+ * Geocode an address using Nominatim or LocationIQ
  */
 export async function geocodeAddress(address: string): Promise<GeocodeResult | null> {
   if (!address || address.trim().length === 0) {
@@ -74,7 +86,16 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
 
   for (const query of variations) {
     try {
-      const url = `${NOMINATIM_URL}?q=${encodeURIComponent(query)}&format=json&countrycodes=ie&limit=3`;
+      // Build URL based on geocoding provider
+      let url: string;
+      if (GEOCODING_CONFIG.useLocationIQ) {
+        // LocationIQ API (Nominatim-compatible)
+        url = `${GEOCODING_CONFIG.locationIQUrl}?key=${GEOCODING_CONFIG.locationIQKey}&q=${encodeURIComponent(query)}&format=json&countrycodes=ie&limit=3`;
+      } else {
+        // Local Nominatim
+        url = `${GEOCODING_CONFIG.nominatimUrl}?q=${encodeURIComponent(query)}&format=json&countrycodes=ie&limit=3`;
+      }
+
       const response = await fetch(url);
 
       if (!response.ok) continue;
@@ -101,6 +122,11 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
     } catch (error) {
       // Continue to next variation
       continue;
+    }
+
+    // Rate limiting: LocationIQ free tier allows 2 requests/second
+    if (GEOCODING_CONFIG.useLocationIQ) {
+      await new Promise(resolve => setTimeout(resolve, 600)); // 600ms = ~1.6 req/sec
     }
   }
 

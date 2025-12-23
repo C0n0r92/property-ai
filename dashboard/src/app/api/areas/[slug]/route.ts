@@ -26,7 +26,7 @@ export async function GET(
   
   try {
     // Load all properties
-    const allProperties = loadProperties();
+    const allProperties = await loadProperties();
     
     // Filter to this specific area
     const areaProperties = allProperties.filter(p =>

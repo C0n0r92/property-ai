@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
   
   // Load properties (sold) if requested
   if (sources.includes('sold')) {
-    let allProperties = loadProperties();
+    let allProperties = await loadProperties();
 
     // Apply time filter if specified
     if (timeFilter) {
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 
   // Load listings (for sale) if requested
   if (sources.includes('forSale')) {
-    let allListings = loadListings();
+    let allListings = await loadListings();
 
     // Apply time filter if specified (filter by scrapedAt)
     if (timeFilter) {
@@ -159,7 +159,7 @@ export async function GET(request: NextRequest) {
 
   // Load rentals if requested
   if (sources.includes('rentals')) {
-    let allRentals = loadRentals();
+    let allRentals = await loadRentals();
 
     // Apply time filter if specified (filter by scrapedAt)
     if (timeFilter) {

@@ -3,8 +3,8 @@ import { loadRentals, getRentalStats } from '@/lib/data';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  
-  let rentals = loadRentals();
+
+  let rentals = await loadRentals();
   
   // Apply filters
   const minRent = searchParams.get('minRent');

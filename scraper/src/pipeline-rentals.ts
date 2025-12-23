@@ -14,6 +14,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { geocodeAddress } from './geocode.js';
 import { acceptCookiesAndPopups, navigateToNextPage, createBrowserContextOptions, BaseDaftScraper } from './scraper-utils.js';
+import { db, RentalRecord } from './database.js';
 
 // ============== Retry Utility ==============
 
@@ -295,10 +296,8 @@ async function scrapeRentals(): Promise<void> {
   try {
     const allListings = await scraper.run(MAX_LISTINGS);
 
-    // Save final results
-    ensureDir(OUTPUT_DIR);
-    const outputFile = join(OUTPUT_DIR, getTodayFileName());
-    writeFileSync(outputFile, JSON.stringify(allListings, null, 2));
+    // Save final results (both JSON and Supabase)
+    await saveRentals(allListings);
 
     // Generate summary
     const geocoded = allListings.filter(l => l.latitude).length;
@@ -314,6 +313,64 @@ async function scrapeRentals(): Promise<void> {
 
   } catch (error) {
     console.error('Error during scraping:', error);
+  }
+}
+
+/**
+ * Save rentals to both JSON file and Supabase database
+ */
+async function saveRentals(rentals: RentalListing[]): Promise<void> {
+  if (rentals.length === 0) {
+    console.log('No rentals to save');
+    return;
+  }
+
+  const filePath = join(OUTPUT_DIR, getTodayFileName());
+
+  // Save to JSON file (existing behavior)
+  ensureDir(OUTPUT_DIR);
+  writeFileSync(filePath, JSON.stringify(rentals, null, 2));
+  console.log(`✅ Saved ${rentals.length} rentals to JSON: ${filePath}`);
+
+  // Transform for Supabase
+  const supabaseRecords: RentalRecord[] = rentals.map(r => ({
+    id: r.id,
+    address: r.address,
+    property_type: r.propertyType,
+    beds: r.beds,
+    baths: r.baths,
+    area_sqm: r.areaSqm,
+    monthly_rent: r.monthlyRent,
+    rent_per_sqm: r.rentPerSqm,
+    furnishing: r.furnishing,
+    lease_type: r.leaseType,
+    latitude: r.latitude,
+    longitude: r.longitude,
+    eircode: r.eircode,
+    dublin_postcode: r.dublinPostcode,
+    ber_rating: r.berRating,
+    first_seen_date: r.firstSeenDate,
+    last_seen_date: r.lastSeenDate,
+    days_on_market: r.daysOnMarket,
+    price_changes: r.priceChanges,
+    price_history: r.priceHistory,
+    source_url: r.sourceUrl,
+    scraped_at: r.scrapedAt,
+    nominatim_address: r.nominatimAddress,
+    yield_estimate: r.yieldEstimate
+  }));
+
+  // Save to Supabase
+  try {
+    const result = await db.upsertRentals(supabaseRecords);
+    console.log(`✅ Saved ${result.inserted + result.updated} rentals to Supabase (${result.inserted} new, ${result.updated} updated)`);
+
+    if (result.failed > 0) {
+      console.warn(`⚠️  ${result.failed} rentals failed to save to Supabase`);
+    }
+  } catch (error) {
+    console.error('❌ Failed to save to Supabase:', error);
+    // Don't fail the whole process - JSON backup is still saved
   }
 }
 

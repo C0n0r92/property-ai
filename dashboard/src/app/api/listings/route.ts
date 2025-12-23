@@ -3,8 +3,8 @@ import { loadListings, getListingStats } from '@/lib/data';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  
-  let listings = loadListings();
+
+  let listings = await loadListings();
   
   // Apply filters
   const minPrice = searchParams.get('minPrice');
