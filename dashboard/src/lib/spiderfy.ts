@@ -80,6 +80,7 @@ export class SpiderfyManager {
   private currentCenter: [number, number] | null = null;
   private spiderFeatures: SpiderFeature[] = [];
   private onFeatureClick: (feature: SpiderFeature) => void;
+  private lastExpandTime: number = 0;
   
   constructor(
     map: mapboxgl.Map,
@@ -211,6 +212,7 @@ export class SpiderfyManager {
     
     this.currentCenter = center;
     this.isExpanded = true;
+    this.lastExpandTime = Date.now(); // Track when we expanded
     
     // Update spider legs source
     const legsData: GeoJSON.FeatureCollection = {
@@ -241,6 +243,19 @@ export class SpiderfyManager {
     };
     
     (this.map.getSource('spider-markers') as mapboxgl.GeoJSONSource)?.setData(markersData);
+    
+    // Zoom to the spider location to show all markers clearly
+    // Calculate appropriate zoom level based on number of features
+    // More features = need more zoom to see them all
+    const currentZoom = this.map.getZoom();
+    const targetZoom = Math.max(currentZoom, limitedFeatures.length > 8 ? 17 : 16);
+    
+    this.map.flyTo({
+      center: center,
+      zoom: targetZoom,
+      duration: 500, // Smooth animation
+      essential: true // This animation is essential for user experience
+    });
   }
   
   /**
@@ -248,6 +263,12 @@ export class SpiderfyManager {
    */
   collapse(): void {
     if (!this.isExpanded) return;
+    
+    // Prevent collapse immediately after expansion (within 50ms) to avoid race conditions
+    const timeSinceExpand = Date.now() - this.lastExpandTime;
+    if (timeSinceExpand < 50) {
+      return;
+    }
     
     this.isExpanded = false;
     this.currentCenter = null;
@@ -273,7 +294,7 @@ export class SpiderfyManager {
     if (!this.isExpanded) return false;
     
     const features = this.map.queryRenderedFeatures(point, {
-      layers: ['spider-markers-layer']
+      layers: ['spider-markers-layer', 'spider-legs-layer']
     });
     
     return features.length > 0;

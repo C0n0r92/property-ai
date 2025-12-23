@@ -112,6 +112,7 @@ export default function MapComponent() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [rentals, setRentals] = useState<RentalListing[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0); // 0-100 percentage
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -128,7 +129,7 @@ export default function MapComponent() {
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
   
   // Data source toggle: allows any combination of sold, forSale, rentals
-  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: false, savedOnly: false });
+  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: true, savedOnly: false });
   
   // Hierarchical time filter state (only for sold properties)
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -293,6 +294,37 @@ export default function MapComponent() {
     }
   }, [isMobile, showFilters]);
 
+  // Remove planning radius function
+  const removePlanningRadius = useCallback(() => {
+    if (!map.current) return;
+
+    try {
+      // Remove planning-radius layers and source
+      if (map.current.getLayer('planning-radius-outline')) {
+        map.current.removeLayer('planning-radius-outline');
+      }
+      if (map.current.getLayer('planning-radius-fill')) {
+        map.current.removeLayer('planning-radius-fill');
+      }
+      if (map.current.getLayer('planning-radius-center')) {
+        map.current.removeLayer('planning-radius-center');
+      }
+      if (map.current.getSource('planning-radius')) {
+        map.current.removeSource('planning-radius');
+      }
+
+      // Remove planning-center layers and source
+      if (map.current.getLayer('planning-center-marker')) {
+        map.current.removeLayer('planning-center-marker');
+      }
+      if (map.current.getSource('planning-center')) {
+        map.current.removeSource('planning-center');
+      }
+    } catch (error) {
+      // Source/layers might not exist, ignore
+    }
+  }, []);
+
   // Planning radius visualization function
   const addPlanningRadius = useCallback(() => {
     if (!map.current || !mapReady) {
@@ -335,6 +367,31 @@ export default function MapComponent() {
 
 
     try {
+      // Remove existing sources and layers if they exist
+      if (map.current?.getSource('planning-radius')) {
+        // Remove layers first
+        if (map.current?.getLayer('planning-radius-outline')) {
+          map.current?.removeLayer('planning-radius-outline');
+        }
+        if (map.current?.getLayer('planning-radius-fill')) {
+          map.current?.removeLayer('planning-radius-fill');
+        }
+        if (map.current?.getLayer('planning-radius-center')) {
+          map.current?.removeLayer('planning-radius-center');
+        }
+        // Then remove the source
+        map.current?.removeSource('planning-radius');
+      }
+
+      if (map.current?.getSource('planning-center')) {
+        // Remove center marker layer first
+        if (map.current?.getLayer('planning-center-marker')) {
+          map.current?.removeLayer('planning-center-marker');
+        }
+        // Then remove the source
+        map.current?.removeSource('planning-center');
+      }
+
       // Add source and layers
       map.current?.addSource('planning-radius', {
         type: 'geojson',
@@ -594,10 +651,10 @@ export default function MapComponent() {
   }, [rentals, listings, properties]);
 
   // Load data for current map viewport (progressive loading)
-  const loadMapData = useCallback(async (bounds?: { north: number; south: number; east: number; west: number }) => {
+  const loadMapData = useCallback(async (bounds?: { north: number; south: number; east: number; west: number }, forceRefresh = false) => {
     // Prevent multiple simultaneous loads using ref
     if (isLoadingRef.current) return;
-    
+
     // Only fetch data for selected sources
     const sources = [];
     if (dataSources.sold) sources.push('sold');
@@ -628,258 +685,257 @@ export default function MapComponent() {
     if (timeFilter) {
       timeFilterParam = `&timeFilter=${timeFilter}`;
     } else if (recentFilter) {
-      // Map existing filters to new timeFilter values
-      if (recentFilter === '6m') timeFilterParam = '&timeFilter=last6Months';
-      if (recentFilter === '12m') timeFilterParam = '&timeFilter=last12Months';
+      // Map existing filters to valid timeFilter values
+      if (recentFilter === '6m') timeFilterParam = '&timeFilter=lastMonth'; // Use lastMonth as approximation
+      if (recentFilter === '12m') timeFilterParam = '&timeFilter=lastMonth'; // Use lastMonth as approximation
     }
 
-    console.log(`📍 Loading all map data for bounds:`, mapBounds, `sources:`, sources);
+    console.log(`📍 Loading data from JSON file for sources:`, sources);
 
     try {
-      const BATCH_SIZE = 10000; // Increased from 5000 to reduce HTTP requests
-      const MAX_BATCHES = 100; // Allow up to 1M properties (100 batches x 10k)
-      const CONCURRENT_BATCHES = 1; // Temporarily disable concurrent loading to debug
-      
-      // Initialize arrays to accumulate data
+      // Load data directly from the consolidated JSON file
+      const response = await fetch('/data.json');
+      if (!response.ok) {
+        throw new Error(`Failed to load data.json: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Extract data based on selected sources
       let allProperties: Property[] = [];
       let allListings: Listing[] = [];
       let allRentals: RentalListing[] = [];
-      
-      let cursorDate: string | undefined;
-      let cursorId: string | undefined;
-      let hasMore = true;
-      let processedBatches = 0;
-      let totalEstimated = 0; // Will be updated from API totals
-      let consecutiveEmptyBatches = 0;
 
-      setLoadingProgress(0);
-
-      // Load data sequentially for now (simpler debugging)
-      while (hasMore && processedBatches < MAX_BATCHES) {
-        let batchUrl = `/api/map-data-batch?sources=${sources.join(',')}&north=${mapBounds.north}&south=${mapBounds.south}&east=${mapBounds.east}&west=${mapBounds.west}&limit=${BATCH_SIZE}${timeFilterParam}`;
-
-        // Add cursor parameters for cursor-based pagination (instead of offset)
-        if (cursorDate && cursorId) {
-          batchUrl += `&cursorDate=${encodeURIComponent(cursorDate)}&cursorId=${encodeURIComponent(cursorId)}`;
-        }
-
-        console.log(`Loading batch ${processedBatches + 1} from: ${batchUrl}`);
-        console.log(`Request headers:`, {
-          'User-Agent': navigator.userAgent,
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache'
+      if (sources.includes('sold') && data.properties) {
+        allProperties = data.properties.filter((p: Property) => {
+          // Apply basic filtering
+          const year = parseInt(p.soldDate?.split('-')[0] || '0');
+          return year >= 2015 && year <= 2025 && p.soldPrice >= 10000 && p.soldPrice <= 50000000;
         });
-
-        const response = await fetch(batchUrl, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        console.log(`Response status: ${response.status}`);
-
-        if (!response.ok) {
-          const text = await response.text();
-          console.error(`Failed request: ${batchUrl}, status: ${response.status}, response: ${text}`);
-          throw new Error(`Failed to load map data batch: ${response.status} ${response.statusText}`);
-        }
-
-        let data;
-        try {
-          data = await response.json();
-          console.log(`Parsed JSON successfully, ${JSON.stringify(data).length} chars`);
-        } catch (jsonError) {
-          console.error(`JSON parse error for ${batchUrl}:`, jsonError);
-          console.error(`Response status: ${response.status}, content-type: ${response.headers.get('content-type')}`);
-          try {
-            const text = await response.text();
-            console.error(`Raw response (first 1000 chars):`, text.substring(0, 1000));
-          } catch (textError) {
-            console.error(`Could not read response text:`, textError);
-          }
-          throw new Error(`Invalid JSON response from ${batchUrl}`);
-        }
-
-        // Update total estimate from API - accumulate totals from all sources
-        if (data.total) {
-          let newTotal = 0;
-          if (sources.includes('sold') && data.total.properties) {
-            newTotal += data.total.properties;
-          }
-          if (sources.includes('forSale') && data.total.listings) {
-            newTotal += data.total.listings;
-          }
-          if (sources.includes('rentals') && data.total.rentals) {
-            newTotal += data.total.rentals;
-          }
-          if (newTotal > 0) {
-            totalEstimated = Math.max(totalEstimated, newTotal);
-          }
-        }
-
-        // Check if we got any data - ignore hasMore from API, just check if we got data
-        const gotProperties = sources.includes('sold') && data.properties && data.properties.length > 0;
-        const gotListings = sources.includes('forSale') && data.listings && data.listings.length > 0;
-        const gotRentals = sources.includes('rentals') && data.rentals && data.rentals.length > 0;
-
-        // Accumulate data
-        if (data.properties && data.properties.length > 0) {
-          allProperties = [...allProperties, ...data.properties];
-        }
-
-        if (data.listings && data.listings.length > 0) {
-          allListings = [...allListings, ...data.listings];
-        }
-
-        if (data.rentals && data.rentals.length > 0) {
-          allRentals = [...allRentals, ...data.rentals];
-        }
-
-        // Update progress
-        const currentTotal = allProperties.length + allListings.length + allRentals.length;
-        let progress = 0;
-        if (totalEstimated > 0) {
-          progress = Math.min(95, Math.round((currentTotal / totalEstimated) * 100));
-        } else {
-          progress = Math.min(95, Math.round((processedBatches / 20) * 100));
-        }
-        setLoadingProgress(progress);
-
-        // Determine if we should continue loading
-        const apiHasMoreData =
-          (data.hasMore?.properties && sources.includes('sold')) ||
-          (data.hasMore?.listings && sources.includes('forSale')) ||
-          (data.hasMore?.rentals && sources.includes('rentals'));
-
-        const forceContinueForMinBatches = processedBatches < 20;
-        hasMore = (gotProperties || gotListings || gotRentals || apiHasMoreData || forceContinueForMinBatches) && processedBatches < MAX_BATCHES;
-
-        if (forceContinueForMinBatches && processedBatches < MAX_BATCHES) {
-          hasMore = true;
-        }
-
-        // Update cursor for next batch
-        if (data.cursor) {
-          if (data.cursor.properties && sources.includes('sold')) {
-            cursorDate = data.cursor.properties.date;
-            cursorId = data.cursor.properties.id;
-          } else if (data.cursor.listings && sources.includes('forSale')) {
-            cursorDate = data.cursor.listings.date;
-            cursorId = data.cursor.listings.id;
-          } else if (data.cursor.rentals && sources.includes('rentals')) {
-            cursorDate = data.cursor.rentals.date;
-            cursorId = data.cursor.rentals.id;
-          }
-        }
-
-        console.log(`Batch ${processedBatches + 1}: Got ${data.properties?.length || 0} properties (${data.total?.properties || 0} total in DB), ${data.listings?.length || 0} listings, ${data.rentals?.length || 0} rentals. Total loaded: ${allProperties.length} properties. HasMore: ${hasMore}`);
-        processedBatches++;
-
-        if (!hasMore || processedBatches >= MAX_BATCHES) break;
       }
-      
-      // Final state update with all accumulated data (only once at the end to prevent flashing)
+
+      if (sources.includes('forSale') && data.listings) {
+        allListings = data.listings.filter((l: Listing) => {
+          // Apply basic filtering
+          return l.askingPrice >= 10000 && l.askingPrice <= 100000000;
+        });
+      }
+
+      if (sources.includes('rentals') && data.rentals) {
+        allRentals = data.rentals.filter((r: RentalListing) => {
+          // Apply basic filtering
+          return r.monthlyRent >= 200 && r.monthlyRent <= 50000;
+        });
+      }
+
+      // Apply time filtering if specified
+      const now = new Date();
+      if (timeFilter || recentFilter) {
+        if (sources.includes('sold')) {
+          allProperties = allProperties.filter(p => {
+            const soldDate = new Date(p.soldDate);
+            let matchesFilter = true;
+
+            if (timeFilter) {
+              switch (timeFilter) {
+                case 'today':
+                  matchesFilter = soldDate.toDateString() === now.toDateString();
+                  break;
+                case 'thisWeek': {
+                  const startOfWeek = new Date(now);
+                  startOfWeek.setDate(now.getDate() - now.getDay());
+                  startOfWeek.setHours(0, 0, 0, 0);
+                  matchesFilter = soldDate >= startOfWeek;
+                  break;
+                }
+                case 'thisMonth': {
+                  matchesFilter = soldDate.getMonth() === now.getMonth() && soldDate.getFullYear() === now.getFullYear();
+                  break;
+                }
+                case 'lastWeek': {
+                  const startOfLastWeek = new Date(now);
+                  startOfLastWeek.setDate(now.getDate() - now.getDay() - 7);
+                  startOfLastWeek.setHours(0, 0, 0, 0);
+                  const endOfLastWeek = new Date(startOfLastWeek);
+                  endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
+                  endOfLastWeek.setHours(23, 59, 59, 999);
+                  matchesFilter = soldDate >= startOfLastWeek && soldDate <= endOfLastWeek;
+                  break;
+                }
+                case 'lastMonth': {
+                  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+                  matchesFilter = soldDate.getMonth() === lastMonth.getMonth() && soldDate.getFullYear() === lastMonth.getFullYear();
+                  break;
+                }
+                default:
+                  matchesFilter = true;
+              }
+            } else if (recentFilter) {
+              // Map existing filters to time ranges
+              if (recentFilter === '6m') {
+                const sixMonthsAgo = new Date(now);
+                sixMonthsAgo.setMonth(now.getMonth() - 6);
+                matchesFilter = soldDate >= sixMonthsAgo;
+              } else if (recentFilter === '12m') {
+                const twelveMonthsAgo = new Date(now);
+                twelveMonthsAgo.setFullYear(now.getFullYear() - 1);
+                matchesFilter = soldDate >= twelveMonthsAgo;
+              }
+            }
+
+            return matchesFilter;
+          });
+        }
+
+        if (sources.includes('forSale')) {
+          allListings = allListings.filter(l => {
+            const scrapedDate = new Date(l.scrapedAt);
+            let matchesFilter = true;
+
+            if (timeFilter) {
+              switch (timeFilter) {
+                case 'today':
+                  matchesFilter = scrapedDate.toDateString() === now.toDateString();
+                  break;
+                case 'thisWeek': {
+                  const startOfWeek = new Date(now);
+                  startOfWeek.setDate(now.getDate() - now.getDay());
+                  startOfWeek.setHours(0, 0, 0, 0);
+                  matchesFilter = scrapedDate >= startOfWeek;
+                  break;
+                }
+                case 'thisMonth': {
+                  matchesFilter = scrapedDate.getMonth() === now.getMonth() && scrapedDate.getFullYear() === now.getFullYear();
+                  break;
+                }
+                case 'lastWeek': {
+                  const startOfLastWeek = new Date(now);
+                  startOfLastWeek.setDate(now.getDate() - now.getDay() - 7);
+                  startOfLastWeek.setHours(0, 0, 0, 0);
+                  const endOfLastWeek = new Date(startOfLastWeek);
+                  endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
+                  endOfLastWeek.setHours(23, 59, 59, 999);
+                  matchesFilter = scrapedDate >= startOfLastWeek && scrapedDate <= endOfLastWeek;
+                  break;
+                }
+                case 'lastMonth': {
+                  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+                  matchesFilter = scrapedDate.getMonth() === lastMonth.getMonth() && scrapedDate.getFullYear() === lastMonth.getFullYear();
+                  break;
+                }
+                default:
+                  matchesFilter = true;
+              }
+            } else if (recentFilter) {
+              // Map existing filters to time ranges
+              if (recentFilter === '6m') {
+                const sixMonthsAgo = new Date(now);
+                sixMonthsAgo.setMonth(now.getMonth() - 6);
+                matchesFilter = scrapedDate >= sixMonthsAgo;
+              } else if (recentFilter === '12m') {
+                const twelveMonthsAgo = new Date(now);
+                twelveMonthsAgo.setFullYear(now.getFullYear() - 1);
+                matchesFilter = scrapedDate >= twelveMonthsAgo;
+              }
+            }
+
+            return matchesFilter;
+          });
+        }
+
+        if (sources.includes('rentals')) {
+          allRentals = allRentals.filter(r => {
+            const scrapedDate = new Date(r.scrapedAt);
+            let matchesFilter = true;
+
+            if (timeFilter) {
+              switch (timeFilter) {
+                case 'today':
+                  matchesFilter = scrapedDate.toDateString() === now.toDateString();
+                  break;
+                case 'thisWeek': {
+                  const startOfWeek = new Date(now);
+                  startOfWeek.setDate(now.getDate() - now.getDay());
+                  startOfWeek.setHours(0, 0, 0, 0);
+                  matchesFilter = scrapedDate >= startOfWeek;
+                  break;
+                }
+                case 'thisMonth': {
+                  matchesFilter = scrapedDate.getMonth() === now.getMonth() && scrapedDate.getFullYear() === now.getFullYear();
+                  break;
+                }
+                case 'lastWeek': {
+                  const startOfLastWeek = new Date(now);
+                  startOfLastWeek.setDate(now.getDate() - now.getDay() - 7);
+                  startOfLastWeek.setHours(0, 0, 0, 0);
+                  const endOfLastWeek = new Date(startOfLastWeek);
+                  endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
+                  endOfLastWeek.setHours(23, 59, 59, 999);
+                  matchesFilter = scrapedDate >= startOfLastWeek && scrapedDate <= endOfLastWeek;
+                  break;
+                }
+                case 'lastMonth': {
+                  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+                  matchesFilter = scrapedDate.getMonth() === lastMonth.getMonth() && scrapedDate.getFullYear() === lastMonth.getFullYear();
+                  break;
+                }
+                default:
+                  matchesFilter = true;
+              }
+            } else if (recentFilter) {
+              // Map existing filters to time ranges
+              if (recentFilter === '6m') {
+                const sixMonthsAgo = new Date(now);
+                sixMonthsAgo.setMonth(now.getMonth() - 6);
+                matchesFilter = scrapedDate >= sixMonthsAgo;
+              } else if (recentFilter === '12m') {
+                const twelveMonthsAgo = new Date(now);
+                twelveMonthsAgo.setFullYear(now.getFullYear() - 1);
+                matchesFilter = scrapedDate >= twelveMonthsAgo;
+              }
+            }
+
+            return matchesFilter;
+          });
+        }
+      }
+
+      // Update state with loaded data
       setProperties([...allProperties]);
       setListings([...allListings]);
       setRentals([...allRentals]);
 
-      // Final stats calculations
+      // Calculate and update stats
       if (allProperties.length > 0) {
         const withAsking = allProperties.filter((p: Property) => p.askingPrice && p.askingPrice > 0);
         const overAsking = withAsking.filter((p: Property) => p.soldPrice > p.askingPrice!).length;
         const underAsking = withAsking.filter((p: Property) => p.soldPrice < p.askingPrice!).length;
+        const avgPrice = allProperties.reduce((sum, p) => sum + p.soldPrice, 0) / allProperties.length;
 
-        setStats(prev => ({
-          ...prev,
+        // Calculate average price per square meter
+        const withSqm = allProperties.filter((p: Property) => p.pricePerSqm && p.pricePerSqm > 0);
+        const avgPricePerSqm = withSqm.length > 0
+          ? Math.round(withSqm.reduce((sum, p) => sum + (p.pricePerSqm || 0), 0) / withSqm.length)
+          : 0;
+
+        setStats({
           total: allProperties.length,
+          avgPrice,
+          avgPricePerSqm,
           overAsking,
           underAsking,
-        }));
-      }
-
-      if (allListings.length > 0) {
-        const prices = allListings.map((l: Listing) => l.askingPrice).sort((a: number, b: number) => a - b);
-        const medianPrice = prices[Math.floor(prices.length / 2)] || 0;
-        const withSqm = allListings.filter((l: Listing) => l.pricePerSqm && l.pricePerSqm > 0);
-        const avgPricePerSqm = withSqm.length > 0
-          ? Math.round(withSqm.reduce((sum: number, l: Listing) => sum + (l.pricePerSqm || 0), 0) / withSqm.length)
-          : 0;
-        setListingStats({
-          totalListings: allListings.length,
-          medianPrice,
-          avgPricePerSqm,
         });
       }
 
-      if (allRentals.length > 0) {
-        const rents = allRentals.map((r: RentalListing) => r.monthlyRent).sort((a: number, b: number) => a - b);
-        const medianRent = rents[Math.floor(rents.length / 2)] || 0;
-        const withSqm = allRentals.filter((r: RentalListing) => r.rentPerSqm && r.rentPerSqm > 0);
-        const avgRentPerSqm = withSqm.length > 0
-          ? Math.round(withSqm.reduce((sum: number, r: RentalListing) => sum + (r.rentPerSqm || 0), 0) / withSqm.length * 10) / 10
-          : 0;
-        setRentalStats({
-          totalRentals: allRentals.length,
-          medianRent,
-          avgRentPerSqm,
-          rentRange: { min: rents[0] || 0, max: rents[rents.length - 1] || 0 },
-        });
-      }
-      
-      if (allListings.length > 0) {
-        const prices = allListings.map((l: Listing) => l.askingPrice).sort((a: number, b: number) => a - b);
-        const medianPrice = prices[Math.floor(prices.length / 2)] || 0;
-        const withSqm = allListings.filter((l: Listing) => l.pricePerSqm && l.pricePerSqm > 0);
-        const avgPricePerSqm = withSqm.length > 0 
-          ? Math.round(withSqm.reduce((sum: number, l: Listing) => sum + (l.pricePerSqm || 0), 0) / withSqm.length)
-          : 0;
-        setListingStats({
-          totalListings: allListings.length,
-          medianPrice,
-          avgPricePerSqm,
-        });
-      }
-      
-      if (allRentals.length > 0) {
-        const rents = allRentals.map((r: RentalListing) => r.monthlyRent).sort((a: number, b: number) => a - b);
-        const medianRent = rents[Math.floor(rents.length / 2)] || 0;
-        const withSqm = allRentals.filter((r: RentalListing) => r.rentPerSqm && r.rentPerSqm > 0);
-        const avgRentPerSqm = withSqm.length > 0 
-          ? Math.round(withSqm.reduce((sum: number, r: RentalListing) => sum + (r.rentPerSqm || 0), 0) / withSqm.length * 10) / 10
-          : 0;
-        setRentalStats({
-          totalRentals: allRentals.length,
-          medianRent,
-          avgRentPerSqm,
-          rentRange: { min: rents[0] || 0, max: rents[rents.length - 1] || 0 },
-        });
-      }
-      
-      setLoadingProgress(100);
-      console.log(`✅ Finished loading: ${allProperties.length} properties, ${allListings.length} listings, ${allRentals.length} rentals`);
-      
-      isLoadingRef.current = false;
-      setLoading(false);
-      setTimeout(() => setLoadingProgress(0), 500);
+      console.log(`✅ Loaded ${allProperties.length} properties, ${allListings.length} listings, ${allRentals.length} rentals from data.json`);
     } catch (error) {
-      console.error('Error loading map data:', error);
+      console.error('❌ Error loading map data from JSON:', error);
+      setError('Failed to load property data from data.json. Please try refreshing the page.');
+    } finally {
       isLoadingRef.current = false;
       setLoading(false);
-      setLoadingProgress(0);
+      setLoadingProgress(100);
     }
-
-    // Fetch overall Dublin-wide stats (lightweight)
-    fetch('/api/stats')
-      .then(res => res.json())
-      .then(data => {
-        setStats(prev => ({
-          ...prev,
-          avgPrice: data.stats.medianPrice,
-          avgPricePerSqm: data.stats.avgPricePerSqm,
-        }));
-      })
-      .catch(err => console.error('Error loading stats:', err));
-
   }, [dataSources.sold, dataSources.forSale, dataSources.rentals, timeFilter, recentFilter, selectedYear]);
 
   // Note: We load all properties initially and don't reload on map move
@@ -925,9 +981,14 @@ export default function MapComponent() {
   }, [loadMapData]);
   */
 
-  // Reload data when data sources change
+  // Reload data when data sources change (but use cache if available)
   useEffect(() => {
-    console.log('🔄 Data sources changed, reloading data...');
+    console.log('🔄 Data sources changed, checking cache...');
+    // Clear existing data first
+    setProperties([]);
+    setListings([]);
+    setRentals([]);
+    // Then load new data (will use cache if available)
     loadMapData();
   }, [dataSources.sold, dataSources.forSale, dataSources.rentals, loadMapData]);
 
@@ -1767,19 +1828,23 @@ export default function MapComponent() {
       });
       
       // Click elsewhere on map to collapse spider
+      // Note: This handler fires AFTER layer-specific handlers, so we need to be careful
       map.current.on('click', (e) => {
-        // Check if click was on spider markers - if so, don't collapse
-        if (spiderfyManager.current?.isClickOnSpider(e.point)) return;
+        // FIRST: Check if click was on spider markers or legs - these have highest priority
+        if (spiderfyManager.current?.isClickOnSpider(e.point)) {
+          return; // Don't collapse if clicking on spider menu
+        }
         
-        // Check if click was on clusters or unclustered points
+        // SECOND: Check if click was on clusters or unclustered points - if so, let those handlers deal with it
         const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
           layers: ['clusters', 'unclustered-point']
         });
+        if (clickedFeatures && clickedFeatures.length > 0) {
+          return; // Let the layer-specific handlers handle this
+        }
         
         // Only collapse if clicking on empty map area
-        if (!clickedFeatures?.length) {
-          spiderfyManager.current?.collapse();
-        }
+        spiderfyManager.current?.collapse();
       });
 
       // Cursor changes
@@ -2010,22 +2075,26 @@ export default function MapComponent() {
       });
       
       // Click elsewhere on map to collapse spider (for price/difference view modes)
+      // Note: This handler fires AFTER layer-specific handlers, so we need to be careful
       map.current?.on('click', (e) => {
-        // Check if click was on spider markers - if so, don't collapse
-        if (spiderfyManager.current?.isClickOnSpider(e.point)) return;
-        
         // Check if layer still exists before querying
         if (!map.current?.getLayer(layerId)) return;
         
-        // Check if click was on the layer
+        // FIRST: Check if click was on spider markers or legs - these have highest priority
+        if (spiderfyManager.current?.isClickOnSpider(e.point)) {
+          return; // Don't collapse if clicking on spider menu
+        }
+        
+        // SECOND: Check if click was on the layer - if so, let the layer-specific handler deal with it
         const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
           layers: [layerId]
         });
+        if (clickedFeatures && clickedFeatures.length > 0) {
+          return; // Let the layer-specific handler handle this
+        }
         
         // Only collapse if clicking on empty map area
-        if (!clickedFeatures?.length) {
-          spiderfyManager.current?.collapse();
-        }
+        spiderfyManager.current?.collapse();
       });
 
       map.current?.on('mouseenter', layerId, () => {
@@ -2244,6 +2313,31 @@ export default function MapComponent() {
       }
     }
   }, [selectedProperty, selectedListing, selectedRental, mapReady, addPlanningRadius]);
+
+  // Update planning radius when tab changes
+  useEffect(() => {
+    if (!map.current || !mapReady) return;
+
+    // If planning tab is active and we have a selected property, ensure radius is shown
+    if (activeTab === 'planning' && (selectedProperty || selectedListing || selectedRental)) {
+      const currentProperty = selectedProperty || selectedListing || selectedRental;
+      if (currentProperty?.latitude && currentProperty?.longitude) {
+        addPlanningRadius();
+      }
+    } else {
+      // Remove planning radius when conditions aren't met
+      removePlanningRadius();
+    }
+  }, [activeTab, selectedProperty, selectedListing, selectedRental, mapReady]);
+
+  // Cleanup planning radius when component unmounts (leaving map page)
+  useEffect(() => {
+    return () => {
+      if (map.current) {
+        removePlanningRadius();
+      }
+    };
+  }, []);
 
   // Add/remove searched location marker
   useEffect(() => {
@@ -3808,13 +3902,14 @@ export default function MapComponent() {
                 {/* Header spacing to avoid overlap with header buttons */}
                 <div className="h-2"></div>
 
+                {/* Property Address - Always visible */}
+                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                  {selectedProperty.address}
+                </h3>
+
                 {/* Tab Content */}
                 {activeTab === 'details' ? (
                   <>
-                    {/* Address */}
-                    <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
-                      {selectedProperty.address}
-                    </h3>
 
                     {/* Save Property Button - Inside Card */}
                     {user && user.tier === 'premium' && (
@@ -4109,23 +4204,6 @@ export default function MapComponent() {
           </div>
         )}
 
-        {/* Planning Card for Sold Properties */}
-        {selectedProperty && (
-          <div className={`absolute z-40 ${
-            isMobile
-              ? 'top-20 left-4' // Position below amenities indicator with proper spacing
-              : 'top-4 right-4 md:w-[400px]' // Original desktop position
-          }`}>
-            <PlanningCard
-              key={`planning-${selectedProperty.address}`}
-              latitude={selectedProperty.latitude || 0}
-              longitude={selectedProperty.longitude || 0}
-              address={selectedProperty.address}
-              dublinPostcode={selectedProperty.dublinPostcode || undefined}
-              propertyType="sold"
-            />
-          </div>
-        )}
 
         {/* Selected Listing Panel (For Sale) */}
         {selectedListing && (
@@ -4319,13 +4397,14 @@ export default function MapComponent() {
                 {/* Header spacing to avoid overlap with header buttons */}
                 <div className="h-2"></div>
 
+                {/* Property Address - Always visible */}
+                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                  {selectedListing.address}
+                </h3>
+
                 {/* Tab Content */}
                 {activeTab === 'details' ? (
                   <>
-                    {/* Address */}
-                    <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
-                      {selectedListing.address}
-                    </h3>
 
             {/* Property Insights */}
             {walkabilityScore && (
@@ -4763,13 +4842,14 @@ export default function MapComponent() {
                 {/* Header spacing to avoid overlap with header buttons */}
                 <div className="h-2"></div>
 
+                {/* Property Address - Always visible */}
+                <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
+                  {selectedRental.address}
+                </h3>
+
                 {/* Tab Content */}
                 {activeTab === 'details' ? (
                   <>
-                    {/* Address */}
-                    <h3 className="font-semibold text-white pr-32 mb-3 text-lg leading-tight">
-                      {selectedRental.address}
-                    </h3>
 
             {/* Property Insights */}
             {walkabilityScore && (
@@ -4988,41 +5068,7 @@ export default function MapComponent() {
           </div>
         )}
 
-        {/* Planning Card for Listings */}
-        {selectedListing && (
-          <div className={`absolute z-40 ${
-            isMobile
-              ? 'top-20 left-4' // Position below amenities indicator with proper spacing
-              : 'top-4 right-4 md:w-[400px]' // Original desktop position
-          }`}>
-            <PlanningCard
-              key={`planning-${selectedListing.address}`}
-              latitude={selectedListing.latitude || 0}
-              longitude={selectedListing.longitude || 0}
-              address={selectedListing.address}
-              dublinPostcode={selectedListing.dublinPostcode || undefined}
-              propertyType="forSale"
-            />
-          </div>
-        )}
 
-        {/* Planning Card for Rentals */}
-        {selectedRental && (
-          <div className={`absolute z-40 ${
-            isMobile
-              ? 'top-20 left-4' // Position below amenities indicator with proper spacing
-              : 'top-4 right-4 md:w-[400px]' // Original desktop position
-          }`}>
-            <PlanningCard
-              key={`planning-${selectedRental.address}`}
-              latitude={selectedRental.latitude || 0}
-              longitude={selectedRental.longitude || 0}
-              address={selectedRental.address}
-              dublinPostcode={selectedRental.dublinPostcode || undefined}
-              propertyType="rental"
-            />
-          </div>
-        )}
 
 
         {/* Stats overlay - hidden when property/listing/rental panel is open */}
