@@ -324,10 +324,10 @@ Note: Run the consolidate_property_data() function after importing data to popul
 */
 
 -- ============================================
--- Consolidated Data Table
+-- Consolidated Data Table (Add to existing database)
 -- ============================================
--- Create consolidated data table
-CREATE TABLE consolidated_properties (
+-- Create consolidated data table (only if it doesn't exist)
+CREATE TABLE IF NOT EXISTS consolidated_properties (
   id TEXT PRIMARY KEY,
   address TEXT NOT NULL,
   property_type TEXT NOT NULL,
@@ -379,7 +379,7 @@ CREATE INDEX idx_consolidated_properties_sold_date ON consolidated_properties(so
 CREATE INDEX idx_consolidated_properties_price ON consolidated_properties(sold_price);
 CREATE INDEX idx_consolidated_properties_yield ON consolidated_properties(yield_estimate);
 
--- Function to calculate yield estimates
+-- Function to calculate yield estimates (create or replace)
 CREATE OR REPLACE FUNCTION calculate_yield_estimate(
   property_price NUMERIC,
   property_beds INTEGER,
@@ -406,7 +406,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Function to consolidate data
+-- Function to consolidate data (create or replace)
 CREATE OR REPLACE FUNCTION consolidate_property_data() RETURNS VOID AS $$
 BEGIN
   -- Clear existing consolidated data
