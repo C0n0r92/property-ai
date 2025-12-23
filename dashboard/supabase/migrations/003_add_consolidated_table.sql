@@ -91,8 +91,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop existing function if it exists (to ensure clean recreation)
+DROP FUNCTION IF EXISTS consolidate_property_data();
+
 -- Function to consolidate data
-CREATE OR REPLACE FUNCTION consolidate_property_data() RETURNS VOID AS $$
+CREATE FUNCTION consolidate_property_data() RETURNS VOID AS $$
 BEGIN
   -- Clear existing consolidated data
   TRUNCATE consolidated_properties;
