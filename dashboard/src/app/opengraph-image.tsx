@@ -37,7 +37,7 @@ export default async function Image() {
           }}
         />
         
-        {/* House icon */}
+        {/* Logo */}
         <div
           style={{
             display: 'flex',
@@ -47,31 +47,54 @@ export default async function Image() {
           }}
         >
           <svg
-            width="120"
-            height="120"
-            viewBox="0 0 24 24"
+            width="200"
+            height="200"
+            viewBox="0 0 200 200"
             fill="none"
-            style={{ filter: 'drop-shadow(0 0 30px rgba(6, 182, 212, 0.5))' }}
+            style={{ filter: 'drop-shadow(0 0 30px rgba(59, 130, 246, 0.5))' }}
           >
-            {/* House shape */}
+            {/* House outline - roof and walls */}
             <path
-              d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9.55228 21 10 20.5523 10 20V16C10 15.4477 10.4477 15 11 15H13C13.5523 15 14 15.4477 14 16V20C14 20.5523 14.4477 21 15 21M9 21H15"
-              stroke="url(#gradient)"
-              strokeWidth="2"
+              d="M 20 90 L 100 20 L 180 90 L 180 180 L 20 180 Z"
+              fill="#3B73C5"
+              stroke="#FFFFFF"
+              strokeWidth="8"
+              strokeLinejoin="round"
+            />
+            
+            {/* Inner house shape */}
+            <path
+              d="M 40 100 L 100 50 L 160 100 L 160 165 L 40 165 Z"
+              fill="#4A85D9"
+              stroke="#FFFFFF"
+              strokeWidth="6"
+              strokeLinejoin="round"
+            />
+            
+            {/* Chart bars */}
+            <rect x="50" y="130" width="18" height="25" fill="#FFFFFF" rx="2" />
+            <rect x="75" y="115" width="18" height="40" fill="#FFFFFF" rx="2" />
+            <rect x="100" y="125" width="18" height="30" fill="#FFFFFF" rx="2" />
+            <rect x="125" y="105" width="18" height="50" fill="#FFFFFF" rx="2" />
+            
+            {/* Trend line with dots */}
+            <circle cx="59" cy="125" r="5" fill="#FFFFFF" />
+            <circle cx="84" cy="110" r="5" fill="#FFFFFF" />
+            <circle cx="109" cy="118" r="5" fill="#FFFFFF" />
+            <circle cx="134" cy="95" r="5" fill="#FFFFFF" />
+            
+            <path
+              d="M 59 125 L 84 110 L 109 118 L 134 95"
+              stroke="#FFFFFF"
+              strokeWidth="3"
+              fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <defs>
-              <linearGradient id="gradient" x1="3" y1="3" x2="21" y2="21">
-                <stop stopColor="#10b981" />
-                <stop offset="0.5" stopColor="#06b6d4" />
-                <stop offset="1" stopColor="#3b82f6" />
-              </linearGradient>
-            </defs>
           </svg>
         </div>
 
-        {/* Logo */}
+        {/* Title */}
         <div
           style={{
             display: 'flex',
@@ -80,23 +103,6 @@ export default async function Image() {
             marginBottom: 20,
           }}
         >
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 16,
-              background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #3b82f6 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: 32,
-              fontWeight: 700,
-              boxShadow: '0 0 40px rgba(6, 182, 212, 0.4)',
-            }}
-          >
-            G
-          </div>
           <div
             style={{
               fontSize: 56,

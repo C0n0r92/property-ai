@@ -20,6 +20,14 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Irish Property Data' }],
   creator: 'Irish Property Data',
+  icons: {
+    icon: [
+      { url: '/icon', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/apple-icon', type: 'image/png', sizes: '180x180' },
+    ],
+  },
   openGraph: {
     type: 'website',
     locale: 'en_IE',
@@ -27,11 +35,20 @@ export const metadata: Metadata = {
     siteName: 'Irish Property Data',
     title: 'Irish Property Data | Property Intelligence & Market Insights',
     description: 'Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Irish Property Data - Property Intelligence & Market Insights',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Irish Property Data | Property Intelligence & Market Insights',
     description: 'Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights.',
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
@@ -74,6 +91,8 @@ export default function RootLayout({
               "url": "https://irishpropertydata.com",
               "applicationCategory": "RealEstateApplication",
               "operatingSystem": "Web",
+              "logo": "https://irishpropertydata.com/opengraph-image",
+              "image": "https://irishpropertydata.com/opengraph-image",
               "offers": {
                 "@type": "Offer",
                 "price": "0",
@@ -89,7 +108,8 @@ export default function RootLayout({
               },
               "creator": {
                 "@type": "Organization",
-                "name": "Irish Property Data"
+                "name": "Irish Property Data",
+                "logo": "https://irishpropertydata.com/opengraph-image"
               }
             })
           }}
@@ -103,6 +123,8 @@ export default function RootLayout({
               "name": "Irish Property Data",
               "description": "Property market intelligence for Ireland",
               "url": "https://irishpropertydata.com",
+              "logo": "https://irishpropertydata.com/opengraph-image",
+              "image": "https://irishpropertydata.com/opengraph-image",
               "address": {
                 "@type": "PostalAddress",
                 "addressCountry": "IE",
