@@ -12,7 +12,7 @@ export default function GoogleAnalytics() {
     window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1';
 
-  // Debug functions for troubleshooting
+  // Debug functions for troubleshooting (available regardless of GA loading)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).debugGA = () => {
@@ -20,7 +20,9 @@ export default function GoogleAnalytics() {
           gtag: !!(window as any).gtag,
           dataLayer: !!(window as any).dataLayer,
           consent: localStorage.getItem('cookie-consent'),
-          measurementId: measurementId ? 'configured' : 'missing'
+          measurementId: measurementId ? 'configured' : 'missing',
+          hostname: window.location.hostname,
+          isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
         });
         return 'GA debug info logged to console';
       };
@@ -38,10 +40,9 @@ export default function GoogleAnalytics() {
         }
       };
     }
-  }, []);
+  }, [measurementId]);
 
   if (!isProduction) {
-    console.log('[GA Debug] Not loading GA - not in production');
     return null;
   }
 
