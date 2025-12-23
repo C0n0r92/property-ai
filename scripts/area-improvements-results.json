@@ -1,0 +1,225 @@
+{
+  "generated": "2025-12-23T22:46:50.984Z",
+  "topAreas": [
+    {
+      "name": "Foxrock Dublin 18",
+      "change6m": 121.4,
+      "recentMedian": 2125000,
+      "olderMedian": 960000,
+      "recentCount": 9,
+      "olderCount": 15,
+      "totalCount": 78,
+      "medianPrice": 1160000,
+      "avgPricePerSqm": 6525
+    },
+    {
+      "name": "Sandycove",
+      "change6m": 106.5,
+      "recentMedian": 1205000,
+      "olderMedian": 583400,
+      "recentCount": 8,
+      "olderCount": 5,
+      "totalCount": 53,
+      "medianPrice": 785000,
+      "avgPricePerSqm": 8131
+    },
+    {
+      "name": "Dalkey",
+      "change6m": 45.7,
+      "recentMedian": 1275000,
+      "olderMedian": 875000,
+      "recentCount": 36,
+      "olderCount": 31,
+      "totalCount": 267,
+      "medianPrice": 995000,
+      "avgPricePerSqm": 8228
+    },
+    {
+      "name": "Tallaght",
+      "change6m": 40.7,
+      "recentMedian": 380000,
+      "olderMedian": 270000,
+      "recentCount": 10,
+      "olderCount": 9,
+      "totalCount": 64,
+      "medianPrice": 304000,
+      "avgPricePerSqm": 3871
+    },
+    {
+      "name": "Ballsbridge Dublin 4",
+      "change6m": 40.5,
+      "recentMedian": 772500,
+      "olderMedian": 550000,
+      "recentCount": 11,
+      "olderCount": 17,
+      "totalCount": 104,
+      "medianPrice": 568000,
+      "avgPricePerSqm": 7784
+    },
+    {
+      "name": "Rathgar Dublin 6",
+      "change6m": 33.5,
+      "recentMedian": 490000,
+      "olderMedian": 367000,
+      "recentCount": 8,
+      "olderCount": 8,
+      "totalCount": 51,
+      "medianPrice": 414000,
+      "avgPricePerSqm": 7464
+    },
+    {
+      "name": "Cabinteely Dublin 18",
+      "change6m": 30.2,
+      "recentMedian": 553947,
+      "olderMedian": 425500,
+      "recentCount": 14,
+      "olderCount": 21,
+      "totalCount": 139,
+      "medianPrice": 436000,
+      "avgPricePerSqm": 5394
+    },
+    {
+      "name": "Clondalkin Dublin 22",
+      "change6m": 25,
+      "recentMedian": 400000,
+      "olderMedian": 320000,
+      "recentCount": 29,
+      "olderCount": 15,
+      "totalCount": 166,
+      "medianPrice": 289000,
+      "avgPricePerSqm": 4289
+    },
+    {
+      "name": "Coolock Dublin 5",
+      "change6m": 25,
+      "recentMedian": 485000,
+      "olderMedian": 388000,
+      "recentCount": 6,
+      "olderCount": 5,
+      "totalCount": 34,
+      "medianPrice": 385000,
+      "avgPricePerSqm": 4199
+    },
+    {
+      "name": "Firhouse Dublin 24",
+      "change6m": 21.7,
+      "recentMedian": 550000,
+      "olderMedian": 452000,
+      "recentCount": 8,
+      "olderCount": 11,
+      "totalCount": 51,
+      "medianPrice": 451000,
+      "avgPricePerSqm": 4793
+    },
+    {
+      "name": "Inchicore Dublin 8",
+      "change6m": 21.3,
+      "recentMedian": 396500,
+      "olderMedian": 327000,
+      "recentCount": 9,
+      "olderCount": 9,
+      "totalCount": 53,
+      "medianPrice": 318000,
+      "avgPricePerSqm": 5162
+    },
+    {
+      "name": "Stillorgan",
+      "change6m": 19.4,
+      "recentMedian": 800000,
+      "olderMedian": 670000,
+      "recentCount": 60,
+      "olderCount": 43,
+      "totalCount": 386,
+      "medianPrice": 685000,
+      "avgPricePerSqm": 6339
+    },
+    {
+      "name": "Adamstown",
+      "change6m": 17.7,
+      "recentMedian": 465000,
+      "olderMedian": 395000,
+      "recentCount": 7,
+      "olderCount": 11,
+      "totalCount": 46,
+      "medianPrice": 375000,
+      "avgPricePerSqm": 4005
+    },
+    {
+      "name": "Tallaght Dublin 24",
+      "change6m": 17.3,
+      "recentMedian": 394000,
+      "olderMedian": 336000,
+      "recentCount": 69,
+      "olderCount": 60,
+      "totalCount": 503,
+      "medianPrice": 330000,
+      "avgPricePerSqm": 3986
+    },
+    {
+      "name": "Ashtown Dublin 15",
+      "change6m": 16,
+      "recentMedian": 420000,
+      "olderMedian": 362000,
+      "recentCount": 14,
+      "olderCount": 8,
+      "totalCount": 87,
+      "medianPrice": 351000,
+      "avgPricePerSqm": 4928
+    },
+    {
+      "name": "Bray",
+      "change6m": 15.7,
+      "recentMedian": 552000,
+      "olderMedian": 477000,
+      "recentCount": 6,
+      "olderCount": 8,
+      "totalCount": 57,
+      "medianPrice": 471000,
+      "avgPricePerSqm": 5108
+    },
+    {
+      "name": "Dublin 3",
+      "change6m": 14.5,
+      "recentMedian": 630000,
+      "olderMedian": 550000,
+      "recentCount": 186,
+      "olderCount": 161,
+      "totalCount": 1338,
+      "medianPrice": 530000,
+      "avgPricePerSqm": 6184
+    },
+    {
+      "name": "Fairview Dublin 3",
+      "change6m": 14.5,
+      "recentMedian": 435000,
+      "olderMedian": 380000,
+      "recentCount": 12,
+      "olderCount": 6,
+      "totalCount": 48,
+      "medianPrice": 350000,
+      "avgPricePerSqm": 5335
+    },
+    {
+      "name": "Dublin 6w",
+      "change6m": 14.1,
+      "recentMedian": 810000,
+      "olderMedian": 710000,
+      "recentCount": 107,
+      "olderCount": 89,
+      "totalCount": 708,
+      "medianPrice": 697000,
+      "avgPricePerSqm": 6380
+    },
+    {
+      "name": "Donnybrook Dublin 4",
+      "change6m": 13.5,
+      "recentMedian": 630000,
+      "olderMedian": 555000,
+      "recentCount": 10,
+      "olderCount": 8,
+      "totalCount": 75,
+      "medianPrice": 565000,
+      "avgPricePerSqm": 7718
+    }
+  ]
+}

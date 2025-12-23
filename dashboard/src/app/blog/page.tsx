@@ -260,6 +260,18 @@ const researchArticles = [
     author: 'Market Research Team',
     views: 0,
   },
+  {
+    id: 'biggest-price-improvements-6-months',
+    title: 'Dublin Areas Showing Biggest Price Improvement: 6-Month Analysis',
+    excerpt: 'Comprehensive analysis reveals Foxrock Dublin 18 leading with 121.4% price increase, followed by Sandycove at 106.5% and Dalkey at 45.7% - based on 43,830 property transactions.',
+    category: 'Market Trends',
+    date: '2025-01-23',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Price Growth', 'Market Trends', 'Area Analysis', '6-Month Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
 ];
 
 const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting'];

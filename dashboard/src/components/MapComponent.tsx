@@ -11,6 +11,7 @@ import { analytics } from '@/lib/analytics';
 import { fetchAmenities, calculateWalkabilityScore, getCategoryIcon, formatCategory, getCategoryDisplayName, calculateDistance } from '@/lib/amenities';
 import { PropertySnapshot } from '@/components/PropertySnapshot';
 import { PlanningCard } from '@/components/PlanningCard';
+import { PropertyReportButton } from '@/components/PropertyReportButton';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { usePropertyShare } from '@/hooks/usePropertyShare';
@@ -3804,6 +3805,15 @@ export default function MapComponent() {
                   {isSaved(selectedProperty.address, 'sold') ? 'Saved' : 'Save'}
                 </button>
               )}
+              {user && (
+                <PropertyReportButton
+                  propertyId={selectedProperty.address}
+                  propertyType="sold"
+                  address={selectedProperty.address}
+                  latitude={selectedProperty.latitude}
+                  longitude={selectedProperty.longitude}
+                />
+              )}
               <button
                 onClick={() => setIsMobileAmenitiesMode(true)}
                 className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
@@ -4241,37 +4251,46 @@ export default function MapComponent() {
                 )}
               </button>
               {user && (
-                <button
-                  onClick={async () => {
-                    const propertyId = selectedListing.address; // Use address as unique ID
-                    const alreadySaved = isSaved(propertyId, 'listing');
+                <>
+                  <button
+                    onClick={async () => {
+                      const propertyId = selectedListing.address; // Use address as unique ID
+                      const alreadySaved = isSaved(propertyId, 'listing');
 
-                    if (alreadySaved) {
-                      const result = await unsaveProperty(propertyId, 'listing');
-                      if (result.success) {
-                        analytics.propertyUnsaved('forSale');
+                      if (alreadySaved) {
+                        const result = await unsaveProperty(propertyId, 'listing');
+                        if (result.success) {
+                          analytics.propertyUnsaved('forSale');
+                        }
+                      } else {
+                        const result = await saveProperty(
+                          propertyId,
+                          'listing',
+                          selectedListing,
+                          undefined
+                        );
+                        if (result.success) {
+                          analytics.propertySaved('forSale');
+                        }
                       }
-                    } else {
-                      const result = await saveProperty(
-                        propertyId,
-                        'listing',
-                        selectedListing,
-                        undefined
-                      );
-                      if (result.success) {
-                        analytics.propertySaved('forSale');
-                      }
-                    }
-                  }}
-                  className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
-                    isSaved(selectedListing.address, 'listing')
-                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
-                      : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
-                  }`}
-                  title={isSaved(selectedListing.address, 'listing') ? 'Remove from saved properties' : 'Save this property'}
-                >
-                  {isSaved(selectedListing.address, 'listing') ? 'Saved' : 'Save'}
-                </button>
+                    }}
+                    className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
+                      isSaved(selectedListing.address, 'listing')
+                        ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
+                        : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
+                    }`}
+                    title={isSaved(selectedListing.address, 'listing') ? 'Remove from saved properties' : 'Save this property'}
+                  >
+                    {isSaved(selectedListing.address, 'listing') ? 'Saved' : 'Save'}
+                  </button>
+                  <PropertyReportButton
+                    propertyId={selectedListing.address}
+                    propertyType="listing"
+                    address={selectedListing.address}
+                    latitude={selectedListing.latitude}
+                    longitude={selectedListing.longitude}
+                  />
+                </>
               )}
               <button
                 onClick={(e) => {
@@ -4686,37 +4705,46 @@ export default function MapComponent() {
                 )}
               </button>
               {user && (
-                <button
-                  onClick={async () => {
-                    const propertyId = selectedRental.address; // Use address as unique ID
-                    const alreadySaved = isSaved(propertyId, 'rental');
+                <>
+                  <button
+                    onClick={async () => {
+                      const propertyId = selectedRental.address; // Use address as unique ID
+                      const alreadySaved = isSaved(propertyId, 'rental');
 
-                    if (alreadySaved) {
-                      const result = await unsaveProperty(propertyId, 'rental');
-                      if (result.success) {
-                        analytics.propertyUnsaved('rental');
+                      if (alreadySaved) {
+                        const result = await unsaveProperty(propertyId, 'rental');
+                        if (result.success) {
+                          analytics.propertyUnsaved('rental');
+                        }
+                      } else {
+                        const result = await saveProperty(
+                          propertyId,
+                          'rental',
+                          selectedRental,
+                          undefined
+                        );
+                        if (result.success) {
+                          analytics.propertySaved('rental');
+                        }
                       }
-                    } else {
-                      const result = await saveProperty(
-                        propertyId,
-                        'rental',
-                        selectedRental,
-                        undefined
-                      );
-                      if (result.success) {
-                        analytics.propertySaved('rental');
-                      }
-                    }
-                  }}
-                  className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
-                    isSaved(selectedRental.address, 'rental')
-                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
-                      : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
-                  }`}
-                  title={isSaved(selectedRental.address, 'rental') ? 'Remove from saved properties' : 'Save this property'}
-                >
-                  {isSaved(selectedRental.address, 'rental') ? 'Saved' : 'Save'}
-                </button>
+                    }}
+                    className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 border ${
+                      isSaved(selectedRental.address, 'rental')
+                        ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
+                        : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
+                    }`}
+                    title={isSaved(selectedRental.address, 'rental') ? 'Remove from saved properties' : 'Save this property'}
+                  >
+                    {isSaved(selectedRental.address, 'rental') ? 'Saved' : 'Save'}
+                  </button>
+                  <PropertyReportButton
+                    propertyId={selectedRental.address}
+                    propertyType="rental"
+                    address={selectedRental.address}
+                    latitude={selectedRental.latitude}
+                    longitude={selectedRental.longitude}
+                  />
+                </>
               )}
               <button
                 onClick={(e) => {
