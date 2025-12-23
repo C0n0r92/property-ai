@@ -27,11 +27,23 @@ log_error() {
 
 # Check if running as root
 if [[ $EUID -eq 0 ]]; then
-   log_error "This script should NOT be run as root. Use a regular user with sudo access."
-   exit 1
+   log_warn "Running as root. Will create a 'scraper' user for the application."
+   CREATE_USER=true
+else
+   CREATE_USER=false
 fi
 
 log_info "Starting setup on $(hostname)..."
+
+# Create scraper user if running as root
+if [[ $CREATE_USER == true ]]; then
+   log_info "Creating scraper user..."
+   useradd -m -s /bin/bash scraper
+   usermod -aG sudo scraper
+   echo "scraper ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/scraper
+   log_info "Scraper user created. Switching to scraper user..."
+   # Continue as root for system setup, but remember to switch later
+fi
 
 # Update system
 log_info "Updating system packages..."
@@ -58,26 +70,68 @@ npx playwright install-deps
 log_info "Installing Playwright browsers..."
 npx playwright install chromium
 
-# Create application directory
+# Create application directory and setup as scraper user
 log_info "Setting up application directory..."
 sudo mkdir -p /opt/property-scraper
-sudo chown $USER:$USER /opt/property-scraper
+
+if [[ $CREATE_USER == true ]]; then
+   sudo chown scraper:scraper /opt/property-scraper
+
+   # Run application setup as scraper user
+   sudo -u scraper bash << 'EOF'
 cd /opt/property-scraper
 
 # Clone repository
-log_info "Cloning repository..."
+echo "📥 Cloning repository..."
 git clone https://github.com/C0n0r92/property-ai.git .
 cd scraper  # The scraper code is in the scraper/ subdirectory
 
-log_info "Installing Node.js dependencies..."
+# Install Node.js dependencies
+echo "📦 Installing Node.js dependencies..."
 npm install
 
 # Create logs directory
 mkdir -p logs
+EOF
+else
+   sudo chown $USER:$USER /opt/property-scraper
+   cd /opt/property-scraper
+
+   # Clone repository
+   log_info "Cloning repository..."
+   git clone https://github.com/C0n0r92/property-ai.git .
+   cd scraper  # The scraper code is in the scraper/ subdirectory
+
+   log_info "Installing Node.js dependencies..."
+   npm install
+
+   # Create logs directory
+   mkdir -p logs
+fi
+
+# This section is now handled above in the user-specific blocks
 
 # Create environment file template
 log_info "Creating environment configuration..."
-cat > .env << 'EOF'
+
+if [[ $CREATE_USER == true ]]; then
+   sudo -u scraper bash << 'EOF'
+cd /opt/property-scraper/scraper
+
+cat > .env << 'INNER_EOF'
+# Supabase Configuration
+SUPABASE_URL=https://yyaidpayutmomsnuuomy.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YWlkcGF5dXRtb21zbnV1b215Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjM0MDg3OCwiZXhwIjoyMDgxOTE2ODc4fQ.p-lgMN-okEjaeWXtsoL77DW_0X0QpTJfrRaigkt7JcE
+
+# LocationIQ Geocoding API
+LOCATIONIQ_API_KEY=pk.2883df0e4c2397bba8b445ddfba34568
+
+# Optional: Custom Nominatim URL (leave empty to use LocationIQ)
+NOMINATIM_URL=
+INNER_EOF
+EOF
+else
+   cat > .env << 'EOF'
 # Supabase Configuration
 SUPABASE_URL=https://yyaidpayutmomsnuuomy.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5YWlkcGF5dXRtb21zbnV1b215Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjM0MDg3OCwiZXhwIjoyMDgxOTE2ODc4fQ.p-lgMN-okEjaeWXtsoL77DW_0X0QpTJfrRaigkt7JcE
@@ -88,20 +142,29 @@ LOCATIONIQ_API_KEY=pk.2883df0e4c2397bba8b445ddfba34568
 # Optional: Custom Nominatim URL (leave empty to use LocationIQ)
 NOMINATIM_URL=
 EOF
+fi
 
-log_warn "IMPORTANT: Edit /opt/property-scraper/.env with your actual Supabase credentials!"
+log_info "Environment configured with your credentials!"
 
 # Test the setup
 log_info "Testing scraper setup..."
-timeout 30 npm run test:headless || log_warn "Headless test timed out (expected on first run)"
+if [[ $CREATE_USER == true ]]; then
+   sudo -u scraper bash -c "cd /opt/property-scraper/scraper && timeout 30 npm run test:headless" || log_warn "Headless test timed out (expected on first run)"
+else
+   timeout 30 npm run test:headless || log_warn "Headless test timed out (expected on first run)"
+fi
 
 # Create daily cron job
 log_info "Setting up daily cron job..."
-CRON_JOB="0 2 * * * cd /opt/property-scraper/scraper && ./run-daily-scrape.sh >> logs/scrape-\$(date +\\%Y-\\%m-\\%d).log 2>&1"
+if [[ $CREATE_USER == true ]]; then
+   CRON_JOB="0 2 * * * sudo -u scraper bash -c 'cd /opt/property-scraper/scraper && ./run-daily-scrape.sh >> logs/scrape-\$(date +\\%Y-\\%m-\\%d).log 2>&1'"
+else
+   CRON_JOB="0 2 * * * cd /opt/property-scraper/scraper && ./run-daily-scrape.sh >> logs/scrape-\$(date +\\%Y-\\%m-\\%d).log 2>&1"
+fi
 
 # Add to crontab if not already there
-if ! crontab -l | grep -q "run-daily-scrape.sh"; then
-    (crontab -l ; echo "$CRON_JOB") | crontab -
+if ! crontab -l 2>/dev/null | grep -q "run-daily-scrape.sh"; then
+    (crontab -l 2>/dev/null ; echo "$CRON_JOB") | crontab -
     log_info "Added daily cron job (runs at 2 AM UTC)"
 else
     log_info "Cron job already exists"
@@ -208,18 +271,23 @@ chmod +x run-daily-scrape.sh
 echo ""
 echo "🎉 Droplet setup complete!"
 echo ""
-echo "📝 NEXT STEPS:"
-echo "1. Test the setup: cd /opt/property-scraper/scraper && ./run-daily-scrape.sh"
-echo "2. Monitor logs: tail -f logs/scrape-$(date +%Y-%m-%d).log"
+echo "🎉 SETUP COMPLETE!"
 echo ""
-echo "📊 CRON JOB SCHEDULE:"
-echo "   Runs daily at 2 AM UTC (adjust timezone as needed)"
-echo "   View with: crontab -l"
-echo "   Edit with: crontab -e"
+echo "📊 WHAT HAPPENS NOW:"
+echo "   • Daily cron job runs at 2 AM UTC"
+echo "   • Scrapes sold properties, listings, and rentals"
+echo "   • Saves data to Supabase automatically"
+echo "   • Your dashboard updates with fresh data daily"
 echo ""
-echo "🔍 LOG FILES:"
-echo "   /opt/property-scraper/scraper/logs/scrape-YYYY-MM-DD.log"
-echo "   Auto-rotated daily, kept for 30 days"
+echo "🔍 MONITORING:"
+echo "   View logs: tail -f /opt/property-scraper/scraper/logs/scrape-\$(date +%Y-%m-%d).log"
+echo "   Check cron: crontab -l"
+echo "   Test run:  cd /opt/property-scraper/scraper && ./run-daily-scrape.sh"
 echo ""
-echo "✅ SETUP COMPLETE - Your scraper will run automatically every day!"
-echo "✅ Environment already configured with your credentials!"
+echo "📁 FILE LOCATIONS:"
+echo "   Application: /opt/property-scraper/scraper/"
+echo "   Logs:        /opt/property-scraper/scraper/logs/"
+echo "   Config:      /opt/property-scraper/scraper/.env"
+echo ""
+echo "✅ Your automated property scraping system is now running!"
+echo "✅ Data flows: Scrapers → Supabase → Dashboard (real-time)"
