@@ -330,6 +330,164 @@ function median(numbers: number[]): number {
   return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
+// ============== Area Extraction (Improved) ==============
+
+/**
+ * Extract primary area from address using improved logic
+ * Matches Dublin districts and named areas
+ */
+function extractArea(address: string): string {
+  const parts = address.split(',').map(p => p.trim());
+  
+  // Look for Dublin district first (Dublin 1, Dublin 2, etc.)
+  for (const part of parts) {
+    if (/Dublin\s*\d+/i.test(part)) {
+      const district = part.replace(/,?\s*Dublin$/i, '').trim();
+      // Normalize Dublin 6w
+      if (/Dublin\s*6w/i.test(district)) {
+        return 'Dublin 6w';
+      }
+      return district;
+    }
+  }
+  
+  // Common Dublin areas to check (subset of DUBLIN_AREAS from dashboard)
+  const commonAreas = [
+    'Swords', 'Tallaght', 'Blackrock', 'Lucan', 'Dun Laoghaire', 'Dunlaoghaire', 'Malahide', 
+    'Balbriggan', 'Blanchardstown', 'Clondalkin', 'Skerries', 'Howth',
+    'Stillorgan', 'Booterstown', 'Sandycove', 'Monkstown', 'Dalkey',
+    'Killiney', 'Rathfarnham', 'Dundrum', 'Rathmines', 'Ranelagh',
+    'Donnybrook', 'Ballsbridge', 'Sandymount', 'Clontarf', 'Drumcondra',
+    'Glasnevin', 'Finglas', 'Cabra', 'Phibsborough', 'Smithfield',
+    'Inchicore', 'Crumlin', 'Terenure', 'Rathgar', 'Milltown',
+    'Churchtown', 'Goatstown', 'Clonskeagh', 'Windy Arbour', 'Ballinteer',
+    'Knocklyon', 'Templeogue', 'Firhouse', 'Ballycullen', 'Citywest',
+    'Saggart', 'Palmerstown', 'Chapelizod', 'Castleknock', 'Clonsilla',
+    'Mulhuddart', 'Ongar', 'Tyrrelstown', 'Clonee', 'Ashtown',
+    'Carpenterstown', 'Coolmine', 'Porterstown', 'Rathborne', 'Waterville',
+    'Lusk', 'Rush', 'Donabate', 'Portmarnock', 'Sutton', 'Baldoyle',
+    'Raheny', 'Killester', 'Artane', 'Coolock', 'Donaghmede',
+    'Ballymun', 'Santry', 'Beaumont', 'Whitehall', 'Northwood',
+    'Fairview', 'East Wall', 'Ringsend', 'Irishtown', 'Harolds Cross',
+    'Drimnagh', 'Walkinstown', 'Perrystown', 'Kimmage',
+    'Ballyfermot', 'Cherry Orchard', 'Mount Merrion'
+  ];
+  
+  // Check for named areas (case-insensitive, whole word match)
+  const normalizedAddress = address.toLowerCase();
+  for (const area of commonAreas) {
+    const pattern = new RegExp(`\\b${area.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    if (pattern.test(normalizedAddress)) {
+      // Check if it's followed by a Dublin district
+      const areaIndex = normalizedAddress.indexOf(area.toLowerCase());
+      const afterArea = normalizedAddress.substring(areaIndex + area.length);
+      const districtMatch = afterArea.match(/dublin\s*(\d+)/i);
+      if (districtMatch) {
+        return `Dublin ${districtMatch[1]}`;
+      }
+      return area;
+    }
+  }
+  
+  // Fallback to second-to-last part (but filter out generic terms)
+  if (parts.length >= 2) {
+    const candidate = parts[parts.length - 2].replace(/Dublin\s*\d*/i, '').trim();
+    // Skip generic terms
+    const genericTerms = ['co', 'co.', 'county', 'dublin', ''];
+    if (candidate && !genericTerms.includes(candidate.toLowerCase())) {
+      return candidate;
+    }
+  }
+  
+  // Try third-to-last part if second-to-last was generic
+  if (parts.length >= 3) {
+    const candidate = parts[parts.length - 3].replace(/Dublin\s*\d*/i, '').trim();
+    const genericTerms = ['co', 'co.', 'county', 'dublin', ''];
+    if (candidate && !genericTerms.includes(candidate.toLowerCase())) {
+      return candidate;
+    }
+  }
+  
+  return 'Dublin';
+}
+
+interface PropertyAreaStats {
+  name: string;
+  count: number;
+  medianPrice: number;
+  avgPricePerSqm: number;
+  pctOverAsking: number;
+  change6m: number;
+}
+
+/**
+ * Generate area statistics for sold properties
+ */
+function generateAreaStats(properties: Property[]): PropertyAreaStats[] {
+  const areaMap = new Map<string, Property[]>();
+  
+  // Group by area
+  properties.forEach(p => {
+    const area = extractArea(p.address);
+    if (!areaMap.has(area)) {
+      areaMap.set(area, []);
+    }
+    areaMap.get(area)!.push(p);
+  });
+  
+  // Calculate stats per area
+  const stats: PropertyAreaStats[] = [];
+  
+  areaMap.forEach((props, name) => {
+    if (props.length < 5) return; // Skip areas with few properties
+    
+    const prices = props.map(p => p.soldPrice).sort((a, b) => a - b);
+    const medianPrice = prices[Math.floor(prices.length / 2)];
+    
+    // Calculate price per sqm
+    const withSqm = props.filter(p => p.areaSqm && p.areaSqm > 0);
+    const avgPricePerSqm = withSqm.length > 0
+      ? Math.round(withSqm.reduce((sum, p) => sum + (p.soldPrice / (p.areaSqm || 1)), 0) / withSqm.length)
+      : 0;
+    
+    // Calculate over asking percentage
+    const overAsking = props.filter(p => {
+      const overUnder = p.askingPrice > 0 
+        ? ((p.soldPrice - p.askingPrice) / p.askingPrice) * 100 
+        : 0;
+      return overUnder > 0;
+    });
+    const pctOverAsking = Math.round((overAsking.length / props.length) * 100);
+    
+    // Calculate 6-month change
+    const now = new Date();
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+    const recent = props.filter(p => new Date(p.soldDate) >= sixMonthsAgo);
+    const older = props.filter(p => {
+      const d = new Date(p.soldDate);
+      return d < sixMonthsAgo && d >= new Date(sixMonthsAgo.getFullYear(), sixMonthsAgo.getMonth() - 6, 1);
+    });
+    
+    let change6m = 0;
+    if (recent.length > 3 && older.length > 3) {
+      const recentMedian = recent.map(p => p.soldPrice).sort((a, b) => a - b)[Math.floor(recent.length / 2)];
+      const olderMedian = older.map(p => p.soldPrice).sort((a, b) => a - b)[Math.floor(older.length / 2)];
+      change6m = Math.round(((recentMedian - olderMedian) / olderMedian) * 1000) / 10;
+    }
+    
+    stats.push({
+      name,
+      count: props.length,
+      medianPrice,
+      avgPricePerSqm,
+      pctOverAsking,
+      change6m,
+    });
+  });
+  
+  return stats.sort((a, b) => b.count - a.count);
+}
+
 // ============== Yield Estimation ==============
 
 function buildAreaStats(rentals: Rental[]): Map<string, AreaStats> {
@@ -487,6 +645,37 @@ async function consolidate() {
   // Sort properties by sold date (newest first)
   properties.sort((a, b) => b.soldDate.localeCompare(a.soldDate));
   
+  // Generate area statistics
+  console.log('\n🗺️  Generating area statistics...');
+  const propertyAreaStats = generateAreaStats(properties);
+  console.log(`  ${propertyAreaStats.length} areas with 5+ properties`);
+  
+  // Show top areas and mapping quality
+  const topAreas = propertyAreaStats.slice(0, 20);
+  console.log('\n  Top 20 areas by sales count:');
+  topAreas.forEach((area, i) => {
+    console.log(`    ${(i + 1).toString().padStart(2)}. ${area.name.padEnd(25)} ${area.count.toString().padStart(5)} sales`);
+  });
+  
+  // Check mapping quality
+  const genericDublin = propertyAreaStats.find(a => a.name === 'Dublin');
+  const coArea = propertyAreaStats.find(a => a.name === 'Co' || a.name === 'Co.');
+  const totalMapped = propertyAreaStats.reduce((sum, a) => sum + a.count, 0);
+  const unmapped = properties.length - totalMapped;
+  
+  console.log('\n  Area mapping quality:');
+  console.log(`    Total properties: ${properties.length.toLocaleString()}`);
+  console.log(`    Mapped to areas: ${totalMapped.toLocaleString()} (${Math.round(totalMapped / properties.length * 100)}%)`);
+  if (genericDublin) {
+    console.log(`    ⚠️  Generic "Dublin": ${genericDublin.count.toLocaleString()} (${Math.round(genericDublin.count / properties.length * 100)}%)`);
+  }
+  if (coArea) {
+    console.log(`    ⚠️  "Co" area: ${coArea.count.toLocaleString()} (needs fixing)`);
+  }
+  if (unmapped > 0) {
+    console.log(`    ⚠️  Unmapped (< 5 properties): ${unmapped.toLocaleString()}`);
+  }
+  
   // Build output
   const output = {
     properties,
@@ -522,6 +711,14 @@ async function consolidate() {
           }
         ])
       ),
+      propertyAreaStats: propertyAreaStats.map(area => ({
+        name: area.name,
+        count: area.count,
+        medianPrice: area.medianPrice,
+        avgPricePerSqm: area.avgPricePerSqm,
+        pctOverAsking: area.pctOverAsking,
+        change6m: area.change6m,
+      })),
     },
   };
   

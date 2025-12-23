@@ -2,6 +2,7 @@ import { Property, MarketStats, AreaStats, Listing, ListingStats, RentalListing,
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { createClient } from '@/lib/supabase/server';
+import { extractPrimaryArea } from '@/lib/areas';
 
 // ============== Unified Data Cache ==============
 
@@ -553,21 +554,9 @@ export function getMarketStats(properties: Property[]): MarketStats {
  * Extract area from address (simplified)
  */
 export function extractArea(address: string): string {
-  const parts = address.split(',').map(p => p.trim());
-  
-  // Look for Dublin district
-  for (const part of parts) {
-    if (/Dublin\s*\d+/i.test(part)) {
-      return part.replace(/,?\s*Dublin$/i, '').trim();
-    }
-  }
-  
-  // Use second-to-last part as area
-  if (parts.length >= 2) {
-    return parts[parts.length - 2].replace(/Dublin\s*\d*/i, '').trim() || 'Dublin';
-  }
-  
-  return 'Dublin';
+  // Use the improved extractPrimaryArea function from areas.ts
+  // which properly handles Dublin districts and named areas
+  return extractPrimaryArea(address);
 }
 
 /**

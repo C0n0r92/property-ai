@@ -409,9 +409,23 @@ export function extractPrimaryArea(address: string): string {
     }
   }
   
-  // Fallback to second-to-last part
+  // Fallback to second-to-last part (but filter out generic terms)
   if (parts.length >= 2) {
-    return parts[parts.length - 2].replace(/Dublin\s*\d*/i, '').trim() || 'Dublin';
+    const candidate = parts[parts.length - 2].replace(/Dublin\s*\d*/i, '').trim();
+    // Skip generic terms that aren't actual area names
+    const genericTerms = ['co', 'co.', 'county', 'dublin', ''];
+    if (candidate && !genericTerms.includes(candidate.toLowerCase())) {
+      return candidate;
+    }
+  }
+  
+  // If we still haven't found an area, try the third-to-last part
+  if (parts.length >= 3) {
+    const candidate = parts[parts.length - 3].replace(/Dublin\s*\d*/i, '').trim();
+    const genericTerms = ['co', 'co.', 'county', 'dublin', ''];
+    if (candidate && !genericTerms.includes(candidate.toLowerCase())) {
+      return candidate;
+    }
   }
   
   return 'Dublin';
