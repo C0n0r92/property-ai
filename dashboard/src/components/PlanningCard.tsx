@@ -37,7 +37,10 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
   }, [forceLoad, data, error, attemptedLoad, propertyType]);
 
   const fetchPlanningData = async (expandedSearch = false) => {
-    setLoading(true);
+    // Only set loading to true for the initial call
+    if (!expandedSearch) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
@@ -65,7 +68,7 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
         return; // Don't continue with tracking for the initial search
       }
 
-      // Track data loading
+      // Track data loading (only for expanded search)
       const totalCount = result.totalCount;
       let confidenceLevel: 'high' | 'medium' | 'low' | 'mixed' = 'low';
       if (result.highConfidence.length > 0) {
@@ -78,7 +81,10 @@ export function PlanningCard({ latitude, longitude, address, dublinPostcode, pro
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setLoading(false);
+      // Only set loading to false after the expanded search completes
+      if (expandedSearch) {
+        setLoading(false);
+      }
     }
   };
 

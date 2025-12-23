@@ -31,7 +31,9 @@ export async function createClient() {
         headers: {
           // Request more rows than default (default is 1000)
           // This helps with pagination but offset still has limits
-          'Prefer': 'count=exact'
+          'Prefer': 'count=exact,return=representation',
+          // Try to override the row limit using Range header
+          'Range': '0-9999'
         }
       }
     }
