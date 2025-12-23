@@ -26,9 +26,9 @@ export abstract class BaseDaftScraper<T> {
    * Initialize browser and page
    */
   protected async initializeBrowser(): Promise<void> {
-    // TEMPORARILY run non-headless for debugging (change back to headless: true for production)
+    // Run headless with args for server environments (Docker, Digital Ocean, etc.)
     this.browser = await chromium.launch({
-      headless: false, // TEMP: Set to false for debugging
+      headless: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -47,8 +47,32 @@ export abstract class BaseDaftScraper<T> {
     console.log(`Going to ${this.baseUrl}...`);
     await this.page.goto(this.baseUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
+    // Wait a bit for any initial popups to load
+    await this.page.waitForTimeout(3000);
+
     // Accept cookies and dismiss popups
     await acceptCookiesAndPopups(this.page);
+
+    // Additional wait for content to fully load
+    await this.page.waitForTimeout(2000);
+
+    // Check if we got blocked or there's a captcha
+    const bodyText = await this.page.locator('body').textContent();
+    if (bodyText && (
+      bodyText.includes('blocked') ||
+      bodyText.includes('captcha') ||
+      bodyText.includes('robot') ||
+      bodyText.includes('verification') ||
+      bodyText.includes('403') ||
+      bodyText.includes('Access Denied')
+    )) {
+      console.log('⚠️ Possible blocking detected. Page content may indicate anti-bot measures.');
+      console.log('Page content preview:', bodyText.substring(0, 200) + '...');
+    }
+
+    // Check if properties loaded
+    const propertyCount = await this.page.locator('[data-testid="card-container"]').count();
+    console.log(`Found ${propertyCount} property cards on initial page`);
   }
 
   /**
@@ -124,46 +148,58 @@ export abstract class BaseDaftScraper<T> {
   }
 
   /**
-   * Navigate to next page using pagination button
+   * Navigate to next page using direct URL navigation (instead of clicking buttons)
    */
   protected async navigateToNextPage(): Promise<boolean> {
     try {
-      console.log('Looking for next page button...');
-      const nextBtn = this.page.locator('[data-testid="next-page-link"]');
+      const nextPageNum = this.currentPage + 1;
+      console.log(`Navigating to page ${nextPageNum} via direct URL...`);
 
-      // Wait for button to be visible and enabled
-      await nextBtn.waitFor({ state: 'visible', timeout: 5000 });
-      console.log('Next page button found and visible');
+      // Get current URL and modify it for next page
+      const currentUrl = this.page.url();
+      let nextUrl: string;
 
-      // Scroll button into view
-      await nextBtn.scrollIntoViewIfNeeded();
+      if (currentUrl.includes('?')) {
+        // URL already has query parameters
+        const urlParts = currentUrl.split('?');
+        const baseUrl = urlParts[0];
+        const params = new URLSearchParams(urlParts[1]);
 
-      // Additional wait to ensure it's fully loaded
-      await this.page.waitForTimeout(1000);
+        // Update or add page parameter
+        params.set('page', nextPageNum.toString());
+        nextUrl = `${baseUrl}?${params.toString()}`;
+      } else {
+        // No query parameters yet
+        nextUrl = `${currentUrl}?page=${nextPageNum}`;
+      }
 
-      // Check if button is actually clickable
-      const isEnabled = await nextBtn.isEnabled();
-      if (!isEnabled) {
-        console.log('Next page button is disabled - reached end');
+      console.log(`Navigating to: ${nextUrl}`);
+
+      // Navigate directly to the next page URL
+      await this.page.goto(nextUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+      // Wait for content to load
+      await this.page.waitForTimeout(3000);
+
+      // Accept cookies and dismiss popups on new page
+      await acceptCookiesAndPopups(this.page);
+
+      // Check if we successfully navigated (should have properties or be on the correct page)
+      const currentUrlAfter = this.page.url();
+      const propertyCount = await this.page.locator('[data-testid="card-container"]').count();
+
+      if (currentUrlAfter.includes(`page=${nextPageNum}`) && propertyCount > 0) {
+        console.log(`✅ Successfully navigated to page ${nextPageNum} (${propertyCount} properties found)`);
+        return true;
+      } else if (propertyCount === 0) {
+        console.log(`⚠️ Navigated to page ${nextPageNum} but no properties found (possibly last page)`);
+        return false;
+      } else {
+        console.log(`⚠️ URL navigation may have failed - current URL: ${currentUrlAfter}`);
         return false;
       }
-
-      console.log('Clicking next page button...');
-      await nextBtn.click();
-
-      // Wait for navigation and new content to load
-      await this.page.waitForTimeout(5000);
-
-      // Check if URL changed (simpler than networkidle)
-      const currentUrl = this.page.url();
-      if (currentUrl.includes(`page=${this.currentPage + 1}`) || currentUrl.includes('?page=2')) {
-        console.log('URL changed successfully');
-      }
-
-      console.log(`✅ Navigated to page ${this.currentPage + 1}`);
-      return true;
     } catch (error) {
-      console.log(`⚠️ Navigation to page ${this.currentPage + 1} failed:`, error.message);
+      console.log(`⚠️ URL navigation to page ${this.currentPage + 1} failed:`, error.message);
       return false;
     }
   }
