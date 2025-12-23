@@ -1,10 +1,10 @@
 /**
  * Rental Listings Pipeline
- * 
+ *
  * Scrapes active rental listings from Daft.ie Dublin
  * Extracts: monthly rent, beds, baths, property type, BER, area
- * Geocodes using local Nominatim
- * 
+ * Geocodes using LocationIQ API or local Nominatim
+ *
  * Usage: npm run scrape:rentals
  *        npm run scrape:rentals -- --max 50
  */
@@ -94,15 +94,6 @@ const maxIndex = args.indexOf('--max');
 const MAX_LISTINGS = maxIndex !== -1 ? parseInt(args[maxIndex + 1]) : Infinity;
 
 // ============== Geocoding ==============
-
-async function checkNominatim(): Promise<boolean> {
-  try {
-    const response = await fetch(`${NOMINATIM_URL}/status`);
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
 
 function extractEircode(address: string): string | null {
   const match = address.match(/([AD]\d{2}\s?[A-Z0-9]{4})/i);
@@ -280,15 +271,8 @@ async function scrapeRentals(): Promise<void> {
     console.log(`Max listings: ${MAX_LISTINGS}`);
   }
 
-  // Check Nominatim
-  console.log('\nChecking Nominatim...');
-  const nominatimReady = await checkNominatim();
-  if (!nominatimReady) {
-    console.error('❌ Nominatim not available at', NOMINATIM_URL);
-    console.error('   Start it with: docker run -p 8080:8080 mediagis/nominatim:4.4');
-    process.exit(1);
-  }
-  console.log('✓ Nominatim is ready\n');
+  // Geocoding is now handled by LocationIQ API or local Nominatim
+  console.log('✓ Using LocationIQ geocoding (no Nominatim required)\n');
 
   // Use the new RentalScraper class
   const scraper = new RentalScraper(BASE_URL);

@@ -1,16 +1,16 @@
 /**
  * For Sale Listings Pipeline: Scrape + Geocode
- * 
+ *
  * Scrapes active "For Sale" listings from Daft.ie Dublin.
- * Uses Nominatim for geocoding with Dublin bounds validation.
- * Outputs to listings.json (snapshot mode - fresh each run).
- * 
+ * Uses LocationIQ or Nominatim for geocoding with Dublin bounds validation.
+ * Outputs to listings.json and Supabase (snapshot mode - fresh each run).
+ *
  * Prerequisites:
- * - Docker running with Nominatim: docker start nominatim
- * 
+ * - LocationIQ API key set in environment (or local Nominatim running)
+ *
  * Usage:
- * - npm run pipeline-open                  # Scrape all listings
- * - npm run pipeline-open -- --max 10      # Limit to 10 pages (testing)
+ * - npm run scrape:listings                # Scrape all listings
+ * - npm run scrape:listings -- --max 10    # Limit to 10 pages (testing)
  */
 
 import { chromium } from 'playwright';
@@ -347,16 +347,8 @@ async function runPipeline() {
   const maxPagesArg = args.find(a => a.startsWith('--max'));
   const maxPages = maxPagesArg ? parseInt(args[args.indexOf(maxPagesArg) + 1]) : CONFIG.maxPages;
 
-  // Check Nominatim
-  console.log('Checking Nominatim...');
-  try {
-    const testResponse = await fetch(`${CONFIG.nominatimUrl}?q=Dublin&format=json&limit=1`);
-    if (!testResponse.ok) throw new Error('Nominatim not responding');
-    console.log('✓ Nominatim is ready\n');
-  } catch {
-    console.error('✗ Nominatim not running. Start with: docker start nominatim');
-    process.exit(1);
-  }
+  // Geocoding is now handled by LocationIQ API or local Nominatim
+  console.log('✓ Using LocationIQ geocoding (no Nominatim required)\n');
 
   console.log('Creating scraper instance...');
 

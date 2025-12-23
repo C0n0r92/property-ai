@@ -1,12 +1,13 @@
 /**
  * Incremental Sold Properties Pipeline
- * 
+ *
  * Creates dated JSON files for each scrape run.
  * Stops when it catches up with existing data.
  * Never modifies previous files.
- * 
- * Output: data/sold/sold-YYYY-MM-DD.json
- * 
+ * Writes data to both JSON files and Supabase.
+ *
+ * Output: data/sold/sold-YYYY-MM-DD.json + Supabase
+ *
  * Usage:
  *   npm run scrape:sold              # Incremental (default)
  *   npm run scrape:sold:full         # Full re-scrape (creates new dated file)
@@ -400,16 +401,8 @@ async function runIncrementalPipeline() {
     }
   }
 
-  // Check Nominatim
-  console.log('Checking Nominatim...');
-  try {
-    const testResponse = await fetch(`${CONFIG.nominatimUrl}?q=Dublin&format=json&limit=1`);
-    if (!testResponse.ok) throw new Error('Nominatim not responding');
-    console.log('✓ Nominatim is ready\n');
-  } catch {
-    console.error('✗ Nominatim not running. Start with: docker start nominatim');
-    process.exit(1);
-  }
+  // Geocoding is now handled by LocationIQ API or local Nominatim
+  console.log('✓ Using LocationIQ geocoding (no Nominatim required)\n');
 
   // Use the new SoldScraper class
   const scraper = new SoldScraper(CONFIG.baseUrl, existingIds, isFullMode);
