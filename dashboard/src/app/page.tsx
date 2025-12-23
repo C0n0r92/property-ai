@@ -157,7 +157,7 @@ export default function Home() {
             </div>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-slate-900 leading-tight">
-              Know Dublin Property
+              Know Irish Property
               <span className="block text-blue-600">Like Never Before</span>
             </h1>
 
