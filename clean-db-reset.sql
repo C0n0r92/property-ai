@@ -110,6 +110,7 @@ CREATE TABLE rental_listings (
   source_url TEXT,
   scraped_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   nominatim_address TEXT,
+  yield_estimate NUMERIC,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -307,7 +308,8 @@ BEGIN
     WHEN yield_estimate > 0 AND yield_estimate < 20 THEN 'high'
     WHEN yield_estimate >= 20 THEN 'medium'
     ELSE 'low'
-  END;
+  END
+  WHERE true;
 
 END;
 $$ LANGUAGE plpgsql;

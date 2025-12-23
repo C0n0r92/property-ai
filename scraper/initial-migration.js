@@ -4,14 +4,18 @@
  *
  * Imports existing JSON data into Supabase database.
  * Run this once to populate the new database with existing scraped data.
- *
- * Usage:
- *   SUPABASE_URL=your_url SUPABASE_SERVICE_ROLE_KEY=your_key node initial-migration.js
  */
+
+// Load environment variables FIRST
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { db } from './src/database.js';
+
+// Load environment variables
+dotenv.config();
 
 // Configuration
 const DATA_DIR = './data';
