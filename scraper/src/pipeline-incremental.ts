@@ -238,46 +238,155 @@ class SoldScraper extends BaseDaftScraper<Property> {
       ? CONFIG.baseUrl
       : `${CONFIG.baseUrl}?page=${pageNum}`;
 
+    console.log(`🔍 Extracting data from page ${pageNum}...`);
+
     const rawData = await this.page.evaluate((sourceUrl) => {
       const cards = document.querySelectorAll('[data-testid="card-container"]');
       const results: any[] = [];
 
-      cards.forEach((card) => {
-        const text = card.textContent || '';
+      console.log(`Found ${cards.length} card containers on page`);
 
+      cards.forEach((card, index) => {
+        const text = card.textContent || '';
+        const html = card.innerHTML || '';
+
+        // Try multiple extraction strategies
+
+        // Strategy 1: Original SOLD format
+        let extracted = extractFromSoldFormat(text, sourceUrl);
+        if (extracted) {
+          results.push(extracted);
+          return;
+        }
+
+        // Strategy 2: Look for any price patterns
+        const priceMatches = text.match(/€([\d,]+)/g);
+        if (priceMatches && priceMatches.length >= 1) {
+          extracted = extractFromPriceFormat(text, priceMatches, sourceUrl);
+          if (extracted) {
+            results.push(extracted);
+            return;
+          }
+        }
+
+        // Strategy 3: Extract whatever data we can find
+        extracted = extractBasicInfo(text, html, sourceUrl);
+        if (extracted && extracted.address && extracted.soldPrice) {
+          results.push(extracted);
+          return;
+        }
+
+        // Debug: Log what we couldn't extract
+        if (index < 3) { // Only log first few cards to avoid spam
+          console.log(`Card ${index + 1} content: ${text.substring(0, 100)}...`);
+        }
+      });
+
+      return results;
+
+      // Helper functions for different extraction strategies
+      function extractFromSoldFormat(text: string, sourceUrl: string) {
         const dateMatch = text.match(/SOLD (\d{2}\/\d{2}\/\d{4})/);
         const soldMatch = text.match(/Sold:\s*€([\d,]+)/);
         const askingMatch = text.match(/Asking:\s*€([\d,]+)/);
 
-        if (!dateMatch || !soldMatch || !askingMatch) return;
+        if (!dateMatch || !soldMatch) return null;
 
         const dateIdx = text.indexOf(dateMatch[0]);
         const soldIdx = text.indexOf('Sold:');
         const address = text.substring(dateIdx + dateMatch[0].length, soldIdx).trim();
 
-        if (!address || address.length < 10) return;
+        if (!address || address.length < 5) return null;
 
-        const bedsMatch = text.match(/(\d+)\s*Bed/);
-        const bathsMatch = text.match(/(\d+)\s*Bath/);
-        const areaMatch = text.match(/([\d.]+)\s*m²/);
-        const typeMatch = text.match(/(Semi-D|Detached|Apartment|Terrace|Bungalow|Duplex|Townhouse|End of Terrace|Site)/i);
-
-        results.push({
+        return {
           soldDate: dateMatch[1],
           address,
-          soldPrice: soldMatch[1],
-          askingPrice: askingMatch[1],
-          beds: bedsMatch ? bedsMatch[1] : null,
-          baths: bathsMatch ? bathsMatch[1] : null,
-          area: areaMatch ? areaMatch[1] : null,
-          propertyType: typeMatch ? typeMatch[1] : '',
+          soldPrice: soldMatch[1].replace(/,/g, ''),
+          askingPrice: askingMatch ? askingMatch[1].replace(/,/g, '') : soldMatch[1].replace(/,/g, ''),
+          beds: extractNumber(text, /(\d+)\s*Bed/),
+          baths: extractNumber(text, /(\d+)\s*Bath/),
+          area: extractNumber(text, /([\d.]+)\s*m²/),
+          propertyType: extractPropertyType(text),
           sourceUrl
-        });
-      });
+        };
+      }
 
-      return results;
+      function extractFromPriceFormat(text: string, priceMatches: string[], sourceUrl: string) {
+        const prices = priceMatches.map(p => p.replace('€', '').replace(/,/g, ''));
+
+        // Look for address-like text
+        const addressMatch = text.match(/([A-Z][^€\d]{10,}?)(?:\d{4}|\d{2}\/\d{2}|Sold|Asking|$)/);
+        const address = addressMatch ? addressMatch[1].trim() : null;
+
+        if (!address || address.length < 5) return null;
+
+        return {
+          soldDate: new Date().toISOString().split('T')[0], // Use today's date as fallback
+          address,
+          soldPrice: prices[0],
+          askingPrice: prices.length > 1 ? prices[1] : prices[0],
+          beds: extractNumber(text, /(\d+)\s*bed/),
+          baths: extractNumber(text, /(\d+)\s*bath/),
+          area: extractNumber(text, /([\d.]+)\s*m²/),
+          propertyType: extractPropertyType(text),
+          sourceUrl
+        };
+      }
+
+      function extractBasicInfo(text: string, html: string, sourceUrl: string) {
+        // Extract any address-like string
+        const addressPatterns = [
+          /([A-Z][^€\d]{15,50}?)(?:\d{4}|€|\d{2}\/\d{2}|$)/,
+          /([^€\d]{20,80}?)(?:\d{4}|€|$)/
+        ];
+
+        let address = null;
+        for (const pattern of addressPatterns) {
+          const match = text.match(pattern);
+          if (match && match[1] && match[1].length > 10) {
+            address = match[1].trim();
+            break;
+          }
+        }
+
+        // Extract any price
+        const priceMatch = text.match(/€([\d,]+)/);
+        const price = priceMatch ? priceMatch[1].replace(/,/g, '') : null;
+
+        if (address && price) {
+          return {
+            soldDate: new Date().toISOString().split('T')[0],
+            address,
+            soldPrice: price,
+            askingPrice: price,
+            beds: extractNumber(text, /(\d+)\s*bed/i),
+            baths: extractNumber(text, /(\d+)\s*bath/i),
+            area: extractNumber(text, /([\d.]+)\s*m²/),
+            propertyType: extractPropertyType(text),
+            sourceUrl
+          };
+        }
+
+        return null;
+      }
+
+      function extractNumber(text: string, pattern: RegExp) {
+        const match = text.match(pattern);
+        return match ? match[1] : null;
+      }
+
+      function extractPropertyType(text: string) {
+        const types = ['Semi-D', 'Detached', 'Apartment', 'Terrace', 'Bungalow', 'Duplex', 'Townhouse', 'End of Terrace', 'Site'];
+        for (const type of types) {
+          if (text.toLowerCase().includes(type.toLowerCase())) {
+            return type;
+          }
+        }
+        return '';
+      }
     }, sourceUrl);
 
+    console.log(`📊 Extracted ${rawData.length} properties from page ${pageNum}`);
     return rawData;
   }
 
