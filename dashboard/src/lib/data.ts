@@ -94,6 +94,7 @@ async function loadData(): Promise<ConsolidatedData> {
           askingPrice: p.asking_price,
           latitude: p.latitude,
           longitude: p.longitude,
+          berRating: null, // Not stored in consolidated table
           eircode: p.eircode,
           dublinPostcode: p.dublin_postcode,
           pricePerSqm: p.price_per_sqm,
@@ -106,7 +107,7 @@ async function loadData(): Promise<ConsolidatedData> {
         }))
         .filter(l => l.askingPrice >= 50000 && l.askingPrice <= 50000000);
 
-      const rentals: Rental[] = consolidatedData
+      const rentals: RentalListing[] = consolidatedData
         .filter(p => p.is_rental)
         .map(p => ({
           id: p.id,
@@ -116,12 +117,16 @@ async function loadData(): Promise<ConsolidatedData> {
           baths: p.baths,
           areaSqm: p.area_sqm,
           monthlyRent: p.monthly_rent,
+          furnishing: null, // Not stored in consolidated table
+          leaseType: null, // Not stored in consolidated table
           latitude: p.latitude,
           longitude: p.longitude,
           eircode: p.eircode,
           dublinPostcode: p.dublin_postcode,
+          berRating: null, // Not stored in consolidated table
           rentPerSqm: p.rent_per_sqm,
-          rentPerBed: p.rent_per_bed,
+          rentPerBed: null, // Not stored in consolidated table
+          sourcePage: p.source_page,
           sourceUrl: p.source_url,
           scrapedAt: p.scraped_at,
           nominatimAddress: p.nominatim_address,
@@ -280,71 +285,86 @@ function loadFromSeparateFiles(): ConsolidatedData {
  * Load properties from Supabase with caching and fallback to JSON
  */
 export async function loadProperties(): Promise<Property[]> {
-  // Try to load from Supabase first
+  // Load from individual tables with pagination to get all data
   try {
     const supabase = await createClient();
 
-    // Query sold properties from Supabase
-    const { data: properties, error } = await supabase
-      .from('sold_properties')
-      .select('*')
-      .order('sold_date', { ascending: false });
+    // Query sold properties from Supabase (load all with pagination)
+    let allProperties: any[] = [];
+    let from = 0;
+    const pageSize = 1000;
 
-    if (error) {
-      console.warn('Failed to load properties from Supabase:', error.message);
-      throw error;
+    while (true) {
+      const { data: properties, error } = await supabase
+        .from('sold_properties')
+        .select('*')
+        .order('sold_date', { ascending: false })
+        .range(from, from + pageSize - 1);
+
+      if (error) {
+        console.warn('Failed to load properties from Supabase:', error.message);
+        throw error;
+      }
+
+      if (!properties || properties.length === 0) {
+        break; // No more data
+      }
+
+      allProperties.push(...properties);
+      from += pageSize;
+
+      // Safety break to prevent infinite loops
+      if (from > 50000) break;
     }
 
-    if (properties && properties.length > 0) {
-      console.log(`Loaded ${properties.length} properties from Supabase`);
+    console.log(`Loaded ${allProperties.length} properties from Supabase`);
 
-      // Transform Supabase data to match our Property interface
-      const transformedProperties: Property[] = properties.map(p => ({
-        id: p.id,
-        address: p.address,
-        propertyType: p.property_type,
-        beds: p.beds,
-        baths: p.baths,
-        areaSqm: p.area_sqm,
-        soldDate: p.sold_date,
-        soldPrice: p.sold_price,
-        askingPrice: p.asking_price,
-        overUnderPercent: p.over_under_percent,
-        latitude: p.latitude,
-        longitude: p.longitude,
-        eircode: p.eircode,
-        dublinPostcode: p.dublin_postcode,
-        pricePerSqm: p.price_per_sqm,
-        sourceUrl: p.source_url,
-        sourcePage: p.source_page,
-        scrapedAt: p.scraped_at,
-        nominatimAddress: p.nominatim_address,
-        yieldEstimate: p.yield_estimate
-      }));
+    // Transform Supabase data to match our Property interface
+    const transformedProperties: Property[] = allProperties.map(p => ({
+      id: p.id,
+      address: p.address,
+      propertyType: p.property_type,
+      beds: p.beds,
+      baths: p.baths,
+      areaSqm: p.area_sqm,
+      soldDate: p.sold_date,
+      soldPrice: p.sold_price,
+      askingPrice: p.asking_price,
+      overUnderPercent: p.over_under_percent,
+      latitude: p.latitude,
+      longitude: p.longitude,
+      eircode: p.eircode,
+      dublinPostcode: p.dublin_postcode,
+      pricePerSqm: p.price_per_sqm,
+      sourceUrl: p.source_url,
+      sourcePage: p.source_page,
+      scrapedAt: p.scraped_at,
+      nominatimAddress: p.nominatim_address,
+      yieldEstimate: p.yield_estimate
+    }));
 
-      // Apply the same filtering as before
-      return transformedProperties.filter(p => {
-        const year = parseInt(p.soldDate?.split('-')[0] || '0');
-        return year >= 2020 && year <= 2025 && p.soldPrice >= 50000 && p.soldPrice <= 20000000;
-      });
-    }
+    // Apply filtering
+    const filtered = transformedProperties.filter(p => {
+      const year = parseInt(p.soldDate?.split('-')[0] || '0');
+      return year >= 2020 && year <= 2025 && p.soldPrice >= 50000 && p.soldPrice <= 20000000;
+    });
+
+    console.log(`Loaded ${allProperties.length} total properties from Supabase, ${filtered.length} after filtering`);
+    return filtered;
+
   } catch (error) {
-    console.warn('Supabase load failed, falling back to JSON files:', error);
+    console.warn('Supabase load failed, falling back to consolidated data:', error);
+    // Fallback to consolidated data
+    const consolidatedData = await loadData();
+    return consolidatedData.properties;
   }
-
-  // Fallback to existing JSON loading (for backward compatibility)
-  const data = await loadData();
-  return data.properties.filter(p => {
-    const year = parseInt(p.soldDate?.split('-')[0] || '0');
-    return year >= 2020 && year <= 2025 && p.soldPrice >= 50000 && p.soldPrice <= 20000000;
-  });
 }
 
 /**
  * Load listings from Supabase with caching and fallback to JSON
  */
 export async function loadListings(): Promise<Listing[]> {
-  // Try to load from Supabase first
+  // Load from individual tables
   try {
     const supabase = await createClient();
 
@@ -377,38 +397,32 @@ export async function loadListings(): Promise<Listing[]> {
         eircode: l.eircode,
         dublinPostcode: l.dublin_postcode,
         berRating: l.ber_rating,
-        firstSeenDate: l.first_seen_date,
-        lastSeenDate: l.last_seen_date,
-        daysOnMarket: l.days_on_market,
-        priceChanges: l.price_changes,
-        priceHistory: l.price_history,
         sourceUrl: l.source_url,
         scrapedAt: l.scraped_at,
         nominatimAddress: l.nominatim_address,
-        yieldEstimate: l.yield_estimate
+        yieldEstimate: l.yield_estimate,
+        priceHistory: l.price_history || []
       }));
 
-      // Apply the same filtering as before
+      // Apply filtering
       return transformedListings.filter(l =>
         l.askingPrice >= 50000 && l.askingPrice <= 50000000
       );
     }
   } catch (error) {
-    console.warn('Supabase load failed, falling back to JSON files:', error);
+    console.warn('Supabase load failed, falling back to consolidated data:', error);
   }
 
-  // Fallback to existing JSON loading (for backward compatibility)
-  const data = await loadData();
-  return data.listings.filter(l =>
-    l.askingPrice >= 50000 && l.askingPrice <= 50000000
-  );
+  // Fallback to consolidated data
+  const consolidatedData = await loadData();
+  return consolidatedData.listings;
 }
 
 /**
  * Load rentals from Supabase with caching and fallback to JSON
  */
 export async function loadRentals(): Promise<RentalListing[]> {
-  // Try to load from Supabase first
+  // Load from individual tables
   try {
     const supabase = await createClient();
 
@@ -443,31 +457,25 @@ export async function loadRentals(): Promise<RentalListing[]> {
         eircode: r.eircode,
         dublinPostcode: r.dublin_postcode,
         berRating: r.ber_rating,
-        firstSeenDate: r.first_seen_date,
-        lastSeenDate: r.last_seen_date,
-        daysOnMarket: r.days_on_market,
-        priceChanges: r.price_changes,
-        priceHistory: r.price_history,
         sourceUrl: r.source_url,
         scrapedAt: r.scraped_at,
         nominatimAddress: r.nominatim_address,
-        yieldEstimate: r.yield_estimate
+        yieldEstimate: r.yield_estimate,
+        rentHistory: r.price_history || []
       }));
 
-      // Apply the same filtering as before
+      // Apply filtering
       return transformedRentals.filter(r =>
         r.monthlyRent >= 500 && r.monthlyRent <= 20000
       );
     }
   } catch (error) {
-    console.warn('Supabase load failed, falling back to JSON files:', error);
+    console.warn('Supabase load failed, falling back to consolidated data:', error);
   }
 
-  // Fallback to existing JSON loading (for backward compatibility)
-  const data = await loadData();
-  return data.rentals.filter(r =>
-    r.monthlyRent >= 500 && r.monthlyRent <= 20000
-  );
+  // Fallback to consolidated data
+  const consolidatedData = await loadData();
+  return consolidatedData.rentals;
 }
 
 /**

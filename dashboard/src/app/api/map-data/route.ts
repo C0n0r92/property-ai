@@ -28,8 +28,12 @@ export async function GET(request: NextRequest) {
   // Time filter
   const timeFilter = searchParams.get('timeFilter');
 
-  // Limit for initial load
-  const limit = parseInt(searchParams.get('limit') || '5000');
+  // Limit for initial load - use very high limit or no limit to load all data
+  const limitParam = searchParams.get('limit');
+  const limit = limitParam ? parseInt(limitParam) : 100000; // Default to 100k if not specified
+  
+  // Check if bounds filtering should be applied (for progressive loading)
+  const applyBounds = searchParams.get('applyBounds') === 'true';
   
   const bounds: MapBounds = { north, south, east, west };
   
@@ -96,8 +100,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const filtered = filterByBounds(allProperties, bounds);
-    response.properties = filtered.slice(0, limit);
+    // Only apply bounds filtering if explicitly requested (for progressive loading)
+    const filtered = applyBounds ? filterByBounds(allProperties, bounds) : allProperties;
+    response.properties = limit > 0 ? filtered.slice(0, limit) : filtered;
     response.total.properties = filtered.length;
   }
 
@@ -152,8 +157,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const filtered = filterByBounds(allListings, bounds);
-    response.listings = filtered.slice(0, limit);
+    // Only apply bounds filtering if explicitly requested (for progressive loading)
+    const filtered = applyBounds ? filterByBounds(allListings, bounds) : allListings;
+    response.listings = limit > 0 ? filtered.slice(0, limit) : filtered;
     response.total.listings = filtered.length;
   }
 
@@ -208,8 +214,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const filtered = filterByBounds(allRentals, bounds);
-    response.rentals = filtered.slice(0, limit);
+    // Only apply bounds filtering if explicitly requested (for progressive loading)
+    const filtered = applyBounds ? filterByBounds(allRentals, bounds) : allRentals;
+    response.rentals = limit > 0 ? filtered.slice(0, limit) : filtered;
     response.total.rentals = filtered.length;
   }
   

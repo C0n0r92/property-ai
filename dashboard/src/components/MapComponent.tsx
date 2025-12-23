@@ -112,11 +112,13 @@ export default function MapComponent() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [rentals, setRentals] = useState<RentalListing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0); // 0-100 percentage
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [selectedRental, setSelectedRental] = useState<RentalListing | null>(null);
   const isClosingRef = useRef(false);
+  const isLoadingRef = useRef(false);
 
 
   const [mapReady, setMapReady] = useState(false);
@@ -591,26 +593,36 @@ export default function MapComponent() {
     }
   }, [rentals, listings, properties]);
 
-  // Load data for all Ireland based on selected data sources
-  useEffect(() => {
+  // Load data for current map viewport (progressive loading)
+  const loadMapData = useCallback(async (bounds?: { north: number; south: number; east: number; west: number }) => {
+    // Prevent multiple simultaneous loads using ref
+    if (isLoadingRef.current) return;
+    
     // Only fetch data for selected sources
     const sources = [];
     if (dataSources.sold) sources.push('sold');
     if (dataSources.forSale) sources.push('forSale');
     if (dataSources.rentals) sources.push('rentals');
-    
+
     if (sources.length === 0) return;
-    
+
+    isLoadingRef.current = true;
     setLoading(true);
-    
-    // Load all Ireland bounds
-    const irelandBounds = {
-      north: 55.5,
-      south: 51.4,
-      east: -5.4,
-      west: -10.7,
-    };
-    
+
+    // Use provided bounds or get current map bounds
+    let mapBounds: { north: number; south: number; east: number; west: number };
+    if (bounds) {
+      mapBounds = bounds;
+    } else {
+      // Fallback to Dublin bounds for initial load
+      mapBounds = {
+        north: 53.6,
+        south: 53.2,
+        east: -6.0,
+        west: -6.5,
+      };
+    }
+
     // Build time filter parameter
     let timeFilterParam = '';
     if (timeFilter) {
@@ -621,66 +633,240 @@ export default function MapComponent() {
       if (recentFilter === '12m') timeFilterParam = '&timeFilter=last12Months';
     }
 
-    // Fetch map data with all Ireland bounds and selected sources
-    fetch(`/api/map-data?sources=${sources.join(',')}&north=${irelandBounds.north}&south=${irelandBounds.south}&east=${irelandBounds.east}&west=${irelandBounds.west}&limit=100000${timeFilterParam}`)
-      .then(res => res.json())
-      .then(data => {
-        // Update properties if sold is selected
-        if (data.properties) {
-          setProperties(data.properties);
-          
-          // Calculate over/under asking from loaded data
-          const withAsking = data.properties.filter((p: Property) => p.askingPrice && p.askingPrice > 0);
-          const overAsking = withAsking.filter((p: Property) => p.soldPrice > p.askingPrice!).length;
-          const underAsking = withAsking.filter((p: Property) => p.soldPrice < p.askingPrice!).length;
-          
-          setStats(prev => ({
-            ...prev,
-            total: data.properties.length,
-            overAsking,
-            underAsking,
-          }));
+    console.log(`📍 Loading all map data for bounds:`, mapBounds, `sources:`, sources);
+
+    try {
+      const BATCH_SIZE = 10000; // Increased from 5000 to reduce HTTP requests
+      const MAX_BATCHES = 100; // Allow up to 1M properties (100 batches x 10k)
+      const CONCURRENT_BATCHES = 1; // Temporarily disable concurrent loading to debug
+      
+      // Initialize arrays to accumulate data
+      let allProperties: Property[] = [];
+      let allListings: Listing[] = [];
+      let allRentals: RentalListing[] = [];
+      
+      let cursorDate: string | undefined;
+      let cursorId: string | undefined;
+      let hasMore = true;
+      let processedBatches = 0;
+      let totalEstimated = 0; // Will be updated from API totals
+      let consecutiveEmptyBatches = 0;
+
+      setLoadingProgress(0);
+
+      // Load data sequentially for now (simpler debugging)
+      while (hasMore && processedBatches < MAX_BATCHES) {
+        let batchUrl = `/api/map-data-batch?sources=${sources.join(',')}&north=${mapBounds.north}&south=${mapBounds.south}&east=${mapBounds.east}&west=${mapBounds.west}&limit=${BATCH_SIZE}${timeFilterParam}`;
+
+        // Add cursor parameters for cursor-based pagination (instead of offset)
+        if (cursorDate && cursorId) {
+          batchUrl += `&cursorDate=${encodeURIComponent(cursorDate)}&cursorId=${encodeURIComponent(cursorId)}`;
         }
-        
-        // Update listings if forSale is selected
-        if (data.listings) {
-          setListings(data.listings);
-          const prices = data.listings.map((l: Listing) => l.askingPrice).sort((a: number, b: number) => a - b);
-          const medianPrice = prices[Math.floor(prices.length / 2)] || 0;
-          const withSqm = data.listings.filter((l: Listing) => l.pricePerSqm && l.pricePerSqm > 0);
-          const avgPricePerSqm = withSqm.length > 0 
-            ? Math.round(withSqm.reduce((sum: number, l: Listing) => sum + (l.pricePerSqm || 0), 0) / withSqm.length)
-            : 0;
-          setListingStats({
-            totalListings: data.listings.length,
-            medianPrice,
-            avgPricePerSqm,
-          });
+
+        console.log(`Loading batch ${processedBatches + 1} from: ${batchUrl}`);
+        console.log(`Request headers:`, {
+          'User-Agent': navigator.userAgent,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        });
+
+        const response = await fetch(batchUrl, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        console.log(`Response status: ${response.status}`);
+
+        if (!response.ok) {
+          const text = await response.text();
+          console.error(`Failed request: ${batchUrl}, status: ${response.status}, response: ${text}`);
+          throw new Error(`Failed to load map data batch: ${response.status} ${response.statusText}`);
         }
-        
-        // Update rentals if rentals is selected
-        if (data.rentals) {
-          setRentals(data.rentals);
-          const rents = data.rentals.map((r: RentalListing) => r.monthlyRent).sort((a: number, b: number) => a - b);
-          const medianRent = rents[Math.floor(rents.length / 2)] || 0;
-          const withSqm = data.rentals.filter((r: RentalListing) => r.rentPerSqm && r.rentPerSqm > 0);
-          const avgRentPerSqm = withSqm.length > 0 
-            ? Math.round(withSqm.reduce((sum: number, r: RentalListing) => sum + (r.rentPerSqm || 0), 0) / withSqm.length * 10) / 10
-            : 0;
-          setRentalStats({
-            totalRentals: data.rentals.length,
-            medianRent,
-            avgRentPerSqm,
-            rentRange: { min: rents[0] || 0, max: rents[rents.length - 1] || 0 },
-          });
+
+        let data;
+        try {
+          data = await response.json();
+          console.log(`Parsed JSON successfully, ${JSON.stringify(data).length} chars`);
+        } catch (jsonError) {
+          console.error(`JSON parse error for ${batchUrl}:`, jsonError);
+          console.error(`Response status: ${response.status}, content-type: ${response.headers.get('content-type')}`);
+          try {
+            const text = await response.text();
+            console.error(`Raw response (first 1000 chars):`, text.substring(0, 1000));
+          } catch (textError) {
+            console.error(`Could not read response text:`, textError);
+          }
+          throw new Error(`Invalid JSON response from ${batchUrl}`);
         }
-        
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error loading map data:', err);
-        setLoading(false);
-      });
+
+        // Update total estimate from API - accumulate totals from all sources
+        if (data.total) {
+          let newTotal = 0;
+          if (sources.includes('sold') && data.total.properties) {
+            newTotal += data.total.properties;
+          }
+          if (sources.includes('forSale') && data.total.listings) {
+            newTotal += data.total.listings;
+          }
+          if (sources.includes('rentals') && data.total.rentals) {
+            newTotal += data.total.rentals;
+          }
+          if (newTotal > 0) {
+            totalEstimated = Math.max(totalEstimated, newTotal);
+          }
+        }
+
+        // Check if we got any data - ignore hasMore from API, just check if we got data
+        const gotProperties = sources.includes('sold') && data.properties && data.properties.length > 0;
+        const gotListings = sources.includes('forSale') && data.listings && data.listings.length > 0;
+        const gotRentals = sources.includes('rentals') && data.rentals && data.rentals.length > 0;
+
+        // Accumulate data
+        if (data.properties && data.properties.length > 0) {
+          allProperties = [...allProperties, ...data.properties];
+        }
+
+        if (data.listings && data.listings.length > 0) {
+          allListings = [...allListings, ...data.listings];
+        }
+
+        if (data.rentals && data.rentals.length > 0) {
+          allRentals = [...allRentals, ...data.rentals];
+        }
+
+        // Update progress
+        const currentTotal = allProperties.length + allListings.length + allRentals.length;
+        let progress = 0;
+        if (totalEstimated > 0) {
+          progress = Math.min(95, Math.round((currentTotal / totalEstimated) * 100));
+        } else {
+          progress = Math.min(95, Math.round((processedBatches / 20) * 100));
+        }
+        setLoadingProgress(progress);
+
+        // Determine if we should continue loading
+        const apiHasMoreData =
+          (data.hasMore?.properties && sources.includes('sold')) ||
+          (data.hasMore?.listings && sources.includes('forSale')) ||
+          (data.hasMore?.rentals && sources.includes('rentals'));
+
+        const forceContinueForMinBatches = processedBatches < 20;
+        hasMore = (gotProperties || gotListings || gotRentals || apiHasMoreData || forceContinueForMinBatches) && processedBatches < MAX_BATCHES;
+
+        if (forceContinueForMinBatches && processedBatches < MAX_BATCHES) {
+          hasMore = true;
+        }
+
+        // Update cursor for next batch
+        if (data.cursor) {
+          if (data.cursor.properties && sources.includes('sold')) {
+            cursorDate = data.cursor.properties.date;
+            cursorId = data.cursor.properties.id;
+          } else if (data.cursor.listings && sources.includes('forSale')) {
+            cursorDate = data.cursor.listings.date;
+            cursorId = data.cursor.listings.id;
+          } else if (data.cursor.rentals && sources.includes('rentals')) {
+            cursorDate = data.cursor.rentals.date;
+            cursorId = data.cursor.rentals.id;
+          }
+        }
+
+        console.log(`Batch ${processedBatches + 1}: Got ${data.properties?.length || 0} properties (${data.total?.properties || 0} total in DB), ${data.listings?.length || 0} listings, ${data.rentals?.length || 0} rentals. Total loaded: ${allProperties.length} properties. HasMore: ${hasMore}`);
+        processedBatches++;
+
+        if (!hasMore || processedBatches >= MAX_BATCHES) break;
+      }
+      
+      // Final state update with all accumulated data (only once at the end to prevent flashing)
+      setProperties([...allProperties]);
+      setListings([...allListings]);
+      setRentals([...allRentals]);
+
+      // Final stats calculations
+      if (allProperties.length > 0) {
+        const withAsking = allProperties.filter((p: Property) => p.askingPrice && p.askingPrice > 0);
+        const overAsking = withAsking.filter((p: Property) => p.soldPrice > p.askingPrice!).length;
+        const underAsking = withAsking.filter((p: Property) => p.soldPrice < p.askingPrice!).length;
+
+        setStats(prev => ({
+          ...prev,
+          total: allProperties.length,
+          overAsking,
+          underAsking,
+        }));
+      }
+
+      if (allListings.length > 0) {
+        const prices = allListings.map((l: Listing) => l.askingPrice).sort((a: number, b: number) => a - b);
+        const medianPrice = prices[Math.floor(prices.length / 2)] || 0;
+        const withSqm = allListings.filter((l: Listing) => l.pricePerSqm && l.pricePerSqm > 0);
+        const avgPricePerSqm = withSqm.length > 0
+          ? Math.round(withSqm.reduce((sum: number, l: Listing) => sum + (l.pricePerSqm || 0), 0) / withSqm.length)
+          : 0;
+        setListingStats({
+          totalListings: allListings.length,
+          medianPrice,
+          avgPricePerSqm,
+        });
+      }
+
+      if (allRentals.length > 0) {
+        const rents = allRentals.map((r: RentalListing) => r.monthlyRent).sort((a: number, b: number) => a - b);
+        const medianRent = rents[Math.floor(rents.length / 2)] || 0;
+        const withSqm = allRentals.filter((r: RentalListing) => r.rentPerSqm && r.rentPerSqm > 0);
+        const avgRentPerSqm = withSqm.length > 0
+          ? Math.round(withSqm.reduce((sum: number, r: RentalListing) => sum + (r.rentPerSqm || 0), 0) / withSqm.length * 10) / 10
+          : 0;
+        setRentalStats({
+          totalRentals: allRentals.length,
+          medianRent,
+          avgRentPerSqm,
+          rentRange: { min: rents[0] || 0, max: rents[rents.length - 1] || 0 },
+        });
+      }
+      
+      if (allListings.length > 0) {
+        const prices = allListings.map((l: Listing) => l.askingPrice).sort((a: number, b: number) => a - b);
+        const medianPrice = prices[Math.floor(prices.length / 2)] || 0;
+        const withSqm = allListings.filter((l: Listing) => l.pricePerSqm && l.pricePerSqm > 0);
+        const avgPricePerSqm = withSqm.length > 0 
+          ? Math.round(withSqm.reduce((sum: number, l: Listing) => sum + (l.pricePerSqm || 0), 0) / withSqm.length)
+          : 0;
+        setListingStats({
+          totalListings: allListings.length,
+          medianPrice,
+          avgPricePerSqm,
+        });
+      }
+      
+      if (allRentals.length > 0) {
+        const rents = allRentals.map((r: RentalListing) => r.monthlyRent).sort((a: number, b: number) => a - b);
+        const medianRent = rents[Math.floor(rents.length / 2)] || 0;
+        const withSqm = allRentals.filter((r: RentalListing) => r.rentPerSqm && r.rentPerSqm > 0);
+        const avgRentPerSqm = withSqm.length > 0 
+          ? Math.round(withSqm.reduce((sum: number, r: RentalListing) => sum + (r.rentPerSqm || 0), 0) / withSqm.length * 10) / 10
+          : 0;
+        setRentalStats({
+          totalRentals: allRentals.length,
+          medianRent,
+          avgRentPerSqm,
+          rentRange: { min: rents[0] || 0, max: rents[rents.length - 1] || 0 },
+        });
+      }
+      
+      setLoadingProgress(100);
+      console.log(`✅ Finished loading: ${allProperties.length} properties, ${allListings.length} listings, ${allRentals.length} rentals`);
+      
+      isLoadingRef.current = false;
+      setLoading(false);
+      setTimeout(() => setLoadingProgress(0), 500);
+    } catch (error) {
+      console.error('Error loading map data:', error);
+      isLoadingRef.current = false;
+      setLoading(false);
+      setLoadingProgress(0);
+    }
 
     // Fetch overall Dublin-wide stats (lightweight)
     fetch('/api/stats')
@@ -693,8 +879,123 @@ export default function MapComponent() {
         }));
       })
       .catch(err => console.error('Error loading stats:', err));
-      
+
   }, [dataSources.sold, dataSources.forSale, dataSources.rentals, timeFilter, recentFilter, selectedYear]);
+
+  // Note: We load all properties initially and don't reload on map move
+  // The map uses clustering which efficiently handles large datasets
+  // If you need progressive loading, uncomment this effect and modify loadMapData to use bounds
+  /*
+  useEffect(() => {
+    if (!map.current) return;
+
+    let moveTimeout: NodeJS.Timeout;
+
+    const handleMapMove = () => {
+      // Debounce map move events to avoid excessive API calls
+      clearTimeout(moveTimeout);
+      moveTimeout = setTimeout(() => {
+        const bounds = map.current?.getBounds();
+        if (bounds) {
+          const boundsObj = {
+            north: bounds.getNorth(),
+            south: bounds.getSouth(),
+            east: bounds.getEast(),
+            west: bounds.getWest(),
+          };
+
+          console.log('🗺️ Map moved, reloading data for new viewport');
+          loadMapData(boundsObj);
+        }
+      }, 500); // Wait 500ms after user stops moving the map
+    };
+
+    // Listen for map move and zoom events
+    map.current.on('moveend', handleMapMove);
+    map.current.on('zoomend', handleMapMove);
+
+    // Cleanup
+    return () => {
+      clearTimeout(moveTimeout);
+      if (map.current) {
+        map.current.off('moveend', handleMapMove);
+        map.current.off('zoomend', handleMapMove);
+      }
+    };
+  }, [loadMapData]);
+  */
+
+  // Reload data when data sources change
+  useEffect(() => {
+    console.log('🔄 Data sources changed, reloading data...');
+    loadMapData();
+  }, [dataSources.sold, dataSources.forSale, dataSources.rentals, loadMapData]);
+
+  // Initial data load when component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!properties.length && !listings.length && !rentals.length) {
+        console.log('🏙️ Loading initial data...');
+        // Load data for current viewport or fallback to Dublin
+        loadMapData();
+      }
+    }, 1000); // Wait 1 second for map to initialize
+
+    return () => clearTimeout(timer);
+  }, [loadMapData]); // Added loadMapData dependency
+
+  // Add loading indicator with progress
+  useEffect(() => {
+    if (loading && map.current) {
+      // Add loading indicator to map
+      const loadingEl = document.createElement('div');
+      loadingEl.id = 'map-loading-indicator';
+      loadingEl.style.cssText = `
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(17, 24, 39, 0.95);
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        font-size: 14px;
+        color: white;
+        z-index: 1000;
+        min-width: 200px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      `;
+      
+      const updateProgress = () => {
+        loadingEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-weight: 500;">Loading properties...</span>
+              <span style="font-weight: 600; color: #60a5fa;">${loadingProgress}%</span>
+            </div>
+            <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden;">
+              <div style="width: ${loadingProgress}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.3s ease; border-radius: 3px;"></div>
+            </div>
+          </div>
+        `;
+      };
+      
+      updateProgress();
+      map.current.getContainer().appendChild(loadingEl);
+      
+      // Update progress periodically
+      const interval = setInterval(updateProgress, 100);
+
+      return () => {
+        clearInterval(interval);
+        const existing = document.getElementById('map-loading-indicator');
+        if (existing) existing.remove();
+      };
+    } else {
+      // Remove loading indicator
+      const existing = document.getElementById('map-loading-indicator');
+      if (existing) existing.remove();
+    }
+  }, [loading, loadingProgress]);
 
   // Get available years from the data
   const availableYears = useMemo(() => {
@@ -2783,6 +3084,14 @@ export default function MapComponent() {
               </button>
             )}
           </div>
+
+          {/* Progressive Loading Info */}
+          <div className="text-xs text-gray-400 hidden md:block ml-2">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              Progressive loading active
+            </span>
+          </div>
           
           {/* Count display - shows totals for all selected sources */}
           <span className="hidden sm:inline text-gray-400 text-sm font-medium">
@@ -3266,15 +3575,6 @@ export default function MapComponent() {
       <div className="flex-1 relative">
         <div ref={mapContainer} className="absolute inset-0" style={{ width: '100%', height: '100%' }} />
         
-        {/* Loading indicator - non-blocking */}
-        {loading && (
-          <div className="absolute top-4 right-4 z-10 bg-gray-900/95 backdrop-blur-xl rounded-lg px-4 py-3 border border-blue-500 shadow-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-white font-medium">Loading data...</span>
-            </div>
-          </div>
-        )}
 
 
         {/* Map error display */}

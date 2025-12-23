@@ -24,6 +24,16 @@ export async function createClient() {
           }
         },
       },
+      db: {
+        schema: 'public',
+      },
+      global: {
+        headers: {
+          // Request more rows than default (default is 1000)
+          // This helps with pagination but offset still has limits
+          'Prefer': 'count=exact'
+        }
+      }
     }
   );
 }
