@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { useEffect } from 'react';
 import { ShareButton } from '@/components/ShareButton';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { ReadingProgress } from '@/components/ReadingProgress';
 import { TableOfContents } from '@/components/TableOfContents';
 import { BlogVoteButton } from '@/components/BlogVoteButton';
 import { BlogShareButton } from '@/components/BlogShareButton';
-import { analytics } from '@/lib/analytics';
+import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { getCategoryConfig } from '@/lib/blog-categories';
 
 // Function to process markdown content to HTML
@@ -3540,13 +3539,9 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
     notFound();
   }
 
-  // Track blog article view
-  useEffect(() => {
-    analytics.blogArticleViewed(slug);
-  }, [slug]);
-
   return (
     <div>
+      <BlogViewTracker articleSlug={slug} />
       <ReadingProgress />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
