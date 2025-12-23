@@ -5,10 +5,10 @@ import GoogleAnalytics from './GoogleAnalytics';
 import CookieConsent from './CookieConsent';
 import PostHogProvider, { PostHogPageview } from './PostHogProvider';
 import { AuthProvider } from './auth/AuthProvider';
+import { analytics } from '../lib/analytics';
 
 // Debug component for testing GA
 function DebugAnalytics() {
-  const { analytics } = require('../lib/analytics');
 
   return (
     <div style={{
