@@ -931,7 +931,7 @@ export default function MapComponent() {
       console.log(`✅ Loaded ${allProperties.length} properties, ${allListings.length} listings, ${allRentals.length} rentals from data.json`);
     } catch (error) {
       console.error('❌ Error loading map data from JSON:', error);
-      setError('Failed to load property data from data.json. Please try refreshing the page.');
+      setMapError('Failed to load property data from data.json. Please try refreshing the page.');
     } finally {
       isLoadingRef.current = false;
       setLoading(false);
