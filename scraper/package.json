@@ -11,7 +11,8 @@
     "scrape:rentals": "tsx src/pipeline-rentals.ts",
 
     "// CONSOLIDATION": "========================================",
-    "consolidate": "tsx src/consolidate-new.ts",
+    "consolidate": "tsx consolidate-supabase.ts",
+    "consolidate:legacy": "tsx src/consolidate-new.ts",
 
     "// CONVENIENCE": "========================================",
     "update": "npm run scrape:sold && npm run scrape:listings && npm run scrape:rentals && npm run consolidate",
@@ -21,7 +22,6 @@
     "// TESTING": "========================================",
     "test:headless": "tsx test-headless.ts",
     "test:geocoding": "tsx test-locationiq.ts",
-    "consolidate": "tsx consolidate-supabase.ts",
 
     "// SETUP": "========================================",
     "setup-local": "chmod +x setup-local-cron.sh && ./setup-local-cron.sh",
@@ -32,6 +32,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.4.0",
+    "node-fetch": "^2.7.0",
     "playwright": "^1.52.0"
   },
   "devDependencies": {

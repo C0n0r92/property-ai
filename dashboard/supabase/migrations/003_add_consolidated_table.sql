@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS consolidated_properties (
   asking_price NUMERIC,
   over_under_percent NUMERIC,
   source_url TEXT,
-  source_page INTEGER,
+  source_page INTEGER NULL,
 
   -- Listing data (if applicable)
   is_listing BOOLEAN DEFAULT FALSE,
@@ -116,14 +116,14 @@ BEGIN
   INSERT INTO consolidated_properties (
     id, address, property_type, beds, baths, area_sqm, latitude, longitude,
     eircode, dublin_postcode, price_per_sqm, nominatim_address, scraped_at,
-    asking_price, source_url, source_page, is_listing,
+    asking_price, source_url, is_listing,
     yield_estimate, price_history
   )
   SELECT
     pl.id, pl.address, pl.property_type, pl.beds, pl.baths, pl.area_sqm,
     pl.latitude, pl.longitude, pl.eircode, pl.dublin_postcode, pl.price_per_sqm,
     pl.nominatim_address, pl.scraped_at, pl.asking_price, pl.source_url,
-    pl.source_page, TRUE,
+    TRUE,
     calculate_yield_estimate(pl.asking_price, pl.beds, pl.dublin_postcode),
     pl.price_history
   FROM property_listings pl;
