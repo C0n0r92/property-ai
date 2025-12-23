@@ -384,7 +384,6 @@ export async function loadListings(): Promise<Listing[]> {
 
       // Transform Supabase data to match our Listing interface
       const transformedListings: Listing[] = listings.map(l => ({
-        id: l.id,
         address: l.address,
         propertyType: l.property_type,
         beds: l.beds,
@@ -398,10 +397,10 @@ export async function loadListings(): Promise<Listing[]> {
         dublinPostcode: l.dublin_postcode,
         berRating: l.ber_rating,
         sourceUrl: l.source_url,
+        sourcePage: l.source_page,
         scrapedAt: l.scraped_at,
         nominatimAddress: l.nominatim_address,
-        yieldEstimate: l.yield_estimate,
-        priceHistory: l.price_history || []
+        yieldEstimate: l.yield_estimate
       }));
 
       // Apply filtering
@@ -442,7 +441,6 @@ export async function loadRentals(): Promise<RentalListing[]> {
 
       // Transform Supabase data to match our RentalListing interface
       const transformedRentals: RentalListing[] = rentals.map(r => ({
-        id: r.id,
         address: r.address,
         propertyType: r.property_type,
         beds: r.beds,
@@ -451,17 +449,16 @@ export async function loadRentals(): Promise<RentalListing[]> {
         monthlyRent: r.monthly_rent,
         rentPerSqm: r.rent_per_sqm,
         furnishing: r.furnishing,
-        leaseType: r.lease_type,
         latitude: r.latitude,
         longitude: r.longitude,
         eircode: r.eircode,
         dublinPostcode: r.dublin_postcode,
         berRating: r.ber_rating,
         sourceUrl: r.source_url,
+        sourcePage: r.source_page,
         scrapedAt: r.scraped_at,
         nominatimAddress: r.nominatim_address,
-        yieldEstimate: r.yield_estimate,
-        rentHistory: r.price_history || []
+        rentPerBed: r.rent_per_bed
       }));
 
       // Apply filtering

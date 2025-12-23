@@ -56,3 +56,4 @@ else
     echo "✅ All scrapers completed successfully"
     exit 0
 fi
+

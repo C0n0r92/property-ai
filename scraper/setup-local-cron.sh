@@ -98,3 +98,4 @@ echo "✅ Data flows: Local scraper → Supabase → Dashboard"
 echo ""
 echo "📋 CURRENT CRON JOBS:"
 crontab -l
+
