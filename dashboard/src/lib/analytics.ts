@@ -14,24 +14,35 @@ export const trackEvent = ({ action, category, label, value }: GTagEvent) => {
   if (typeof window === 'undefined') return;
   const isProduction = window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1';
-  if (!isProduction) return;
+  if (!isProduction) {
+    console.log('[Analytics Debug] Not tracking event in development:', { action, category, label, value });
+    return;
+  }
+
+  console.log('[Analytics Debug] Tracking event:', { action, category, label, value });
 
   // Google Analytics
   if ((window as any).gtag) {
+    console.log('[Analytics Debug] Sending to GA:', action);
     (window as any).gtag('event', action, {
       event_category: category,
       event_label: label,
       value: value,
     });
+  } else {
+    console.log('[Analytics Debug] gtag not available for GA event:', action);
   }
-  
+
   // PostHog
   if (posthog) {
+    console.log('[Analytics Debug] Sending to PostHog:', action);
     posthog.capture(action, {
       category,
       label,
       value,
     });
+  } else {
+    console.log('[Analytics Debug] PostHog not available for event:', action);
   }
 };
 
