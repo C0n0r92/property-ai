@@ -10,8 +10,14 @@ type GTagEvent = {
 
 // Track custom events to both GA and PostHog
 export const trackEvent = ({ action, category, label, value }: GTagEvent) => {
+  // Only track events in production
+  if (typeof window === 'undefined') return;
+  const isProduction = window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1';
+  if (!isProduction) return;
+
   // Google Analytics
-  if (typeof window !== 'undefined' && (window as any).gtag) {
+  if ((window as any).gtag) {
     (window as any).gtag('event', action, {
       event_category: category,
       event_label: label,
@@ -20,7 +26,7 @@ export const trackEvent = ({ action, category, label, value }: GTagEvent) => {
   }
   
   // PostHog
-  if (typeof window !== 'undefined' && posthog) {
+  if (posthog) {
     posthog.capture(action, {
       category,
       label,

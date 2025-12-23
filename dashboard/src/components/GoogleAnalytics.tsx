@@ -7,6 +7,15 @@ export default function GoogleAnalytics() {
   const [hasConsent, setHasConsent] = useState(false);
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
+  // Only track analytics in production
+  const isProduction = typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1';
+
+  if (!isProduction) {
+    return null;
+  }
+
   useEffect(() => {
     // Check if user has consented to cookies
     const consent = localStorage.getItem('cookie-consent');
