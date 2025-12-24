@@ -14,3 +14,4 @@ export function BlogViewTracker({ articleSlug }: BlogViewTrackerProps) {
 
   return null; // This component doesn't render anything
 }
+

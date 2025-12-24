@@ -74,3 +74,4 @@ CREATE POLICY "Users can delete their own blog votes"
 GRANT SELECT, INSERT, UPDATE, DELETE ON blog_votes TO authenticated;
 GRANT SELECT ON blog_votes TO anon;
 
+
