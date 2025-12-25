@@ -43,7 +43,6 @@ export class MortgageCalculatorService {
     return {
       monthlyPayment: this.monthlyPayment,
       principal: this.actualLoanAmount,
-      interest: this.totalInterest,
       totalPayment: this.actualLoanAmount + this.totalInterest,
       totalInterest: this.totalInterest,
       payoffMonths: this.payoffMonths,

@@ -97,7 +97,7 @@ export const MortgageInputsSchema = MortgageInputsBaseSchema
   )
   .refine(
     (data) => {
-      if (data.oneTimePayment > 0) {
+      if (data.oneTimePayment > 0 && data.oneTimePaymentDate) {
         const purchaseDate = new Date(data.purchaseDate);
         const oneTimeDate = new Date(data.oneTimePaymentDate);
         return oneTimeDate >= purchaseDate;

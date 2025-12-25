@@ -34,9 +34,9 @@ export interface MortgageInputs {
   
   /** One-time lump sum payment amount (EUR) */
   oneTimePayment: number;
-  
-  /** Date of one-time payment (ISO 8601 format) */
-  oneTimePaymentDate: string;
+
+  /** Date of one-time payment (ISO 8601 format) - optional */
+  oneTimePaymentDate?: string;
   
   /** Down payment amount (EUR) */
   downPayment: number;
