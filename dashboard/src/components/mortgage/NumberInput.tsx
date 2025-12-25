@@ -33,12 +33,12 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   step,
   error
 }) => {
-  const [displayValue, setDisplayValue] = useState(formatNumber(value.toString()));
+  const [displayValue, setDisplayValue] = useState(formatNumber(value));
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     if (!isFocused) {
-      setDisplayValue(formatNumber(value.toString()));
+      setDisplayValue(formatNumber(value));
     }
   }, [value, isFocused]);
 
@@ -62,7 +62,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   const handleBlur = () => {
     setIsFocused(false);
-    setDisplayValue(formatNumber(value.toString()));
+    setDisplayValue(formatNumber(value));
   };
 
   return (

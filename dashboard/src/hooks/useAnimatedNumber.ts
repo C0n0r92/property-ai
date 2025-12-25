@@ -22,8 +22,8 @@ export const useAnimatedNumber = (
 
   const [currentValue, setCurrentValue] = useState(targetValue);
   const [isAnimating, setIsAnimating] = useState(false);
-  const animationRef = useRef<number>();
-  const startTimeRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
   const startValueRef = useRef(0);
 
   useEffect(() => {

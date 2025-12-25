@@ -1580,7 +1580,7 @@ export default function MapComponent() {
             address: item.address,
             soldPrice: soldPrice,
             askingPrice: askingPrice,
-            price: item.price, // Unified price field
+            price: soldPrice || askingPrice, // Unified price field
             pricePerSqm: item.pricePerSqm || 0,
             priceDiff,
             priceDiffPercent,
@@ -4083,7 +4083,7 @@ export default function MapComponent() {
                   console.log('Property address:', selectedProperty.address);
 
                   // Calculate mortgage parameters from property data
-                  const homeValue = selectedProperty.soldPrice || selectedProperty.price || 0;
+                  const homeValue = selectedProperty.soldPrice || selectedProperty.askingPrice || 0;
 
                   if (homeValue <= 0) {
                     alert('Unable to calculate mortgage: Property price not available');
@@ -4641,7 +4641,7 @@ export default function MapComponent() {
             <div className="mb-4">
               <button
                 onClick={() => {
-                  const homeValue = selectedListing.askingPrice || selectedListing.price || 0;
+                  const homeValue = selectedListing.askingPrice || 0;
 
                   if (homeValue <= 0) {
                     alert('Unable to calculate mortgage: Property price not available');
@@ -5142,7 +5142,7 @@ export default function MapComponent() {
               <button
                 onClick={() => {
                   // For rentals, estimate home value based on annual rent
-                  const monthlyRent = selectedRental.monthlyRent || selectedRental.price || 0;
+                  const monthlyRent = selectedRental.monthlyRent || 0;
                   const homeValue = monthlyRent * 240; // Estimate based on 20-year equivalent
 
                   if (homeValue <= 0) {

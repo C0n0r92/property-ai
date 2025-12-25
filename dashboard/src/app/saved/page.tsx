@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { SavedProperty } from '@/types/supabase';
@@ -10,7 +10,7 @@ import { formatCurrency, formatMonthsAsYears } from '@/lib/mortgage/formatters';
 import { Calculator, TrendingUp, Trash2, ExternalLink, Calendar, Euro, Bookmark } from 'lucide-react';
 import { HeroSection } from '@/components/HeroSection';
 
-export default function SavedPage() {
+function SavedContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
@@ -582,5 +582,17 @@ export default function SavedPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SavedPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <SavedContent />
+    </Suspense>
   );
 }

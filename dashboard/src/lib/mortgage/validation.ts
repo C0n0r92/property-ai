@@ -222,7 +222,7 @@ export type ValidationError = {
 /**
  * Extract validation errors from Zod result
  */
-export function getValidationErrors(result: z.SafeParseReturnType<any, any>): ValidationError[] {
+export function getValidationErrors(result: z.ZodSafeParseSuccess<any> | z.ZodSafeParseError<any>): ValidationError[] {
   if (result.success) return [];
 
   return result.error.issues.map(issue => ({
