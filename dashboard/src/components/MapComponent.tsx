@@ -4075,6 +4075,49 @@ export default function MapComponent() {
               )}
             </div>
 
+            {/* Mortgage Calculator Button */}
+            <div className="mb-6">
+              <button
+                onClick={() => {
+                  console.log('Mortgage button clicked for property:', selectedProperty);
+                  console.log('Property address:', selectedProperty.address);
+
+                  // Calculate mortgage parameters from property data
+                  const homeValue = selectedProperty.soldPrice || selectedProperty.price || 0;
+
+                  if (homeValue <= 0) {
+                    alert('Unable to calculate mortgage: Property price not available');
+                    return;
+                  }
+
+                  const downPayment = Math.max(homeValue * 0.1, 20000); // 10% down or €20k minimum
+                  const loanAmount = Math.max(homeValue - downPayment, 0);
+
+                  // Build URL with pre-filled parameters
+                  const params = new URLSearchParams({
+                    homeValue: homeValue.toString(),
+                    downPayment: downPayment.toString(),
+                    loanAmount: loanAmount.toString(),
+                    interestRate: '3.5', // Default rate
+                    loanTerm: '30', // Default term
+                    propertyType: selectedProperty.propertyType || 'House',
+                    address: encodeURIComponent(selectedProperty.address || ''),
+                  });
+
+                  const url = `/mortgage-calc?${params.toString()}`;
+                  console.log('Navigating to mortgage calculator:', url);
+
+                  // Navigate to mortgage calculator with pre-filled data
+                  window.location.href = url;
+                }}
+                className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl border border-green-500 hover:border-green-400"
+                title="Calculate mortgage for this property"
+              >
+                <span>🏠</span>
+                Calculate Mortgage
+              </button>
+            </div>
+
             {/* Nearby Amenities Section */}
             <div className="mt-4 pt-4 border-t border-gray-700 mb-6">
               <div className="flex items-center justify-between mb-3">
@@ -4593,7 +4636,41 @@ export default function MapComponent() {
                 </div>
               )}
             </div>
-            
+
+            {/* Mortgage Calculator Button for Listings */}
+            <div className="mb-4">
+              <button
+                onClick={() => {
+                  const homeValue = selectedListing.askingPrice || selectedListing.price || 0;
+
+                  if (homeValue <= 0) {
+                    alert('Unable to calculate mortgage: Property price not available');
+                    return;
+                  }
+
+                  const downPayment = Math.max(homeValue * 0.1, 20000);
+                  const loanAmount = Math.max(homeValue - downPayment, 0);
+
+                  const params = new URLSearchParams({
+                    homeValue: homeValue.toString(),
+                    downPayment: downPayment.toString(),
+                    loanAmount: loanAmount.toString(),
+                    interestRate: '3.5',
+                    loanTerm: '30',
+                    propertyType: selectedListing.propertyType || 'House',
+                    address: encodeURIComponent(selectedListing.address || ''),
+                  });
+
+                  window.location.href = `/mortgage-calc?${params.toString()}`;
+                }}
+                className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl border border-green-500 hover:border-green-400"
+                title="Calculate mortgage for this property"
+              >
+                <span>🏠</span>
+                Calculate Mortgage
+              </button>
+            </div>
+
             {/* Price per sqm */}
             {selectedListing.pricePerSqm && selectedListing.pricePerSqm > 0 && (
               <div className="border-t border-gray-700 pt-4">
@@ -5059,7 +5136,43 @@ export default function MapComponent() {
                 </div>
               )}
             </div>
-            
+
+            {/* Mortgage Calculator Button for Rentals */}
+            <div className="mb-4">
+              <button
+                onClick={() => {
+                  // For rentals, estimate home value based on annual rent
+                  const monthlyRent = selectedRental.monthlyRent || selectedRental.price || 0;
+                  const homeValue = monthlyRent * 240; // Estimate based on 20-year equivalent
+
+                  if (homeValue <= 0) {
+                    alert('Unable to calculate mortgage: Rental price not available');
+                    return;
+                  }
+
+                  const downPayment = Math.max(homeValue * 0.1, 20000);
+                  const loanAmount = Math.max(homeValue - downPayment, 0);
+
+                  const params = new URLSearchParams({
+                    homeValue: homeValue.toString(),
+                    downPayment: downPayment.toString(),
+                    loanAmount: loanAmount.toString(),
+                    interestRate: '3.5',
+                    loanTerm: '30',
+                    propertyType: selectedRental.propertyType || 'Apartment',
+                    address: encodeURIComponent(selectedRental.address || ''),
+                  });
+
+                  window.location.href = `/mortgage-calc?${params.toString()}`;
+                }}
+                className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl border border-green-500 hover:border-green-400"
+                title="Calculate mortgage for this rental property"
+              >
+                <span>🏠</span>
+                Calculate Mortgage
+              </button>
+            </div>
+
             {/* Rent per sqm/bed */}
             <div className="border-t border-gray-700 pt-4 space-y-2">
               {selectedRental.rentPerBed && (

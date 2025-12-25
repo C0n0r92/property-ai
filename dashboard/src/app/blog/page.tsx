@@ -5,6 +5,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { ArticleCardSkeleton } from '@/components/ArticleCardSkeleton';
 import { getCategoryConfig } from '@/lib/blog-categories';
+import { HeroSection } from '@/components/HeroSection';
 
 // Research articles data
 const researchArticles = [
@@ -404,60 +405,25 @@ export default function BlogPage() {
   const featuredArticle = researchArticles.find(article => article.featured);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* Compact Header */}
-      <div className="relative bg-gradient-to-r from-indigo-900 via-blue-900 to-purple-900 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-4 left-4 w-32 h-32 bg-white rounded-full mix-blend-multiply filter blur-xl"></div>
-          <div className="absolute top-8 right-8 w-24 h-24 bg-purple-300 rounded-full mix-blend-multiply filter blur-lg"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 py-8 lg:py-12">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            {/* Left side - Title and description */}
-            <div className="flex-1">
-              {/* Breadcrumb */}
-              <nav className="flex items-center space-x-2 text-slate-300 text-sm mb-3">
-                <Link href="/" className="hover:text-white transition-colors">Home</Link>
-                <span>/</span>
-                <span className="text-white font-medium">Market Research</span>
-              </nav>
-
-              {/* Title */}
-              <h1 className="text-2xl lg:text-4xl font-bold text-white mb-2">
-                Market Research & Intelligence
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-slate-300 text-sm lg:text-base max-w-2xl leading-relaxed">
-                Professional market analysis and data-driven insights for Dublin's property landscape.
-              </p>
-            </div>
-
-            {/* Right side - Stats */}
-            <div className="flex items-center gap-4 lg:gap-6">
-              <div className="text-center">
-                <div className="text-lg lg:text-xl font-bold text-white">28</div>
-                <div className="text-slate-300 text-xs">Articles</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg lg:text-xl font-bold text-white">{categories.length - 1}</div>
-                <div className="text-slate-300 text-xs">Categories</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg lg:text-xl font-bold text-white">Free</div>
-                <div className="text-slate-300 text-xs">Access</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      <HeroSection
+        title="Market Research & Intelligence"
+        description="Professional market analysis and data-driven insights for Dublin's property landscape."
+        breadcrumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'Market Research' }
+        ]}
+        stats={[
+          { label: 'Articles', value: 28 },
+          { label: 'Categories', value: categories.length - 1 },
+          { label: 'Access', value: 'Free' }
+        ]}
+      />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8" id="articles">
         {/* Filters Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+        <div className="card p-6 mb-8">
           {/* Search Bar */}
           <div className="mb-6">
             <div className="relative max-w-md">
@@ -467,9 +433,9 @@ export default function BlogPage() {
                 placeholder="Search articles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-12 pr-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
               />
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -477,7 +443,7 @@ export default function BlogPage() {
 
           {/* Category Filters */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Categories</h3>
+            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Categories</h3>
             <div className="flex flex-wrap gap-3">
               {categories.map(category => {
                 const categoryConfig = getCategoryConfig(category);
@@ -488,7 +454,7 @@ export default function BlogPage() {
                     className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                       selectedCategory === category
                         ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:shadow-md'
+                        : 'bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--muted-hover)] hover:shadow-md'
                     }`}
                   >
                     {categoryConfig && (
@@ -506,11 +472,11 @@ export default function BlogPage() {
           {/* Sort and View Controls */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-600">Sort by:</span>
+              <span className="text-sm text-[var(--muted-foreground)]">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
               >
                 <option value="date">Latest First</option>
                 <option value="title">Title A-Z</option>
@@ -519,10 +485,10 @@ export default function BlogPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-600 mr-2">View:</span>
+              <span className="text-sm text-[var(--muted-foreground)] mr-2">View:</span>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -530,7 +496,7 @@ export default function BlogPage() {
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -542,7 +508,7 @@ export default function BlogPage() {
 
         {/* Results Count */}
         <div className="flex justify-between items-center mb-8">
-          <div className="text-slate-600">
+          <div className="text-[var(--muted-foreground)]">
             Showing {((currentPage - 1) * ARTICLES_PER_PAGE) + 1}-{Math.min(currentPage * ARTICLES_PER_PAGE, filteredArticles.length)} of {filteredArticles.length} articles
             {searchQuery && <span> matching "{searchQuery}"</span>}
             {selectedCategory !== 'All' && <span> in {selectedCategory}</span>}
@@ -561,7 +527,7 @@ export default function BlogPage() {
             {paginatedArticles.map(article => (
               <article
                 key={article.id}
-                className={`group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-slate-200 hover:border-slate-300 transition-all duration-300 overflow-hidden ${
+                className={`group card hover:shadow-xl transition-all duration-300 overflow-hidden relative ${
                   viewMode === 'list' ? 'flex' : ''
                 }`}
               >
@@ -570,9 +536,9 @@ export default function BlogPage() {
                   {/* Category Badge */}
                   <div className="flex items-start justify-between mb-4">
                     <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
-                      getCategoryConfig(article.category)?.color.bg || 'bg-slate-100'
+                      getCategoryConfig(article.category)?.color.bg || 'bg-[var(--muted)]'
                     } ${
-                      getCategoryConfig(article.category)?.color.text || 'text-slate-800'
+                      getCategoryConfig(article.category)?.color.text || 'text-[var(--foreground)]'
                     }`}>
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={
@@ -581,7 +547,7 @@ export default function BlogPage() {
                       </svg>
                       {article.category}
                     </span>
-                    <div className="flex items-center gap-1 text-xs text-slate-500">
+                    <div className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -590,32 +556,32 @@ export default function BlogPage() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-bold text-slate-900 mb-3 leading-tight group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-xl font-bold text-[var(--foreground)] mb-3 leading-tight group-hover:text-[var(--primary)] transition-colors">
                     <Link href={`/blog/${article.id}`} className="block">
                       {article.title}
                     </Link>
                   </h3>
 
                   {/* Excerpt */}
-                  <p className="text-slate-600 mb-4 line-clamp-3 leading-relaxed">{article.excerpt}</p>
+                  <p className="text-[var(--muted-foreground)] mb-4 line-clamp-3 leading-relaxed">{article.excerpt}</p>
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {article.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium">
+                      <span key={tag} className="px-2.5 py-1 bg-[var(--muted)] text-[var(--foreground)] rounded-lg text-xs font-medium">
                         {tag}
                       </span>
                     ))}
                     {article.tags.length > 3 && (
-                      <span className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg text-xs">
+                      <span className="px-2.5 py-1 bg-[var(--muted)] text-[var(--muted-foreground)] rounded-lg text-xs">
                         +{article.tags.length - 3} more
                       </span>
                     )}
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                    <div className="flex items-center gap-4 text-sm text-slate-500">
+                  <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+                    <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
                       <span>{article.date}</span>
                       <span>•</span>
                       <span>{article.readTime}</span>
@@ -624,7 +590,7 @@ export default function BlogPage() {
                     </div>
                     <Link
                       href={`/blog/${article.id}`}
-                      className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors"
+                      className="inline-flex items-center gap-2 text-[var(--primary)] hover:text-[var(--accent-hover)] font-semibold text-sm transition-colors"
                     >
                       <span>Read More</span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -654,7 +620,7 @@ export default function BlogPage() {
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 text-sm text-slate-700 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+                className="px-4 py-2 text-sm text-[var(--foreground)] rounded-xl bg-[var(--muted)] border border-[var(--border)] hover:bg-[var(--muted-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -682,7 +648,7 @@ export default function BlogPage() {
                       className={`w-12 h-12 rounded-xl text-sm font-medium transition-all duration-200 ${
                         currentPage === pageNum
                           ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                          : 'text-slate-700 bg-white border border-slate-300 hover:bg-slate-50'
+                          : 'text-[var(--foreground)] bg-[var(--muted)] border border-[var(--border)] hover:bg-[var(--muted-hover)]'
                       }`}
                     >
                       {pageNum}
@@ -694,7 +660,7 @@ export default function BlogPage() {
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 text-sm text-slate-700 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+                className="px-4 py-2 text-sm text-[var(--foreground)] rounded-xl bg-[var(--muted)] border border-[var(--border)] hover:bg-[var(--muted-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
               >
                 Next
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -709,10 +675,10 @@ export default function BlogPage() {
         {/* Explore Areas Section */}
         <div className="mt-20 mb-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-[var(--foreground)] mb-4">
               Explore Areas Featured in Research
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            <p className="text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto">
               Discover detailed market analysis for Dublin's key neighborhoods and property hotspots
             </p>
           </div>

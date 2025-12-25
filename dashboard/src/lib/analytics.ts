@@ -173,5 +173,30 @@ export const analytics = {
   propertyReported: (propertyType: 'sold' | 'listing' | 'rental') => {
     trackEvent({ action: 'property_reported', category: 'engagement', label: propertyType });
   },
+
+  // Areas page events
+  areasPageViewed: () => {
+    trackEvent({ action: 'areas_page_viewed', category: 'navigation' });
+  },
+
+  areasSearchUsed: (query: string) => {
+    trackEvent({ action: 'areas_search_used', category: 'engagement', label: query.substring(0, 50) });
+  },
+
+  areasSortChanged: (sortType: 'count' | 'medianPrice' | 'change6m') => {
+    trackEvent({ action: 'areas_sort_changed', category: 'engagement', label: sortType });
+  },
+
+  areasAreaViewed: (areaName: string) => {
+    trackEvent({ action: 'areas_area_viewed', category: 'engagement', label: areaName });
+  },
+
+  areasPaginationUsed: (pageNumber: number) => {
+    trackEvent({ action: 'areas_pagination_used', category: 'engagement', value: pageNumber });
+  },
+
+  areasQuickNavUsed: (areaName: string) => {
+    trackEvent({ action: 'areas_quick_nav_used', category: 'engagement', label: areaName });
+  },
 };
 
