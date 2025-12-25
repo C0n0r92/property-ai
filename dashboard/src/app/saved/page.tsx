@@ -358,7 +358,7 @@ export default function SavedPage() {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <h3 className="font-semibold text-white text-lg mb-2 leading-tight">
-                          {savedProperty.property?.address || savedProperty.property_id}
+                          {savedProperty.property_data?.address || savedProperty.property_id}
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-gray-400 mb-3">
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,7 +386,7 @@ export default function SavedPage() {
                       </button>
                     </div>
 
-                    {savedProperty.property && (
+                    {savedProperty.property_data && (
                       <div className="space-y-3 mb-4">
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400 text-sm">Price</span>
@@ -410,7 +410,7 @@ export default function SavedPage() {
 
                     <div className="flex gap-2 mb-4">
                       <button
-                        onClick={() => handleCalculateMortgage(savedProperty.property, savedProperty.property_type)}
+                        onClick={() => handleCalculateMortgage(savedProperty.property_data, savedProperty.property_type)}
                         className="flex-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors flex items-center justify-center gap-1"
                       >
                         <Calculator className="w-3 h-3" />
