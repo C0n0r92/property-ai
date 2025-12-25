@@ -212,7 +212,7 @@ export default function SavedPage() {
   const filteredProperties = savedProperties.filter(property => {
     const matchesType = filterType === 'all' || property.property_type === filterType;
     const matchesSearch = searchQuery === '' ||
-      property.property?.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      property.property_data?.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       property.property_id.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesType && matchesSearch;
@@ -224,12 +224,12 @@ export default function SavedPage() {
         comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         break;
       case 'price':
-        const aPrice = a.property?.soldPrice || a.property?.askingPrice || a.property?.monthlyRent || 0;
-        const bPrice = b.property?.soldPrice || b.property?.askingPrice || b.property?.monthlyRent || 0;
+        const aPrice = a.property_data?.soldPrice || a.property_data?.askingPrice || a.property_data?.monthlyRent || 0;
+        const bPrice = b.property_data?.soldPrice || b.property_data?.askingPrice || b.property_data?.monthlyRent || 0;
         comparison = aPrice - bPrice;
         break;
       case 'address':
-        comparison = (a.property?.address || a.property_id).localeCompare(b.property?.address || b.property_id);
+        comparison = (a.property_data?.address || a.property_id).localeCompare(b.property_data?.address || b.property_id);
         break;
     }
 
@@ -392,18 +392,18 @@ export default function SavedPage() {
                           <span className="text-gray-400 text-sm">Price</span>
                           <span className="text-white font-semibold">
                             {savedProperty.property_type === 'rental'
-                              ? `€${savedProperty.property.monthlyRent?.toLocaleString()}/month`
-                              : formatFullPrice(savedProperty.property.soldPrice || savedProperty.property.askingPrice || 0)
+                              ? `€${savedProperty.property_data.monthlyRent?.toLocaleString()}/month`
+                              : formatFullPrice(savedProperty.property_data.soldPrice || savedProperty.property_data.askingPrice || 0)
                             }
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400 text-sm">Bedrooms</span>
-                          <span className="text-white font-semibold">{savedProperty.property.bedrooms || 'N/A'}</span>
+                          <span className="text-white font-semibold">{savedProperty.property_data.bedrooms || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400 text-sm">Property Type</span>
-                          <span className="text-white font-semibold">{savedProperty.property.propertyType || 'N/A'}</span>
+                          <span className="text-white font-semibold">{savedProperty.property_data.propertyType || 'N/A'}</span>
                         </div>
                       </div>
                     )}
