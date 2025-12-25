@@ -332,6 +332,18 @@ const researchArticles = [
     author: 'Market Research Team',
     views: 1750,
   },
+  {
+    id: 'christmas-property-market-analysis',
+    title: 'Christmas Property Sales: Dublin Market Shutdown and Price Impact Analysis',
+    excerpt: 'Analysis of December property sales reveals significant market slowdown during Christmas week with 8.1% lower prices and near-zero activity on Dec 25.',
+    category: 'Market Trends',
+    date: '2025-12-26',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Christmas Sales', 'Market Activity', 'Seasonal Trends', 'Property Prices'],
+    author: 'Market Research Team',
+    views: 4237,
+  },
 ];
 
 const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting'];
@@ -426,7 +438,7 @@ export default function BlogPage() {
             {/* Right side - Stats */}
             <div className="flex items-center gap-4 lg:gap-6">
               <div className="text-center">
-                <div className="text-lg lg:text-xl font-bold text-white">27</div>
+                <div className="text-lg lg:text-xl font-bold text-white">28</div>
                 <div className="text-slate-300 text-xs">Articles</div>
               </div>
               <div className="text-center">

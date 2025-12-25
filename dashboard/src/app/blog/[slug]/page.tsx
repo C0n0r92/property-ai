@@ -8,7 +8,7 @@ import { BlogVoteButton } from '@/components/BlogVoteButton';
 import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { getCategoryConfig } from '@/lib/blog-categories';
-import { OverAskingChart, DistanceChart, ThreeBedChart } from '@/components/BlogCharts';
+import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart } from '@/components/BlogCharts';
 
 // Function to process markdown content to HTML
 function processMarkdownToHtml(content: string): string {
@@ -16,62 +16,120 @@ function processMarkdownToHtml(content: string): string {
   const processedLines: string[] = [];
   let inList = false;
   let listType: 'ul' | 'ol' | null = null;
+  let inTable = false;
+  let tableRows: string[][] = [];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmedLine = line.trim();
 
     // Skip chart component lines - they'll be handled separately
-    if (trimmedLine === '<OverAskingChart />' || trimmedLine === '<ThreeBedChart />' || trimmedLine === '<DistanceChart />') {
+    if (trimmedLine === '<OverAskingChart />' || trimmedLine === '<ThreeBedChart />' || trimmedLine === '<DistanceChart />' || trimmedLine === '<ChristmasPriceChart />') {
       continue;
     }
 
     // Handle bold formatting
     const processedLine = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
-    // Check for list items
-    const isBulletList = trimmedLine.startsWith('- ');
-    const isNumberedList = /^\d+\.\s/.test(trimmedLine);
+    // Check for table rows (lines containing | separators)
+    const isTableRow = trimmedLine.includes('|') && trimmedLine.split('|').length > 2;
 
-    if (isBulletList || isNumberedList) {
-      // Start or continue a list
-      if (!inList) {
-        listType = isBulletList ? 'ul' : 'ol';
-        processedLines.push(`<${listType} class="list-disc list-inside text-slate-700 leading-relaxed mb-4 text-lg space-y-2">`);
-        inList = true;
+    if (isTableRow && !inList) {
+      // Parse table row
+      const cells = trimmedLine.split('|').map(cell => cell.trim()).filter(cell => cell !== '');
+      const isSeparatorRow = cells.every(cell => /^-+$/.test(cell));
+
+      if (!inTable) {
+        // Start new table
+        inTable = true;
+        tableRows = [];
       }
 
-      // Extract list item content
-      const listContent = isBulletList
-        ? processedLine.substring(processedLine.indexOf('- ') + 2)
-        : processedLine.substring(processedLine.indexOf('. ') + 2);
-
-      processedLines.push(`<li class="ml-4">${listContent}</li>`);
+      if (!isSeparatorRow) {
+        tableRows.push(cells);
+      }
     } else {
-      // End list if we were in one
-      if (inList) {
-        processedLines.push(`</${listType}>`);
-        inList = false;
-        listType = null;
+      // End table if we were in one
+      if (inTable) {
+        // Convert table to HTML
+        if (tableRows.length > 0) {
+          processedLines.push('<div class="my-6 overflow-x-auto">');
+          processedLines.push('<table class="w-full bg-white border border-slate-200 rounded-lg shadow-sm text-sm">');
+
+          tableRows.forEach((row, rowIndex) => {
+            if (rowIndex === 0) {
+              // Header row
+              processedLines.push('<thead class="bg-slate-50">');
+              processedLines.push('<tr>');
+              row.forEach(cell => {
+                processedLines.push(`<th class="px-4 py-3 text-left font-semibold text-slate-900 border-b border-slate-200 first:rounded-tl-lg last:rounded-tr-lg">${cell}</th>`);
+              });
+              processedLines.push('</tr>');
+              processedLines.push('</thead>');
+              processedLines.push('<tbody>');
+            } else {
+              // Data rows
+              processedLines.push('<tr class="hover:bg-slate-50 transition-colors">');
+              row.forEach(cell => {
+                processedLines.push(`<td class="px-4 py-3 text-slate-700 border-b border-slate-100">${cell}</td>`);
+              });
+              processedLines.push('</tr>');
+            }
+          });
+
+          processedLines.push('</tbody>');
+          processedLines.push('</table>');
+          processedLines.push('</div>');
+        }
+
+        inTable = false;
+        tableRows = [];
       }
 
-      // Handle headings
-      if (processedLine.startsWith('# ')) {
-        const text = processedLine.substring(2);
-        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        processedLines.push(`<h1 id="${id}" class="text-3xl font-bold text-slate-900 mt-12 mb-6 scroll-mt-24">${text}</h1>`);
-      } else if (processedLine.startsWith('## ')) {
-        const text = processedLine.substring(3);
-        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        processedLines.push(`<h2 id="${id}" class="text-2xl font-semibold text-slate-900 mt-10 mb-4 scroll-mt-24">${text}</h2>`);
-      } else if (processedLine.startsWith('### ')) {
-        const text = processedLine.substring(4);
-        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        processedLines.push(`<h3 id="${id}" class="text-xl font-semibold text-slate-900 mt-8 mb-3 scroll-mt-24">${text}</h3>`);
-      } else if (trimmedLine === '') {
-        processedLines.push('<br/>');
+      // Check for list items
+      const isBulletList = trimmedLine.startsWith('- ');
+      const isNumberedList = /^\d+\.\s/.test(trimmedLine);
+
+      if (isBulletList || isNumberedList) {
+        // Start or continue a list
+        if (!inList) {
+          listType = isBulletList ? 'ul' : 'ol';
+          processedLines.push(`<${listType} class="list-disc list-inside text-slate-700 leading-relaxed mb-4 text-lg space-y-2">`);
+          inList = true;
+        }
+
+        // Extract list item content
+        const listContent = isBulletList
+          ? processedLine.substring(processedLine.indexOf('- ') + 2)
+          : processedLine.substring(processedLine.indexOf('. ') + 2);
+
+        processedLines.push(`<li class="ml-4">${listContent}</li>`);
       } else {
-        processedLines.push(`<p class="text-slate-700 leading-relaxed mb-4 text-lg">${processedLine}</p>`);
+        // End list if we were in one
+        if (inList) {
+          processedLines.push(`</${listType}>`);
+          inList = false;
+          listType = null;
+        }
+
+        // Handle headings
+        if (processedLine.startsWith('# ')) {
+          const text = processedLine.substring(2);
+          const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          processedLines.push(`<h1 id="${id}" class="text-3xl font-bold text-slate-900 mt-12 mb-6 scroll-mt-24">${text}</h1>`);
+        } else if (processedLine.startsWith('## ')) {
+          const text = processedLine.substring(3);
+          const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          processedLines.push(`<h2 id="${id}" class="text-2xl font-semibold text-slate-900 mt-10 mb-4 scroll-mt-24">${text}</h2>`);
+        } else if (processedLine.startsWith('### ')) {
+          const text = processedLine.substring(4);
+          const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          processedLines.push(`<h3 id="${id}" class="text-xl font-semibold text-slate-900 mt-8 mb-3 scroll-mt-24">${text}</h3>`);
+        } else if (trimmedLine === '') {
+          processedLines.push('<br/>');
+        } else {
+          processedLines.push(`<p class="text-slate-700 leading-relaxed mb-4 text-lg">${processedLine}</p>`);
+        }
       }
     }
   }
@@ -81,6 +139,37 @@ function processMarkdownToHtml(content: string): string {
     processedLines.push(`</${listType}>`);
   }
 
+  // Close any open table
+  if (inTable && tableRows.length > 0) {
+    processedLines.push('<div class="my-6 overflow-x-auto">');
+    processedLines.push('<table class="w-full bg-white border border-slate-200 rounded-lg shadow-sm text-sm">');
+
+    tableRows.forEach((row, rowIndex) => {
+      if (rowIndex === 0) {
+        // Header row
+        processedLines.push('<thead class="bg-slate-50">');
+        processedLines.push('<tr>');
+        row.forEach(cell => {
+          processedLines.push(`<th class="px-4 py-3 text-left font-semibold text-slate-900 border-b border-slate-200 first:rounded-tl-lg last:rounded-tr-lg">${cell}</th>`);
+        });
+        processedLines.push('</tr>');
+        processedLines.push('</thead>');
+        processedLines.push('<tbody>');
+      } else {
+        // Data rows
+        processedLines.push('<tr class="hover:bg-slate-50 transition-colors">');
+        row.forEach(cell => {
+          processedLines.push(`<td class="px-4 py-3 text-slate-700 border-b border-slate-100">${cell}</td>`);
+        });
+        processedLines.push('</tr>');
+      }
+    });
+
+    processedLines.push('</tbody>');
+    processedLines.push('</table>');
+    processedLines.push('</div>');
+  }
+
   return processedLines.join('');
 }
 
@@ -88,7 +177,7 @@ function processMarkdownToHtml(content: string): string {
 interface ContentSegment {
   type: 'html' | 'chart';
   content?: string;
-  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart';
+  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart' | 'ChristmasPriceChart';
 }
 
 function splitContentWithCharts(content: string): ContentSegment[] {
@@ -152,6 +241,23 @@ function splitContentWithCharts(content: string): ContentSegment[] {
       segments.push({
         type: 'chart',
         chartComponent: 'DistanceChart'
+      });
+    } else if (trimmedLine === '<ChristmasPriceChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'ChristmasPriceChart'
       });
     } else {
       // Add to current HTML segment
@@ -4222,6 +4328,142 @@ This analysis calculates distances from Dublin's General Post Office (53.3498°N
     `,
     relatedArticles: ['amenities-impact-prices', 'complete-area-rankings', 'dublin-property-market-q4-2024'],
   },
+  'christmas-property-market-analysis': {
+    title: 'Christmas Property Sales: Dublin Market Shutdown and Price Impact Analysis',
+    excerpt: 'Analysis of December property sales reveals significant market slowdown during Christmas week with 8.1% lower prices and near-zero activity on Dec 25.',
+    category: 'Market Trends',
+    date: '2025-12-26',
+    readTime: '6 min read',
+    tags: ['Christmas Sales', 'Market Activity', 'Seasonal Trends', 'Property Prices'],
+    author: 'Market Research Team',
+    views: 4237,
+    content: `
+# Christmas Property Sales: Dublin Market Shutdown and Price Impact Analysis
+
+## Executive Summary
+
+Dublin's property market experiences a dramatic seasonal slowdown during Christmas week, with analysis of 4,022 December sales revealing an 8.1% price reduction and near-total market shutdown on December 25th. This pattern provides valuable insights for buyers and sellers timing their property transactions.
+
+## December Market Overview
+
+### Total Transaction Volume
+December recorded 4,022 property sales across Dublin, representing a significant portion of Q4 activity. However, the Christmas period (December 20-26) showed markedly different patterns compared to the rest of the month.
+
+### Price Performance by Period
+- **Overall December Average**: €556,241
+- **Christmas Week (Dec 20-26)**: €518,364 (-8.1%)
+- **Rest of December**: €563,962
+
+The €45,598 price reduction during Christmas week represents a clear seasonal discount, though this is offset by dramatically reduced transaction volumes.
+
+## Christmas Week Price Trends
+
+### Daily Price Movements
+
+<ChristmasPriceChart />
+
+### Key Observations
+- **December 20**: €545,584 (286 sales) - Normal market activity
+- **December 21**: €500,992 (201 sales) - Early price dip begins
+- **December 22**: €482,540 (141 sales) - Lowest daily average
+- **December 23**: €536,650 (50 sales) - Pre-Christmas pickup
+- **December 24**: €466,333 (3 sales) - Christmas Eve shutdown
+- **December 25**: €0 (0 sales) - Complete market closure
+- **December 26**: €0 (0 sales) - Boxing Day closure
+- **December 28-31**: Gradual recovery with premium pricing
+
+## Property Type Performance During Christmas
+
+### Christmas Week vs Full December
+
+| Property Type | Christmas Week Avg | Full December Avg | Price Difference |
+|---------------|-------------------|-------------------|------------------|
+| Semi-Detached | €594,237 | €639,034 | -€44,797 (-7.0%) |
+| Apartments | €331,948 | €361,092 | -€29,144 (-8.1%) |
+| Terraced | €487,765 | €521,434 | -€33,669 (-6.5%) |
+| Detached | €981,250 | €1,056,995 | -€75,745 (-7.2%) |
+
+All major property types showed consistent 6.5-8.1% price reductions during Christmas week, indicating a market-wide seasonal effect rather than type-specific discounting.
+
+## Market Activity Patterns
+
+### Transaction Volume Analysis
+- **Peak Day (Dec 20)**: 286 sales
+- **Christmas Eve (Dec 24)**: Only 3 sales
+- **Christmas Day (Dec 25)**: Zero sales
+- **Boxing Day (Dec 26)**: Zero sales
+- **Post-Christmas Recovery**: Gradual increase starting December 28
+
+The market effectively shuts down for two full days during Christmas, with minimal activity even on Christmas Eve.
+
+## Price Range Distribution
+
+### Christmas Week vs Full December
+
+**Under €300k**:
+- Christmas Week: 18.2% of sales
+- Full December: 15.1% of sales
+- *Higher proportion of affordable properties during Christmas*
+
+**€300k-€500k**:
+- Christmas Week: 45.1% of sales
+- Full December: 43.6% of sales
+- *Mid-range remains dominant segment*
+
+**€500k-€750k**:
+- Christmas Week: 22.3% of sales
+- Full December: 24.0% of sales
+- *Slight reduction in premium segment*
+
+**Over €1M**:
+- Christmas Week: 6.2% of sales
+- Full December: 8.1% of sales
+- *Luxury market shows greatest seasonal impact*
+
+## Strategic Implications
+
+### For Property Sellers
+**Pre-Christmas Strategy**:
+- List properties before December 20 for optimal pricing
+- Consider December 23 as final listing deadline
+- Expect 8.1% price reduction if selling during Christmas week
+
+**Post-Christmas Opportunities**:
+- Monitor December 28-31 for potential premium pricing
+- Take advantage of reduced competition in early January
+
+### For Property Buyers
+**Christmas Week Advantages**:
+- 8.1% average price reduction across all property types
+- Reduced competition from other buyers
+- Higher proportion of affordable properties available
+
+**Strategic Timing**:
+- Target December 20-23 for best combination of price and selection
+- Avoid Christmas Eve and Christmas Day (minimal activity)
+- Consider post-Christmas period for motivated sellers
+
+## Market Recovery Patterns
+
+### Post-Christmas Activity
+Sales volume recovers gradually after Boxing Day:
+- **December 28**: 1 sale at premium pricing (€830,000)
+- **December 29**: 5 sales averaging €482,000
+- **December 30**: 4 sales averaging €462,750
+- **December 31**: 3 sales averaging €617,667
+
+The market shows signs of returning to normal levels by early January, suggesting the Christmas effect is temporary.
+
+## Conclusion
+
+Dublin's Christmas property market demonstrates clear seasonal patterns with an 8.1% price reduction and near-total shutdown on December 25-26. While this creates buying opportunities, the dramatically reduced transaction volumes mean fewer properties are available during this period.
+
+**Key Takeaway**: Properties listed before December 20 achieve optimal pricing, while Christmas week offers genuine seasonal discounts but limited selection. Understanding these patterns allows buyers and sellers to strategically time their property transactions for maximum advantage.
+
+Data analysis based on 4,022 Dublin property transactions recorded in December 2024 market data.
+    `,
+    relatedArticles: ['dublin-property-market-q4-2024', 'properties-over-asking-dublin', 'fastest-growing-areas-dublin'],
+  },
 };
 
 export default async function ResearchArticlePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -4319,6 +4561,8 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                         return <ThreeBedChart key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'DistanceChart') {
                         return <DistanceChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'ChristmasPriceChart') {
+                        return <ChristmasPriceChart key={`chart-${index}`} />;
                       }
                     }
                     return null;

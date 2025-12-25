@@ -73,3 +73,81 @@ export function ThreeBedChart() {
     </div>
   );
 }
+
+export function ChristmasPriceChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { day: 'Dec 20', price: 545584, volume: 286, overAsking: 4.06 },
+                { day: 'Dec 21', price: 500992, volume: 201, overAsking: 3.72 },
+                { day: 'Dec 22', price: 482540, volume: 141, overAsking: 1.15 },
+                { day: 'Dec 23', price: 536650, volume: 50, overAsking: 3.72 },
+                { day: 'Dec 24', price: 466333, volume: 3, overAsking: 10.59 },
+                { day: 'Dec 25', price: 0, volume: 0, overAsking: 0 },
+                { day: 'Dec 26', price: 0, volume: 0, overAsking: 0 },
+                { day: 'Dec 28', price: 830000, volume: 1, overAsking: 14.48 },
+                { day: 'Dec 29', price: 482000, volume: 5, overAsking: 7.35 },
+                { day: 'Dec 30', price: 462750, volume: 4, overAsking: -6.28 },
+                { day: 'Dec 31', price: 617667, volume: 3, overAsking: 3.23 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="day"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                yAxisId="price"
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <YAxis
+                yAxisId="volume"
+                orientation="right"
+                label={{ value: 'Volume', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'Average Price') return [`€${value.toLocaleString()}`, name];
+                  if (name === 'Volume') return [value, name];
+                  if (name === 'Over-asking Rate') return [`${value}%`, name];
+                  return [value, name];
+                }}
+              />
+              <Line
+                yAxisId="price"
+                type="monotone"
+                dataKey="price"
+                stroke="#2563EB"
+                strokeWidth={2}
+                name="Average Price"
+                connectNulls={false}
+              />
+              <Line
+                yAxisId="volume"
+                type="monotone"
+                dataKey="volume"
+                stroke="#DC2626"
+                strokeWidth={2}
+                name="Volume"
+                connectNulls={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          December house prices showed a distinct dip during Christmas week, with minimal activity on Dec 25
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
