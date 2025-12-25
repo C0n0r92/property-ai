@@ -25,11 +25,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       publishedTime: article.date,
       authors: ['Irish Property Data'],
       tags: article.tags,
+      images: [
+        {
+          url: `/blog/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: `${article.title} - Irish Property Data Research`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: article.title,
       description: article.excerpt,
+      images: [`/blog/${slug}/opengraph-image`],
     },
     alternates: {
       canonical: `/blog/${slug}`,
