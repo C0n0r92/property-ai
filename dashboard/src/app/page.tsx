@@ -33,6 +33,16 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // Popular Dublin areas for suggestions
+  const popularAreas = [
+    { name: 'Dublin 4', description: 'Ballsbridge, Donnybrook, Sandymount' },
+    { name: 'Dublin 2', description: 'City Centre, Trinity College area' },
+    { name: 'Dublin 6', description: 'Rathmines, Rathgar, Terenure' },
+    { name: 'Dublin 18', description: 'Cabinteely, Foxrock, Leopardstown' },
+    { name: 'Dublin 14', description: 'Churchtown, Clonskeagh, Goatstown' },
+    { name: 'Dublin 7', description: 'Smithfield, Arbour Hill, Phoenix Park' },
+  ];
+
   useEffect(() => {
     // Fetch market stats and featured areas
     Promise.all([
@@ -174,7 +184,12 @@ export default function Home() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    placeholder="Search Irish areas (e.g., Dublin 4, Ballsbridge)..."
+                    placeholder=""
+                    onFocus={() => setShowSearchResults(true)}
+                    onBlur={() => {
+                      // Delay hiding to allow click on suggestions
+                      setTimeout(() => setShowSearchResults(false), 150);
+                    }}
                     className="w-full px-6 py-4 pr-16 bg-white border-2 border-slate-200 rounded-2xl text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all text-lg shadow-lg"
                   />
                   <button
@@ -192,48 +207,125 @@ export default function Home() {
               </form>
 
               {/* Search Results Dropdown */}
-              {showSearchResults && searchResults.length > 0 && (
+              {showSearchResults && (
                 <div className="absolute z-10 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
-                  {searchResults.map((result, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleAreaSelect(result)}
-                      className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
-                    >
-                      <div className="font-medium text-slate-900">{result.place_name.split(',')[0]}</div>
-                      <div className="text-sm text-slate-500">{result.place_name}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* No Results */}
-              {showSearchResults && searchResults.length === 0 && !isSearching && (
-                <div className="absolute z-10 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl p-4">
-                  <div className="text-sm text-slate-500">No locations found</div>
+                  {searchResults.length > 0 ? (
+                    // Show search results when typing
+                    searchResults.map((result, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleAreaSelect(result)}
+                        className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
+                      >
+                        <div className="font-medium text-slate-900">{result.place_name.split(',')[0]}</div>
+                        <div className="text-sm text-slate-500">{result.place_name}</div>
+                      </button>
+                    ))
+                  ) : searchQuery.trim() === '' ? (
+                    // Show popular areas when search is empty and focused
+                    <>
+                      <div className="px-4 py-2 border-b border-slate-100">
+                        <div className="text-sm font-medium text-slate-700">Popular Areas</div>
+                      </div>
+                      {popularAreas.map((area, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setSearchQuery(area.name);
+                            router.push(`/map?search=${encodeURIComponent(area.name)}`);
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
+                        >
+                          <div className="font-medium text-slate-900">{area.name}</div>
+                          <div className="text-sm text-slate-500">{area.description}</div>
+                        </button>
+                      ))}
+                    </>
+                  ) : !isSearching ? (
+                    // Show no results when search has text but no matches
+                    <div className="px-4 py-3">
+                      <div className="text-sm text-slate-500">No locations found</div>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link
-                href="/map"
-                className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Search Helper Text */}
+            <div className="text-center mb-12">
+              <p className="text-sm text-slate-500 flex items-center justify-center gap-2">
+                <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V7m0 0L9 4" />
                 </svg>
-                Explore Irish Property Map
+                Search takes you to our interactive property map
+              </p>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+              {/* Primary Action - Explore Map */}
+              <Link
+                href="/map"
+                className="group relative bg-gradient-to-br from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white rounded-2xl p-6 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 border border-slate-700/50"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative">
+                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V7m0 0L9 4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Explore Properties</h3>
+                  <p className="text-slate-300 text-sm leading-relaxed">Interactive map with 48k+ Irish properties</p>
+                </div>
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
               </Link>
+
+              {/* Secondary Action - Mortgage Calculator */}
+              <Link
+                href="/mortgage-calc"
+                className="group relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-500 hover:via-blue-600 hover:to-indigo-600 text-white rounded-2xl p-6 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 border border-blue-500/30"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-2xl"></div>
+                <div className="relative">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/30 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Mortgage Calculator</h3>
+                  <p className="text-blue-100 text-sm leading-relaxed">Calculate payments and affordability</p>
+                </div>
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
+              </Link>
+
+              {/* Tertiary Action - Browse Areas */}
               <Link
                 href="/areas"
-                className="px-8 py-4 bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-900 rounded-xl font-semibold text-lg transition-all shadow-md hover:shadow-lg inline-flex items-center gap-2"
+                className="group relative bg-white hover:bg-slate-50 text-slate-900 rounded-2xl p-6 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 border border-slate-200 hover:border-slate-300"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Browse Areas
+                <div className="relative">
+                  <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-slate-200 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Browse Areas</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">Explore Dublin neighborhoods & suburbs</p>
+                </div>
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
               </Link>
             </div>
 
