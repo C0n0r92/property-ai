@@ -1,0 +1,250 @@
+{
+  "analysis": {
+    "totalProperties": 43830,
+    "priceRanges": {
+      "750k-1M": 4175,
+      "350k-500k": 14419,
+      "500k-750k": 10728,
+      "250k-350k": 8930,
+      "Over 1M": 3485,
+      "Under 250k": 2093
+    },
+    "propertyTypes": {
+      "Detached": 3470,
+      "Semi-D": 12195,
+      "Terrace": 10047,
+      "End of Terrace": 3863,
+      "Apartment": 11449,
+      "": 407,
+      "Bungalow": 950,
+      "Townhouse": 273,
+      "Duplex": 1114,
+      "Site": 61,
+      "terrace": 1
+    },
+    "areas": {
+      "D15": 3617,
+      "D6W": 813,
+      "D18": 2249,
+      "D12": 1867,
+      "D7": 1756,
+      "D5": 1444,
+      "D8": 2031,
+      "D22": 1088,
+      "D3": 1612,
+      "D4": 1853,
+      "D2": 550,
+      "D24": 2267,
+      "D14": 1736,
+      "D11": 1440,
+      "D6": 1401,
+      "D9": 1995,
+      "D10": 424,
+      "D1": 739,
+      "D16": 1539,
+      "D13": 1727,
+      "D17": 332,
+      "D20": 358,
+      "D07": 3,
+      "D23": 1,
+      "D25": 1,
+      "D08": 1
+    },
+    "bedrooms": {
+      "1": 2981,
+      "2": 12764,
+      "3": 16835,
+      "4": 7267,
+      "5": 1865
+    },
+    "priceTrends": {},
+    "overUnderAnalysis": {
+      "Over": 33802,
+      "Under": 6468,
+      "Exact": 3560
+    },
+    "sizeAnalysis": {
+      "80-120sqm": {
+        "count": 15285,
+        "avgPricePerSqm": 5123
+      },
+      "120-160sqm": {
+        "count": 6314,
+        "avgPricePerSqm": 5287
+      },
+      "50-80sqm": {
+        "count": 11073,
+        "avgPricePerSqm": 5705
+      },
+      "Over 160sqm": {
+        "count": 4380,
+        "avgPricePerSqm": 5720
+      },
+      "Under 50sqm": {
+        "count": 2176,
+        "avgPricePerSqm": 7384
+      }
+    }
+  },
+  "typePerformance": {
+    "Detached": {
+      "over": 2185,
+      "under": 977,
+      "exact": 0,
+      "total": 3162,
+      "overRate": "69.1"
+    },
+    "Semi-D": {
+      "over": 9768,
+      "under": 1597,
+      "exact": 0,
+      "total": 11365,
+      "overRate": "85.9"
+    },
+    "Terrace": {
+      "over": 7916,
+      "under": 1385,
+      "exact": 0,
+      "total": 9301,
+      "overRate": "85.1"
+    },
+    "End of Terrace": {
+      "over": 3077,
+      "under": 511,
+      "exact": 0,
+      "total": 3588,
+      "overRate": "85.8"
+    },
+    "Apartment": {
+      "over": 8692,
+      "under": 1570,
+      "exact": 0,
+      "total": 10262,
+      "overRate": "84.7"
+    },
+    "Townhouse": {
+      "over": 197,
+      "under": 54,
+      "exact": 0,
+      "total": 251,
+      "overRate": "78.5"
+    },
+    "Duplex": {
+      "over": 919,
+      "under": 102,
+      "exact": 0,
+      "total": 1021,
+      "overRate": "90.0"
+    },
+    "Bungalow": {
+      "over": 669,
+      "under": 210,
+      "exact": 0,
+      "total": 879,
+      "overRate": "76.1"
+    },
+    "Site": {
+      "over": 31,
+      "under": 23,
+      "exact": 0,
+      "total": 54,
+      "overRate": "57.4"
+    },
+    "terrace": {
+      "over": 1,
+      "under": 0,
+      "exact": 0,
+      "total": 1,
+      "overRate": "100.0"
+    }
+  },
+  "sortedAreas": [
+    [
+      "D15",
+      3617
+    ],
+    [
+      "D24",
+      2267
+    ],
+    [
+      "D18",
+      2249
+    ],
+    [
+      "D8",
+      2031
+    ],
+    [
+      "D9",
+      1995
+    ],
+    [
+      "D12",
+      1867
+    ],
+    [
+      "D4",
+      1853
+    ],
+    [
+      "D7",
+      1756
+    ],
+    [
+      "D14",
+      1736
+    ],
+    [
+      "D13",
+      1727
+    ]
+  ],
+  "sortedTypes": [
+    [
+      "Semi-D",
+      12195
+    ],
+    [
+      "Apartment",
+      11449
+    ],
+    [
+      "Terrace",
+      10047
+    ],
+    [
+      "End of Terrace",
+      3863
+    ],
+    [
+      "Detached",
+      3470
+    ],
+    [
+      "Duplex",
+      1114
+    ],
+    [
+      "Bungalow",
+      950
+    ],
+    [
+      "",
+      407
+    ],
+    [
+      "Townhouse",
+      273
+    ],
+    [
+      "Site",
+      61
+    ],
+    [
+      "terrace",
+      1
+    ]
+  ],
+  "overAskingPercent": 77.1
+}

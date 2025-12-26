@@ -1,0 +1,119 @@
+{
+  "reviewDate": "2025-12-26T10:21:48.883Z",
+  "summary": {
+    "totalBlogs": 3,
+    "passed": 3,
+    "averageScore": 84
+  },
+  "detailedResults": [
+    {
+      "filename": "blog7_investor_yield_curve.md",
+      "overallScore": 80,
+      "totalScore": 80,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 22,
+          "maxScore": 25,
+          "percentage": 88
+        },
+        "clarity": {
+          "score": 13,
+          "maxScore": 20,
+          "percentage": 65
+        },
+        "actionability": {
+          "score": 8,
+          "maxScore": 20,
+          "percentage": 42
+        },
+        "uniqueness": {
+          "score": 22,
+          "maxScore": 20,
+          "percentage": 110
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "blog8_3bed_phenomenon.md",
+      "overallScore": 83,
+      "totalScore": 83,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 20,
+          "maxScore": 25,
+          "percentage": 80
+        },
+        "clarity": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "actionability": {
+          "score": 12,
+          "maxScore": 20,
+          "percentage": 60
+        },
+        "uniqueness": {
+          "score": 22,
+          "maxScore": 20,
+          "percentage": 110
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
+    },
+    {
+      "filename": "blog9_d4_premium.md",
+      "overallScore": 89,
+      "totalScore": 89,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 24,
+          "maxScore": 25,
+          "percentage": 96
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 6,
+          "maxScore": 20,
+          "percentage": 28
+        },
+        "uniqueness": {
+          "score": 29,
+          "maxScore": 20,
+          "percentage": 145
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "yieldCurve": [
+    {
+      "bracket": "Under €300k",
+      "yield": 11.52,
+      "count": 3906
+    },
+    {
+      "bracket": "€300k-€400k",
+      "yield": 9.04,
+      "count": 7172
+    },
+    {
+      "bracket": "€400k-€500k",
+      "yield": 7.83,
+      "count": 6241
+    },
+    {
+      "bracket": "€500k-€700k",
+      "yield": 6.57,
+      "count": 6087
+    },
+    {
+      "bracket": "Over €700k",
+      "yield": 4.88,
+      "count": 3830
+    }
+  ],
+  "topAptAreas": [
+    {
+      "area": "D22",
+      "yield": 10.69,
+      "price": 247000
+    },
+    {
+      "area": "D12",
+      "yield": 10.63,
+      "price": 285000
+    },
+    {
+      "area": "D11",
+      "yield": 10.11,
+      "price": 273000
+    },
+    {
+      "area": "D24",
+      "yield": 9.44,
+      "price": 260000
+    },
+    {
+      "area": "D9",
+      "yield": 9.64,
+      "price": 320000
+    }
+  ],
+  "typeComparison": [
+    {
+      "type": "Townhouse",
+      "yield": 9.12,
+      "overRate": 75.7
+    },
+    {
+      "type": "Duplex",
+      "yield": 9.11,
+      "overRate": 84.6
+    },
+    {
+      "type": "Apartment",
+      "yield": 8.75,
+      "overRate": 77
+    },
+    {
+      "type": "Terrace",
+      "yield": 8.08,
+      "overRate": 80.2
+    },
+    {
+      "type": "End of Terrace",
+      "yield": 8.07,
+      "overRate": 81.3
+    },
+    {
+      "type": "",
+      "yield": 7.31,
+      "overRate": 88.7
+    },
+    {
+      "type": "Semi-D",
+      "yield": 7.21,
+      "overRate": 82.9
+    },
+    {
+      "type": "Bungalow",
+      "yield": 7.2,
+      "overRate": 72.8
+    }
+  ]
+}

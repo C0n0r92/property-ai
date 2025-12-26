@@ -1,0 +1,186 @@
+{
+  "premiumByBedroom": [
+    {
+      "bedrooms": 1,
+      "premium": 36.4,
+      "d4Price": 375000,
+      "restPrice": 275000
+    },
+    {
+      "bedrooms": 2,
+      "premium": 42.5,
+      "d4Price": 520000,
+      "restPrice": 365000
+    },
+    {
+      "bedrooms": 3,
+      "premium": 80.1,
+      "d4Price": 850000,
+      "restPrice": 472000
+    },
+    {
+      "bedrooms": 4,
+      "premium": 90.8,
+      "d4Price": 1355000,
+      "restPrice": 710278
+    },
+    {
+      "bedrooms": 5,
+      "premium": 106.4,
+      "d4Price": 2000000,
+      "restPrice": 969162
+    }
+  ],
+  "sqmByArea": [
+    {
+      "area": "D4",
+      "sqmPrice": 7688,
+      "count": 1777
+    },
+    {
+      "area": "D6",
+      "sqmPrice": 7561,
+      "count": 1354
+    },
+    {
+      "area": "D2",
+      "sqmPrice": 7067,
+      "count": 529
+    },
+    {
+      "area": "D14",
+      "sqmPrice": 6257,
+      "count": 1657
+    },
+    {
+      "area": "D6W",
+      "sqmPrice": 6232,
+      "count": 754
+    },
+    {
+      "area": "D8",
+      "sqmPrice": 5966,
+      "count": 1873
+    },
+    {
+      "area": "D3",
+      "sqmPrice": 5868,
+      "count": 1494
+    },
+    {
+      "area": "D1",
+      "sqmPrice": 5861,
+      "count": 639
+    },
+    {
+      "area": "D7",
+      "sqmPrice": 5724,
+      "count": 1547
+    },
+    {
+      "area": "D16",
+      "sqmPrice": 5556,
+      "count": 1462
+    }
+  ],
+  "sizeEfficiency": [
+    {
+      "type": "Detached",
+      "sqm": 169,
+      "pricePerSqm": 5489,
+      "totalPrice": 915000
+    },
+    {
+      "type": "Semi-D",
+      "sqm": 114,
+      "pricePerSqm": 5106,
+      "totalPrice": 575000
+    },
+    {
+      "type": "Duplex",
+      "sqm": 101,
+      "pricePerSqm": 3887,
+      "totalPrice": 372000
+    },
+    {
+      "type": "Townhouse",
+      "sqm": 95,
+      "pricePerSqm": 5500,
+      "totalPrice": 500000
+    },
+    {
+      "type": "Bungalow",
+      "sqm": 94.9,
+      "pricePerSqm": 6057,
+      "totalPrice": 600000
+    },
+    {
+      "type": "End of Terrace",
+      "sqm": 92.7,
+      "pricePerSqm": 4937,
+      "totalPrice": 455000
+    },
+    {
+      "type": "Terrace",
+      "sqm": 89,
+      "pricePerSqm": 5236,
+      "totalPrice": 450000
+    },
+    {
+      "type": "Apartment",
+      "sqm": 67,
+      "pricePerSqm": 5481,
+      "totalPrice": 347000
+    }
+  ],
+  "fiveHundredKComparison": [
+    {
+      "area": "D22",
+      "sqm": 118,
+      "beds": 3,
+      "pricePerSqm": 3750
+    },
+    {
+      "area": "D17",
+      "sqm": 110,
+      "beds": 3,
+      "pricePerSqm": 4450
+    },
+    {
+      "area": "D24",
+      "sqm": 108,
+      "beds": 3,
+      "pricePerSqm": 4265
+    },
+    {
+      "area": "D15",
+      "sqm": 104,
+      "beds": 3,
+      "pricePerSqm": 4013
+    },
+    {
+      "area": "D20",
+      "sqm": 102,
+      "beds": 3,
+      "pricePerSqm": 4591
+    },
+    {
+      "area": "D13",
+      "sqm": 100,
+      "beds": 3,
+      "pricePerSqm": 4722
+    },
+    {
+      "area": "D11",
+      "sqm": 100,
+      "beds": 3,
+      "pricePerSqm": 4569
+    },
+    {
+      "area": "D9",
+      "sqm": 96,
+      "beds": 3,
+      "pricePerSqm": 4945
+    }
+  ]
+}

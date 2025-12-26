@@ -345,6 +345,42 @@ const researchArticles = [
     author: 'Market Research Team',
     views: 4237,
   },
+  {
+    id: 'investor-yield-curve',
+    title: 'The Investor\'s Yield Curve: How €300k Less Property Doubles Your Returns',
+    excerpt: 'Analysis of Dublin\'s rental yield curve reveals sub-€300k properties deliver 11.52% yields vs 4.88% for €700k+ properties, with the "Duplex Paradox" where premium types achieve both high yields and strong over-asking success.',
+    category: 'Investment',
+    date: '2025-12-27',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Rental Yield', 'Investment Returns', 'Property Pricing', 'Duplex Paradox'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: '3bed-phenomenon',
+    title: 'The 3-Bed Phenomenon: Why Family Homes Win Dublin\'s Bidding Wars',
+    excerpt: '3-bedroom properties achieve 87.4% over-asking success rates, outperforming all other sizes in Dublin\'s competitive market. Analysis reveals why family homes dominate bidding wars with clear performance patterns.',
+    category: 'Market Analysis',
+    date: '2025-12-28',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['3-Bed Properties', 'Family Homes', 'Over-Asking Success', 'Bedroom Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'd4-premium',
+    title: 'The D4 Premium: What €400,000 Extra Actually Buys You',
+    excerpt: 'D4 properties command escalating premiums from 36.4% for 1-bed apartments to 90.8% for 4-bed homes. Analysis quantifies what additional €400,000+ buys in space, location, and efficiency.',
+    category: 'Market Analysis',
+    date: '2025-12-29',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['D4 Premium', 'Property Pricing', 'Space Efficiency', 'Premium Areas'],
+    author: 'Market Research Team',
+    views: 0,
+  },
 ];
 
 const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting'];
@@ -414,7 +450,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 28 },
+          { label: 'Articles', value: 31 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

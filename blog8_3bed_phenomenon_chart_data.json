@@ -1,0 +1,140 @@
+{
+  "bedroomPerformance": [
+    {
+      "bedrooms": 1,
+      "overRate": 72.7,
+      "avgPremium": null
+    },
+    {
+      "bedrooms": 2,
+      "overRate": 77.7,
+      "avgPremium": null
+    },
+    {
+      "bedrooms": 3,
+      "overRate": 81.2,
+      "avgPremium": null
+    },
+    {
+      "bedrooms": 4,
+      "overRate": 72.7,
+      "avgPremium": null
+    },
+    {
+      "bedrooms": 5,
+      "overRate": 62.6,
+      "avgPremium": null
+    },
+    {
+      "bedrooms": 6,
+      "overRate": 46,
+      "avgPremium": null
+    }
+  ],
+  "bathroomPremium": [
+    {
+      "config": "3bed-1bath",
+      "medianPrice": 447500,
+      "overRate": 80.5
+    },
+    {
+      "config": "3bed-2bath",
+      "medianPrice": 515000,
+      "overRate": 81.2
+    },
+    {
+      "config": "3bed-3bath",
+      "medianPrice": 475000,
+      "overRate": 82.8
+    },
+    {
+      "config": "3bed-4bath",
+      "medianPrice": 670000,
+      "overRate": 78.2
+    }
+  ],
+  "topAreas": [
+    {
+      "area": "D24",
+      "overRate": 91.5,
+      "medianPrice": 380000
+    },
+    {
+      "area": "D22",
+      "overRate": 91.3,
+      "medianPrice": 350000
+    },
+    {
+      "area": "D10",
+      "overRate": 91.3,
+      "medianPrice": 320000
+    },
+    {
+      "area": "D20",
+      "overRate": 88.1,
+      "medianPrice": 430000
+    },
+    {
+      "area": "D12",
+      "overRate": 87.9,
+      "medianPrice": 463000
+    },
+    {
+      "area": "D11",
+      "overRate": 86.1,
+      "medianPrice": 381000
+    },
+    {
+      "area": "D5",
+      "overRate": 84.6,
+      "medianPrice": 485000
+    },
+    {
+      "area": "D15",
+      "overRate": 83.6,
+      "medianPrice": 400000
+    },
+    {
+      "area": "D6W",
+      "overRate": 83.6,
+      "medianPrice": 650000
+    },
+    {
+      "area": "D16",
+      "overRate": 82.5,
+      "medianPrice": 590000
+    }
+  ],
+  "propertyTypes": [
+    {
+      "type": "Semi-D",
+      "overRate": 83.2,
+      "percentage": 41.3
+    },
+    {
+      "type": "Duplex",
+      "overRate": 81.7,
+      "percentage": 4.1
+    },
+    {
+      "type": "Terrace",
+      "overRate": 81.6,
+      "percentage": 29.1
+    },
+    {
+      "type": "End of Terrace",
+      "overRate": 81.4,
+      "percentage": 12.8
+    },
+    {
+      "type": "Bungalow",
+      "overRate": 75.2,
+      "percentage": 2.1
+    },
+    {
+      "type": "Apartment",
+      "overRate": 72.9,
+      "percentage": 5.1
+    }
+  ]
+}
