@@ -288,3 +288,159 @@ export function D4PremiumChart() {
     </ChartWrapper>
   );
 }
+
+// New charts for January and Rental blogs
+export function JanuaryVolumeChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { period: 'Dec 2024', volume: 1038, overRate: 82.9 },
+                { period: 'Jan 2025', volume: 764, overRate: 83.0 },
+                { period: 'Feb 2025', volume: 848, overRate: 83.4 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="period"
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="volume"
+                label={{ value: 'Properties Sold', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="overRate"
+                orientation="right"
+                label={{ value: 'Over-Asking Rate (%)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  name === 'volume' ? value : `${value}%`,
+                  name === 'volume' ? 'Properties Sold' : 'Over-Asking Rate'
+                ]}
+              />
+              <Bar
+                yAxisId="volume"
+                dataKey="volume"
+                fill="#2563EB"
+                name="volume"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          January 2025 shows 26% volume decline from December while maintaining strong over-asking rates
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function RentalPricingChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { bedrooms: '1', medianRent: 1925, medianYield: 8.4 },
+                { bedrooms: '2', medianRent: 2550, medianYield: 8.2 },
+                { bedrooms: '3', medianRent: 3000, medianYield: 7.5 },
+                { bedrooms: '4', medianRent: 3931, medianYield: 6.3 },
+                { bedrooms: '5', medianRent: 7767, medianYield: 5.7 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="bedrooms"
+                label={{ value: 'Bedrooms', position: 'insideBottom', offset: -5 }}
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Median Rent (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${value}`}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  name === 'medianRent' ? `€${value.toLocaleString()}` : `${value}%`,
+                  name === 'medianRent' ? 'Median Rent' : 'Median Yield'
+                ]}
+              />
+              <Bar
+                dataKey="medianRent"
+                fill="#2563EB"
+                name="medianRent"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Rental prices increase significantly with bedroom count, from €1,925 (1-bed) to €7,767 (5-bed)
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function TopRentalAreasChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D22', medianYield: 9.5, medianRent: 2700 },
+                { area: 'D11', medianYield: 9.1, medianRent: 2670 },
+                { area: 'D15', medianYield: 8.9, medianRent: 3000 },
+                { area: 'D1', medianYield: 8.7, medianRent: 2600 },
+                { area: 'D24', medianYield: 8.6, medianRent: 2500 },
+                { area: 'D12', medianYield: 8.5, medianRent: 3350 },
+                { area: 'D2', medianYield: 8.3, medianRent: 3175 },
+                { area: 'D13', medianYield: 8.2, medianRent: 3350 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Median Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  name === 'medianYield' ? `${value}%` : `€${value}`,
+                  name === 'medianYield' ? 'Median Yield' : 'Median Rent'
+                ]}
+              />
+              <Bar
+                dataKey="medianYield"
+                fill="#10B981"
+                name="medianYield"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D22 leads with 9.5% median yields, followed by D11 (9.1%) and D15 (8.9%)
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}

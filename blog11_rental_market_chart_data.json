@@ -1,0 +1,150 @@
+{
+  "bedsPricing": [
+    {
+      "bedrooms": 1,
+      "medianRent": 1925,
+      "medianYield": 8.41,
+      "rentPerBed": 1925
+    },
+    {
+      "bedrooms": 2,
+      "medianRent": 2550,
+      "medianYield": 8.2,
+      "rentPerBed": 1275
+    },
+    {
+      "bedrooms": 3,
+      "medianRent": 3000,
+      "medianYield": 7.49,
+      "rentPerBed": 1000
+    },
+    {
+      "bedrooms": 4,
+      "medianRent": 3931,
+      "medianYield": 6.35,
+      "rentPerBed": 983
+    },
+    {
+      "bedrooms": 5,
+      "medianRent": 7767,
+      "medianYield": 5.74,
+      "rentPerBed": 1553
+    }
+  ],
+  "typeComparison": [
+    {
+      "type": "Duplex",
+      "medianRent": 2700,
+      "medianYield": 8.96
+    },
+    {
+      "type": "Apartment",
+      "medianRent": 2500,
+      "medianYield": 8.56
+    },
+    {
+      "type": "Townhouse",
+      "medianRent": 3000,
+      "medianYield": 7.96
+    },
+    {
+      "type": "End of Terrace",
+      "medianRent": 2970,
+      "medianYield": 7.81
+    },
+    {
+      "type": "Terrace",
+      "medianRent": 2700,
+      "medianYield": 7.75
+    },
+    {
+      "type": "Semi-D",
+      "medianRent": 3085,
+      "medianYield": 6.87
+    },
+    {
+      "type": "Bungalow",
+      "medianRent": 2663,
+      "medianYield": 6.7
+    },
+    {
+      "type": "Detached",
+      "medianRent": 3596,
+      "medianYield": 5.39
+    }
+  ],
+  "topAreas": [
+    {
+      "area": "D22",
+      "medianYield": 9.53,
+      "medianRent": 2700
+    },
+    {
+      "area": "D11",
+      "medianYield": 9.06,
+      "medianRent": 2670
+    },
+    {
+      "area": "D15",
+      "medianYield": 8.89,
+      "medianRent": 3000
+    },
+    {
+      "area": "D1",
+      "medianYield": 8.67,
+      "medianRent": 2600
+    },
+    {
+      "area": "D24",
+      "medianYield": 8.57,
+      "medianRent": 2500
+    },
+    {
+      "area": "D12",
+      "medianYield": 8.49,
+      "medianRent": 3350
+    },
+    {
+      "area": "D2",
+      "medianYield": 8.25,
+      "medianRent": 3175
+    },
+    {
+      "area": "D13",
+      "medianYield": 8.22,
+      "medianRent": 3350
+    },
+    {
+      "area": "D8",
+      "medianYield": 7.98,
+      "medianRent": 2550
+    },
+    {
+      "area": "D9",
+      "medianYield": 7.79,
+      "medianRent": 3000
+    }
+  ],
+  "budgetRanges": [
+    {
+      "range": "€1,500-€2,000",
+      "count": 1719,
+      "medianYield": 8.44
+    },
+    {
+      "range": "€2,000-€2,500",
+      "count": 3298,
+      "medianYield": 9.04
+    },
+    {
+      "range": "€2,500-€3,000",
+      "count": 9973,
+      "medianYield": 7.74
+    },
+    {
+      "range": "Over €3,000",
+      "count": 12246,
+      "medianYield": 7.26
+    }
+  ]
+}

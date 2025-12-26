@@ -381,6 +381,30 @@ const researchArticles = [
     author: 'Market Research Team',
     views: 0,
   },
+  {
+    id: 'january-2025-timing',
+    title: 'January 2025: Is It a Good Time to Buy or Sell Property?',
+    excerpt: 'January 2025 analysis reveals 26% volume decline from December with 764 transactions, but sustained 83% over-asking rates despite severe first-week holiday disruptions affecting market timing.',
+    category: 'Market Analysis',
+    date: '2025-12-30',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['January 2025', 'Market Timing', 'Holiday Impact', 'Buy vs Sell'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-rental-market-2025',
+    title: 'Dublin Rental Market 2025: Complete Guide for Renters and Investors',
+    excerpt: 'Dublin rental market analysis covers 27,236 properties with median rents from €1,925 (1-bed) to €3,931 (4-bed), revealing duplexes offer highest 9.0% yields while only 28.7% of rentals are affordable on €100k income.',
+    category: 'Renting',
+    date: '2025-12-31',
+    readTime: '9 min read',
+    featured: true,
+    tags: ['Rental Market', 'Rent Prices', 'Rental Yields', 'Affordability', '2025 Data'],
+    author: 'Market Research Team',
+    views: 0,
+  },
 ];
 
 const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting'];
@@ -450,7 +474,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 31 },
+          { label: 'Articles', value: 33 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

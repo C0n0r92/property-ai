@@ -1,0 +1,92 @@
+{
+  "monthlyVolume": [
+    {
+      "month": "December 2024",
+      "volume": 1038,
+      "dailyVolume": 33.5,
+      "overRate": 82.9
+    },
+    {
+      "month": "January 2025",
+      "volume": 764,
+      "dailyVolume": 24.6,
+      "overRate": 83
+    },
+    {
+      "month": "February 2025",
+      "volume": 848,
+      "dailyVolume": 29.2,
+      "overRate": 83.4
+    }
+  ],
+  "firstWeekDaily": [
+    {
+      "day": "Jan 1",
+      "volume": 0,
+      "overRate": 0,
+      "isHoliday": true
+    },
+    {
+      "day": "Jan 2",
+      "volume": 3,
+      "overRate": 33.3,
+      "isHoliday": false
+    },
+    {
+      "day": "Jan 3",
+      "volume": 8,
+      "overRate": 87.5,
+      "isHoliday": false
+    },
+    {
+      "day": "Jan 4",
+      "volume": 0,
+      "overRate": 0,
+      "isHoliday": true
+    },
+    {
+      "day": "Jan 5",
+      "volume": 0,
+      "overRate": 0,
+      "isHoliday": true
+    },
+    {
+      "day": "Jan 6",
+      "volume": 17,
+      "overRate": 100,
+      "isHoliday": false
+    },
+    {
+      "day": "Jan 7",
+      "volume": 18,
+      "overRate": 72.2,
+      "isHoliday": false
+    }
+  ],
+  "priceComparison": [
+    {
+      "bedrooms": "1 bed",
+      "janPrice": 277000,
+      "febPrice": 280000,
+      "difference": 1.1
+    },
+    {
+      "bedrooms": "2 bed",
+      "janPrice": 410000,
+      "febPrice": 395000,
+      "difference": -3.7
+    },
+    {
+      "bedrooms": "3 bed",
+      "janPrice": 530000,
+      "febPrice": 511000,
+      "difference": -3.6
+    },
+    {
+      "bedrooms": "4 bed",
+      "janPrice": 755000,
+      "febPrice": 800000,
+      "difference": 6
+    }
+  ]
+}
