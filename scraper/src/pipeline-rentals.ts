@@ -230,6 +230,7 @@ class RentalScraper extends BaseDaftScraper<RentalListing> {
 
     const listing: RentalListing = {
       id,
+      address: rawItem.address,
       monthlyRent: rawItem.monthlyRent,
       beds: rawItem.beds,
       baths: rawItem.baths,
@@ -322,6 +323,9 @@ async function saveRentals(rentals: RentalListing[]): Promise<void> {
   console.log(`✅ Saved ${rentals.length} rentals to JSON: ${filePath}`);
 
   // Transform for Supabase
+  // Debug: check what we're receiving
+  console.log('First rental object:', rentals[0]);
+
   const supabaseRecords: RentalRecord[] = rentals.map(r => ({
     id: r.id,
     address: r.address,

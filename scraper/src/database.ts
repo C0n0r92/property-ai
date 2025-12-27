@@ -13,40 +13,45 @@ import fetch from 'node-fetch';
 dotenv.config();
 
 // Polyfill Headers and fetch for Node.js < 18
-if (typeof Headers === 'undefined') {
-  global.Headers = fetch.Headers || class Headers {
-    constructor(init?: Record<string, string>) {
-      this._headers = new Map();
-      if (init) {
-        Object.entries(init).forEach(([key, value]) => {
-          this._headers.set(key.toLowerCase(), value);
-        });
-      }
-    }
-    private _headers: Map<string, string>;
-    append(name: string, value: string) {
-      this._headers.set(name.toLowerCase(), value);
-    }
-    delete(name: string) {
-      this._headers.delete(name.toLowerCase());
-    }
-    get(name: string) {
-      return this._headers.get(name.toLowerCase()) || null;
-    }
-    has(name: string) {
-      return this._headers.has(name.toLowerCase());
-    }
-    set(name: string, value: string) {
-      this._headers.set(name.toLowerCase(), value);
-    }
-    forEach(callback: (value: string, key: string) => void) {
-      this._headers.forEach((value, key) => callback(value, key));
-    }
-  };
-}
+const nodeVersion = process.versions.node;
+const majorVersion = parseInt(nodeVersion.split('.')[0]);
 
-if (typeof global.fetch === 'undefined') {
-  global.fetch = fetch as any;
+if (majorVersion < 18) {
+  if (typeof Headers === 'undefined') {
+    global.Headers = fetch.Headers || class Headers {
+      constructor(init?: Record<string, string>) {
+        this._headers = new Map();
+        if (init) {
+          Object.entries(init).forEach(([key, value]) => {
+            this._headers.set(key.toLowerCase(), value);
+          });
+        }
+      }
+      private _headers: Map<string, string>;
+      append(name: string, value: string) {
+        this._headers.set(name.toLowerCase(), value);
+      }
+      delete(name: string) {
+        this._headers.delete(name.toLowerCase());
+      }
+      get(name: string) {
+        return this._headers.get(name.toLowerCase()) || null;
+      }
+      has(name: string) {
+        return this._headers.has(name.toLowerCase());
+      }
+      set(name: string, value: string) {
+        this._headers.set(name.toLowerCase(), value);
+      }
+      forEach(callback: (value: string, key: string) => void) {
+        this._headers.forEach((value, key) => callback(value, key));
+      }
+    };
+  }
+
+  if (typeof global.fetch === 'undefined') {
+    global.fetch = fetch as any;
+  }
 }
 
 // Types matching our Supabase schema
@@ -128,7 +133,7 @@ interface RentalRecord {
 // Database configuration
 class DatabaseWriter {
   private supabase: SupabaseClient;
-  private batchSize = 500; // Supabase recommended batch size
+  private batchSize = 50; // Reduced batch size to avoid network issues
 
   constructor() {
     const supabaseUrl = process.env.SUPABASE_URL;

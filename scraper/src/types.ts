@@ -56,32 +56,35 @@ export interface ScrapeConfig {
 
 // Types for "For Sale" listings (active market inventory)
 export interface Listing {
+  // Identifiers
+  id: string;
+
   // Location
   address: string;
-  
+
   // Price
   askingPrice: number;
-  
+
   // Property details
   beds: number | null;
   baths: number | null;
   areaSqm: number | null;
   propertyType: string;
   berRating: string | null;
-  
+
   // Source
   sourceUrl: string;
   sourcePage: number;
-  
+
   // Geocoding
   latitude: number | null;
   longitude: number | null;
   eircode: string | null;
   nominatimAddress: string | null;
-  
+
   // Computed
   pricePerSqm: number | null;
-  
+
   // Metadata
   scrapedAt: string;
 }

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "roselawn-road--blanchardstown--dublin-15-250-2025-12-27t21-23-09-899z",
+    "address": "Roselawn Road, Blanchardstown, Dublin 15",
+    "monthlyRent": 250,
+    "beds": null,
+    "baths": null,
+    "areaSqm": null,
+    "propertyType": "Studio",
+    "berRating": null,
+    "furnishing": null,
+    "sourceUrl": "",
+    "sourcePage": 1,
+    "latitude": 53.3818983,
+    "longitude": -6.380137,
+    "eircode": null,
+    "nominatimAddress": "Roselawn Road, Roselawn, Blanchardstown-Roselawn DED 1986, Blanchardstown, Fingal, Dublin 15, Leinster, D15 NHP1, Éire / Ireland",
+    "rentPerSqm": null,
+    "rentPerBed": null,
+    "dublinPostcode": "D15",
+    "scrapedAt": "2025-12-27T21:23:09.901Z"
+  }
+]

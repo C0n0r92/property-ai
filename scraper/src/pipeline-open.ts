@@ -21,6 +21,16 @@ import { geocodeAddress } from './geocode.js';
 import { acceptCookiesAndPopups, navigateToNextPage, createBrowserContextOptions, BaseDaftScraper } from './scraper-utils.js';
 import { db, ListingRecord } from './database.js';
 
+// ============== Utility Functions ==============
+
+function generateListingId(address: string, askingPrice: number): string {
+  const normalised = address
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .substring(0, 60);
+  return `${normalised}-${askingPrice}`;
+}
+
 // ============== Retry Utility ==============
 
 async function retryWithBackoff<T>(
@@ -298,8 +308,10 @@ class ForSaleScraper extends BaseDaftScraper<Listing> {
     // Build clean listing
     const askingPrice = parsePrice(rawItem.askingPrice);
     const areaSqm = rawItem.area ? parseFloat(rawItem.area) : null;
+    const id = generateListingId(rawItem.address, askingPrice);
 
     const listing: Listing = {
+      id,
       address: rawItem.address,
       askingPrice,
       beds: rawItem.beds ? parseInt(rawItem.beds) : null,

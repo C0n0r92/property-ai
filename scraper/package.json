@@ -19,6 +19,12 @@
     "update:parallel": "tsx src/update-parallel.ts",
     "update:daily": "npm run update:parallel",
 
+    "// SUPABASE UPLOAD": "========================================",
+    "upload:sold": "tsx src/upload-to-supabase.ts sold",
+    "upload:listings": "tsx src/upload-to-supabase.ts listings",
+    "upload:rentals": "tsx src/upload-to-supabase.ts rentals",
+    "upload:all": "tsx src/upload-to-supabase.ts all",
+
     "// TESTING": "========================================",
     "test:headless": "tsx test-headless.ts",
     "test:geocoding": "tsx test-locationiq.ts",
