@@ -79,3 +79,6 @@ GRANT SELECT, INSERT ON property_reports TO authenticated;
 GRANT SELECT ON property_reports TO anon;
 
 
+
+
+

@@ -50,7 +50,7 @@ Duplexes achieve €370,000 median prices with yields exceeding 9%, outperformin
 | D24 | 395 | €260,000 | 9.47% | 9.44% | 85.8% |
 | D9 | 287 | €320,000 | 9.38% | 9.64% | 81.5% |
 
-D22 emerges as Dublin's highest-yield area for 2-bed apartments, with €247,000 median prices achieving 10.66% yields and 86.1% over-asking success.
+D22 emerges as Dublin's highest-yield area for 2-bed apartments, with €247,000 median prices achieving 10.66% yields and 86.1% over-asking success. [Explore D22 property market](/areas/dublin-22)
 
 ## The Affordable Efficiency Sweet Spot
 

@@ -1,9 +1,9 @@
 {
-  "reviewDate": "2025-12-26T10:21:48.883Z",
+  "reviewDate": "2025-12-27T16:32:30.374Z",
   "summary": {
-    "totalBlogs": 3,
+    "totalBlogs": 5,
     "passed": 3,
-    "averageScore": 84
+    "averageScore": 79
   },
   "detailedResults": [
     {
@@ -111,6 +111,78 @@
         }
       },
       "passThreshold": true,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "blog12_q2_vs_q1_selling.md",
+      "overallScore": 72,
+      "totalScore": 72,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 13,
+          "maxScore": 20,
+          "percentage": 65
+        },
+        "actionability": {
+          "score": 12,
+          "maxScore": 20,
+          "percentage": 62
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
+      "recommendations": []
+    },
+    {
+      "filename": "blog13_renter_market_insights.md",
+      "overallScore": 72,
+      "totalScore": 72,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 6,
+          "maxScore": 20,
+          "percentage": 30
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
       "recommendations": [
         "Include more practical recommendations for buyers, sellers, and investors"
       ]

@@ -206,7 +206,7 @@ const chartData = {
 };
 
 // Save chart data for blog
-const outputPath = path.join(__dirname, '../blog8_3bed_phenomenon_chart_data.json');
+const outputPath = path.join(__dirname, '../blogs/blog8_3bed_phenomenon_chart_data.json');
 fs.writeFileSync(outputPath, JSON.stringify(chartData, null, 2));
 console.log(`\n📈 Chart data saved to: ${outputPath}`);
 

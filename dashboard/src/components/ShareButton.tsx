@@ -124,3 +124,6 @@ export function ShareButton({ areaName, medianPrice, totalSales, url }: ShareBut
 
 
 
+
+
+

@@ -1,0 +1,148 @@
+{
+  "quarterlyComparison": [
+    {
+      "quarter": "Q1",
+      "avgPrice": 550377,
+      "avgOverAsk": 6.09,
+      "count": 8904
+    },
+    {
+      "quarter": "Q2",
+      "avgPrice": 542110,
+      "avgOverAsk": 6.98,
+      "count": 9693
+    }
+  ],
+  "monthlyTrend": [
+    {
+      "month": "2024-01",
+      "count": 2618,
+      "avgPrice": 560226,
+      "avgOverAsk": 6.29
+    },
+    {
+      "month": "2024-02",
+      "count": 3030,
+      "avgPrice": 546174,
+      "avgOverAsk": 6
+    },
+    {
+      "month": "2024-03",
+      "count": 3256,
+      "avgPrice": 546369,
+      "avgOverAsk": 6.01
+    },
+    {
+      "month": "2024-04",
+      "count": 2943,
+      "avgPrice": 528614,
+      "avgOverAsk": 6.93
+    },
+    {
+      "month": "2024-05",
+      "count": 3336,
+      "avgPrice": 540048,
+      "avgOverAsk": 6.8
+    },
+    {
+      "month": "2024-06",
+      "count": 3414,
+      "avgPrice": 555758,
+      "avgOverAsk": 7.2
+    }
+  ],
+  "priceRangeDistribution": [
+    {
+      "range": "Under €400k",
+      "q1": 3471,
+      "q2": 3831
+    },
+    {
+      "range": "€400k-€600k",
+      "q1": 2889,
+      "q2": 3252
+    },
+    {
+      "range": "€600k-€800k",
+      "q1": 1261,
+      "q2": 1335
+    },
+    {
+      "range": "€800k+",
+      "q1": 1283,
+      "q2": 1275
+    }
+  ],
+  "postcodeComparison": [
+    {
+      "postcode": "D1",
+      "q1AvgPrice": 340011,
+      "q2AvgPrice": 374572,
+      "q1OverAsk": 11.56,
+      "q2OverAsk": 5.89
+    },
+    {
+      "postcode": "D2",
+      "q1AvgPrice": 564232,
+      "q2AvgPrice": 546564,
+      "q1OverAsk": 3.44,
+      "q2OverAsk": 4.21
+    },
+    {
+      "postcode": "D3",
+      "q1AvgPrice": 578760,
+      "q2AvgPrice": 549321,
+      "q1OverAsk": 5.54,
+      "q2OverAsk": 5.75
+    },
+    {
+      "postcode": "D4",
+      "q1AvgPrice": 861869,
+      "q2AvgPrice": 893306,
+      "q1OverAsk": 4.04,
+      "q2OverAsk": 5.09
+    },
+    {
+      "postcode": "D5",
+      "q1AvgPrice": 501267,
+      "q2AvgPrice": 509780,
+      "q1OverAsk": 8.26,
+      "q2OverAsk": 9.23
+    },
+    {
+      "postcode": "D6",
+      "q1AvgPrice": 967870,
+      "q2AvgPrice": 888204,
+      "q1OverAsk": 5.43,
+      "q2OverAsk": 5.23
+    },
+    {
+      "postcode": "D6W",
+      "q1AvgPrice": 718767,
+      "q2AvgPrice": 694855,
+      "q1OverAsk": 7.78,
+      "q2OverAsk": 6.5
+    },
+    {
+      "postcode": "D7",
+      "q1AvgPrice": 453287,
+      "q2AvgPrice": 463474,
+      "q1OverAsk": 5.69,
+      "q2OverAsk": 6
+    },
+    {
+      "postcode": "D8",
+      "q1AvgPrice": 448237,
+      "q2AvgPrice": 422182,
+      "q1OverAsk": 4.86,
+      "q2OverAsk": 6.52
+    },
+    {
+      "postcode": "D9",
+      "q1AvgPrice": 488225,
+      "q2AvgPrice": 488623,
+      "q1OverAsk": 6.15,
+      "q2OverAsk": 6.77
+    }
+  ]
+}

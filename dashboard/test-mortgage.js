@@ -28,3 +28,6 @@ try {
 } catch (error) {
   console.error('❌ Calculation failed:', error);
 }
+
+
+

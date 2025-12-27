@@ -164,3 +164,6 @@ fs.writeFileSync('./blog-analysis.json', JSON.stringify({
 }, null, 2));
 
 console.log('\nDetailed analysis saved to blog-analysis.json');
+
+
+

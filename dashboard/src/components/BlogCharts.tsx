@@ -444,3 +444,197 @@ export function TopRentalAreasChart() {
     </ChartWrapper>
   );
 }
+
+export function Q2VsQ1Chart() {
+  const chartData = [
+    { quarter: 'Q1', avgPrice: 550377, avgOverAsk: 6.09, count: 8904 },
+    { quarter: 'Q2', avgPrice: 542110, avgOverAsk: 6.98, count: 9693 }
+  ];
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="quarter" fontSize={12} />
+              <YAxis
+                yAxisId="price"
+                orientation="left"
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="overAsk"
+                orientation="right"
+                label={{ value: 'Over-Asking (%)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgPrice') return [`€${value.toLocaleString()}`, 'Average Price'];
+                  if (name === 'avgOverAsk') return [`${value}%`, 'Over-Asking Rate'];
+                  return [value, name];
+                }}
+              />
+              <Bar yAxisId="price" dataKey="avgPrice" fill="#2563EB" name="avgPrice" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="overAsk" dataKey="avgOverAsk" fill="#DC2626" name="avgOverAsk" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Q2 shows 8.86% higher transaction volume despite 1.5% lower prices, with improved over-asking rates
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function MonthlyTrendChart() {
+  const monthlyData = [
+    { month: 'Jan', avgPrice: 560226, avgOverAsk: 6.29 },
+    { month: 'Feb', avgPrice: 546174, avgOverAsk: 6.00 },
+    { month: 'Mar', avgPrice: 546369, avgOverAsk: 6.01 },
+    { month: 'Apr', avgPrice: 528614, avgOverAsk: 6.93 },
+    { month: 'May', avgPrice: 540048, avgOverAsk: 6.80 },
+    { month: 'Jun', avgPrice: 555758, avgOverAsk: 7.20 }
+  ];
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={monthlyData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="month" fontSize={12} />
+              <YAxis
+                yAxisId="price"
+                orientation="left"
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="overAsk"
+                orientation="right"
+                label={{ value: 'Over-Asking (%)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgPrice') return [`€${value.toLocaleString()}`, 'Average Price'];
+                  if (name === 'avgOverAsk') return [`${value}%`, 'Over-Asking Rate'];
+                  return [value, name];
+                }}
+              />
+              <Line yAxisId="price" type="monotone" dataKey="avgPrice" stroke="#2563EB" strokeWidth={2} name="avgPrice" />
+              <Line yAxisId="overAsk" type="monotone" dataKey="avgOverAsk" stroke="#DC2626" strokeWidth={2} name="avgOverAsk" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Monthly trends show April as the lowest priced month with highest over-asking rates
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function RentalYieldChart() {
+  const yieldData = [
+    { type: 'Apartment', avgYield: 8.75, avgRent: 2504 },
+    { type: 'Semi-D', avgYield: 7.21, avgRent: 3235 },
+    { type: 'Detached', avgYield: 5.70, avgRent: 3822 },
+    { type: 'Duplex', avgYield: 9.11, avgRent: 2880 }
+  ];
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={yieldData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="type"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                yAxisId="yield"
+                orientation="left"
+                label={{ value: 'Gross Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="rent"
+                orientation="right"
+                label={{ value: 'Monthly Rent (€)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgYield') return [`${value}%`, 'Gross Yield'];
+                  if (name === 'avgRent') return [`€${value}`, 'Monthly Rent'];
+                  return [value, name];
+                }}
+              />
+              <Bar yAxisId="yield" dataKey="avgYield" fill="#2563EB" name="avgYield" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="rent" dataKey="avgRent" fill="#DC2626" name="avgRent" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Duplex properties offer the highest yields at 9.11%, while detached homes provide the highest rents
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YieldDistributionChart() {
+  const distributionData = [
+    { bracket: 'Under 4%', count: 877, percentage: 3.22 },
+    { bracket: '4-5%', count: 1509, percentage: 5.54 },
+    { bracket: '5-6%', count: 2885, percentage: 10.59 },
+    { bracket: '6-7%', count: 4508, percentage: 16.55 },
+    { bracket: '7%+', count: 17457, percentage: 64.1 }
+  ];
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={distributionData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="bracket" fontSize={11} />
+              <YAxis
+                label={{ value: 'Properties (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Percentage']}
+              />
+              <Bar dataKey="percentage" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          64.1% of Dublin rental properties yield over 7%, indicating strong rental market performance
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}

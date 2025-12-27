@@ -105,3 +105,6 @@ The Property Price Register data confirms strong seller performance, with Dublin
 ## Methodology
 
 This analysis covers 43,830 Dublin property transactions with valid over/under asking price data. Statistical validation ensures reliability of pricing pattern observations and geographic performance metrics.
+
+
+

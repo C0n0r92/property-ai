@@ -11,49 +11,49 @@ import { HeroSection } from '@/components/HeroSection';
 const researchArticles = [
   {
     id: 'dublin-property-market-q4-2024',
-    title: 'Dublin Property Market Analysis Q4 2024',
-    excerpt: 'Comprehensive analysis of Dublin\'s property market performance, price trends, and future outlook based on 43,000+ transactions.',
+    title: 'Dublin Property Market Q4 2024 Data: Complete Analysis & Price Trends',
+    excerpt: 'Dublin property market analysis Q4 2024 reveals price trends, market performance, and future outlook based on 43,000+ property transactions. Get the latest Dublin real estate insights.',
     category: 'Market Analysis',
-    date: '2024-12-22',
+    date: '2024-03-15',
     readTime: '8 min read',
     featured: true,
-    tags: ['Market Trends', 'Price Analysis', 'Q4 2024'],
+    tags: ['Dublin Property Market', 'Q4 2024', 'Price Trends', 'Market Analysis', 'Property Prices', 'Dublin Real Estate'],
     author: 'Market Research Team',
     views: 2847,
   },
   {
-    id: 'properties-over-asking-dublin',
-    title: 'Where Dublin Properties Go Most Over Asking Price in 2024',
-    excerpt: 'Detailed breakdown of Dublin areas where properties consistently sell above asking price, with market demand indicators.',
+    id: 'dublin-properties-over-asking-price-2024',
+    title: 'Dublin Properties Over Asking Price 2024 Data: Hot Areas & Market Demand',
+    excerpt: 'Which Dublin areas sell over asking price most? 2024 analysis shows hotspots where properties consistently achieve bidding wars. Essential guide for Dublin property buyers.',
     category: 'Market Analysis',
-    date: '2024-12-22',
+    date: '2024-05-22',
     readTime: '6 min read',
     featured: false,
-    tags: ['Over Asking', 'Market Demand', 'Buyer Competition'],
+    tags: ['Dublin Over Asking', 'Property Prices', 'Market Demand', 'Buyer Competition', 'Dublin Hotspots', 'Bidding Wars'],
     author: 'Market Research Team',
     views: 1923,
   },
   {
-    id: 'dublin-rental-yield-analysis',
-    title: 'Dublin Rental Yield Analysis: Best Areas for Property Investment',
-    excerpt: 'Comprehensive analysis of rental yields across Dublin areas with investment potential and risk assessment.',
+    id: 'dublin-rental-yield-analysis-best-areas',
+    title: 'Dublin Rental Yields 2024 Data: Best Areas for Buy-to-Let Investment',
+    excerpt: 'Dublin rental yield analysis reveals top areas for property investment. Discover which Dublin postcodes offer the highest rental returns for buy-to-let investors.',
     category: 'Investment',
-    date: '2024-12-22',
+    date: '2024-07-08',
     readTime: '7 min read',
     featured: false,
-    tags: ['Rental Yield', 'Investment', 'Buy-to-Let'],
+    tags: ['Dublin Rental Yields', 'Buy-to-Let Investment', 'Property Investment', 'Rental Returns', 'Dublin Areas', 'ROI'],
     author: 'Investment Research Team',
     views: 1654,
   },
   {
-    id: 'dublin-price-per-square-meter',
-    title: 'Dublin Property Price Per Square Meter: Comprehensive Area Comparison',
-    excerpt: 'Detailed analysis of price per square meter across all Dublin areas with value insights and market segmentation.',
+    id: 'dublin-price-per-square-meter-area-comparison',
+    title: 'Dublin Price Per Square Meter 2024 Data: Complete Area-by-Area Analysis',
+    excerpt: 'Dublin property prices per square meter compared across all areas. Find out which Dublin neighborhoods offer the best value for money in 2024.',
     category: 'Market Analysis',
-    date: '2024-12-22',
+    date: '2024-09-12',
     readTime: '5 min read',
     featured: false,
-    tags: ['Price per m²', 'Value Analysis', 'Market Comparison'],
+    tags: ['Dublin Price per m²', 'Property Values', 'Area Comparison', 'Dublin Neighborhoods', 'Value for Money', 'Real Estate Pricing'],
     author: 'Market Research Team',
     views: 2134,
   },
@@ -62,7 +62,7 @@ const researchArticles = [
     title: 'Dublin Areas with Fastest Property Price Growth: 6-Month Analysis',
     excerpt: 'Analysis of Dublin\'s fastest growing property markets with momentum indicators and emerging opportunities.',
     category: 'Market Trends',
-    date: '2024-12-22',
+    date: '2025-12-02',
     readTime: '6 min read',
     featured: false,
     tags: ['Price Growth', 'Market Momentum', 'Investment Opportunities'],
@@ -74,7 +74,7 @@ const researchArticles = [
     title: 'Planning Permission Activity and Future Property Supply in Dublin',
     excerpt: 'Analysis of development applications and future property supply across Dublin\'s planning pipeline.',
     category: 'Planning',
-    date: '2024-12-22',
+    date: '2025-12-03',
     readTime: '9 min read',
     featured: false,
     tags: ['Planning Permission', 'Future Supply', 'Development'],
@@ -86,7 +86,7 @@ const researchArticles = [
     title: 'Dublin Property Types Analysis: Apartments vs Houses Market Dynamics',
     excerpt: 'Comparative analysis of apartments versus houses in Dublin with price trends and market preferences.',
     category: 'Market Analysis',
-    date: '2024-12-22',
+    date: '2025-12-08',
     readTime: '7 min read',
     featured: false,
     tags: ['Property Types', 'Apartments', 'Houses'],
@@ -98,7 +98,7 @@ const researchArticles = [
     title: 'Bedroom Count vs Property Prices: Dublin Market Breakdown',
     excerpt: 'Analysis of how bedroom count affects property prices across Dublin with cost per bedroom insights.',
     category: 'Market Analysis',
-    date: '2024-12-22',
+    date: '2025-12-12',
     readTime: '5 min read',
     featured: false,
     tags: ['Bedrooms', 'Price Analysis', 'Property Size'],
@@ -110,7 +110,7 @@ const researchArticles = [
     title: 'Dublin Property Amenities Impact Analysis: Schools, Transport, and Value',
     excerpt: 'Quantitative analysis of how proximity to amenities affects Dublin property prices and values.',
     category: 'Location Analysis',
-    date: '2024-12-22',
+    date: '2025-12-15',
     readTime: '8 min read',
     featured: false,
     tags: ['Amenities', 'Schools', 'Transport'],
@@ -118,23 +118,23 @@ const researchArticles = [
     views: 1678,
   },
   {
-    id: 'complete-area-rankings',
-    title: 'Complete Guide to Dublin Property Areas: Price, Yield, and Growth Rankings',
-    excerpt: 'Comprehensive rankings of all Dublin areas across multiple factors for informed property decisions.',
-    category: 'Market Guide',
-    date: '2024-12-22',
-    readTime: '10 min read',
+    id: 'dublin-property-areas-complete-guide-rankings',
+    title: 'Dublin Property Areas 2024 Data: Complete Guide with Prices, Yields & Rankings',
+    excerpt: 'Ultimate guide to Dublin property areas 2024. Compare all Dublin neighborhoods by price, rental yield, and growth potential. Essential for property buyers and investors.',
+    category: 'Location Analysis',
+    date: '2024-01-18',
+    readTime: '12 min read',
     featured: false,
-    tags: ['Area Rankings', 'Comprehensive Guide', 'Decision Framework'],
+    tags: ['Dublin Property Areas', 'Area Rankings', 'Dublin Neighborhoods', 'Property Prices', 'Rental Yields', 'Investment Guide'],
     author: 'Market Research Team',
     views: 3124,
   },
   {
     id: 'dublin-luxury-hotspots-2024',
-    title: 'Dublin Luxury Property Hotspots: D6 Leads with €976k Average Price',
+    title: 'Dublin Luxury Property Hotspots 2024 Data: D6 Leads with €976k Average Price',
     excerpt: 'Data analysis reveals Dublin\'s most expensive property markets, with D6 commanding the highest average prices at €976k based on 695 recent transactions.',
     category: 'Market Analysis',
-    date: '2024-12-23',
+    date: '2024-04-25',
     readTime: '6 min read',
     featured: true,
     tags: ['Luxury Properties', 'Area Analysis', 'Premium Market'],
@@ -143,10 +143,10 @@ const researchArticles = [
   },
   {
     id: 'over-asking-phenomenon-2024',
-    title: 'Dublin Over-Asking Phenomenon: 85.6% of D14 Properties Sell Above Asking Price',
+    title: 'Dublin Over-Asking Phenomenon 2024 Data: 85.6% of D14 Properties Sell Above Asking Price',
     excerpt: 'Record-breaking analysis shows 85.6% of D14 properties selling over asking price, with an average premium of 11% across Dublin\'s 21,059 recent transactions.',
     category: 'Market Trends',
-    date: '2024-12-24',
+    date: '2024-06-14',
     readTime: '5 min read',
     featured: false,
     tags: ['Over Asking', 'Market Demand', 'Buyer Competition'],
@@ -155,10 +155,10 @@ const researchArticles = [
   },
   {
     id: 'detached-houses-dominance',
-    title: 'Detached Houses Dominate: €1.1M Average Price in Dublin Premium Market',
+    title: 'Detached Houses Dominate 2024 Data: €1.1M Average Price in Dublin Premium Market',
     excerpt: 'Detached properties lead Dublin\'s market with €1.1M average price across 1,666 transactions, commanding 85% premium over apartments.',
     category: 'Market Analysis',
-    date: '2024-12-25',
+    date: '2024-08-09',
     readTime: '7 min read',
     featured: false,
     tags: ['Property Types', 'Detached Houses', 'Market Segmentation'],
@@ -167,10 +167,10 @@ const researchArticles = [
   },
   {
     id: 'dublin-postcode-power-rankings',
-    title: 'Dublin Postcode Power Rankings: Complete 2024 Investment Guide',
+    title: 'Dublin Postcode Power Rankings 2024 Data: Complete Investment Guide',
     excerpt: 'Comprehensive analysis of all Dublin postcodes reveals D6 as top performer with €9,769/sqm, while D24 offers best value at €3,412/sqm.',
     category: 'Investment',
-    date: '2024-12-26',
+    date: '2024-10-31',
     readTime: '8 min read',
     featured: false,
     tags: ['Area Rankings', 'Investment Guide', 'Price Analysis'],
@@ -179,34 +179,34 @@ const researchArticles = [
   },
   {
     id: 'bedroom-count-property-values',
-    title: 'Size Matters: Bedroom Count vs Property Values in Dublin 2024',
+    title: 'Size Matters: Bedroom Count vs Property Values in Dublin 2024 Data',
     excerpt: 'Detailed analysis shows 4-bedroom properties average €888k vs €394k for apartments, revealing clear pricing patterns by property size.',
     category: 'Market Analysis',
-    date: '2024-12-27',
+    date: '2024-02-07',
     readTime: '6 min read',
     featured: false,
     tags: ['Property Size', 'Bedroom Analysis', 'Value Comparison'],
     author: 'Market Research Team',
-    views: 4231,
+    views: 187,
   },
   {
     id: 'dublin-undervalued-gems-2024',
-    title: 'Dublin\'s Hidden Gems: Undervalued Areas with 78%+ Over-Asking Rates',
+    title: 'Dublin\'s Hidden Gems 2024 Data: Undervalued Areas with 78%+ Over-Asking Rates',
     excerpt: 'Discover Dublin\'s best-kept secrets: D6W leads with 83.7% over-asking rate while maintaining relatively affordable entry points.',
     category: 'Investment',
-    date: '2024-12-28',
+    date: '2024-11-20',
     readTime: '7 min read',
     featured: false,
     tags: ['Undervalued Areas', 'Growth Potential', 'Market Opportunities'],
     author: 'Investment Research Team',
-    views: 4987,
+    views: 234,
   },
   {
     id: 'affordable-hotspots-2025',
     title: 'Dublin\'s Affordable Hotspots 2025: Where 90%+ Properties Sell Over Asking for Under €400K',
     excerpt: 'Data reveals fierce buyer competition in affordable areas - D10 leads with 91.3% over-asking rate at just €307K average, based on 4,919 transactions.',
     category: 'Market Analysis',
-    date: '2025-01-05',
+    date: '2025-12-04',
     readTime: '7 min read',
     featured: true,
     tags: ['Affordable Areas', 'Over Asking', 'First-Time Buyers', '2025 Data'],
@@ -218,7 +218,7 @@ const researchArticles = [
     title: 'Dublin Property Size Premium 2025: Why Homes Over 150sqm Cost 127% More',
     excerpt: 'Space commands a massive premium - analysis of 3,358 large properties reveals 127% price increase over market average, with implications for buyers and investors.',
     category: 'Market Analysis',
-    date: '2025-01-12',
+    date: '2025-12-09',
     readTime: '8 min read',
     featured: false,
     tags: ['Property Size', 'Space Premium', 'Value Analysis', '2025 Trends'],
@@ -230,7 +230,7 @@ const researchArticles = [
     title: 'Dublin Property Market Q4 2024 vs Q1 2025: How Prices Shifted Into The New Year',
     excerpt: 'Quarter-over-quarter analysis reveals real market movements - 1,850 Q1 2025 transactions show €583K average with shifting competition patterns.',
     category: 'Market Trends',
-    date: '2025-01-19',
+    date: '2025-12-11',
     readTime: '9 min read',
     featured: true,
     tags: ['Market Trends', 'Q1 2025', 'Price Analysis', 'Seasonal Patterns'],
@@ -242,7 +242,7 @@ const researchArticles = [
     title: 'Dublin Rental Yields 2025: Best Areas for Buy-to-Let Investors - 9.6% Returns in D22',
     excerpt: 'Comprehensive rental yield analysis across 27,239 properties reveals top investment areas - D22 leads with 9.6% yield, D11 at 9.1%, based on 11,670 high-confidence estimates.',
     category: 'Investment',
-    date: '2025-01-26',
+    date: '2025-12-13',
     readTime: '10 min read',
     featured: false,
     tags: ['Rental Yield', 'Buy-to-Let', 'Investment', 'ROI Analysis', '2025 Data'],
@@ -254,7 +254,7 @@ const researchArticles = [
     title: 'Dublin Rental Guide 2025: Where to Find Affordable Rentals - €2,459/Month in D1',
     excerpt: 'Complete renter\'s guide analyzing 27,239 rental properties - from €1,963 for 1-beds to most affordable neighborhoods, with actual monthly costs across Dublin.',
     category: 'Renting',
-    date: '2025-02-02',
+    date: '2025-12-16',
     readTime: '8 min read',
     featured: true,
     tags: ['Renting', 'Rental Prices', 'Affordable Areas', 'Budget Guide', '2025 Data'],
@@ -266,7 +266,7 @@ const researchArticles = [
     title: 'Dublin Areas Showing Biggest Price Improvement: 6-Month Analysis',
     excerpt: 'Comprehensive analysis reveals Foxrock Dublin 18 leading with 121.4% price increase, followed by Sandycove at 106.5% and Dalkey at 45.7% - based on 43,830 property transactions.',
     category: 'Market Trends',
-    date: '2025-01-23',
+    date: '2025-12-05',
     readTime: '10 min read',
     featured: true,
     tags: ['Price Growth', 'Market Trends', 'Area Analysis', '6-Month Analysis'],
@@ -278,19 +278,19 @@ const researchArticles = [
     title: 'The Asking Price Strategy: How Dublin Sellers Set Prices to Drive Bidding Wars',
     excerpt: 'Dublin property market analysis reveals 84.3% of properties sell over asking price with 7.5% average premium, examining strategic pricing patterns across property types and areas.',
     category: 'Market Analysis',
-    date: '2025-02-15',
+    date: '2025-12-18',
     readTime: '7 min read',
     featured: true,
     tags: ['Pricing Strategy', 'Bidding Wars', 'Market Psychology'],
     author: 'Market Research Team',
-    views: 1850,
+    views: 456,
   },
   {
     id: '250k-350k-property-bracket-dublin',
     title: 'The €250,000-€350,000 Bracket: Dublin\'s Largest Property Market Segment',
     excerpt: 'Analysis of Dublin\'s largest property segment reveals 8,930 properties in the €250k-€350k range, with apartments dominating (50.5%) and key insights for first-time buyers.',
     category: 'Market Analysis',
-    date: '2025-02-14',
+    date: '2025-12-22',
     readTime: '6 min read',
     featured: false,
     tags: ['Price Brackets', 'First-Time Buyers', 'Market Segments'],
@@ -302,7 +302,7 @@ const researchArticles = [
     title: 'Dublin Apartment Market 2025: Comprehensive Analysis from €280,000 to €2.1M',
     excerpt: 'Dublin apartment market analysis covers 11,448 transactions with median €340,000 price, examining bedroom distribution, geographic trends, and investment potential.',
     category: 'Market Analysis',
-    date: '2025-02-13',
+    date: '2025-01-01',
     readTime: '8 min read',
     featured: false,
     tags: ['Apartments', 'Investment', 'Urban Living'],
@@ -314,7 +314,7 @@ const researchArticles = [
     title: 'The 3-Bed Sweet Spot: Why 38% of Dublin Buyers Choose This Property Size',
     excerpt: '3-bedroom properties dominate Dublin market at 38.4% of transactions, with median €475,000 price and strong rental yields across semi-detached, terraced, and apartment options.',
     category: 'Market Analysis',
-    date: '2025-02-12',
+    date: '2025-01-02',
     readTime: '7 min read',
     featured: false,
     tags: ['3-Bed Properties', 'Family Homes', 'Market Trends'],
@@ -326,7 +326,7 @@ const researchArticles = [
     title: 'The Commuter Calculation: Dublin Properties by Distance from City Centre',
     excerpt: 'Property analysis by distance from Dublin city centre reveals median prices from €460,000 (0-5km) to €385,000 (15-25km), with space and yield trade-offs for different buyer profiles.',
     category: 'Location Analysis',
-    date: '2025-02-11',
+    date: '2025-01-03',
     readTime: '8 min read',
     featured: false,
     tags: ['Location Analysis', 'Commuting', 'Remote Work'],
@@ -338,7 +338,7 @@ const researchArticles = [
     title: 'Christmas Property Sales: Dublin Market Shutdown and Price Impact Analysis',
     excerpt: 'Analysis of December property sales reveals significant market slowdown during Christmas week with 8.1% lower prices and near-zero activity on Dec 25.',
     category: 'Market Trends',
-    date: '2025-12-26',
+    date: '2025-01-04',
     readTime: '6 min read',
     featured: false,
     tags: ['Christmas Sales', 'Market Activity', 'Seasonal Trends', 'Property Prices'],
@@ -350,7 +350,7 @@ const researchArticles = [
     title: 'The Investor\'s Yield Curve: How €300k Less Property Doubles Your Returns',
     excerpt: 'Analysis of Dublin\'s rental yield curve reveals sub-€300k properties deliver 11.52% yields vs 4.88% for €700k+ properties, with the "Duplex Paradox" where premium types achieve both high yields and strong over-asking success.',
     category: 'Investment',
-    date: '2025-12-27',
+    date: '2025-12-06',
     readTime: '8 min read',
     featured: true,
     tags: ['Rental Yield', 'Investment Returns', 'Property Pricing', 'Duplex Paradox'],
@@ -362,7 +362,7 @@ const researchArticles = [
     title: 'The 3-Bed Phenomenon: Why Family Homes Win Dublin\'s Bidding Wars',
     excerpt: '3-bedroom properties achieve 87.4% over-asking success rates, outperforming all other sizes in Dublin\'s competitive market. Analysis reveals why family homes dominate bidding wars with clear performance patterns.',
     category: 'Market Analysis',
-    date: '2025-12-28',
+    date: '2025-12-19',
     readTime: '7 min read',
     featured: false,
     tags: ['3-Bed Properties', 'Family Homes', 'Over-Asking Success', 'Bedroom Analysis'],
@@ -374,7 +374,7 @@ const researchArticles = [
     title: 'The D4 Premium: What €400,000 Extra Actually Buys You',
     excerpt: 'D4 properties command escalating premiums from 36.4% for 1-bed apartments to 90.8% for 4-bed homes. Analysis quantifies what additional €400,000+ buys in space, location, and efficiency.',
     category: 'Market Analysis',
-    date: '2025-12-29',
+    date: '2025-12-21',
     readTime: '8 min read',
     featured: false,
     tags: ['D4 Premium', 'Property Pricing', 'Space Efficiency', 'Premium Areas'],
@@ -386,7 +386,7 @@ const researchArticles = [
     title: 'January 2025: Is It a Good Time to Buy or Sell Property?',
     excerpt: 'January 2025 analysis reveals 26% volume decline from December with 764 transactions, but sustained 83% over-asking rates despite severe first-week holiday disruptions affecting market timing.',
     category: 'Market Analysis',
-    date: '2025-12-30',
+    date: '2025-12-23',
     readTime: '8 min read',
     featured: false,
     tags: ['January 2025', 'Market Timing', 'Holiday Impact', 'Buy vs Sell'],
@@ -398,10 +398,34 @@ const researchArticles = [
     title: 'Dublin Rental Market 2025: Complete Guide for Renters and Investors',
     excerpt: 'Dublin rental market analysis covers 27,236 properties with median rents from €1,925 (1-bed) to €3,931 (4-bed), revealing duplexes offer highest 9.0% yields while only 28.7% of rentals are affordable on €100k income.',
     category: 'Renting',
-    date: '2025-12-31',
+    date: '2025-12-26',
     readTime: '9 min read',
     featured: true,
     tags: ['Rental Market', 'Rent Prices', 'Rental Yields', 'Affordability', '2025 Data'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'q2-vs-q1-selling-dublin',
+    title: 'When to Sell Property Dublin: Q2 vs Q1 Seasonal Analysis 2024',
+    excerpt: 'Best time to sell property in Dublin? Q2 vs Q1 analysis shows spring quarter delivers 8.86% higher sales volume and better over-asking rates. Seasonal property market timing guide.',
+    category: 'Market Analysis',
+    date: '2025-12-27',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Dublin Property Selling', 'Q2 vs Q1', 'Seasonal Market', 'Property Timing', 'Spring Sales', 'Dublin Real Estate'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-rental-market-tenant-perspective',
+    title: 'Dublin Rental Market 2025: Tenant Guide to Affordable Housing',
+    excerpt: 'Dublin rental prices 2025: Can you afford to rent in Dublin? Analysis shows rents consume 67-102% of average incomes. Find affordable areas and understand the tenant market.',
+    category: 'Renting',
+    date: '2025-12-27',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Dublin Rental Market', 'Affordable Housing', 'Tenant Guide', 'Rent Prices Dublin', 'Housing Affordability', 'Property Renting'],
     author: 'Market Research Team',
     views: 0,
   },
@@ -474,102 +498,102 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 33 },
+          { label: 'Articles', value: 35 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}
       />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8" id="articles">
-        {/* Filters Section */}
-        <div className="card p-6 mb-8">
-          {/* Search Bar */}
-          <div className="mb-6">
-            <div className="relative max-w-md">
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search articles..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-xl text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
-              />
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Category Filters */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Categories</h3>
-            <div className="flex flex-wrap gap-3">
-              {categories.map(category => {
-                const categoryConfig = getCategoryConfig(category);
-                return (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-                      selectedCategory === category
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                        : 'bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--muted-hover)] hover:shadow-md'
-                    }`}
-                  >
-                    {categoryConfig && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={categoryConfig.icon} />
-                      </svg>
-                    )}
-                    {category}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Sort and View Controls */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-[var(--muted-foreground)]">Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-              >
-                <option value="date">Latest First</option>
-                <option value="title">Title A-Z</option>
-                <option value="views">Most Viewed</option>
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-[var(--muted-foreground)] mr-2">View:</span>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+      <div className="max-w-7xl mx-auto px-4 py-4" id="articles">
+        {/* Compact Filters Section */}
+        <div className="card p-4 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search Bar */}
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search articles..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-[var(--muted)] border border-[var(--border)] rounded-lg text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 text-sm"
+                />
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
-              </button>
+              </div>
+            </div>
+
+            {/* Category Filters */}
+            <div className="flex-1">
+              <div className="flex flex-wrap gap-2">
+                {categories.map(category => {
+                  const categoryConfig = getCategoryConfig(category);
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                        selectedCategory === category
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm'
+                          : 'bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--muted-hover)]'
+                      }`}
+                    >
+                      {categoryConfig && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={categoryConfig.icon} />
+                        </svg>
+                      )}
+                      {category}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[var(--muted-foreground)]">Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-2 py-1.5 bg-[var(--muted)] border border-[var(--border)] rounded text-xs text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                >
+                  <option value="date">Latest</option>
+                  <option value="title">A-Z</option>
+                  <option value="views">Popular</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Results Count */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="text-[var(--muted-foreground)]">
-            Showing {((currentPage - 1) * ARTICLES_PER_PAGE) + 1}-{Math.min(currentPage * ARTICLES_PER_PAGE, filteredArticles.length)} of {filteredArticles.length} articles
+        <div className="flex justify-between items-center mb-6">
+          <div className="text-sm text-[var(--muted-foreground)]">
+            {filteredArticles.length} articles
             {searchQuery && <span> matching "{searchQuery}"</span>}
             {selectedCategory !== 'All' && <span> in {selectedCategory}</span>}
           </div>

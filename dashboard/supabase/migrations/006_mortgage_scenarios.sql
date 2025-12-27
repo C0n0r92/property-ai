@@ -82,3 +82,6 @@ COMMENT ON TABLE mortgage_scenarios IS 'Stores user-created mortgage calculation
 COMMENT ON COLUMN mortgage_scenarios.inputs IS 'JSONB containing all mortgage input parameters (loanAmount, interestRate, loanTerm, etc.)';
 COMMENT ON COLUMN mortgage_scenarios.results IS 'JSONB containing calculated results (monthlyPayment, totalInterest, payoffMonths, etc.)';
 
+
+
+

@@ -129,3 +129,6 @@ console.log('   - Scenario comparisons');
 console.log('   - Real-time updates');
 
 module.exports = { calculateMonthlyPayment };
+
+
+

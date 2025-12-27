@@ -75,3 +75,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON blog_votes TO authenticated;
 GRANT SELECT ON blog_votes TO anon;
 
 
+
+
+

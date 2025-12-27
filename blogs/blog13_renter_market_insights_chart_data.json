@@ -1,0 +1,188 @@
+{
+  "yieldDistribution": [
+    {
+      "bracket": "Under 4%",
+      "count": 877,
+      "percentage": 3.22
+    },
+    {
+      "bracket": "4-5%",
+      "count": 1509,
+      "percentage": 5.54
+    },
+    {
+      "bracket": "5-6%",
+      "count": 2885,
+      "percentage": 10.59
+    },
+    {
+      "bracket": "6-7%",
+      "count": 4508,
+      "percentage": 16.55
+    },
+    {
+      "bracket": "7%+",
+      "count": 17457,
+      "percentage": 64.1
+    }
+  ],
+  "yieldByPropertyType": [
+    {
+      "type": "Apartment",
+      "avgYield": 8.75,
+      "avgPrice": 369583,
+      "avgRent": 2504
+    },
+    {
+      "type": "Semi-D",
+      "avgYield": 7.21,
+      "avgPrice": 605725,
+      "avgRent": 3235
+    },
+    {
+      "type": "Detached",
+      "avgYield": 5.7,
+      "avgPrice": 961908,
+      "avgRent": 3822
+    },
+    {
+      "type": "Duplex",
+      "avgYield": 9.11,
+      "avgPrice": 396174,
+      "avgRent": 2880
+    }
+  ],
+  "yieldByBedrooms": [
+    {
+      "bedrooms": 1,
+      "avgYield": 8.42,
+      "avgPrice": 294477,
+      "avgRent": 1963
+    },
+    {
+      "bedrooms": 2,
+      "avgYield": 8.37,
+      "avgPrice": 404355,
+      "avgRent": 2588
+    },
+    {
+      "bedrooms": 3,
+      "avgYield": 7.84,
+      "avgPrice": 529981,
+      "avgRent": 3077
+    },
+    {
+      "bedrooms": 4,
+      "avgYield": 6.81,
+      "avgPrice": 828836,
+      "avgRent": 3957
+    },
+    {
+      "bedrooms": 5,
+      "avgYield": 8.31,
+      "avgPrice": 2149929,
+      "avgRent": 8969
+    }
+  ],
+  "topYieldAreas": [
+    {
+      "postcode": "D22",
+      "avgYield": 9.62,
+      "avgRent": 2533
+    },
+    {
+      "postcode": "D1",
+      "avgYield": 9.16,
+      "avgRent": 2459
+    },
+    {
+      "postcode": "D11",
+      "avgYield": 9.06,
+      "avgRent": 2511
+    },
+    {
+      "postcode": "D15",
+      "avgYield": 8.99,
+      "avgRent": 2841
+    },
+    {
+      "postcode": "D2",
+      "avgYield": 8.75,
+      "avgRent": 3261
+    },
+    {
+      "postcode": "D24",
+      "avgYield": 8.73,
+      "avgRent": 2531
+    },
+    {
+      "postcode": "D12",
+      "avgYield": 8.7,
+      "avgRent": 3006
+    },
+    {
+      "postcode": "D13",
+      "avgYield": 8.25,
+      "avgRent": 3280
+    },
+    {
+      "postcode": "D8",
+      "avgYield": 8.06,
+      "avgRent": 2580
+    },
+    {
+      "postcode": "D9",
+      "avgYield": 7.94,
+      "avgRent": 2772
+    }
+  ],
+  "affordabilityByType": [
+    {
+      "type": "Apartment",
+      "rentToIncomeRatio": 66.77,
+      "avgRent": 2504
+    },
+    {
+      "type": "Semi-D",
+      "rentToIncomeRatio": 86.27,
+      "avgRent": 3235
+    },
+    {
+      "type": "Detached",
+      "rentToIncomeRatio": 101.92,
+      "avgRent": 3822
+    },
+    {
+      "type": "Duplex",
+      "rentToIncomeRatio": 76.8,
+      "avgRent": 2880
+    }
+  ],
+  "yieldVsPriceBracket": [
+    {
+      "bracket": "Under €3,000/sqm",
+      "avgYield": 17.19,
+      "avgPricePerSqm": 2436
+    },
+    {
+      "bracket": "€3,000-€5,000/sqm",
+      "avgYield": 8.92,
+      "avgPricePerSqm": 4172
+    },
+    {
+      "bracket": "€5,000-€7,000/sqm",
+      "avgYield": 7.24,
+      "avgPricePerSqm": 5894
+    },
+    {
+      "bracket": "€7,000-€10,000/sqm",
+      "avgYield": 6.19,
+      "avgPricePerSqm": 7933
+    },
+    {
+      "bracket": "€10,000+/sqm",
+      "avgYield": 4.55,
+      "avgPricePerSqm": 14210
+    }
+  ]
+}

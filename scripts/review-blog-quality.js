@@ -217,9 +217,11 @@ function generateRecommendations(scores, content) {
 
 function reviewBlogs() {
   const blogFiles = [
-    'blog7_investor_yield_curve.md',
-    'blog8_3bed_phenomenon.md',
-    'blog9_d4_premium.md'
+    '../blogs/blog7_investor_yield_curve.md',
+    '../blogs/blog8_3bed_phenomenon.md',
+    '../blogs/blog9_d4_premium.md',
+    '../blogs/blog12_q2_vs_q1_selling.md',
+    '../blogs/blog13_renter_market_insights.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');
