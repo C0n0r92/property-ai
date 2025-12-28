@@ -28,11 +28,10 @@ Space efficiency varies significantly across Dublin postcodes, with suburban are
 | D10 | 349 | 0.0306 | €4,019 |
 | D12 | 1,306 | 0.0303 | €5,076 |
 | D11 | 1,141 | 0.0299 | €4,116 |
-| D1 | 756 | 2.4295 | €6,025 |
-| D20 | 923 | 2.2281 | €4,938 |
-| D15 | 1,445 | 2.0890 | €4,691 |
 
 <PostcodeEfficiencyChart />
+
+Use our [property map](/map) to explore these efficient areas and visualize property locations relative to your preferred commuting patterns.
 
 ## Bathroom Distribution Analysis
 Bathroom allocation further illustrates the efficiency paradox. Small properties maintain 0.89 bathrooms per square meter despite their compact size, while extra-large properties offer just 0.03 bathrooms per square meter. This distribution suggests that compact properties prioritize essential facilities more effectively than larger properties.
@@ -42,11 +41,17 @@ Bathroom allocation further illustrates the efficiency paradox. Small properties
 ### For Sellers
 Small properties demonstrate superior space efficiency with 0.031 bedrooms per square meter, yet achieve 78.4% over-asking success rates. Sellers should highlight efficient space utilization and compact design advantages. Despite being more efficient, small properties command competitive pricing at €5,830/㎡.
 
+Save efficient areas like D22 and D17 to your [saved properties](/saved) list to track market developments and optimize your marketing approach.
+
 ### For Buyers
 The efficiency paradox reveals that smaller properties deliver 1.5x more space efficiency than larger homes, yet don't necessarily cost more per square meter. Buyers should evaluate properties based on bedroom-to-space ratios, with D22 offering the highest efficiency at 0.031 bedrooms per square meter.
 
+Use our [mortgage calculator](/mortgage-calc) to compare affordability between efficient small properties and larger, less efficient homes.
+
 ### For Investors
 Compact properties maintain strong market performance despite higher space efficiency. Investors should note that medium-sized properties (80-120㎡) achieve the highest over-asking rates at 82.4%, suggesting reliable market demand for balanced efficiency and space.
+
+Explore [mortgage scenarios](/mortgage-scenarios) to model how space-efficient properties impact your rental yields and long-term investment returns.
 
 ## Conclusion
 Dublin's property market reveals a nuanced efficiency paradox where smaller properties achieve 1.5x higher space utilization (0.031 vs 0.020 bedrooms per square meter) while maintaining competitive pricing. Despite superior efficiency, small properties don't command significant price premiums, suggesting market demand prioritizes absolute space over efficiency ratios.

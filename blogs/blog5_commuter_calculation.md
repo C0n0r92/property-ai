@@ -88,17 +88,25 @@ Properties further from the city center may offer lower carbon footprints for re
 
 Consider the 0-5km ring for minimal commute times and access to city amenities. Expect to pay a premium for convenience.
 
+Use our [property map](/map) to explore city center locations and visualize transport connectivity options.
+
 ### Families
 
 The 5-15km rings offer optimal balance of space, affordability, and reasonable commute times. Focus on areas with good schools and community facilities.
+
+Explore family-friendly suburbs using our [area reports](/areas) to find communities with excellent schools and amenities.
 
 ### Investors
 
 Outer suburbs (10-15km and beyond) provide the best rental yields, though capital appreciation may be slower than city center properties.
 
+Model investment scenarios for commuter belt properties using our [mortgage scenarios](/mortgage-scenarios) tool to assess rental yields and cash flow.
+
 ### Remote Workers
 
 All distance rings offer viable options, with outer areas providing more space for home offices at lower cost.
+
+Save promising remote work locations to your [saved properties](/saved) list to monitor market developments.
 
 ## Conclusion
 

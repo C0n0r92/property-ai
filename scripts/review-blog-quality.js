@@ -231,7 +231,10 @@ function reviewBlogs() {
     '../blogs/blog11_rental_market.md',
     '../blogs/blog12_q2_vs_q1_selling.md',
     '../blogs/blog13_renter_market_insights.md',
-    '../blogs/blog14_value_erosion_2021_2025.md'
+    '../blogs/blog14_value_erosion_2021_2025.md',
+    '../blogs/blog15_bidding_wars_dublin.md',
+    '../blogs/blog16_bidding_war_costs.md',
+    '../blogs/blog1_asking_price_strategy.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');

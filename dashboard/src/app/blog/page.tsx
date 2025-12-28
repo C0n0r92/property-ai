@@ -10,13 +10,37 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'dublin-bidding-war-costs',
+    title: 'The True Cost of Dublin Bidding Wars: How Overpaying Today Costs You €200,000+ Tomorrow',
+    excerpt: 'Bidding war costs analysis reveals how Dublin\'s 10.7% average premium translates to €19,873-€52,996 extra interest over 30 years. Calculate the true long-term cost of competitive property buying.',
+    category: 'Financial Analysis',
+    date: '2025-12-28',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Bidding War Costs', 'Mortgage Impact', 'Long-term Costs', 'Property Investment', 'Financial Planning', 'Dublin Market'],
+    author: 'Market Research Team',
+    views: 1100,
+  },
+  {
+    id: 'dublin-bidding-wars-analysis',
+    title: 'Dublin Bidding Wars: Where Properties Sell Over Asking Price and Why',
+    excerpt: 'Dublin bidding wars analysis reveals 78.8% of properties sell over asking price with 10.74% average premium. Discover bidding war hotspots, under-performing areas, and strategic insights for buyers and sellers.',
+    category: 'Market Analysis',
+    date: '2025-12-27',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Dublin Bidding Wars', 'Over Asking Price', 'Property Competition', 'Buyer Strategies', 'Seller Strategies', 'Market Hotspots'],
+    author: 'Market Research Team',
+    views: 1250,
+  },
+  {
     id: 'dublin-property-market-q4-2024',
     title: 'Dublin Property Market Q4 2024 Data: Complete Analysis & Price Trends',
     excerpt: 'Dublin property market analysis Q4 2024 reveals price trends, market performance, and future outlook based on 43,000+ property transactions. Get the latest Dublin real estate insights.',
     category: 'Market Analysis',
     date: '2024-03-15',
     readTime: '8 min read',
-    featured: true,
+    featured: false,
     tags: ['Dublin Property Market', 'Q4 2024', 'Price Trends', 'Market Analysis', 'Property Prices', 'Dublin Real Estate'],
     author: 'Market Research Team',
     views: 2847,
@@ -455,7 +479,7 @@ const researchArticles = [
   },
 ];
 
-const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting'];
+const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting', 'Financial Analysis'];
 const ARTICLES_PER_PAGE = 9;
 
 export default function BlogPage() {
@@ -522,7 +546,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 37 },
+          { label: 'Articles', value: 39 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

@@ -102,13 +102,19 @@ Focus strategic pricing on duplex properties (84.4% success rate) and semi-detac
 
 Buyers should prepare for aggressive bidding environments, particularly in high-performing areas where 85%+ of properties sell over asking price. Properties in D10, D24, and D22 consistently achieve premiums above market averages.
 
+Use our [mortgage calculator](/mortgage-calc) to determine your maximum competitive offer and ensure you have pre-approval ready for bidding wars.
+
 ### Strategic Offer Development
 
 When targeting under-priced properties, develop offers 5-10% above asking price to remain competitive in bidding wars. Focus on properties in price brackets €400k-€600k where over-asking rates exceed 80%.
 
+Explore [mortgage scenarios](/mortgage-scenarios) to understand how bidding war premiums impact your long-term mortgage costs and affordability.
+
 ### Market Timing Strategy
 
 Monitor seasonal patterns and target properties in areas with proven over-asking performance. Buyers should be prepared to act quickly on competitively priced listings in high-demand locations.
+
+Save high-demand bidding war areas to your [saved properties](/saved) list to get alerts on new listings and market developments.
 
 ## Conclusion
 

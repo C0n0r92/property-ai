@@ -1090,6 +1090,506 @@ export function SellerAreaPerformanceChart() {
   );
 }
 
+// Charts for Blog 15: Bidding Wars
+export function BiddingWarsAreaChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D10', overRate: 91.3, avgPremium: 13.97 },
+                { area: 'D24', overRate: 90.0, avgPremium: 11.55 },
+                { area: 'D22', overRate: 89.6, avgPremium: 12.69 },
+                { area: 'D12', overRate: 87.5, avgPremium: 13.97 },
+                { area: 'D11', overRate: 85.7, avgPremium: 11.78 },
+                { area: 'D20', overRate: 84.6, avgPremium: 11.45 },
+                { area: 'D5', overRate: 83.1, avgPremium: 10.76 },
+                { area: 'D15', overRate: 82.5, avgPremium: 9.34 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'overRate' ? '%' : ''}`, name === 'overRate' ? 'Over-Asking Rate' : 'Avg Premium']}
+              />
+              <Bar dataKey="overRate" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D10 leads with 91.3% over-asking success, followed by D24 (90.0%) and D22 (89.6%) in intense bidding war areas
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function UnderAskingAreaChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D4', underRate: 23.2, avgDiscount: 7.41 },
+                { area: 'D6', underRate: 21.2, avgDiscount: 7.90 },
+                { area: 'D2', underRate: 20.5, avgDiscount: 5.86 },
+                { area: 'D1', underRate: 19.1, avgDiscount: 8.46 },
+                { area: 'D7', underRate: 17.6, avgDiscount: 7.42 },
+                { area: 'D3', underRate: 16.6, avgDiscount: 7.78 },
+                { area: 'D13', underRate: 16.5, avgDiscount: 5.39 },
+                { area: 'D8', underRate: 15.8, avgDiscount: 8.91 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Under-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'underRate' ? '%' : ''}`, name === 'underRate' ? 'Under-Asking Rate' : 'Avg Discount']}
+              />
+              <Bar dataKey="underRate" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D4 shows the weakest competition with 23.2% of properties selling under asking price
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceBracketCompetitionChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { bracket: '€400k-€500k', overRate: 82.7, competitionLevel: 72.4 },
+                { bracket: '€500k-€600k', overRate: 82.7, competitionLevel: 72.1 },
+                { bracket: '€600k-€700k', overRate: 81.8, competitionLevel: 70.1 },
+                { bracket: '€300k-€400k', overRate: 80.4, competitionLevel: 68.7 },
+                { bracket: '€700k-€900k', overRate: 78.5, competitionLevel: 63.8 },
+                { bracket: 'Under €300k', overRate: 72.0, competitionLevel: 54.6 },
+                { bracket: 'Over €900k', overRate: 68.0, competitionLevel: 44.0 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="bracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Competition Level', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'overRate' ? '%' : ''}`, name === 'overRate' ? 'Over-Asking Rate' : 'Competition Level']}
+              />
+              <Bar dataKey="competitionLevel" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          €400k-€500k bracket experiences the most intense competition with a 72.4 competition level
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BiddingWarPremiumChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { range: '0-5%', percentage: 27.7, label: 'Mild' },
+                { range: '5-10%', percentage: 28.6, label: 'Moderate' },
+                { range: '10-15%', percentage: 21.3, label: 'Strong' },
+                { range: '15-20%', percentage: 11.6, label: 'Intense' },
+                { range: '20%+', percentage: 10.9, label: 'Extreme' }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="label" fontSize={12} />
+              <YAxis
+                label={{ value: 'Bidding Wars (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Percentage of Bidding Wars']}
+              />
+              <Bar dataKey="percentage" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Most bidding wars (49.9%) fall into moderate to strong categories with 5-15% premiums
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Charts for Blog 16: Bidding War Costs
+export function PremiumPaybackChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                {
+                  "premiumPercent": 5,
+                  "premiumAmount": 22500,
+                  "extraMonthlyPayment": 85.87979654343758,
+                  "paybackYears": 21.83284166319181,
+                  "extraTotalInterest": 11791.726755637705
+                },
+                {
+                  "premiumPercent": 10,
+                  "premiumAmount": 45000,
+                  "extraMonthlyPayment": 171.75959308687516,
+                  "paybackYears": 21.83284166319181,
+                  "extraTotalInterest": 23583.45351127535
+                },
+                {
+                  "premiumPercent": 15,
+                  "premiumAmount": 67500,
+                  "extraMonthlyPayment": 257.6393896303125,
+                  "paybackYears": 21.83284166319183,
+                  "extraTotalInterest": 35375.18026691323
+                },
+                {
+                  "premiumPercent": 20,
+                  "premiumAmount": 90000,
+                  "extraMonthlyPayment": 343.51918617374986,
+                  "paybackYears": 21.83284166319184,
+                  "extraTotalInterest": 47166.90702255038
+                },
+                {
+                  "premiumPercent": 30,
+                  "premiumAmount": 135000,
+                  "extraMonthlyPayment": 515.278779260625,
+                  "paybackYears": 21.83284166319183,
+                  "extraTotalInterest": 70750.36053382527
+                }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="premiumPercent"
+                label={{ value: 'Premium Percentage', position: 'insideBottom', offset: -5 }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="payback"
+                label={{ value: 'Payback Years', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="monthly"
+                orientation="right"
+                label={{ value: 'Extra Monthly (€)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  name === 'paybackYears' ? `${value.toFixed(1)} years` : `€${value.toFixed(0)}`,
+                  name === 'paybackYears' ? 'Payback Period' : 'Extra Monthly Payment'
+                ]}
+              />
+              <Line
+                yAxisId="payback"
+                type="monotone"
+                dataKey="paybackYears"
+                stroke="#DC2626"
+                strokeWidth={3}
+                name="paybackYears"
+                dot={{ r: 6 }}
+              />
+              <Line
+                yAxisId="monthly"
+                type="monotone"
+                dataKey="extraMonthlyPayment"
+                stroke="#2563EB"
+                strokeWidth={3}
+                name="extraMonthlyPayment"
+                dot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Even modest bidding war premiums take over 21 years to break even through mortgage repayments
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BreakEvenChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                {
+                  "years": 1,
+                  "netCostOfPremium": 448650
+                },
+                {
+                  "years": 3,
+                  "netCostOfPremium": 445827.28500000003
+                },
+                {
+                  "years": 5,
+                  "netCostOfPremium": 442832.66665649996
+                },
+                {
+                  "years": 10,
+                  "netCostOfPremium": 434523.7629295144
+                },
+                {
+                  "years": 15,
+                  "netCostOfPremium": 424891.4662529655
+                },
+                {
+                  "years": 20,
+                  "netCostOfPremium": 413724.9944398763
+                }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="years"
+                label={{ value: 'Years Held', position: 'insideBottom', offset: -5 }}
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Unrecovered Premium (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Unrecovered Premium Amount']}
+              />
+              <Line
+                type="monotone"
+                dataKey="netCostOfPremium"
+                stroke="#DC2626"
+                strokeWidth={3}
+                dot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Property appreciation recovers only €31,275 of a €45,000 premium after 20 years at 3% growth
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OpportunityCostChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                {
+                  "premiumRange": "5% Premium",
+                  "extraMonthly": 72,
+                  "totalExtraInterest": 9880,
+                  "premiumAmount": 22500
+                },
+                {
+                  "premiumRange": "10% Premium",
+                  "extraMonthly": 144,
+                  "totalExtraInterest": 19761,
+                  "premiumAmount": 45000
+                },
+                {
+                  "premiumRange": "15% Premium",
+                  "extraMonthly": 216,
+                  "totalExtraInterest": 29641,
+                  "premiumAmount": 67500
+                },
+                {
+                  "premiumRange": "20% Premium",
+                  "extraMonthly": 288,
+                  "totalExtraInterest": 39521,
+                  "premiumAmount": 90000
+                },
+                {
+                  "premiumRange": "30% Premium",
+                  "extraMonthly": 432,
+                  "totalExtraInterest": 59282,
+                  "premiumAmount": 135000
+                }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="premiumRange"
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="monthly"
+                orientation="left"
+                label={{ value: 'Extra Monthly Payment (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="interest"
+                orientation="right"
+                label={{ value: 'Total Extra Interest (€)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  name === 'extraMonthly' ? `€${value}/month` : `€${value.toLocaleString()}`,
+                  name === 'extraMonthly' ? 'Extra Monthly Payment' : 'Total Extra Interest'
+                ]}
+              />
+              <Bar yAxisId="monthly" dataKey="extraMonthly" fill="#DC2626" name="extraMonthly" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="interest" dataKey="totalExtraInterest" fill="#2563EB" name="totalExtraInterest" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Monthly cost burden: €72-€432 extra mortgage payments for 30 years, plus €9,880-€59,282 in extra interest
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function AreaPremiumChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                {
+                  "area": "D3",
+                  "avgPremium": 15.288160261651672,
+                  "count": 1223
+                },
+                {
+                  "area": "D12",
+                  "avgPremium": 13.981713586291322,
+                  "count": 1634
+                },
+                {
+                  "area": "D10",
+                  "avgPremium": 13.971653746770027,
+                  "count": 387
+                },
+                {
+                  "area": "D22",
+                  "avgPremium": 12.6923794871795,
+                  "count": 975
+                },
+                {
+                  "area": "D1",
+                  "avgPremium": 12.088532289628192,
+                  "count": 511
+                },
+                {
+                  "area": "D11",
+                  "avgPremium": 11.784846029173456,
+                  "count": 1234
+                },
+                {
+                  "area": "D24",
+                  "avgPremium": 11.554595786379235,
+                  "count": 2041
+                },
+                {
+                  "area": "D20",
+                  "avgPremium": 11.454653465346551,
+                  "count": 303
+                },
+                {
+                  "area": "D6",
+                  "avgPremium": 11.31860887096776,
+                  "count": 992
+                },
+                {
+                  "area": "D6W",
+                  "avgPremium": 10.944984374999999,
+                  "count": 640
+                }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Premium (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value.toFixed(1)}${name === 'avgPremium' ? '%' : ''}`, name === 'avgPremium' ? 'Average Premium' : 'Bidding Wars']}
+              />
+              <Bar dataKey="avgPremium" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D3 leads with 15.3% average bidding war premiums, adding significant monthly costs to mortgage payments
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Charts for Blog 16: Bidding War Costs
 export function PremiumDistributionChart() {
   return (
     <ChartWrapper>
@@ -1098,28 +1598,50 @@ export function PremiumDistributionChart() {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={[
-                { range: '0-5%', percentage: 27.7, count: 7182 },
-                { range: '5-10%', percentage: 28.6, count: 7394 },
-                { range: '10-15%', percentage: 21.3, count: 5510 },
-                { range: '15-20%', percentage: 11.6, count: 2994 },
-                { range: '20%+', percentage: 10.9, count: 2810 }
+                { range: '0-5%', percentage: 27.7, count: 7182, avgPremium: 2.63 },
+                { range: '5-10%', percentage: 28.6, count: 7394, avgPremium: 7.28 },
+                { range: '10-15%', percentage: 21.3, count: 5510, avgPremium: 12.21 },
+                { range: '15-20%', percentage: 11.6, count: 2994, avgPremium: 17.11 },
+                { range: '20%+', percentage: 10.9, count: 2810, avgPremium: 30.94 }
               ]}
               margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
             >
               <XAxis dataKey="range" fontSize={12} />
               <YAxis
+                yAxisId="percentage"
                 label={{ value: 'Properties (%)', angle: -90, position: 'insideLeft' }}
                 fontSize={12}
               />
-              <Tooltip
-                formatter={(value, name) => [`${value}${name === 'percentage' ? '%' : ''}`, name === 'percentage' ? 'Percentage' : 'Count']}
+              <YAxis
+                yAxisId="avgPremium"
+                orientation="right"
+                label={{ value: 'Average Premium (%)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
               />
-              <Bar dataKey="percentage" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+              <Tooltip
+                formatter={(value, name) => {
+                  let formattedValue = value;
+                  let label = name;
+
+                  if (name === 'percentage') {
+                    formattedValue = `${value}%`;
+                    label = 'Percentage of Bidding Wars';
+                  } else if (name === 'avgPremium') {
+                    formattedValue = `${value}%`;
+                    label = 'Average Premium';
+                  } else {
+                    label = 'Count';
+                  }
+
+                  return [formattedValue, label];
+                }}
+              />
+              <Bar yAxisId="percentage" dataKey="percentage" fill="#2563EB" name="percentage" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
         <p className="text-sm text-slate-600 text-center">
-          Most successful over-asking occurs in the 5-15% premium range, with 49.9% of properties achieving these levels
+          Over 43% of bidding wars result in premiums exceeding 10%, with extreme competitions driving significant overpayments
         </p>
       </div>
     </ChartWrapper>

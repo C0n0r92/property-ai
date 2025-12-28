@@ -1,0 +1,134 @@
+{
+  "premiumPayback": [
+    {
+      "premiumPercent": 5,
+      "premiumAmount": 22500,
+      "extraMonthlyPayment": 85.87979654343735,
+      "paybackYears": 21.832841663191868,
+      "extraTotalInterest": 11791.726755637734
+    },
+    {
+      "premiumPercent": 10,
+      "premiumAmount": 45000,
+      "extraMonthlyPayment": 171.75959308687493,
+      "paybackYears": 21.83284166319184,
+      "extraTotalInterest": 23583.453511275497
+    },
+    {
+      "premiumPercent": 15,
+      "premiumAmount": 67500,
+      "extraMonthlyPayment": 257.6393896303125,
+      "paybackYears": 21.83284166319183,
+      "extraTotalInterest": 35375.18026691323
+    },
+    {
+      "premiumPercent": 20,
+      "premiumAmount": 90000,
+      "extraMonthlyPayment": 343.51918617374986,
+      "paybackYears": 21.83284166319184,
+      "extraTotalInterest": 47166.90702255038
+    },
+    {
+      "premiumPercent": 30,
+      "premiumAmount": 135000,
+      "extraMonthlyPayment": 515.278779260625,
+      "paybackYears": 21.83284166319183,
+      "extraTotalInterest": 70750.36053382527
+    }
+  ],
+  "breakEvenAnalysis": [
+    {
+      "years": 1,
+      "netCostOfPremium": 448650
+    },
+    {
+      "years": 3,
+      "netCostOfPremium": 445827.28500000003
+    },
+    {
+      "years": 5,
+      "netCostOfPremium": 442832.66665649996
+    },
+    {
+      "years": 10,
+      "netCostOfPremium": 434523.7629295144
+    },
+    {
+      "years": 15,
+      "netCostOfPremium": 424891.4662529655
+    },
+    {
+      "years": 20,
+      "netCostOfPremium": 413724.9944398763
+    }
+  ],
+  "areaPremiums": [
+    {
+      "area": "D3",
+      "avgPremium": 15.288160261651672,
+      "count": 1223
+    },
+    {
+      "area": "D12",
+      "avgPremium": 13.981713586291322,
+      "count": 1634
+    },
+    {
+      "area": "D10",
+      "avgPremium": 13.971653746770027,
+      "count": 387
+    },
+    {
+      "area": "D22",
+      "avgPremium": 12.6923794871795,
+      "count": 975
+    },
+    {
+      "area": "D1",
+      "avgPremium": 12.088532289628192,
+      "count": 511
+    },
+    {
+      "area": "D11",
+      "avgPremium": 11.784846029173456,
+      "count": 1234
+    },
+    {
+      "area": "D24",
+      "avgPremium": 11.554595786379235,
+      "count": 2041
+    },
+    {
+      "area": "D20",
+      "avgPremium": 11.454653465346551,
+      "count": 303
+    },
+    {
+      "area": "D6",
+      "avgPremium": 11.31860887096776,
+      "count": 992
+    },
+    {
+      "area": "D6W",
+      "avgPremium": 10.944984374999999,
+      "count": 640
+    }
+  ],
+  "opportunityCost": [
+    {
+      "investment": "Stock Market (7% annual)",
+      "futureValue": 88521.81107803049,
+      "totalReturn": 43521.811078030485
+    },
+    {
+      "investment": "High-Yield Savings (4%)",
+      "futureValue": 66610.99282132549,
+      "totalReturn": 21610.99282132549
+    },
+    {
+      "investment": "Index Funds (8%)",
+      "futureValue": 97151.62487727546,
+      "totalReturn": 52151.62487727546
+    }
+  ]
+}

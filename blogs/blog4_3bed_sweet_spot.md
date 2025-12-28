@@ -63,6 +63,8 @@ Median price: €462,000 (5.1% of 3-bed market)
 - **D24**: €485,000 median (498 sales) - Growing suburb with potential
 - **D22**: €465,000 median (324 sales) - Affordable family housing
 
+Explore detailed market analysis for these 3-bedroom hotspots using our [area reports](/areas) to find specific properties and understand local trends.
+
 ### Geographic Distribution
 
 3-bedroom properties show strong concentration in established suburbs, reflecting family preferences for community-focused locations with good amenities.
@@ -87,13 +89,19 @@ Duplexes: 9.4% average gross yield
 
 Consider 3-bedroom properties in accessible areas like D15 and D22 for good value and future family accommodation needs.
 
+Use our [mortgage calculator](/mortgage-calc) to determine your budget and explore [mortgage scenarios](/mortgage-scenarios) for first-time buyer supports.
+
 ### Families
 
 Focus on established areas with good schools and amenities, balancing price with long-term lifestyle requirements.
 
+Explore family-friendly neighborhoods using our [property map](/map) to identify areas with good schools and community facilities.
+
 ### Investors
 
 Properties in high-demand suburbs offer reliable rental income with the potential for capital appreciation.
+
+Save promising 3-bedroom investment opportunities to your [saved properties](/saved) list and model rental yields with our [mortgage scenarios](/mortgage-scenarios) tool.
 
 ## Conclusion
 

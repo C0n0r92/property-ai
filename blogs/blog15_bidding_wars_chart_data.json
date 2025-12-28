@@ -1,0 +1,247 @@
+{
+  "areaBiddingWars": [
+    {
+      "area": "D10",
+      "overRate": 91.3,
+      "underRate": 4.5,
+      "avgPremium": 13.97,
+      "netCompetition": 86.8
+    },
+    {
+      "area": "D24",
+      "overRate": 90,
+      "underRate": 5.8,
+      "avgPremium": 11.55,
+      "netCompetition": 84.1
+    },
+    {
+      "area": "D22",
+      "overRate": 89.6,
+      "underRate": 6.5,
+      "avgPremium": 12.69,
+      "netCompetition": 83.1
+    },
+    {
+      "area": "D12",
+      "overRate": 87.5,
+      "underRate": 8.5,
+      "avgPremium": 13.97,
+      "netCompetition": 79
+    },
+    {
+      "area": "D11",
+      "overRate": 85.7,
+      "underRate": 9,
+      "avgPremium": 11.78,
+      "netCompetition": 76.7
+    },
+    {
+      "area": "D20",
+      "overRate": 84.6,
+      "underRate": 7.5,
+      "avgPremium": 11.45,
+      "netCompetition": 77.1
+    },
+    {
+      "area": "D5",
+      "overRate": 83.1,
+      "underRate": 10.2,
+      "avgPremium": 10.76,
+      "netCompetition": 72.9
+    },
+    {
+      "area": "D15",
+      "overRate": 82.5,
+      "underRate": 8.9,
+      "avgPremium": 9.34,
+      "netCompetition": 73.6
+    },
+    {
+      "area": "D16",
+      "overRate": 80,
+      "underRate": 12.7,
+      "avgPremium": 9.2,
+      "netCompetition": 67.3
+    },
+    {
+      "area": "D17",
+      "overRate": 79.5,
+      "underRate": 12,
+      "avgPremium": 8.85,
+      "netCompetition": 67.5
+    }
+  ],
+  "propertyTypeCompetition": [
+    {
+      "type": "",
+      "overRate": 86.5,
+      "competitionIndex": 78.1,
+      "avgPremium": 13.67
+    },
+    {
+      "type": "Duplex",
+      "overRate": 84.4,
+      "competitionIndex": 76.5,
+      "avgPremium": 9.7
+    },
+    {
+      "type": "Semi-D",
+      "overRate": 81.5,
+      "competitionIndex": 69.4,
+      "avgPremium": 9.95
+    },
+    {
+      "type": "End of Terrace",
+      "overRate": 81.1,
+      "competitionIndex": 68.8,
+      "avgPremium": 12.11
+    },
+    {
+      "type": "Terrace",
+      "overRate": 79.8,
+      "competitionIndex": 66.6,
+      "avgPremium": 11.86
+    },
+    {
+      "type": "Apartment",
+      "overRate": 77.2,
+      "competitionIndex": 64.2,
+      "avgPremium": 9.68
+    },
+    {
+      "type": "Townhouse",
+      "overRate": 75.1,
+      "competitionIndex": 58.7,
+      "avgPremium": 9.34
+    },
+    {
+      "type": "Bungalow",
+      "overRate": 71.5,
+      "competitionIndex": 49.8,
+      "avgPremium": 11.34
+    }
+  ],
+  "priceBracketCompetition": [
+    {
+      "bracket": "Under €300k",
+      "overRate": 72,
+      "underRate": 17.4,
+      "competitionLevel": 54.6
+    },
+    {
+      "bracket": "€300k-€400k",
+      "overRate": 80.4,
+      "underRate": 11.6,
+      "competitionLevel": 68.7
+    },
+    {
+      "bracket": "€400k-€500k",
+      "overRate": 82.7,
+      "underRate": 10.3,
+      "competitionLevel": 72.4
+    },
+    {
+      "bracket": "€500k-€600k",
+      "overRate": 82.7,
+      "underRate": 10.6,
+      "competitionLevel": 72.1
+    },
+    {
+      "bracket": "€600k-€700k",
+      "overRate": 81.8,
+      "underRate": 11.7,
+      "competitionLevel": 70.1
+    },
+    {
+      "bracket": "€700k-€900k",
+      "overRate": 78.5,
+      "underRate": 14.7,
+      "competitionLevel": 63.8
+    },
+    {
+      "bracket": "Over €900k",
+      "overRate": 68,
+      "underRate": 24,
+      "competitionLevel": 44
+    }
+  ],
+  "premiumDistribution": [
+    {
+      "range": "0-5%",
+      "label": "Mild Competition",
+      "count": 7182,
+      "percentage": 27.7,
+      "avgPremium": 2.63
+    },
+    {
+      "range": "5-10%",
+      "label": "Moderate Competition",
+      "count": 7394,
+      "percentage": 28.6,
+      "avgPremium": 7.28
+    },
+    {
+      "range": "10-15%",
+      "label": "Strong Competition",
+      "count": 5510,
+      "percentage": 21.3,
+      "avgPremium": 12.21
+    },
+    {
+      "range": "15-20%",
+      "label": "Intense Competition",
+      "count": 2994,
+      "percentage": 11.6,
+      "avgPremium": 17.11
+    },
+    {
+      "range": "20%+",
+      "label": "Extreme Competition",
+      "count": 2810,
+      "percentage": 10.9,
+      "avgPremium": 30.94
+    }
+  ],
+  "underAskingAreas": [
+    {
+      "area": "D4",
+      "underRate": 23.2,
+      "avgDiscount": 7.41
+    },
+    {
+      "area": "D6",
+      "underRate": 21.2,
+      "avgDiscount": 7.9
+    },
+    {
+      "area": "D2",
+      "underRate": 20.5,
+      "avgDiscount": 5.86
+    },
+    {
+      "area": "D1",
+      "underRate": 19.1,
+      "avgDiscount": 8.46
+    },
+    {
+      "area": "D7",
+      "underRate": 17.6,
+      "avgDiscount": 7.42
+    },
+    {
+      "area": "D3",
+      "underRate": 16.6,
+      "avgDiscount": 7.78
+    },
+    {
+      "area": "D13",
+      "underRate": 16.5,
+      "avgDiscount": 5.39
+    },
+    {
+      "area": "D8",
+      "underRate": 15.8,
+      "avgDiscount": 8.91
+    }
+  ]
+}

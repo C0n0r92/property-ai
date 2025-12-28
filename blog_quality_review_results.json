@@ -1,9 +1,9 @@
 {
-  "reviewDate": "2025-12-28T20:21:30.802Z",
+  "reviewDate": "2025-12-28T20:40:48.900Z",
   "summary": {
-    "totalBlogs": 15,
-    "passed": 4,
-    "averageScore": 77
+    "totalBlogs": 18,
+    "passed": 5,
+    "averageScore": 76
   },
   "detailedResults": [
     {
@@ -152,8 +152,8 @@
     },
     {
       "filename": "../blogs/blog5_commuter_calculation.md",
-      "overallScore": 76,
-      "totalScore": 76,
+      "overallScore": 78,
+      "totalScore": 78,
       "maxScore": 100,
       "criteria": {
         "dataUsage": {
@@ -167,9 +167,9 @@
           "percentage": 75
         },
         "actionability": {
-          "score": 10,
+          "score": 12,
           "maxScore": 20,
-          "percentage": 48
+          "percentage": 58
         },
         "uniqueness": {
           "score": 20,
@@ -547,6 +547,113 @@
         }
       },
       "passThreshold": true,
+      "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog15_bidding_wars_dublin.md",
+      "overallScore": 67,
+      "totalScore": 67,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 13,
+          "maxScore": 20,
+          "percentage": 65
+        },
+        "actionability": {
+          "score": 11,
+          "maxScore": 20,
+          "percentage": 54
+        },
+        "uniqueness": {
+          "score": 12,
+          "maxScore": 20,
+          "percentage": 60
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "../blogs/blog16_bidding_war_costs.md",
+      "overallScore": 80,
+      "totalScore": 80,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog1_asking_price_strategy.md",
+      "overallScore": 76,
+      "totalScore": 76,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
       "recommendations": []
     }
   ]
