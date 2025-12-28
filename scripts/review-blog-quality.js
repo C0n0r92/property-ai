@@ -217,6 +217,8 @@ function generateRecommendations(scores, content) {
 
 function reviewBlogs() {
   const blogFiles = [
+    '../blogs/blog6_space_efficiency_paradox.md',
+    '../blogs/blog7_value_erosion_2021_2025.md',
     '../blogs/blog7_investor_yield_curve.md',
     '../blogs/blog8_3bed_phenomenon.md',
     '../blogs/blog9_d4_premium.md',
@@ -230,7 +232,7 @@ function reviewBlogs() {
   const results = [];
 
   blogFiles.forEach(filename => {
-    const filePath = path.join(__dirname, '../', filename);
+    const filePath = path.resolve(__dirname, filename);
 
     if (!fs.existsSync(filePath)) {
       console.log(`❌ ${filename}: File not found`);

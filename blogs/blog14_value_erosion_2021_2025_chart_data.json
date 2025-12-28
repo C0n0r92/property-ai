@@ -1,0 +1,121 @@
+{
+  "YearOverYearPricesChart": [
+    {
+      "year": 2020,
+      "avgPrice": 540000,
+      "medianPrice": 760000,
+      "avgPricePerSqm": 4858
+    },
+    {
+      "year": 2021,
+      "avgPrice": 488242,
+      "medianPrice": 400000,
+      "avgPricePerSqm": 4258
+    },
+    {
+      "year": 2022,
+      "avgPrice": 510545,
+      "medianPrice": 410000,
+      "avgPricePerSqm": 4578
+    },
+    {
+      "year": 2023,
+      "avgPrice": 520365,
+      "medianPrice": 420000,
+      "avgPricePerSqm": 4782
+    },
+    {
+      "year": 2024,
+      "avgPrice": 559856,
+      "medianPrice": 460000,
+      "avgPricePerSqm": 5045
+    },
+    {
+      "year": 2025,
+      "avgPrice": 595203,
+      "medianPrice": 497000,
+      "avgPricePerSqm": 5380
+    }
+  ],
+  "PropertyTypeComparisonChart": [
+    {
+      "year": 2020
+    },
+    {
+      "year": 2021,
+      "Terrace": 466637,
+      "Semi-D": 567849,
+      "Apartment": 324690,
+      "Bungalow": 535447,
+      "End of Terrace": 485186,
+      "Detached": 915921,
+      "Townhouse": 531647,
+      "Duplex": 383904
+    },
+    {
+      "year": 2022,
+      "Terrace": 489893,
+      "Apartment": 340013,
+      "End of Terrace": 516329,
+      "Semi-D": 597644,
+      "Duplex": 365224,
+      "Detached": 1024759,
+      "Bungalow": 565675,
+      "Townhouse": 519633
+    },
+    {
+      "year": 2023,
+      "Semi-D": 619157,
+      "Terrace": 498656,
+      "Apartment": 350336,
+      "Detached": 1018264,
+      "Bungalow": 544721,
+      "End of Terrace": 485527,
+      "Duplex": 370612,
+      "Townhouse": 535082,
+      "": 250718
+    },
+    {
+      "year": 2024,
+      "Apartment": 375210,
+      "End of Terrace": 503416,
+      "Terrace": 541008,
+      "Semi-D": 667065,
+      "Bungalow": 574924,
+      "Duplex": 408246,
+      "Detached": 1150133,
+      "Townhouse": 484787,
+      "": 569968
+    },
+    {
+      "year": 2025,
+      "Detached": 1119543,
+      "Semi-D": 704281,
+      "End of Terrace": 553263,
+      "Apartment": 406133,
+      "Terrace": 579934,
+      "": 589517,
+      "Bungalow": 608125,
+      "Townhouse": 636552,
+      "Duplex": 432875,
+      "Site": 738625
+    }
+  ],
+  "ValueErosionChart": [
+    {
+      "propertyType": "Detached",
+      "avgPercentIncrease": 44,
+      "exampleCount": 21
+    },
+    {
+      "propertyType": "Semi-D",
+      "avgPercentIncrease": 13.7,
+      "exampleCount": 32
+    },
+    {
+      "propertyType": "Apartment",
+      "avgPercentIncrease": 0.6,
+      "exampleCount": 27
+    }
+  ]
+}

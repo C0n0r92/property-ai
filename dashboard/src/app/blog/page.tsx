@@ -429,6 +429,30 @@ const researchArticles = [
     author: 'Market Research Team',
     views: 0,
   },
+  {
+    id: 'space-efficiency-paradox',
+    title: 'Space Efficiency Paradox: Why Smaller Dublin Properties Deliver More Bedrooms Per Square Meter',
+    excerpt: 'Dublin\'s property market reveals a counterintuitive pattern where smaller properties achieve dramatically higher space efficiency. Properties under 80㎡ deliver 2.66 bedrooms per square meter while commanding premium pricing.',
+    category: 'Market Analysis',
+    date: '2025-12-28',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Space Efficiency', 'Property Size', 'Bedrooms per m²', 'Market Paradox', 'Dublin Property Analysis', 'Compact Properties'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'value-erosion-2021-2025',
+    title: 'Value Erosion: How Dublin Property Prices Have Skyrocketed Since 2021',
+    excerpt: 'Dublin property prices have increased dramatically since 2021, with detached houses rising 44% and the same money buying significantly less property value today. A €355,000 detached house in D15 that sold in 2021 would cost €1,500,000 today.',
+    category: 'Market Trends',
+    date: '2025-12-28',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Property Price Inflation', 'Value Erosion', '2021 vs 2025', 'Dublin Property Prices', 'Purchasing Power', 'Market Trends'],
+    author: 'Market Research Team',
+    views: 0,
+  },
 ];
 
 const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting'];
@@ -498,7 +522,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 35 },
+          { label: 'Articles', value: 37 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

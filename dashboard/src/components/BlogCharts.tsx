@@ -638,3 +638,239 @@ export function YieldDistributionChart() {
     </ChartWrapper>
   );
 }
+
+export function SizeEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { category: 'Small', avgPricePerSqm: 6234, avgEfficiencyRatio: 2.6585 },
+                { category: 'Medium', avgPricePerSqm: 5504, avgEfficiencyRatio: 1.4377 },
+                { category: 'Large', avgPricePerSqm: 5580, avgEfficiencyRatio: 0.5917 },
+                { category: 'Extra Large', avgPricePerSqm: 6090, avgEfficiencyRatio: 0.1344 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="category"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                yAxisId="left"
+                label={{ value: 'Bedrooms/㎡', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                label={{ value: 'Price/㎡ (€)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgEfficiencyRatio') return [value, 'Bedrooms/㎡'];
+                  if (name === 'avgPricePerSqm') return [`€${value}`, 'Price/㎡'];
+                  return [value, name];
+                }}
+              />
+              <Bar yAxisId="left" dataKey="avgEfficiencyRatio" fill="#2563EB" radius={[4, 4, 0, 0]} />
+              <Bar yAxisId="right" dataKey="avgPricePerSqm" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Small properties achieve 2.66 bedrooms per square meter while commanding premium pricing
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PostcodeEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { postcode: 'D18', avgEfficiency: 5.0532, avgPricePerSqm: 5792 },
+                { postcode: 'D10', avgEfficiency: 3.9227, avgPricePerSqm: 4408 },
+                { postcode: 'D12', avgEfficiency: 3.1711, avgPricePerSqm: 5572 },
+                { postcode: 'D22', avgEfficiency: 3.1700, avgPricePerSqm: 4269 },
+                { postcode: 'D17', avgEfficiency: 3.1681, avgPricePerSqm: 4252 },
+                { postcode: 'D1', avgEfficiency: 2.4295, avgPricePerSqm: 6025 },
+                { postcode: 'D20', avgEfficiency: 2.2281, avgPricePerSqm: 4938 },
+                { postcode: 'D15', avgEfficiency: 2.0890, avgPricePerSqm: 4691 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Bedrooms/㎡', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgEfficiency') return [value, 'Bedrooms/㎡'];
+                  if (name === 'avgPricePerSqm') return [`€${value}`, 'Price/㎡'];
+                  return [value, name];
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="avgEfficiency"
+                stroke="#2563EB"
+                strokeWidth={3}
+                dot={{ fill: '#2563EB', strokeWidth: 2, r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Dublin 18 leads with 5.05 bedrooms per square meter, showing highest space efficiency
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YearOverYearPricesChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { year: 2021, avgPrice: 488242, medianPrice: 400000, avgPricePerSqm: 4258 },
+                { year: 2022, avgPrice: 510545, medianPrice: 410000, avgPricePerSqm: 4578 },
+                { year: 2023, avgPrice: 520365, medianPrice: 420000, avgPricePerSqm: 4782 },
+                { year: 2024, avgPrice: 559856, medianPrice: 460000, avgPricePerSqm: 5045 },
+                { year: 2025, avgPrice: 595203, medianPrice: 497000, avgPricePerSqm: 5380 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="year" fontSize={12} />
+              <YAxis
+                yAxisId="price"
+                label={{ value: 'Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <YAxis
+                yAxisId="sqm"
+                orientation="right"
+                label={{ value: 'Price/㎡ (€)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgPrice' || name === 'medianPrice') return [`€${value.toLocaleString()}`, name];
+                  if (name === 'avgPricePerSqm') return [`€${value.toLocaleString()}`, 'Price/㎡'];
+                  return [value, name];
+                }}
+              />
+              <Bar
+                yAxisId="price"
+                dataKey="avgPrice"
+                fill="#DC2626"
+                name="Average Property Price"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                yAxisId="price"
+                dataKey="medianPrice"
+                fill="#2563EB"
+                name="Median Property Price"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                yAxisId="sqm"
+                dataKey="avgPricePerSqm"
+                fill="#16A34A"
+                name="Average Price per m²"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Dublin property prices showed clear year-over-year increases, with the biggest jump in 2024 (€40k rise)
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertyTypeComparisonChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { year: 2021, Detached: 0, 'Semi-D': 0, Apartment: 0 },
+                { year: 2022, Detached: 4.6, 'Semi-D': 2.2, Apartment: 1.4 },
+                { year: 2023, Detached: 1.9, 'Semi-D': 3.3, Apartment: 1.4 },
+                { year: 2024, Detached: 5.6, 'Semi-D': 4.2, Apartment: 1.4 },
+                { year: 2025, Detached: 4.0, 'Semi-D': 3.0, Apartment: 0.8 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="year" fontSize={12} />
+              <YAxis
+                label={{ value: 'Year-over-Year % Change', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `${value}%`}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}%`, `${name} YoY Change`]}
+              />
+              <Line
+                type="monotone"
+                dataKey="Detached"
+                stroke="#DC2626"
+                strokeWidth={4}
+                dot={{ fill: '#DC2626', strokeWidth: 2, r: 6 }}
+                name="Detached"
+              />
+              <Line
+                type="monotone"
+                dataKey="Semi-D"
+                stroke="#2563EB"
+                strokeWidth={4}
+                dot={{ fill: '#2563EB', strokeWidth: 2, r: 6 }}
+                name="Semi-Detached"
+              />
+              <Line
+                type="monotone"
+                dataKey="Apartment"
+                stroke="#16A34A"
+                strokeWidth={4}
+                dot={{ fill: '#16A34A', strokeWidth: 2, r: 6 }}
+                name="Apartment"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Year-over-year percentage changes show detached houses had the most volatile growth pattern
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
