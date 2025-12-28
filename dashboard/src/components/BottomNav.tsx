@@ -102,7 +102,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface)] border-t border-[var(--border)] pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface)] border-t border-[var(--border)] pb-safe-or-2">
         <div className="flex items-center justify-around px-2 py-2">
           {visibleItems.map((item) => {
             const active = isActive(item.href);

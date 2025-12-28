@@ -72,6 +72,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -148,7 +149,7 @@ export default function RootLayout({
       <body className="antialiased min-h-screen">
         <Providers>
           <Navigation />
-          <main className="pb-20 md:pb-0">
+          <main className="pb-16 md:pb-0">
             {children}
           </main>
           <BottomNav />
