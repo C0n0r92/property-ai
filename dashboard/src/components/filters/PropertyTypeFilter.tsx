@@ -19,6 +19,7 @@ interface PropertyTypeFilterProps {
   onTypeChange: (types: string[]) => void;
   showCounts?: boolean;
   smartPresets?: boolean;
+  onQuickFilterApplied?: () => void;
   className?: string;
 }
 
@@ -95,6 +96,7 @@ export function PropertyTypeFilter({
   onTypeChange,
   showCounts = true,
   smartPresets = true,
+  onQuickFilterApplied,
   className = ''
 }: PropertyTypeFilterProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
@@ -149,6 +151,7 @@ export function PropertyTypeFilter({
 
   const applyPreset = (preset: typeof SMART_PRESETS[0]) => {
     onTypeChange(preset.types);
+    onQuickFilterApplied?.();
   };
 
   const isCategoryFullySelected = (category: PropertyTypeCategory) => {

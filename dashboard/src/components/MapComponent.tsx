@@ -3595,6 +3595,15 @@ export default function MapComponent() {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* DISTANCE FILTER */}
+                <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                  <DistanceFilter
+                    selectedBands={selectedDistanceBands}
+                    onBandChange={setSelectedDistanceBands}
+                    showPriceTrends={false}
+                  />
+                </div>
+
                 {/* PROPERTY TYPES */}
                 <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                   <PropertyTypeFilter
@@ -3602,15 +3611,10 @@ export default function MapComponent() {
                     onTypeChange={setSelectedPropertyTypes}
                     showCounts={true}
                     smartPresets={true}
-                  />
-                </div>
-
-                {/* DISTANCE FILTER */}
-                <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                  <DistanceFilter
-                    selectedBands={selectedDistanceBands}
-                    onBandChange={setSelectedDistanceBands}
-                    showPriceTrends={true}
+                    onQuickFilterApplied={() => {
+                      setShowAdvancedFilters(false);
+                      setShowFilters(false);
+                    }}
                   />
                 </div>
 

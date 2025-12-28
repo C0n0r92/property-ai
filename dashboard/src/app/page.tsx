@@ -469,7 +469,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700">
               <div className="text-4xl font-bold text-blue-400 mb-3">
-                {marketStats ? marketStats.totalProperties.toLocaleString() : '43,000'}
+                43,000
               </div>
               <div className="text-slate-400 text-sm font-medium">Properties Tracked</div>
               <div className="text-slate-500 text-xs mt-1">Since 2020</div>
