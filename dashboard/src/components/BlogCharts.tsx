@@ -1326,7 +1326,7 @@ export function PremiumPaybackChart() {
               />
               <Tooltip
                 formatter={(value, name) => [
-                  name === 'paybackYears' ? `${value.toFixed(1)} years` : `€${value.toFixed(0)}`,
+                  name === 'paybackYears' ? `${Number(value).toFixed(1)} years` : `€${Number(value).toFixed(0)}`,
                   name === 'paybackYears' ? 'Payback Period' : 'Extra Monthly Payment'
                 ]}
               />
@@ -1575,7 +1575,7 @@ export function AreaPremiumChart() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value, name) => [`${value.toFixed(1)}${name === 'avgPremium' ? '%' : ''}`, name === 'avgPremium' ? 'Average Premium' : 'Bidding Wars']}
+                formatter={(value, name) => [`${Number(value).toFixed(1)}${name === 'avgPremium' ? '%' : ''}`, name === 'avgPremium' ? 'Average Premium' : 'Bidding Wars']}
               />
               <Bar dataKey="avgPremium" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
             </BarChart>

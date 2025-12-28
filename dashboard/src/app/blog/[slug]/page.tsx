@@ -181,7 +181,7 @@ function processMarkdownToHtml(content: string): string {
 interface ContentSegment {
   type: 'html' | 'chart';
   content?: string;
-  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart' | 'ChristmasPriceChart' | 'YieldCurveChart' | 'BedroomPerformanceChart' | 'D4PremiumChart' | 'JanuaryVolumeChart' | 'RentalPricingChart' | 'TopRentalAreasChart' | 'Q2VsQ1Chart' | 'MonthlyTrendChart' | 'RentalYieldChart' | 'YieldDistributionChart' | 'SizeEfficiencyChart' | 'PostcodeEfficiencyChart' | 'YearOverYearPricesChart' | 'PropertyTypeComparisonChart';
+  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart' | 'ChristmasPriceChart' | 'YieldCurveChart' | 'BedroomPerformanceChart' | 'D4PremiumChart' | 'JanuaryVolumeChart' | 'RentalPricingChart' | 'TopRentalAreasChart' | 'Q2VsQ1Chart' | 'MonthlyTrendChart' | 'RentalYieldChart' | 'YieldDistributionChart' | 'SizeEfficiencyChart' | 'PostcodeEfficiencyChart' | 'YearOverYearPricesChart' | 'PropertyTypeComparisonChart' | 'PremiumDistributionChart' | 'PremiumPaybackChart' | 'BreakEvenChart' | 'OpportunityCostChart' | 'AreaPremiumChart';
 }
 
 function splitContentWithCharts(content: string): ContentSegment[] {
