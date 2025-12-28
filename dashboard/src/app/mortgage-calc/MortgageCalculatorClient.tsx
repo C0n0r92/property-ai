@@ -343,19 +343,19 @@ export default function MortgageCalculatorClient() {
 
       {/* Success Notification */}
       {successMessage && (
-        <div className="max-w-7xl mx-auto px-4 pt-4 relative z-20">
+        <div className="max-w-full mx-auto px-4 pt-4 relative z-20">
           <div className="bg-emerald-500/20 border border-emerald-500/50 rounded-xl p-4 flex items-center gap-3 shadow-lg backdrop-blur-sm">
             <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="text-emerald-100 font-medium">{successMessage}</p>
+            <p className="text-emerald-100 font-medium text-sm sm:text-base flex-1">{successMessage}</p>
             <button
               onClick={() => setSuccessMessage(null)}
-              className="ml-auto text-emerald-300 hover:text-emerald-100 transition-colors"
+              className="ml-auto text-emerald-300 hover:text-emerald-100 transition-colors touch-manipulation p-1"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -363,11 +363,11 @@ export default function MortgageCalculatorClient() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="max-w-full mx-auto px-2 sm:px-4 py-4 sm:py-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Input Panel */}
-          <div className="lg:col-span-1">
-            <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-6">
+          <div className="lg:col-span-1 order-2 lg:order-1">
+            <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-[var(--foreground)]">Loan Details</h2>
                 <button
@@ -401,27 +401,26 @@ export default function MortgageCalculatorClient() {
                   </div>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {scenarios.slice(0, 3).map((scenario) => (
-                      <div key={scenario.id} className="flex items-center justify-between p-2 bg-[var(--background)] rounded-lg border border-[var(--border)]">
-                        <div className="flex-1 min-w-0">
+                      <div key={scenario.id} className="flex items-center justify-between p-3 bg-[var(--background)] rounded-lg border border-[var(--border)]">
+                        <div className="flex-1 min-w-0 mr-3">
                           <div className="font-medium text-sm text-[var(--foreground)] truncate">{scenario.name}</div>
                           <div className="text-xs text-[var(--foreground-secondary)]">
                             {formatCurrency(scenario.results.monthlyPayment)}/mo • {formatMonthsAsYears(scenario.results.payoffMonths)}
                           </div>
                         </div>
-                        <div className="flex gap-1.5 ml-2">
+                        <div className="flex gap-2 flex-shrink-0">
                           <button
                             onClick={() => loadScenario(scenario)}
-                            className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors flex items-center gap-1"
+                            className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors touch-manipulation"
                             title="Load scenario"
                           >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
-                            Load
                           </button>
                           <button
                             onClick={() => deleteScenario(scenario.id)}
-                            className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors flex items-center gap-1"
+                            className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors touch-manipulation"
                             title="Delete scenario"
                           >
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -613,23 +612,23 @@ export default function MortgageCalculatorClient() {
                     <button
                       onClick={saveScenario}
                       disabled={isSaving}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white rounded-xl transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:px-4 sm:py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 disabled:cursor-not-allowed text-white rounded-xl transition-colors touch-manipulation"
                     >
                       {isSaving ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       ) : (
-                        <Save className="w-4 h-4" />
+                        <Save className="w-5 h-5" />
                       )}
-                      {user ? 'Save Scenario' : 'Login to Save'}
+                      <span className="text-sm sm:text-base">{user ? 'Save Scenario' : 'Login to Save'}</span>
                     </button>
 
                     {/* Share Button */}
                     <button
                       onClick={shareCalculation}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors border border-blue-500"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:px-4 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors border border-blue-500 touch-manipulation"
                     >
-                      <Share2 className="w-4 h-4" />
-                      Share Calculation
+                      <Share2 className="w-5 h-5" />
+                      <span className="text-sm sm:text-base">Share Calculation</span>
                     </button>
                   </div>
                 )}
@@ -638,7 +637,7 @@ export default function MortgageCalculatorClient() {
           </div>
 
           {/* Results Panel */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 order-1 lg:order-2 space-y-4 sm:space-y-6">
             {isCalculating && (
               <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-8 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
@@ -649,26 +648,26 @@ export default function MortgageCalculatorClient() {
             {calculation && !isCalculating && (
               <>
                 {/* Key Metrics */}
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-6 text-center">
-                    <div className="text-2xl font-bold text-blue-400 mb-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-4 sm:p-6 text-center">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-400 mb-2">
                       {formatCurrency(calculation.monthlyPayment)}
                     </div>
-                    <div className="text-sm text-[var(--foreground-secondary)]">Monthly Payment</div>
+                    <div className="text-xs sm:text-sm text-[var(--foreground-secondary)]">Monthly Payment</div>
                   </div>
 
-                  <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-6 text-center">
-                    <div className="text-2xl font-bold text-emerald-400 mb-2">
+                  <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-4 sm:p-6 text-center">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-emerald-400 mb-2">
                       {formatMonthsAsYears(calculation.payoffMonths)}
                     </div>
-                    <div className="text-sm text-[var(--foreground-secondary)]">Time to Pay Off</div>
+                    <div className="text-xs sm:text-sm text-[var(--foreground-secondary)]">Time to Pay Off</div>
                   </div>
 
-                  <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-6 text-center">
-                    <div className="text-2xl font-bold text-purple-400 mb-2">
+                  <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-4 sm:p-6 text-center">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-400 mb-2">
                       {formatCurrency(calculation.totalInterest)}
                     </div>
-                    <div className="text-sm text-[var(--foreground-secondary)]">Total Interest</div>
+                    <div className="text-xs sm:text-sm text-[var(--foreground-secondary)]">Total Interest</div>
                   </div>
                 </div>
 
@@ -731,14 +730,14 @@ export default function MortgageCalculatorClient() {
       </div>
 
       {/* Mobile Floating Calculate Button */}
-      <div className="fixed bottom-6 right-6 lg:hidden z-50">
+      <div className="fixed bottom-4 right-4 lg:hidden z-50">
         <button
           onClick={() => {
             // Trigger calculation by updating inputs with same values
             setInputs(prev => ({ ...prev }));
           }}
           disabled={isCalculating}
-          className={`p-4 rounded-full shadow-2xl transition-all duration-300 transform ${
+          className={`p-4 rounded-full shadow-2xl transition-all duration-300 transform touch-manipulation ${
             isCalculating
               ? 'bg-gray-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white hover:scale-110 active:scale-95'

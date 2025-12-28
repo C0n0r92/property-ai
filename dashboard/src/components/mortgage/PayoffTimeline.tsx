@@ -71,7 +71,7 @@ export const PayoffTimeline: React.FC<PayoffTimelineProps> = ({
   };
 
   return (
-    <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-6">
+    <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-4 sm:p-6">
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 rounded-2xl shadow-lg">
@@ -104,7 +104,7 @@ export const PayoffTimeline: React.FC<PayoffTimelineProps> = ({
           <Home className="w-5 h-5 text-blue-400" />
           Loan Details
         </h4>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
           <div>
             <span className="font-medium text-[var(--foreground-secondary)]">Home Value:</span>
             <div className="font-bold text-[var(--foreground)]">{formatCurrency(homeValue, currency)}</div>
@@ -197,7 +197,7 @@ export const PayoffTimeline: React.FC<PayoffTimelineProps> = ({
       </div>
 
       {/* Key Milestones */}
-      <div className="mt-6 grid grid-cols-3 gap-4">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-xl p-4 border border-blue-700/20">
           <div className="flex items-center gap-2 mb-2">
             <Calendar className="w-4 h-4 text-blue-400" />

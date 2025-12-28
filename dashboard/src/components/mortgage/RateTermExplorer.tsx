@@ -173,7 +173,7 @@ export const RateTermExplorer: React.FC<RateTermExplorerProps> = ({
       </div>
 
       {/* Sliders */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Interest Rate Slider */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
@@ -260,51 +260,51 @@ export const RateTermExplorer: React.FC<RateTermExplorerProps> = ({
       </div>
 
       {/* Comparison Results */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {/* Monthly Payment */}
-        <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 rounded-xl p-6 text-center border border-purple-700/20">
+        <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 rounded-xl p-4 sm:p-6 text-center border border-purple-700/20">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <DollarSign className="w-5 h-5 text-purple-400" />
-            <span className="text-sm font-medium text-purple-300">Monthly Payment</span>
+            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+            <span className="text-xs sm:text-sm font-medium text-purple-300">Monthly Payment</span>
           </div>
-          <div className="text-2xl font-bold text-purple-400 mb-1">
+          <div className="text-lg sm:text-2xl font-bold text-purple-400 mb-1">
             {formatCurrency(exploredScenario.monthlyPayment, currency)}
           </div>
-          <div className={`text-sm font-medium ${getDifferenceColor(monthlyDiff, true)}`}>
+          <div className={`text-xs sm:text-sm font-medium ${getDifferenceColor(monthlyDiff, true)}`}>
             {formatDifference(monthlyDiff, true)}
           </div>
         </div>
 
         {/* Total Interest */}
-        <div className="bg-gradient-to-br from-orange-900/20 to-orange-800/10 rounded-xl p-6 text-center border border-orange-700/20">
+        <div className="bg-gradient-to-br from-orange-900/20 to-orange-800/10 rounded-xl p-4 sm:p-6 text-center border border-orange-700/20">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <TrendingUp className="w-5 h-5 text-orange-400" />
-            <span className="text-sm font-medium text-orange-300">Total Interest</span>
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
+            <span className="text-xs sm:text-sm font-medium text-orange-300">Total Interest</span>
           </div>
-          <div className="text-2xl font-bold text-orange-400 mb-1">
+          <div className="text-lg sm:text-2xl font-bold text-orange-400 mb-1">
             {formatCurrency(exploredScenario.totalInterest, currency)}
           </div>
-          <div className={`text-sm font-medium ${getDifferenceColor(interestDiff, true)}`}>
+          <div className={`text-xs sm:text-sm font-medium ${getDifferenceColor(interestDiff, true)}`}>
             {formatDifference(interestDiff, true)}
           </div>
         </div>
 
         {/* Payoff Time */}
-        <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-xl p-6 text-center border border-blue-700/20">
+        <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 rounded-xl p-4 sm:p-6 text-center border border-blue-700/20">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Clock className="w-5 h-5 text-blue-400" />
-            <span className="text-sm font-medium text-blue-300">Payoff Time</span>
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+            <span className="text-xs sm:text-sm font-medium text-blue-300">Payoff Time</span>
           </div>
-          <div className="text-2xl font-bold text-blue-400 mb-1">
+          <div className="text-lg sm:text-2xl font-bold text-blue-400 mb-1">
             {formatMonthsAsYears(exploredScenario.payoffMonths)}
           </div>
-          <div className={`text-sm font-medium ${getDifferenceColor(timeDiff, true)}`}>
+          <div className={`text-xs sm:text-sm font-medium ${getDifferenceColor(timeDiff, true)}`}>
             {formatDifference(timeDiff, false, true)}
           </div>
         </div>
 
         {/* Age at Payoff */}
-        <div className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 rounded-xl p-6 text-center border border-emerald-700/20">
+        <div className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 rounded-xl p-4 sm:p-6 text-center border border-emerald-700/20">
           <div className="flex items-center justify-center gap-2 mb-2">
             <User className="w-5 h-5 text-emerald-400" />
             <span className="text-sm font-medium text-emerald-300">Age at Payoff</span>

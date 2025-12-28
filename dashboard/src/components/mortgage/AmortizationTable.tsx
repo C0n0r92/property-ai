@@ -154,8 +154,9 @@ export const AmortizationTable: React.FC<AmortizationTableProps> = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto border border-[var(--border)] rounded-lg">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto border border-[var(--border)] rounded-lg -mx-2 sm:mx-0">
+        <div className="min-w-[600px]">
+          <table className="w-full text-sm">
           <thead className="bg-[var(--background)]">
             <tr className="border-b border-[var(--border)]">
               <th className="text-left py-3 px-4 font-semibold text-[var(--foreground-secondary)]">
@@ -182,6 +183,7 @@ export const AmortizationTable: React.FC<AmortizationTableProps> = ({
             {displayData.map((entry: any, index: number) => renderRow(entry, index))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {!showYearly && amortization.length > 24 && (

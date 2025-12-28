@@ -88,6 +88,23 @@ export function Navigation() {
               </div>
             </Link>
 
+            {/* Mobile Login Button */}
+            <div className="md:hidden flex items-center gap-2">
+              {!user && (
+                <button
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="px-3 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium text-sm"
+                >
+                  Login
+                </button>
+              )}
+              {user && (
+                <div className="ml-2">
+                  <AuthButtons />
+                </div>
+              )}
+            </div>
+
             <div className="hidden md:flex items-center gap-1">
               <Link
                 href="/map"

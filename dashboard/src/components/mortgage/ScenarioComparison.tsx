@@ -74,7 +74,7 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
   const maxInterest = Math.max(...allScenarios.map(s => s.results.totalInterest));
 
   return (
-    <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-6">
+    <div className="bg-[var(--surface)] rounded-xl shadow-lg border border-[var(--border)] p-4 sm:p-6">
       <div className="flex items-center gap-3 mb-6">
         <BarChart3 className="w-6 h-6 text-purple-400" />
         <h3 className="text-xl font-bold text-[var(--foreground)]">Scenario Comparison</h3>
@@ -112,7 +112,7 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
               )}
             </div>
 
-            <div className="grid grid-cols-4 gap-4 mb-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
               <div className="text-center">
                 <div className="text-sm text-[var(--foreground-secondary)] mb-1">Monthly Payment</div>
                 <div className="font-bold text-[var(--foreground)]">
