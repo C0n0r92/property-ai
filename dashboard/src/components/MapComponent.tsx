@@ -4201,7 +4201,7 @@ export default function MapComponent() {
             <div className="mb-6 space-y-3">
               <AddToCompareButton
                 property={selectedProperty}
-                propertyType="sold"
+                type="sold"
               />
               <button
                 onClick={() => {
