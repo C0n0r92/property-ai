@@ -5,7 +5,10 @@
 /**
  * Format price for display (short form)
  */
-export function formatPrice(price: number): string {
+export function formatPrice(price: number | undefined | null): string {
+  if (price == null || isNaN(price)) {
+    return 'TBC';
+  }
   if (price >= 1000000) {
     return `€${(price / 1000000).toFixed(2)}M`;
   }
@@ -15,7 +18,10 @@ export function formatPrice(price: number): string {
 /**
  * Format full price with commas
  */
-export function formatFullPrice(price: number): string {
+export function formatFullPrice(price: number | undefined | null): string {
+  if (price == null || isNaN(price)) {
+    return 'TBC';
+  }
   return `€${price.toLocaleString()}`;
 }
 
@@ -33,7 +39,10 @@ export function formatDate(dateStr: string): string {
 /**
  * Format percentage with sign
  */
-export function formatPercent(value: number): string {
+export function formatPercent(value: number | undefined | null): string {
+  if (value == null || isNaN(value)) {
+    return 'TBC';
+  }
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value.toFixed(1)}%`;
 }

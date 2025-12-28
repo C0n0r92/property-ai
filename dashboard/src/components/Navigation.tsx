@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AuthButtons } from "@/components/auth/AuthButtons";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -9,6 +9,22 @@ import { useAuth } from "@/components/auth/AuthProvider";
 export function Navigation() {
   const { user } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
+  const toolsDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (toolsDropdownRef.current && !toolsDropdownRef.current.contains(event.target as Node)) {
+        setIsToolsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -85,17 +101,78 @@ export function Navigation() {
               >
                 Areas
               </Link>
+
+              {/* Tools Dropdown */}
+              <div className="relative" ref={toolsDropdownRef}>
+                <button
+                  onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
+                  className="flex items-center gap-1 px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
+                >
+                  Tools
+                  <svg
+                    className={`w-4 h-4 transition-transform ${isToolsDropdownOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {isToolsDropdownOpen && (
+                  <div className="absolute top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <Link
+                      href="/tools/compare"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                      onClick={() => setIsToolsDropdownOpen(false)}
+                    >
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span className="text-blue-600">C</span>
+                      </div>
+                      <div>
+                        <div className="font-medium">Property Comparison</div>
+                        <div className="text-xs text-gray-500">Compare up to 5 properties</div>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/mortgage-calc"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                      onClick={() => setIsToolsDropdownOpen(false)}
+                    >
+                      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <span className="text-emerald-600">$</span>
+                      </div>
+                      <div>
+                        <div className="font-medium">Mortgage Calculator</div>
+                        <div className="text-xs text-gray-500">Calculate payments & affordability</div>
+                      </div>
+                    </Link>
+
+                    <div className="border-t border-gray-100 my-1"></div>
+
+                    <Link
+                      href="/mortgage-calc"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                      onClick={() => setIsToolsDropdownOpen(false)}
+                    >
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <span className="text-purple-600">B</span>
+                      </div>
+                      <div>
+                        <div className="font-medium">Bid Calculator</div>
+                        <div className="text-xs text-gray-500">Coming soon</div>
+                      </div>
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               <Link
                 href="/blog"
                 className="px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
               >
                 Blog
-              </Link>
-              <Link
-                href="/mortgage-calc"
-                className="px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
-              >
-                Mortgage
               </Link>
               {user && (
                 <Link

@@ -10,7 +10,6 @@ import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
 import { analytics } from '@/lib/analytics';
 import { fetchAmenities, calculateWalkabilityScore, getCategoryIcon, formatCategory, getCategoryDisplayName, calculateDistance } from '@/lib/amenities';
 import { PropertySnapshot } from '@/components/PropertySnapshot';
-import { PlanningCard } from '@/components/PlanningCard';
 import { PropertyReportButton } from '@/components/PropertyReportButton';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -22,6 +21,8 @@ import { WalkabilityLegend } from '@/components/walkability/WalkabilityLegend';
 import { DistanceDisplay } from '@/components/distance/DistanceDisplay';
 import { DistanceFilter } from '@/components/filters/DistanceFilter';
 import { getDistanceContext } from '@/lib/distance-calculator';
+import { AddToCompareButton } from '@/components/AddToCompareButton';
+import { ComparisonBar } from '@/components/ComparisonBar';
 
 // Mapbox access token
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -4196,8 +4197,12 @@ export default function MapComponent() {
               )}
             </div>
 
-            {/* Mortgage Calculator Button */}
-            <div className="mb-6">
+            {/* Action Buttons */}
+            <div className="mb-6 space-y-3">
+              <AddToCompareButton
+                property={selectedProperty}
+                propertyType="sold"
+              />
               <button
                 onClick={() => {
                   console.log('Mortgage button clicked for property:', selectedProperty);
@@ -4340,17 +4345,9 @@ export default function MapComponent() {
             </div>
             </>
                 ) : (
-                  // Planning Permission Tab
+                  // Details Tab
                   <div className="space-y-4">
-                    <PlanningCard
-                      key={`planning-mobile-${selectedProperty.address}`}
-                      latitude={selectedProperty.latitude || 0}
-                      longitude={selectedProperty.longitude || 0}
-                      address={selectedProperty.address}
-                      dublinPostcode={selectedProperty.dublinPostcode || undefined}
-                      propertyType="sold"
-                      forceLoad={true}
-                    />
+                    <div className="text-gray-400 text-sm">Details view coming soon...</div>
                   </div>
                 )}
               </>
@@ -4860,17 +4857,9 @@ export default function MapComponent() {
             )}
             </>
                 ) : (
-                  // Planning Permission Tab
+                  // Details Tab
                   <div className="space-y-4">
-                    <PlanningCard
-                      key={`planning-mobile-${selectedListing.address}`}
-                      latitude={selectedListing.latitude || 0}
-                      longitude={selectedListing.longitude || 0}
-                      address={selectedListing.address}
-                      dublinPostcode={selectedListing.dublinPostcode || undefined}
-                      propertyType="forSale"
-                      forceLoad={true}
-                    />
+                    <div className="text-gray-400 text-sm">Details view coming soon...</div>
                   </div>
                 )}
               </>
@@ -5312,17 +5301,9 @@ export default function MapComponent() {
                     </div>
                   </>
                 ) : (
-                  // Planning Permission Tab
+                  // Details Tab
                   <div className="space-y-4">
-                    <PlanningCard
-                      key={`planning-${selectedRental.address}`}
-                      latitude={selectedRental.latitude || 0}
-                      longitude={selectedRental.longitude || 0}
-                      address={selectedRental.address}
-                      dublinPostcode={selectedRental.dublinPostcode || undefined}
-                      propertyType="rental"
-                      forceLoad={true}
-                    />
+                    <div className="text-gray-400 text-sm">Details view coming soon...</div>
                   </div>
                 )}
               </>
@@ -5371,11 +5352,14 @@ export default function MapComponent() {
           />
         )}
         {selectedRental && (
-          <PropertySnapshot 
-            rental={selectedRental} 
+          <PropertySnapshot
+            rental={selectedRental}
             snapshotRef={rentalSnapshotRef}
           />
         )}
+
+        {/* Comparison Bar */}
+        <ComparisonBar selectedProperty={selectedProperty || selectedListing || selectedRental} />
 
       </div>
     </div>
