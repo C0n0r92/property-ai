@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { Navigation } from "@/components/Navigation";
+import { BottomNav } from "@/components/BottomNav";
 
 export const metadata: Metadata = {
   title: "Irish Property Data | Property Intelligence & Market Insights",
@@ -147,10 +148,12 @@ export default function RootLayout({
       <body className="antialiased min-h-screen">
         <Providers>
           <Navigation />
-          <main>
+          <main className="pb-20 md:pb-0">
             {children}
           </main>
+          <BottomNav />
         </Providers>
+        {/* Buy Me a Coffee widget */}
         <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="conor.mcloughlin" data-description="Support me on Buy me a coffee!" data-message="" data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
       </body>
     </html>

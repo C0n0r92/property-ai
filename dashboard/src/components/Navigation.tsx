@@ -88,7 +88,7 @@ export function Navigation() {
               </div>
             </Link>
 
-            <div className="flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1">
               <Link
                 href="/map"
                 className="px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
@@ -182,13 +182,6 @@ export function Navigation() {
                   Saved
                 </Link>
               )}
-              <Link
-                href="/insights"
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 text-emerald-400 hover:from-emerald-500/20 hover:to-cyan-500/20 transition-colors font-medium flex items-center gap-2"
-              >
-                <span>Insights</span>
-                <span className="text-[10px] bg-gradient-to-r from-amber-400 to-orange-500 text-black px-1.5 py-0.5 rounded-full font-bold">PRO</span>
-              </Link>
               {!user && (
                 <button
                   onClick={() => setIsLoginModalOpen(true)}
