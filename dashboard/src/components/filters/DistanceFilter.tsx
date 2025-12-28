@@ -80,23 +80,24 @@ export function DistanceFilter({
             return (
               <div
                 key={band}
-                className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                className={`border rounded-lg p-3 transition-all touch-manipulation ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
-                onClick={() => handleBandSelect(band)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() => handleBandToggle(band)}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        handleBandToggle(band);
+                      }}
+                      className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
                     />
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {band}
                       </div>

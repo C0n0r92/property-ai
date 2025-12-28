@@ -230,7 +230,7 @@ export function PropertyTypeFilter({
                 {/* Category Header */}
                 <button
                   onClick={() => toggleCategory(category.category)}
-                  className="w-full flex items-center justify-between px-3 py-2 bg-gray-800 hover:bg-gray-750 transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 bg-gray-800 hover:bg-gray-750 transition-colors touch-manipulation"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{category.icon}</span>
@@ -248,7 +248,7 @@ export function PropertyTypeFilter({
                         e.stopPropagation();
                         toggleCategorySelection(category);
                       }}
-                      className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${
                         isFullySelected
                           ? 'bg-blue-600 border-blue-600'
                           : isPartiallySelected
@@ -277,7 +277,7 @@ export function PropertyTypeFilter({
                         <button
                           key={subtype.name}
                           onClick={() => toggleType(subtype.name)}
-                          className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 transition-colors"
+                          className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-800 transition-colors touch-manipulation"
                         >
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-gray-300">{subtype.name}</span>
@@ -293,7 +293,7 @@ export function PropertyTypeFilter({
                                 {subtype.count.toLocaleString()}
                               </span>
                             )}
-                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
+                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${
                               isSelected
                                 ? 'bg-blue-600 border-blue-600'
                                 : 'border-gray-500 hover:border-gray-400'

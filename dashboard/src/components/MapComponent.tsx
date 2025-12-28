@@ -133,7 +133,7 @@ export default function MapComponent() {
 
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(11); // Track zoom for legend display
+  const [zoomLevel, setZoomLevel] = useState(14); // Track zoom for legend display
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
   
@@ -160,7 +160,13 @@ export default function MapComponent() {
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Collapsible filter panel state - hidden on mobile, open on desktop by default
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(() => {
+    // Check if we're on desktop (not mobile) - use window.innerWidth if available
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768; // md breakpoint
+    }
+    return false; // Default to false for SSR
+  });
 
   // Amenities layer state
   const [showAmenities, setShowAmenities] = useState(false);
@@ -296,12 +302,16 @@ export default function MapComponent() {
     }
   }, [loading, properties, listings, rentals, mapReady]);
 
-  // Auto-close filters on mobile screens
+  // Auto-manage filters based on screen size
   useEffect(() => {
     if (isMobile && showFilters) {
-      setShowFilters(false);
+      setShowFilters(false); // Close filters on mobile
+    } else if (!isMobile && !showFilters) {
+      // Only auto-open on desktop if no filters are currently active
+      // and user hasn't manually closed them (we'll track this)
+      setShowFilters(true);
     }
-  }, [isMobile, showFilters]);
+  }, [isMobile]);
 
   // Remove planning radius function
   const removePlanningRadius = useCallback(() => {
@@ -474,7 +484,7 @@ export default function MapComponent() {
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<string | null>(null);
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
   const [selectedDistanceBands, setSelectedDistanceBands] = useState<string[]>([]);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(true);
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minArea, setMinArea] = useState<number | null>(null);
@@ -1514,7 +1524,7 @@ export default function MapComponent() {
           container: mapContainer.current,
           style: styleUrl,
           center: [-6.26, 53.35], // Dublin
-          zoom: 11,
+          zoom: 14,
           pitch: 0,
         });
 
@@ -3319,7 +3329,7 @@ export default function MapComponent() {
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-1.5 md:gap-3">
           {/* View Mode Toggle */}
           <div className="flex rounded-lg overflow-hidden border border-gray-700">
@@ -3864,7 +3874,7 @@ export default function MapComponent() {
         {/* Selected Property Panel */}
         {selectedProperty && (
           <div
-            className={`absolute left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-700 z-50 transition-all duration-300 ${
+            className={`absolute left-6 right-6 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-700 z-50 transition-all duration-300 ${
               isMobile && isMobileAmenitiesMode
                 ? 'top-4 h-16 p-3 flex items-center justify-between max-h-16 overflow-hidden'
                 : 'bottom-4 md:bottom-4 p-4 md:p-5 max-h-[85vh] md:max-h-[85vh] overflow-y-auto'
@@ -4379,7 +4389,7 @@ export default function MapComponent() {
         {/* Selected Listing Panel (For Sale) */}
         {selectedListing && (
           <div
-            className={`absolute left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-cyan-700 z-50 transition-all duration-300 ${
+            className={`absolute left-6 right-6 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-cyan-700 z-50 transition-all duration-300 ${
               isMobile && isMobileAmenitiesMode
                 ? 'bottom-4 h-16 p-3 flex items-center justify-between max-h-16 overflow-hidden'
                 : 'bottom-4 md:bottom-4 p-4 md:p-5 max-h-[85vh] md:max-h-[85vh] overflow-y-auto'
@@ -4878,7 +4888,7 @@ export default function MapComponent() {
             />
             {/* Modal */}
             <div
-              className={`absolute left-4 right-4 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-purple-600 z-50 transition-all duration-300 ${
+              className={`absolute left-6 right-6 md:left-4 md:right-auto md:w-[400px] bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-purple-600 z-50 transition-all duration-300 ${
                 isMobile && isMobileAmenitiesMode
                   ? 'bottom-4 h-16 p-3 flex items-center justify-between max-h-16 overflow-hidden'
                   : 'bottom-4 md:bottom-4 p-4 md:p-5 max-h-[85vh] md:max-h-[85vh] overflow-y-auto'
