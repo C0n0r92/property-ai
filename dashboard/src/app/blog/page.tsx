@@ -11,8 +11,8 @@ import { HeroSection } from '@/components/HeroSection';
 const researchArticles = [
   {
     id: 'dublin-bidding-war-costs',
-    title: 'The True Cost of Dublin Bidding Wars: How Overpaying Today Costs You €200,000+ Tomorrow',
-    excerpt: 'Bidding war costs analysis reveals how Dublin\'s 10.7% average premium translates to €19,873-€52,996 extra interest over 30 years. Calculate the true long-term cost of competitive property buying.',
+    title: 'How Dublin Bidding Wars Can Add €90,000+ Over 30 Years',
+    excerpt: 'Dublin bidding wars can cost €90,000+ over 30 years when you include both the premium and extra interest payments. Discover the true lifetime cost of competitive property buying.',
     category: 'Financial Analysis',
     date: '2025-12-28',
     readTime: '8 min read',
