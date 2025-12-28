@@ -647,10 +647,10 @@ export function SizeEfficiencyChart() {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={[
-                { category: 'Small', avgPricePerSqm: 6234, avgEfficiencyRatio: 2.6585 },
-                { category: 'Medium', avgPricePerSqm: 5504, avgEfficiencyRatio: 1.4377 },
-                { category: 'Large', avgPricePerSqm: 5580, avgEfficiencyRatio: 0.5917 },
-                { category: 'Extra Large', avgPricePerSqm: 6090, avgEfficiencyRatio: 0.1344 }
+                { category: 'Small', avgPricePerSqm: 5830, avgEfficiencyRatio: 0.0306 },
+                { category: 'Medium', avgPricePerSqm: 5166, avgEfficiencyRatio: 0.0301 },
+                { category: 'Large', avgPricePerSqm: 5300, avgEfficiencyRatio: 0.0265 },
+                { category: 'Extra Large', avgPricePerSqm: 5855, avgEfficiencyRatio: 0.0198 }
               ]}
               margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
             >
@@ -685,7 +685,7 @@ export function SizeEfficiencyChart() {
           </ResponsiveContainer>
         </div>
         <p className="text-sm text-slate-600 text-center">
-          Small properties achieve 2.66 bedrooms per square meter while commanding premium pricing
+          Small properties achieve 0.031 bedrooms per square meter, showing higher efficiency than larger properties
         </p>
       </div>
     </ChartWrapper>
@@ -869,6 +869,346 @@ export function PropertyTypeComparisonChart() {
         </div>
         <p className="text-sm text-slate-600 text-center">
           Year-over-year percentage changes show detached houses had the most volatile growth pattern
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Charts for Blog 4: 3-Bed Sweet Spot
+export function ThreeBedPropertyTypeChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { type: 'Semi-Detached', percentage: 39.5, avgPrice: 544655 },
+                { type: 'Terrace', percentage: 32.1, avgPrice: 511303 },
+                { type: 'End of Terrace', percentage: 13.0, avgPrice: 482594 },
+                { type: 'Apartment', percentage: 5.3, avgPrice: 517047 },
+                { type: 'Detached', percentage: 3.1, avgPrice: 731431 },
+                { type: 'Duplex', percentage: 3.4, avgPrice: 404559 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="type"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Market Share (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'percentage' ? '%' : ''}`, name === 'percentage' ? 'Market Share' : 'Avg Price']}
+              />
+              <Bar dataKey="percentage" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Semi-detached houses dominate the 3-bed market at 39.5%, followed by terraced properties at 32.1%
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function ThreeBedAreaPerformanceChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D24', overRate: 91.4, avgPremium: 12.03 },
+                { area: 'D22', overRate: 91.3, avgPremium: 12.16 },
+                { area: 'D12', overRate: 87.9, avgPremium: 13.39 },
+                { area: 'D11', overRate: 86.1, avgPremium: 12.50 },
+                { area: 'D15', overRate: 83.6, avgPremium: 8.82 },
+                { area: 'D5', overRate: 84.6, avgPremium: 10.63 },
+                { area: 'D16', overRate: 82.4, avgPremium: 8.84 },
+                { area: 'D9', overRate: 81.1, avgPremium: 9.83 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'overRate' ? '%' : ''}`, name === 'overRate' ? 'Over-Asking Rate' : 'Avg Premium']}
+              />
+              <Bar dataKey="overRate" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D24 and D22 lead with over-asking rates above 91% for 3-bedroom properties
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Charts for Blog 5: Commuter Distance
+export function DistancePriceChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { ring: '0-5km', medianPrice: 460000, avgPrice: 586336 },
+                { ring: '5-10km', medianPrice: 475000, avgPrice: 561817 },
+                { ring: '10-15km', medianPrice: 440000, avgPrice: 567443 },
+                { ring: '15-25km', medianPrice: 415500, avgPrice: 465268 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="ring" fontSize={12} />
+              <YAxis
+                label={{ value: 'Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Price']}
+              />
+              <Bar dataKey="medianPrice" fill="#2563EB" name="Median Price" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="avgPrice" fill="#DC2626" name="Average Price" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          5-10km ring offers highest median prices (€475k), while city center (0-5km) shows greatest price variation
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function DistanceOverAskingChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { ring: '0-5km', overRate: 75.0, avgPremium: 11.77 },
+                { ring: '5-10km', overRate: 80.7, avgPremium: 10.33 },
+                { ring: '10-15km', overRate: 77.6, avgPremium: 9.78 },
+                { ring: '15-25km', overRate: 71.4, avgPremium: 8.55 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="ring" fontSize={12} />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'overRate' ? '%' : ''}`, name === 'overRate' ? 'Over-Asking Rate' : 'Avg Premium']}
+              />
+              <Line
+                type="monotone"
+                dataKey="overRate"
+                stroke="#10B981"
+                strokeWidth={3}
+                dot={{ r: 6 }}
+                name="overRate"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          5-10km ring shows highest over-asking success (80.7%), while suburbs beyond 15km show lower rates
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Charts for Blog 6: Seller's Market Strategy
+export function SellerAreaPerformanceChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D10', overRate: 91.3, avgPremium: 13.97 },
+                { area: 'D24', overRate: 90.0, avgPremium: 11.55 },
+                { area: 'D22', overRate: 89.6, avgPremium: 12.69 },
+                { area: 'D12', overRate: 87.5, avgPremium: 13.97 },
+                { area: 'D11', overRate: 85.7, avgPremium: 11.78 },
+                { area: 'D20', overRate: 84.6, avgPremium: 11.45 },
+                { area: 'D5', overRate: 83.1, avgPremium: 10.76 },
+                { area: 'D15', overRate: 82.5, avgPremium: 9.34 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'overRate' ? '%' : ''}`, name === 'overRate' ? 'Over-Asking Rate' : 'Avg Premium']}
+              />
+              <Bar dataKey="overRate" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D10 leads seller performance with 91.3% over-asking success rate, demonstrating strong buyer competition
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PremiumDistributionChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { range: '0-5%', percentage: 27.7, count: 7182 },
+                { range: '5-10%', percentage: 28.6, count: 7394 },
+                { range: '10-15%', percentage: 21.3, count: 5510 },
+                { range: '15-20%', percentage: 11.6, count: 2994 },
+                { range: '20%+', percentage: 10.9, count: 2810 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="range" fontSize={12} />
+              <YAxis
+                label={{ value: 'Properties (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'percentage' ? '%' : ''}`, name === 'percentage' ? 'Percentage' : 'Count']}
+              />
+              <Bar dataKey="percentage" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Most successful over-asking occurs in the 5-15% premium range, with 49.9% of properties achieving these levels
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Charts for Blog 1: Asking Price Strategy
+export function AskingPriceAreaChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D10', overRate: 91.3, avgPremium: 13.97 },
+                { area: 'D24', overRate: 90.0, avgPremium: 11.55 },
+                { area: 'D22', overRate: 89.6, avgPremium: 12.69 },
+                { area: 'D12', overRate: 87.5, avgPremium: 13.97 },
+                { area: 'D11', overRate: 85.7, avgPremium: 11.78 },
+                { area: 'D20', overRate: 84.6, avgPremium: 11.45 },
+                { area: 'D5', overRate: 83.1, avgPremium: 10.76 },
+                { area: 'D15', overRate: 82.5, avgPremium: 9.34 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'overRate' ? '%' : ''}`, name === 'overRate' ? 'Over-Asking Rate' : 'Avg Premium']}
+              />
+              <Bar dataKey="overRate" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D10 leads with 91.3% over-asking success rate, followed by D24 (90.0%) and D22 (89.6%)
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function AskingPriceBracketChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { bracket: '€400k-€500k', overRate: 82.7, avgPremium: 10.71 },
+                { bracket: '€500k-€600k', overRate: 82.7, avgPremium: 10.39 },
+                { bracket: '€600k-€700k', overRate: 81.8, avgPremium: 10.37 },
+                { bracket: '€300k-€400k', overRate: 80.4, avgPremium: 10.57 },
+                { bracket: 'Over €700k', overRate: 73.2, avgPremium: 13.46 },
+                { bracket: 'Under €300k', overRate: 72.0, avgPremium: 8.19 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="bracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [`${value}${name === 'overRate' ? '%' : ''}`, name === 'overRate' ? 'Over-Asking Rate' : 'Avg Premium']}
+              />
+              <Bar dataKey="overRate" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          €400k-€600k bracket shows highest over-asking success at 82.7%, with luxury properties achieving highest premiums
         </p>
       </div>
     </ChartWrapper>

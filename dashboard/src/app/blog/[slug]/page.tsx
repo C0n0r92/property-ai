@@ -3978,11 +3978,11 @@ Whether you're a young professional seeking city convenience or a family looking
   },
   'asking-price-strategy-dublin': {
     title: 'The Asking Price Strategy: How Dublin Sellers Set Prices to Drive Bidding Wars',
-    excerpt: 'Dublin property market analysis reveals 84.3% of properties sell over asking price with 7.5% average premium, examining strategic pricing patterns across property types and areas.',
+    excerpt: 'Dublin property market analysis reveals 78.79% of properties sell over asking price with 10.74% average premium, examining strategic pricing patterns across 32,859 properties and geographic performance.',
     category: 'Market Analysis',
     date: '2024-12-15',
     readTime: '7 min read',
-    tags: ['Pricing Strategy', 'Bidding Wars', 'Market Psychology'],
+    tags: ['Pricing Strategy', 'Bidding Wars', 'Market Psychology', 'Over-Asking Analysis', 'Dublin Areas'],
     author: 'Market Research Team',
     views: 1850,
     content: `
@@ -3990,7 +3990,7 @@ Whether you're a young professional seeking city convenience or a family looking
 
 ## Executive Summary
 
-Dublin's property market operates in a seller's market, with 84.3% of properties selling above their asking price and an average premium of 7.5%. This analysis examines the strategic pricing decisions sellers make to create competitive bidding environments and maximize final sale prices.
+Dublin's property market operates in a seller's market, with 78.79% of properties selling above their asking price and an average premium of 10.74%. This analysis examines strategic pricing decisions across 32,859 Dublin properties, revealing optimal pricing ranges and geographic performance patterns that maximize final sale prices through competitive bidding environments.
 
 ## The Psychology of Under-Pricing
 

@@ -1,15 +1,231 @@
 {
-  "reviewDate": "2025-12-28T09:48:01.929Z",
+  "reviewDate": "2025-12-28T20:21:30.802Z",
   "summary": {
-    "totalBlogs": 7,
-    "passed": 5,
-    "averageScore": 80
+    "totalBlogs": 15,
+    "passed": 4,
+    "averageScore": 77
   },
   "detailedResults": [
     {
+      "filename": "../blogs/blog1_asking_price_strategy.md",
+      "overallScore": 76,
+      "totalScore": 76,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
+      "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog2_250k_350k_bracket.md",
+      "overallScore": 74,
+      "totalScore": 74,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 14,
+          "maxScore": 25,
+          "percentage": 56
+        },
+        "clarity": {
+          "score": 17,
+          "maxScore": 20,
+          "percentage": 85
+        },
+        "actionability": {
+          "score": 13,
+          "maxScore": 20,
+          "percentage": 66
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 10,
+          "maxScore": 15,
+          "percentage": 67
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Add more specific metrics and data points to strengthen analysis"
+      ]
+    },
+    {
+      "filename": "../blogs/blog3_apartment_market_2025.md",
+      "overallScore": 72,
+      "totalScore": 72,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 18,
+          "maxScore": 25,
+          "percentage": 72
+        },
+        "clarity": {
+          "score": 17,
+          "maxScore": 20,
+          "percentage": 85
+        },
+        "actionability": {
+          "score": 7,
+          "maxScore": 20,
+          "percentage": 34
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 10,
+          "maxScore": 15,
+          "percentage": 67
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "../blogs/blog4_3bed_sweet_spot.md",
+      "overallScore": 76,
+      "totalScore": 76,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 12,
+          "maxScore": 20,
+          "percentage": 60
+        },
+        "uniqueness": {
+          "score": 23,
+          "maxScore": 20,
+          "percentage": 115
+        },
+        "professionalism": {
+          "score": 10,
+          "maxScore": 15,
+          "percentage": 67
+        }
+      },
+      "passThreshold": false,
+      "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog5_commuter_calculation.md",
+      "overallScore": 76,
+      "totalScore": 76,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 18,
+          "maxScore": 25,
+          "percentage": 72
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 10,
+          "maxScore": 20,
+          "percentage": 48
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 13,
+          "maxScore": 15,
+          "percentage": 87
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "../blogs/blog6_sellers_market_strategy.md",
+      "overallScore": 73,
+      "totalScore": 73,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 17,
+          "maxScore": 20,
+          "percentage": 85
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 10,
+          "maxScore": 15,
+          "percentage": 67
+        }
+      },
+      "passThreshold": false,
+      "recommendations": []
+    },
+    {
       "filename": "../blogs/blog6_space_efficiency_paradox.md",
-      "overallScore": 81,
-      "totalScore": 81,
+      "overallScore": 78,
+      "totalScore": 78,
       "maxScore": 100,
       "criteria": {
         "dataUsage": {
@@ -18,14 +234,14 @@
           "percentage": 80
         },
         "clarity": {
-          "score": 16,
+          "score": 15,
           "maxScore": 20,
-          "percentage": 80
+          "percentage": 75
         },
         "actionability": {
-          "score": 11,
+          "score": 9,
           "maxScore": 20,
-          "percentage": 54
+          "percentage": 46
         },
         "uniqueness": {
           "score": 19,
@@ -38,45 +254,10 @@
           "percentage": 100
         }
       },
-      "passThreshold": true,
+      "passThreshold": false,
       "recommendations": [
         "Include more practical recommendations for buyers, sellers, and investors"
       ]
-    },
-    {
-      "filename": "../blogs/blog7_value_erosion_2021_2025.md",
-      "overallScore": 80,
-      "totalScore": 80,
-      "maxScore": 100,
-      "criteria": {
-        "dataUsage": {
-          "score": 15,
-          "maxScore": 25,
-          "percentage": 60
-        },
-        "clarity": {
-          "score": 16,
-          "maxScore": 20,
-          "percentage": 80
-        },
-        "actionability": {
-          "score": 14,
-          "maxScore": 20,
-          "percentage": 70
-        },
-        "uniqueness": {
-          "score": 20,
-          "maxScore": 20,
-          "percentage": 100
-        },
-        "professionalism": {
-          "score": 15,
-          "maxScore": 15,
-          "percentage": 100
-        }
-      },
-      "passThreshold": true,
-      "recommendations": []
     },
     {
       "filename": "../blogs/blog7_investor_yield_curve.md",
@@ -188,6 +369,80 @@
       ]
     },
     {
+      "filename": "../blogs/blog10_january_timing.md",
+      "overallScore": 73,
+      "totalScore": 73,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "actionability": {
+          "score": 10,
+          "maxScore": 20,
+          "percentage": 52
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "../blogs/blog11_rental_market.md",
+      "overallScore": 74,
+      "totalScore": 74,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 16,
+          "maxScore": 25,
+          "percentage": 64
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 8,
+          "maxScore": 20,
+          "percentage": 38
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
       "filename": "../blogs/blog12_q2_vs_q1_selling.md",
       "overallScore": 72,
       "totalScore": 72,
@@ -258,6 +513,41 @@
       "recommendations": [
         "Include more practical recommendations for buyers, sellers, and investors"
       ]
+    },
+    {
+      "filename": "../blogs/blog14_value_erosion_2021_2025.md",
+      "overallScore": 80,
+      "totalScore": 80,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 15,
+          "maxScore": 25,
+          "percentage": 60
+        },
+        "clarity": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
     }
   ]
 }

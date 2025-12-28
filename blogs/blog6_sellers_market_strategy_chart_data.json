@@ -1,0 +1,223 @@
+{
+  "propertyTypePerformance": [
+    {
+      "type": "",
+      "overRate": 86.5,
+      "avgPremium": 13.67,
+      "total": 334
+    },
+    {
+      "type": "Duplex",
+      "overRate": 84.4,
+      "avgPremium": 9.7,
+      "total": 733
+    },
+    {
+      "type": "Semi-D",
+      "overRate": 81.5,
+      "avgPremium": 9.95,
+      "total": 8576
+    },
+    {
+      "type": "End of Terrace",
+      "overRate": 81.1,
+      "avgPremium": 12.11,
+      "total": 3041
+    },
+    {
+      "type": "Terrace",
+      "overRate": 79.8,
+      "avgPremium": 11.86,
+      "total": 8230
+    },
+    {
+      "type": "Apartment",
+      "overRate": 77.2,
+      "avgPremium": 9.68,
+      "total": 9046
+    },
+    {
+      "type": "Townhouse",
+      "overRate": 75.1,
+      "avgPremium": 9.34,
+      "total": 201
+    },
+    {
+      "type": "Bungalow",
+      "overRate": 71.5,
+      "avgPremium": 11.34,
+      "total": 582
+    },
+    {
+      "type": "Detached",
+      "overRate": 66.6,
+      "avgPremium": 9.94,
+      "total": 2079
+    }
+  ],
+  "areaPerformance": [
+    {
+      "area": "D10",
+      "overRate": 91.3,
+      "avgPremium": 13.97,
+      "total": 424
+    },
+    {
+      "area": "D24",
+      "overRate": 90,
+      "avgPremium": 11.55,
+      "total": 2269
+    },
+    {
+      "area": "D22",
+      "overRate": 89.6,
+      "avgPremium": 12.69,
+      "total": 1088
+    },
+    {
+      "area": "D12",
+      "overRate": 87.5,
+      "avgPremium": 13.97,
+      "total": 1867
+    },
+    {
+      "area": "D11",
+      "overRate": 85.7,
+      "avgPremium": 11.78,
+      "total": 1440
+    },
+    {
+      "area": "D20",
+      "overRate": 84.6,
+      "avgPremium": 11.45,
+      "total": 358
+    },
+    {
+      "area": "D5",
+      "overRate": 83.1,
+      "avgPremium": 10.76,
+      "total": 1444
+    },
+    {
+      "area": "D15",
+      "overRate": 82.5,
+      "avgPremium": 9.34,
+      "total": 3619
+    },
+    {
+      "area": "D16",
+      "overRate": 80,
+      "avgPremium": 9.2,
+      "total": 1541
+    },
+    {
+      "area": "D17",
+      "overRate": 79.5,
+      "avgPremium": 8.85,
+      "total": 332
+    }
+  ],
+  "priceBandStrategy": [
+    {
+      "band": "Under €300k",
+      "overRate": 72,
+      "avgPremium": 8.19,
+      "total": 4655
+    },
+    {
+      "band": "€300k-€400k",
+      "overRate": 80.4,
+      "avgPremium": 10.57,
+      "total": 8182
+    },
+    {
+      "band": "€400k-€500k",
+      "overRate": 82.7,
+      "avgPremium": 10.71,
+      "total": 6899
+    },
+    {
+      "band": "€500k-€600k",
+      "overRate": 82.7,
+      "avgPremium": 10.39,
+      "total": 4315
+    },
+    {
+      "band": "€600k-€700k",
+      "overRate": 81.8,
+      "avgPremium": 10.37,
+      "total": 2741
+    },
+    {
+      "band": "€700k-€900k",
+      "overRate": 78.5,
+      "avgPremium": 10.31,
+      "total": 3019
+    },
+    {
+      "band": "Over €900k",
+      "overRate": 68,
+      "avgPremium": 17.05,
+      "total": 3048
+    }
+  ],
+  "premiumDistribution": [
+    {
+      "range": "0-5%",
+      "count": 7182,
+      "percentage": 27.7
+    },
+    {
+      "range": "5-10%",
+      "count": 7394,
+      "percentage": 28.6
+    },
+    {
+      "range": "10-15%",
+      "count": 5510,
+      "percentage": 21.3
+    },
+    {
+      "range": "15-20%",
+      "count": 2994,
+      "percentage": 11.6
+    },
+    {
+      "range": "20%+",
+      "count": 2810,
+      "percentage": 10.9
+    }
+  ],
+  "monthlyPerformance": [
+    {
+      "month": "2025-11",
+      "overRate": 83.2,
+      "total": 572
+    },
+    {
+      "month": "2025-10",
+      "overRate": 84.2,
+      "total": 810
+    },
+    {
+      "month": "2025-09",
+      "overRate": 85.2,
+      "total": 763
+    },
+    {
+      "month": "2025-08",
+      "overRate": 85.6,
+      "total": 728
+    },
+    {
+      "month": "2025-07",
+      "overRate": 86.4,
+      "total": 844
+    },
+    {
+      "month": "2025-06",
+      "overRate": 86.8,
+      "total": 569
+    }
+  ]
+}

@@ -1,0 +1,323 @@
+{
+  "propertyTypeDistribution": [
+    {
+      "type": "Apartment",
+      "count": 3655,
+      "percentage": 51.5,
+      "avgPrice": 297242
+    },
+    {
+      "type": "Terrace",
+      "count": 1813,
+      "percentage": 25.5,
+      "avgPrice": 305744
+    },
+    {
+      "type": "End of Terrace",
+      "count": 581,
+      "percentage": 8.2,
+      "avgPrice": 310455
+    },
+    {
+      "type": "Semi-D",
+      "count": 518,
+      "percentage": 7.3,
+      "avgPrice": 313163
+    },
+    {
+      "type": "Duplex",
+      "count": 284,
+      "percentage": 4,
+      "avgPrice": 303680
+    },
+    {
+      "type": "Bungalow",
+      "count": 112,
+      "percentage": 1.6,
+      "avgPrice": 305292
+    },
+    {
+      "type": "",
+      "count": 51,
+      "percentage": 0.7,
+      "avgPrice": 307203
+    },
+    {
+      "type": "Detached",
+      "count": 48,
+      "percentage": 0.7,
+      "avgPrice": 303894
+    },
+    {
+      "type": "Townhouse",
+      "count": 36,
+      "percentage": 0.5,
+      "avgPrice": 303056
+    },
+    {
+      "type": "Site",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 306000
+    }
+  ],
+  "topAreas": [
+    {
+      "area": "D15",
+      "count": 1225,
+      "avgPrice": 302979
+    },
+    {
+      "area": "D24",
+      "count": 804,
+      "avgPrice": 295702
+    },
+    {
+      "area": "D8",
+      "count": 599,
+      "avgPrice": 300662
+    },
+    {
+      "area": "D11",
+      "count": 568,
+      "avgPrice": 293958
+    },
+    {
+      "area": "D22",
+      "count": 475,
+      "avgPrice": 299154
+    },
+    {
+      "area": "D7",
+      "count": 385,
+      "avgPrice": 303841
+    },
+    {
+      "area": "D12",
+      "count": 352,
+      "avgPrice": 313499
+    },
+    {
+      "area": "D9",
+      "count": 338,
+      "avgPrice": 304597
+    },
+    {
+      "area": "D18",
+      "count": 300,
+      "avgPrice": 312955
+    },
+    {
+      "area": "D1",
+      "count": 300,
+      "avgPrice": 293907
+    }
+  ],
+  "bedroomDistribution": [
+    {
+      "bedrooms": "1",
+      "count": 1354,
+      "percentage": 19.1,
+      "avgPrice": 291429
+    },
+    {
+      "bedrooms": "2",
+      "count": 3394,
+      "percentage": 47.8,
+      "avgPrice": 303031
+    },
+    {
+      "bedrooms": "3",
+      "count": 1786,
+      "percentage": 25.2,
+      "avgPrice": 308338
+    },
+    {
+      "bedrooms": "4",
+      "count": 115,
+      "percentage": 1.6,
+      "avgPrice": 313422
+    },
+    {
+      "bedrooms": "5",
+      "count": 7,
+      "percentage": 0.1,
+      "avgPrice": 304929
+    },
+    {
+      "bedrooms": "6",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 330000
+    },
+    {
+      "bedrooms": "9",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 325000
+    },
+    {
+      "bedrooms": "10",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 325000
+    },
+    {
+      "bedrooms": "2502",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 305000
+    },
+    {
+      "bedrooms": "5001",
+      "count": 3,
+      "percentage": 0,
+      "avgPrice": 275333
+    },
+    {
+      "bedrooms": "5002",
+      "count": 18,
+      "percentage": 0.3,
+      "avgPrice": 301500
+    },
+    {
+      "bedrooms": "5003",
+      "count": 10,
+      "percentage": 0.1,
+      "avgPrice": 301150
+    },
+    {
+      "bedrooms": "7502",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 255000
+    },
+    {
+      "bedrooms": "9501",
+      "count": 40,
+      "percentage": 0.6,
+      "avgPrice": 280985
+    },
+    {
+      "bedrooms": "9502",
+      "count": 195,
+      "percentage": 2.7,
+      "avgPrice": 299177
+    },
+    {
+      "bedrooms": "9503",
+      "count": 140,
+      "percentage": 2,
+      "avgPrice": 308417
+    },
+    {
+      "bedrooms": "9504",
+      "count": 8,
+      "percentage": 0.1,
+      "avgPrice": 321188
+    },
+    {
+      "bedrooms": "9951",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 265000
+    },
+    {
+      "bedrooms": "9952",
+      "count": 2,
+      "percentage": 0,
+      "avgPrice": 322500
+    },
+    {
+      "bedrooms": "9953",
+      "count": 3,
+      "percentage": 0,
+      "avgPrice": 303333
+    },
+    {
+      "bedrooms": "9992",
+      "count": 3,
+      "percentage": 0,
+      "avgPrice": 302333
+    },
+    {
+      "bedrooms": "Unknown",
+      "count": 15,
+      "percentage": 0.2,
+      "avgPrice": 295200
+    }
+  ],
+  "priceDistribution": [
+    {
+      "range": "€250k-€275k",
+      "count": 1461,
+      "percentage": 20.6,
+      "avgPrice": 261237
+    },
+    {
+      "range": "€275k-€300k",
+      "count": 1609,
+      "percentage": 22.7,
+      "avgPrice": 285769
+    },
+    {
+      "range": "€300k-€325k",
+      "count": 1974,
+      "percentage": 27.8,
+      "avgPrice": 311091
+    },
+    {
+      "range": "€325k-€350k",
+      "count": 2055,
+      "percentage": 28.9,
+      "avgPrice": 335607
+    }
+  ],
+  "overAskingByType": [
+    {
+      "type": "",
+      "overRate": 90.2,
+      "avgPremium": 12.75
+    },
+    {
+      "type": "Duplex",
+      "overRate": 85.6,
+      "avgPremium": 9.15
+    },
+    {
+      "type": "End of Terrace",
+      "overRate": 81.6,
+      "avgPremium": 10.56
+    },
+    {
+      "type": "Terrace",
+      "overRate": 79.8,
+      "avgPremium": 9.49
+    },
+    {
+      "type": "Apartment",
+      "overRate": 78.2,
+      "avgPremium": 9.21
+    },
+    {
+      "type": "Semi-D",
+      "overRate": 78,
+      "avgPremium": 9.75
+    },
+    {
+      "type": "Bungalow",
+      "overRate": 77.7,
+      "avgPremium": 11.42
+    },
+    {
+      "type": "Townhouse",
+      "overRate": 72.2,
+      "avgPremium": 8.45
+    },
+    {
+      "type": "Detached",
+      "overRate": 56.3,
+      "avgPremium": 15.61
+    }
+  ]
+}

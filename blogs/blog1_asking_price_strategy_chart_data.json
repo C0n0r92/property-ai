@@ -1,0 +1,161 @@
+{
+  "areaPerformance": [
+    {
+      "area": "D10",
+      "overRate": 91.3,
+      "avgPremium": 13.97,
+      "total": 424
+    },
+    {
+      "area": "D24",
+      "overRate": 90,
+      "avgPremium": 11.55,
+      "total": 2269
+    },
+    {
+      "area": "D22",
+      "overRate": 89.6,
+      "avgPremium": 12.69,
+      "total": 1088
+    },
+    {
+      "area": "D12",
+      "overRate": 87.5,
+      "avgPremium": 13.97,
+      "total": 1867
+    },
+    {
+      "area": "D11",
+      "overRate": 85.7,
+      "avgPremium": 11.78,
+      "total": 1440
+    },
+    {
+      "area": "D20",
+      "overRate": 84.6,
+      "avgPremium": 11.45,
+      "total": 358
+    },
+    {
+      "area": "D5",
+      "overRate": 83.1,
+      "avgPremium": 10.76,
+      "total": 1444
+    },
+    {
+      "area": "D15",
+      "overRate": 82.5,
+      "avgPremium": 9.34,
+      "total": 3619
+    },
+    {
+      "area": "D16",
+      "overRate": 80,
+      "avgPremium": 9.2,
+      "total": 1541
+    },
+    {
+      "area": "D17",
+      "overRate": 79.5,
+      "avgPremium": 8.85,
+      "total": 332
+    }
+  ],
+  "typePerformance": [
+    {
+      "type": "",
+      "overRate": 86.5,
+      "avgPremium": 13.67
+    },
+    {
+      "type": "Duplex",
+      "overRate": 84.4,
+      "avgPremium": 9.7
+    },
+    {
+      "type": "Semi-D",
+      "overRate": 81.5,
+      "avgPremium": 9.95
+    },
+    {
+      "type": "End of Terrace",
+      "overRate": 81.1,
+      "avgPremium": 12.11
+    },
+    {
+      "type": "Terrace",
+      "overRate": 79.8,
+      "avgPremium": 11.86
+    },
+    {
+      "type": "Apartment",
+      "overRate": 77.2,
+      "avgPremium": 9.68
+    },
+    {
+      "type": "Townhouse",
+      "overRate": 75.1,
+      "avgPremium": 9.34
+    },
+    {
+      "type": "Bungalow",
+      "overRate": 71.5,
+      "avgPremium": 11.34
+    },
+    {
+      "type": "Detached",
+      "overRate": 66.6,
+      "avgPremium": 9.94
+    }
+  ],
+  "priceBracketPerformance": [
+    {
+      "bracket": "Under €300k",
+      "overRate": 72,
+      "avgPremium": 8.19
+    },
+    {
+      "bracket": "€300k-€400k",
+      "overRate": 80.4,
+      "avgPremium": 10.57
+    },
+    {
+      "bracket": "€400k-€500k",
+      "overRate": 82.7,
+      "avgPremium": 10.71
+    },
+    {
+      "bracket": "€500k-€600k",
+      "overRate": 82.7,
+      "avgPremium": 10.39
+    },
+    {
+      "bracket": "€600k-€700k",
+      "overRate": 81.8,
+      "avgPremium": 10.37
+    },
+    {
+      "bracket": "Over €700k",
+      "overRate": 73.2,
+      "avgPremium": 13.46
+    }
+  ],
+  "premiumDistribution": [
+    {
+      "range": "0-2%",
+      "count": 2565
+    },
+    {
+      "range": "2-5%",
+      "count": 4617
+    },
+    {
+      "range": "5-10%",
+      "count": 7394
+    },
+    {
+      "range": "10%+",
+      "count": 11314
+    }
+  ]
+}

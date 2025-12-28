@@ -1,0 +1,116 @@
+{
+  "priceByDistance": [
+    {
+      "ring": "0-5km",
+      "avgPrice": 586336,
+      "medianPrice": 460000,
+      "count": 14275
+    },
+    {
+      "ring": "5-10km",
+      "avgPrice": 561817,
+      "medianPrice": 475000,
+      "count": 14987
+    },
+    {
+      "ring": "10-15km",
+      "avgPrice": 567443,
+      "medianPrice": 440000,
+      "count": 11452
+    },
+    {
+      "ring": "15-25km",
+      "avgPrice": 465268,
+      "medianPrice": 415500,
+      "count": 1756
+    }
+  ],
+  "pricePerSqmByDistance": [
+    {
+      "ring": "0-5km",
+      "pricePerSqm": 6256,
+      "avgPrice": 601408
+    },
+    {
+      "ring": "5-10km",
+      "pricePerSqm": 5368,
+      "avgPrice": 574966
+    },
+    {
+      "ring": "10-15km",
+      "pricePerSqm": 5054,
+      "avgPrice": 585359
+    },
+    {
+      "ring": "15-25km",
+      "pricePerSqm": 4423,
+      "avgPrice": 474135
+    }
+  ],
+  "overAskingByDistance": [
+    {
+      "ring": "0-5km",
+      "overRate": 75,
+      "avgPremium": 11.77
+    },
+    {
+      "ring": "5-10km",
+      "overRate": 80.7,
+      "avgPremium": 10.33
+    },
+    {
+      "ring": "10-15km",
+      "overRate": 77.6,
+      "avgPremium": 9.78
+    },
+    {
+      "ring": "15-25km",
+      "overRate": 71.4,
+      "avgPremium": 8.55
+    }
+  ],
+  "yieldByDistance": [
+    {
+      "ring": "0-5km",
+      "avgYield": 7.78,
+      "count": 11841
+    },
+    {
+      "ring": "5-10km",
+      "avgYield": 7.88,
+      "count": 9563
+    },
+    {
+      "ring": "10-15km",
+      "avgYield": 8.58,
+      "count": 5060
+    },
+    {
+      "ring": "15-25km",
+      "avgYield": 8.23,
+      "count": 602
+    }
+  ],
+  "propertySizeByDistance": [
+    {
+      "ring": "0-5km",
+      "avgSqm": 99,
+      "avgPrice": 586336
+    },
+    {
+      "ring": "5-10km",
+      "avgSqm": 111,
+      "avgPrice": 561817
+    },
+    {
+      "ring": "10-15km",
+      "avgSqm": 122,
+      "avgPrice": 567443
+    },
+    {
+      "ring": "15-25km",
+      "avgSqm": 119,
+      "avgPrice": 465268
+    }
+  ]
+}

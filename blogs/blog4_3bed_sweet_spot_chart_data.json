@@ -1,0 +1,269 @@
+{
+  "propertyTypeDistribution": [
+    {
+      "type": "Semi-D",
+      "count": 5017,
+      "percentage": 39.5,
+      "avgPrice": 544655
+    },
+    {
+      "type": "Terrace",
+      "count": 4079,
+      "percentage": 32.1,
+      "avgPrice": 511303
+    },
+    {
+      "type": "End of Terrace",
+      "count": 1653,
+      "percentage": 13,
+      "avgPrice": 482594
+    },
+    {
+      "type": "Apartment",
+      "count": 674,
+      "percentage": 5.3,
+      "avgPrice": 517047
+    },
+    {
+      "type": "Duplex",
+      "count": 437,
+      "percentage": 3.4,
+      "avgPrice": 404559
+    },
+    {
+      "type": "Detached",
+      "count": 391,
+      "percentage": 3.1,
+      "avgPrice": 731431
+    },
+    {
+      "type": "Bungalow",
+      "count": 202,
+      "percentage": 1.6,
+      "avgPrice": 589490
+    },
+    {
+      "type": "",
+      "count": 169,
+      "percentage": 1.3,
+      "avgPrice": 510858
+    },
+    {
+      "type": "Townhouse",
+      "count": 73,
+      "percentage": 0.6,
+      "avgPrice": 591634
+    },
+    {
+      "type": "terrace",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 432000
+    },
+    {
+      "type": "Site",
+      "count": 1,
+      "percentage": 0,
+      "avgPrice": 555000
+    }
+  ],
+  "topAreas": [
+    {
+      "area": "D15",
+      "count": 1410,
+      "avgPrice": 421942
+    },
+    {
+      "area": "D24",
+      "count": 1270,
+      "avgPrice": 385078
+    },
+    {
+      "area": "D9",
+      "count": 978,
+      "avgPrice": 524217
+    },
+    {
+      "area": "D5",
+      "count": 900,
+      "avgPrice": 503437
+    },
+    {
+      "area": "D12",
+      "count": 807,
+      "avgPrice": 478383
+    },
+    {
+      "area": "D11",
+      "count": 734,
+      "avgPrice": 401563
+    },
+    {
+      "area": "D13",
+      "count": 707,
+      "avgPrice": 503121
+    },
+    {
+      "area": "D16",
+      "count": 680,
+      "avgPrice": 596302
+    },
+    {
+      "area": "D14",
+      "count": 652,
+      "avgPrice": 682500
+    },
+    {
+      "area": "D22",
+      "count": 647,
+      "avgPrice": 359167
+    }
+  ],
+  "priceBrackets": [
+    {
+      "bracket": "Under €400k",
+      "count": 3535,
+      "percentage": 27.8,
+      "avgPrice": 333873
+    },
+    {
+      "bracket": "€400k-€500k",
+      "count": 3350,
+      "percentage": 26.4,
+      "avgPrice": 445914
+    },
+    {
+      "bracket": "€500k-€600k",
+      "count": 2436,
+      "percentage": 19.2,
+      "avgPrice": 544004
+    },
+    {
+      "bracket": "€600k-€700k",
+      "count": 1530,
+      "percentage": 12.1,
+      "avgPrice": 643212
+    },
+    {
+      "bracket": "€700k-€900k",
+      "count": 1223,
+      "percentage": 9.6,
+      "avgPrice": 775564
+    },
+    {
+      "bracket": "Over €900k",
+      "count": 623,
+      "percentage": 4.9,
+      "avgPrice": 1195592
+    }
+  ],
+  "areaPerformance": [
+    {
+      "area": "D24",
+      "overRate": 91.4,
+      "avgPremium": 12.03,
+      "count": 1270
+    },
+    {
+      "area": "D22",
+      "overRate": 91.3,
+      "avgPremium": 13.16,
+      "count": 647
+    },
+    {
+      "area": "D10",
+      "overRate": 91.3,
+      "avgPremium": 16.31,
+      "count": 127
+    },
+    {
+      "area": "D20",
+      "overRate": 88.1,
+      "avgPremium": 11.91,
+      "count": 177
+    },
+    {
+      "area": "D12",
+      "overRate": 87.9,
+      "avgPremium": 13.39,
+      "count": 807
+    },
+    {
+      "area": "D11",
+      "overRate": 86.1,
+      "avgPremium": 12.5,
+      "count": 734
+    },
+    {
+      "area": "D5",
+      "overRate": 84.6,
+      "avgPremium": 10.63,
+      "count": 900
+    },
+    {
+      "area": "D15",
+      "overRate": 83.6,
+      "avgPremium": 8.82,
+      "count": 1410
+    },
+    {
+      "area": "D6W",
+      "overRate": 83.6,
+      "avgPremium": 11.65,
+      "count": 330
+    },
+    {
+      "area": "D16",
+      "overRate": 82.4,
+      "avgPremium": 8.84,
+      "count": 680
+    }
+  ],
+  "typeYieldPerformance": [
+    {
+      "type": "Townhouse",
+      "avgYield": 10.34,
+      "count": 73
+    },
+    {
+      "type": "Duplex",
+      "avgYield": 9.45,
+      "count": 433
+    },
+    {
+      "type": "Apartment",
+      "avgYield": 8.8,
+      "count": 667
+    },
+    {
+      "type": "End of Terrace",
+      "avgYield": 8.24,
+      "count": 1587
+    },
+    {
+      "type": "Terrace",
+      "avgYield": 8.17,
+      "count": 3955
+    },
+    {
+      "type": "",
+      "avgYield": 7.61,
+      "count": 159
+    },
+    {
+      "type": "Bungalow",
+      "avgYield": 7.36,
+      "count": 195
+    },
+    {
+      "type": "Semi-D",
+      "avgYield": 7.3,
+      "count": 4953
+    },
+    {
+      "type": "Detached",
+      "avgYield": 6.03,
+      "count": 378
+    }
+  ]
+}

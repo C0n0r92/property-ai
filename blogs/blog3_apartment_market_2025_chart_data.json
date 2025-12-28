@@ -1,0 +1,240 @@
+{
+  "bedroomAnalysis": [
+    {
+      "bedrooms": "1",
+      "count": 2190,
+      "percentage": 24.2,
+      "avgPrice": 287651,
+      "pricePerSqm": 6866
+    },
+    {
+      "bedrooms": "2",
+      "count": 5814,
+      "percentage": 64.3,
+      "avgPrice": 378535,
+      "pricePerSqm": 5628
+    },
+    {
+      "bedrooms": "3",
+      "count": 674,
+      "percentage": 7.5,
+      "avgPrice": 517047,
+      "pricePerSqm": 4640
+    },
+    {
+      "bedrooms": "4",
+      "count": 26,
+      "percentage": 0.3,
+      "avgPrice": 699198,
+      "pricePerSqm": 4911
+    },
+    {
+      "bedrooms": "5001",
+      "count": 11,
+      "percentage": 0.1,
+      "avgPrice": 230727,
+      "pricePerSqm": 7640
+    },
+    {
+      "bedrooms": "5002",
+      "count": 29,
+      "percentage": 0.3,
+      "avgPrice": 349726,
+      "pricePerSqm": 5357
+    },
+    {
+      "bedrooms": "9501",
+      "count": 79,
+      "percentage": 0.9,
+      "avgPrice": 250395,
+      "pricePerSqm": 10804
+    },
+    {
+      "bedrooms": "9502",
+      "count": 183,
+      "percentage": 2,
+      "avgPrice": 309931,
+      "pricePerSqm": 8898
+    },
+    {
+      "bedrooms": "9503",
+      "count": 10,
+      "percentage": 0.1,
+      "avgPrice": 395545,
+      "pricePerSqm": 7593
+    }
+  ],
+  "topAreas": [
+    {
+      "area": "D15",
+      "count": 1038,
+      "avgPrice": 320314,
+      "pricePerSqm": 5422
+    },
+    {
+      "area": "D18",
+      "count": 977,
+      "avgPrice": 394774,
+      "pricePerSqm": 5178
+    },
+    {
+      "area": "D8",
+      "count": 907,
+      "avgPrice": 341303,
+      "pricePerSqm": 4950
+    },
+    {
+      "area": "D4",
+      "count": 749,
+      "avgPrice": 526621,
+      "pricePerSqm": 7824
+    },
+    {
+      "area": "D1",
+      "count": 600,
+      "avgPrice": 341760,
+      "pricePerSqm": 5271
+    },
+    {
+      "area": "D24",
+      "count": 540,
+      "avgPrice": 260608,
+      "pricePerSqm": 4708
+    },
+    {
+      "area": "D9",
+      "count": 456,
+      "avgPrice": 310834,
+      "pricePerSqm": 5424
+    },
+    {
+      "area": "D13",
+      "count": 451,
+      "avgPrice": 354161,
+      "pricePerSqm": 5062
+    },
+    {
+      "area": "D2",
+      "count": 440,
+      "avgPrice": 471469,
+      "pricePerSqm": 7336
+    },
+    {
+      "area": "D7",
+      "count": 393,
+      "avgPrice": 345709,
+      "pricePerSqm": 6772
+    }
+  ],
+  "priceBrackets": [
+    {
+      "bracket": "Under €250k",
+      "count": 1189,
+      "percentage": 13.1,
+      "avgPrice": 219625
+    },
+    {
+      "bracket": "€250k-€350k",
+      "count": 3655,
+      "percentage": 40.4,
+      "avgPrice": 297242
+    },
+    {
+      "bracket": "€350k-€450k",
+      "count": 2588,
+      "percentage": 28.6,
+      "avgPrice": 391887
+    },
+    {
+      "bracket": "€450k-€600k",
+      "count": 1178,
+      "percentage": 13,
+      "avgPrice": 502698
+    },
+    {
+      "bracket": "Over €600k",
+      "count": 436,
+      "percentage": 4.8,
+      "avgPrice": 807755
+    }
+  ],
+  "areaPremiums": [
+    {
+      "area": "D4",
+      "pricePerSqm": 7824,
+      "premium": 37.6
+    },
+    {
+      "area": "D2",
+      "pricePerSqm": 7336,
+      "premium": 29
+    },
+    {
+      "area": "D6",
+      "pricePerSqm": 7004,
+      "premium": 23.1
+    },
+    {
+      "area": "D7",
+      "pricePerSqm": 6772,
+      "premium": 19
+    },
+    {
+      "area": "D6W",
+      "pricePerSqm": 6519,
+      "premium": 14.6
+    },
+    {
+      "area": "D12",
+      "pricePerSqm": 6335,
+      "premium": 11.4
+    },
+    {
+      "area": "D14",
+      "pricePerSqm": 6147,
+      "premium": 8.1
+    },
+    {
+      "area": "D3",
+      "pricePerSqm": 6143,
+      "premium": 8
+    }
+  ],
+  "bedroomOverAsking": [
+    {
+      "bedrooms": "1",
+      "overRate": 74.5,
+      "avgPremium": 0
+    },
+    {
+      "bedrooms": "2",
+      "overRate": 78.7,
+      "avgPremium": 0
+    },
+    {
+      "bedrooms": "3",
+      "overRate": 72.1,
+      "avgPremium": 0
+    },
+    {
+      "bedrooms": "4",
+      "overRate": 50,
+      "avgPremium": 0
+    },
+    {
+      "bedrooms": "5002",
+      "overRate": 75.9,
+      "avgPremium": 0
+    },
+    {
+      "bedrooms": "9501",
+      "overRate": 84.8,
+      "avgPremium": 0
+    },
+    {
+      "bedrooms": "9502",
+      "overRate": 84.2,
+      "avgPremium": 0
+    }
+  ]
+}

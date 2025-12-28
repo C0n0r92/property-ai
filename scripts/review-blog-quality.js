@@ -217,13 +217,21 @@ function generateRecommendations(scores, content) {
 
 function reviewBlogs() {
   const blogFiles = [
+    '../blogs/blog1_asking_price_strategy.md',
+    '../blogs/blog2_250k_350k_bracket.md',
+    '../blogs/blog3_apartment_market_2025.md',
+    '../blogs/blog4_3bed_sweet_spot.md',
+    '../blogs/blog5_commuter_calculation.md',
+    '../blogs/blog6_sellers_market_strategy.md',
     '../blogs/blog6_space_efficiency_paradox.md',
-    '../blogs/blog7_value_erosion_2021_2025.md',
     '../blogs/blog7_investor_yield_curve.md',
     '../blogs/blog8_3bed_phenomenon.md',
     '../blogs/blog9_d4_premium.md',
+    '../blogs/blog10_january_timing.md',
+    '../blogs/blog11_rental_market.md',
     '../blogs/blog12_q2_vs_q1_selling.md',
-    '../blogs/blog13_renter_market_insights.md'
+    '../blogs/blog13_renter_market_insights.md',
+    '../blogs/blog14_value_erosion_2021_2025.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');
