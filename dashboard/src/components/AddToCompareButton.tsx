@@ -164,8 +164,18 @@ export function AddToCompareButton({
 
               <div className="space-y-2 mb-3">
                 {comparedProperties.map((prop) => {
-                  const price = prop.soldPrice || prop.askingPrice || prop.monthlyRent;
-                  const isRent = prop._type === 'rental';
+                  let price: number | undefined;
+                  let isRent = false;
+
+                  if (prop._type === 'sold' && 'soldPrice' in prop) {
+                    price = prop.soldPrice || prop.askingPrice;
+                  } else if (prop._type === 'listing' && 'askingPrice' in prop) {
+                    price = prop.askingPrice;
+                  } else if (prop._type === 'rental' && 'monthlyRent' in prop) {
+                    price = prop.monthlyRent;
+                    isRent = true;
+                  }
+
                   const formattedPrice = price ? formatFullPrice(price) + (isRent ? '/mo' : '') : 'N/A';
 
                   return (
