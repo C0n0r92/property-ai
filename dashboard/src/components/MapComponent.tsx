@@ -23,6 +23,7 @@ import { DistanceFilter } from '@/components/filters/DistanceFilter';
 import { getDistanceContext } from '@/lib/distance-calculator';
 import { AddToCompareButton } from '@/components/AddToCompareButton';
 import { ComparisonBar } from '@/components/ComparisonBar';
+import { useComparison } from '@/contexts/ComparisonContext';
 
 // Mapbox access token
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -111,6 +112,7 @@ export default function MapComponent() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
+  const { isInComparison } = useComparison();
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -138,7 +140,7 @@ export default function MapComponent() {
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
   
   // Data source toggle: allows any combination of sold, forSale, rentals
-  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: true, savedOnly: false });
+  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: false, rentals: false, savedOnly: false });
   
   // Hierarchical time filter state (only for sold properties)
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -159,13 +161,9 @@ export default function MapComponent() {
   const [searchedLocation, setSearchedLocation] = useState<{ name: string; coords: [number, number] } | null>(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Collapsible filter panel state - hidden on mobile, open on desktop by default
+  // Collapsible filter panel state - hidden by default on all devices
   const [showFilters, setShowFilters] = useState(() => {
-    // Check if we're on desktop (not mobile) - use window.innerWidth if available
-    if (typeof window !== 'undefined') {
-      return window.innerWidth >= 768; // md breakpoint
-    }
-    return false; // Default to false for SSR
+    return false; // Default to false for all devices
   });
 
   // Amenities layer state
@@ -477,14 +475,14 @@ export default function MapComponent() {
   const [loadingAmenities, setLoadingAmenities] = useState(false);
   const [amenitiesError, setAmenitiesError] = useState<string | null>(null);
   
-  // Open filters on desktop by default
+  // Filters are closed by default
   
   // New filter states
   const [bedsFilter, setBedsFilter] = useState<number | null>(null);
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<string | null>(null);
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
   const [selectedDistanceBands, setSelectedDistanceBands] = useState<string[]>([]);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(true);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minArea, setMinArea] = useState<number | null>(null);
@@ -1652,6 +1650,8 @@ export default function MapComponent() {
             dublinPostcode: isRental ? (item as any).dublinPostcode : null,
             rentPerSqm: isRental ? (item as any).rentPerSqm : null,
             rentPerBed: isRental ? (item as any).rentPerBed : null,
+            // Comparison status
+            isInComparison: isInComparison(item.address),
           },
         };
       }),
@@ -1743,17 +1743,24 @@ export default function MapComponent() {
         },
       });
 
-      // Individual unclustered points - different colors for sold vs for sale vs rentals
+      // Individual unclustered points - different colors for sold vs for sale vs rentals, with comparison indicators
       map.current.addLayer({
         id: 'unclustered-point',
         type: 'circle',
         source: 'properties-clustered',
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-radius': 8,
-          'circle-color': activeSourceCount > 1 
+          'circle-radius': [
+            'case',
+            ['==', ['get', 'isInComparison'], true],
+            12, // Larger radius for compared properties
+            8,  // Normal radius for others
+          ],
+          'circle-color': activeSourceCount > 1
             ? [
                 'case',
+                ['==', ['get', 'isInComparison'], true],
+                '#10B981', // Green for compared properties (overrides other colors)
                 ['==', ['get', 'isRental'], true],
                 '#A855F7', // Purple for rentals
                 ['==', ['get', 'isListing'], true],
@@ -1761,31 +1768,54 @@ export default function MapComponent() {
                 '#FFFFFF', // White for sold properties
               ]
             : dataSources.rentals
-            ? '#A855F7' // Purple for rentals
-            : dataSources.forSale
-            ? '#F43F5E' // Rose/hot pink for listings
-            : [
-                // Price-based gradient for sold only
-                'interpolate',
-                ['linear'],
-                ['get', 'pricePerSqm'],
-                2000, '#22C55E',
-                4000, '#3B82F6',
-                6000, '#FACC15',
-                8000, '#F97316',
-                10000, '#EF4444',
-              ],
-          'circle-stroke-width': 2,
-          'circle-stroke-color': activeSourceCount > 1 
             ? [
                 'case',
-                ['==', ['get', 'isRental'], true],
-                '#ffffff',
-                ['==', ['get', 'isListing'], true],
-                '#ffffff',
-                '#374151', // Dark gray stroke for white dots
+                ['==', ['get', 'isInComparison'], true],
+                '#10B981', // Green for compared properties
+                '#A855F7' // Purple for rentals
               ]
-            : '#ffffff',
+            : dataSources.forSale
+            ? [
+                'case',
+                ['==', ['get', 'isInComparison'], true],
+                '#10B981', // Green for compared properties
+                '#F43F5E' // Rose/hot pink for listings
+              ]
+            : [
+                'case',
+                ['==', ['get', 'isInComparison'], true],
+                '#10B981', // Green for compared properties
+                // Price-based gradient for sold only (when not in comparison)
+                ['interpolate',
+                  ['linear'],
+                  ['get', 'pricePerSqm'],
+                  2000, '#22C55E',
+                  4000, '#3B82F6',
+                  6000, '#FACC15',
+                  8000, '#F97316',
+                  10000, '#EF4444'],
+              ],
+          'circle-stroke-width': [
+            'case',
+            ['==', ['get', 'isInComparison'], true],
+            3, // Thicker stroke for compared properties
+            2, // Normal stroke width for others
+          ],
+          'circle-stroke-color': [
+            'case',
+            ['==', ['get', 'isInComparison'], true],
+            '#065F46', // Dark green stroke for compared properties
+            activeSourceCount > 1
+              ? [
+                  'case',
+                  ['==', ['get', 'isRental'], true],
+                  '#ffffff',
+                  ['==', ['get', 'isListing'], true],
+                  '#ffffff',
+                  '#374151', // Dark gray stroke for white dots
+                ]
+              : '#ffffff',
+          ],
         },
       });
 
@@ -3381,6 +3411,17 @@ export default function MapComponent() {
               </span>
             )}
           </button>
+
+          {/* Inline Compare Button (Mobile Only) */}
+          <ComparisonBar
+            selectedProperty={selectedProperty || selectedListing || selectedRental}
+            inlineOnMobile={true}
+            onClearSelection={() => {
+              setSelectedProperty(null);
+              setSelectedListing(null);
+              setSelectedRental(null);
+            }}
+          />
         </div>
       </div>
 
@@ -4216,6 +4257,16 @@ export default function MapComponent() {
               <AddToCompareButton
                 property={selectedProperty}
                 type="sold"
+                size="lg"
+                className="w-full"
+                onClick={() => {
+                  console.log('Compare button clicked for property:', selectedProperty?.address);
+                  isClosingRef.current = true;
+                  setSelectedProperty(null);
+                  setTimeout(() => {
+                    isClosingRef.current = false;
+                  }, 100);
+                }}
               />
               <button
                 onClick={() => {
@@ -4781,8 +4832,22 @@ export default function MapComponent() {
               )}
             </div>
 
-            {/* Mortgage Calculator Button for Listings */}
-            <div className="mb-4">
+            {/* Action Buttons for Listings */}
+            <div className="mb-6 space-y-3">
+              <AddToCompareButton
+                property={selectedListing}
+                type="listing"
+                size="lg"
+                className="w-full"
+                onClick={() => {
+                  console.log('Compare button clicked for listing:', selectedListing?.address);
+                  isClosingRef.current = true;
+                  setSelectedListing(null);
+                  setTimeout(() => {
+                    isClosingRef.current = false;
+                  }, 100);
+                }}
+              />
               <button
                 onClick={() => {
                   const homeValue = selectedListing.askingPrice || 0;
@@ -5262,8 +5327,22 @@ export default function MapComponent() {
                       )}
                     </div>
 
-                    {/* Mortgage Calculator Button for Rentals */}
-                    <div className="mb-4">
+                    {/* Action Buttons for Rentals */}
+                    <div className="mb-6 space-y-3">
+                      <AddToCompareButton
+                        property={selectedRental}
+                        type="rental"
+                        size="lg"
+                        className="w-full"
+                        onClick={() => {
+                          console.log('Compare button clicked for rental:', selectedRental?.address);
+                          isClosingRef.current = true;
+                          setSelectedRental(null);
+                          setTimeout(() => {
+                            isClosingRef.current = false;
+                          }, 100);
+                        }}
+                      />
                       <button
                         onClick={() => {
                           // For rentals, estimate home value based on annual rent
@@ -5372,8 +5451,15 @@ export default function MapComponent() {
           />
         )}
 
-        {/* Comparison Bar */}
-        <ComparisonBar selectedProperty={selectedProperty || selectedListing || selectedRental} />
+        {/* Comparison Bar - Desktop Only */}
+        <ComparisonBar
+          selectedProperty={selectedProperty || selectedListing || selectedRental}
+          onClearSelection={() => {
+            setSelectedProperty(null);
+            setSelectedListing(null);
+            setSelectedRental(null);
+          }}
+        />
 
       </div>
     </div>

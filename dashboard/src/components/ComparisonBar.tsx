@@ -7,15 +7,49 @@ import { formatFullPrice } from '@/lib/format';
 
 interface ComparisonBarProps {
   selectedProperty?: any; // Property that was clicked but not yet added to comparison
+  inlineOnMobile?: boolean; // Whether to render inline on mobile instead of as overlay
+  onClearSelection?: () => void; // Callback to clear property selection
 }
 
-export function ComparisonBar({ selectedProperty }: ComparisonBarProps = {}) {
+export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClearSelection }: ComparisonBarProps = {}) {
   const router = useRouter();
   const { comparedProperties, count, maxProperties, removeFromComparison, clearComparison, addToComparison, isInComparison } = useComparison();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Start collapsed on mobile, expanded on desktop
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768; // Collapsed on mobile, expanded on desktop
+    }
+    return true; // Default to collapsed for SSR
+  });
+
+  // Handle compare button click
+  const handleCompareClick = () => {
+    if (onClearSelection) {
+      onClearSelection();
+    }
+    router.push('/tools/compare');
+  };
 
   // Show bar only if we have compared properties (count > 0)
   if (count === 0) return null;
+
+  // Inline mobile rendering
+  if (inlineOnMobile) {
+    return (
+      <button
+        onClick={handleCompareClick}
+        className="px-3 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 md:hidden"
+      >
+        Compare ({count})
+      </button>
+    );
+  }
+
+  // Hide overlay on mobile when inlineOnMobile is false
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    return null;
+  }
 
   // Check if selected property is already in comparison
   const isSelectedPropertyInComparison = selectedProperty ? isInComparison(selectedProperty.address) : false;
@@ -43,21 +77,21 @@ export function ComparisonBar({ selectedProperty }: ComparisonBarProps = {}) {
     };
   };
 
-  // On mobile, if property card is open, position comparison bar at top to avoid overlap
+  // On mobile, position below navigation bar (h-16 = 64px)
   const hasPropertyOpen = !!selectedProperty;
-  const mobilePosition = hasPropertyOpen ? 'sm:top-20' : 'sm:bottom-20';
+  const mobilePosition = 'sm:top-20'; // Position below 64px navigation bar
 
   if (isCollapsed) {
     return (
-      <div className={`absolute z-40
+      <div className={`absolute z-60
                       lg:top-4 lg:right-4
                       md:top-4 md:right-4
                       ${mobilePosition} sm:right-4`}>
         <button
-          onClick={count > 0 ? () => router.push('/tools/compare') : () => setIsCollapsed(false)}
-          className="bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm
+          onClick={count > 0 ? handleCompareClick : () => setIsCollapsed(false)}
+          className="bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-semibold
                      lg:px-3 lg:py-2
-                     sm:px-2 sm:py-1 sm:text-xs"
+                     sm:px-3 sm:py-2 sm:text-sm sm:font-bold"
         >
           {count > 0 ? `Compare Now (${count})` : 'Add to Comparison'}
           <span className="ml-1 lg:inline sm:hidden">→</span>
@@ -67,10 +101,10 @@ export function ComparisonBar({ selectedProperty }: ComparisonBarProps = {}) {
   }
 
   return (
-    <div className={`absolute z-40 bg-white border border-slate-200 rounded-lg shadow-xl overflow-y-auto
+    <div className={`absolute z-60 bg-white border border-slate-200 rounded-lg shadow-xl overflow-y-auto
                     lg:top-4 lg:right-4 lg:w-80 lg:max-h-[calc(100vh-120px)]
                     md:top-4 md:right-4 md:w-72 md:max-h-[calc(100vh-120px)]
-                    ${hasPropertyOpen ? 'sm:top-20' : 'sm:bottom-4'} sm:left-4 sm:right-4 sm:w-auto sm:max-w-sm ${hasPropertyOpen ? 'sm:max-h-40' : 'sm:max-h-32'}`}>
+                    ${hasPropertyOpen ? 'sm:top-20' : 'sm:top-4'} sm:left-4 sm:right-4 sm:w-auto sm:max-w-sm ${hasPropertyOpen ? 'sm:max-h-40' : 'sm:max-h-32'}`}>
       <div className={`${hasPropertyOpen ? 'sm:p-2' : 'p-4'} md:p-4`}>
         {/* Header */}
         <div className={`flex items-center justify-between ${hasPropertyOpen ? 'sm:mb-1' : 'mb-3'}`}>
@@ -159,7 +193,7 @@ export function ComparisonBar({ selectedProperty }: ComparisonBarProps = {}) {
         <div className={`${hasPropertyOpen ? 'sm:mt-2 sm:pt-2' : 'mt-4 pt-3'} border-t border-slate-200 space-y-2`}>
           {count > 0 && (
             <button
-              onClick={() => router.push('/tools/compare')}
+              onClick={handleCompareClick}
               className={`w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white ${hasPropertyOpen ? 'sm:text-xs sm:py-1.5 sm:px-2' : 'text-sm py-2.5 px-3'} rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg`}
             >
               Compare Now ({count} properties)
