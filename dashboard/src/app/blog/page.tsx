@@ -477,6 +477,18 @@ const researchArticles = [
     author: 'Market Research Team',
     views: 0,
   },
+  {
+    id: 'dublin-property-map-guide',
+    title: 'Dublin Property Map: Your Complete Guide to Smart Property Decisions',
+    excerpt: 'Master Dublin\'s property market with our interactive map featuring 48,000+ transactions, walkability scoring, and comparison tools. Explore three viewing modes, filter by time periods, and compare properties side-by-side.',
+    category: 'Location Analysis',
+    date: '2025-12-29',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Property Map', 'Walkability', 'Location Intelligence', 'Property Tools', 'Dublin Areas', 'Investment Guide'],
+    author: 'Market Research Team',
+    views: 0,
+  },
 ];
 
 const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting', 'Financial Analysis'];
@@ -546,7 +558,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 39 },
+          { label: 'Articles', value: 40 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}
