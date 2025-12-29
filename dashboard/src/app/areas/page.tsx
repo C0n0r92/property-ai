@@ -136,6 +136,39 @@ export default function AreasIndexPage() {
         </div>
       </div>
 
+      {/* Map Link CTA */}
+      <div className="mb-8">
+        <Link
+          href="/map"
+          className="card hover:shadow-lg transition-all duration-200 border-2 border-[var(--primary)]/20 hover:border-[var(--primary)]/40 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--accent)]/5 block"
+          onClick={() => analytics.pageViewed('map_from_areas_cta')}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--primary)] rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V7m0 0L9 4" />
+                </svg>
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-base sm:text-lg text-[var(--foreground)] mb-1">Explore Interactive Map</h3>
+                <p className="text-[var(--muted-foreground)] text-sm leading-relaxed">
+                  View all properties on an interactive map with advanced filtering and search capabilities
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end sm:justify-start">
+              <div className="text-[var(--primary)] font-medium text-sm sm:text-base flex items-center gap-1">
+                View Map
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1">

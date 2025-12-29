@@ -7,8 +7,11 @@ import { TableOfContents } from '@/components/TableOfContents';
 import { BlogVoteButton } from '@/components/BlogVoteButton';
 import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
+import { MapLink } from '@/components/MapLink';
 import { getCategoryConfig } from '@/lib/blog-categories';
 import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChart, SizeEfficiencyChart, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChart, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart } from '@/components/BlogCharts';
+
+// MapLink component will be imported from a separate client component file
 
 // Function to process markdown content to HTML
 function processMarkdownToHtml(content: string): string {
@@ -6336,9 +6339,14 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
               </div>
 
               {/* Title */}
-              <h1 className="text-xl lg:text-2xl font-bold text-white leading-tight mb-4">
+              <h1 className="text-xl lg:text-2xl font-bold text-white leading-tight mb-6">
                 {article.title}
               </h1>
+
+              {/* Map Link CTA - Below Title */}
+              <div className="max-w-md">
+                <MapLink />
+              </div>
             </div>
           </div>
         </div>
@@ -6349,12 +6357,19 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
             {/* Article Content */}
             <div className="lg:col-span-3">
               {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {article.tags && article.tags.map && article.tags.map(tag => (
-                  <span key={tag} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium">
-                    {tag}
-                  </span>
-                ))}
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {article.tags && article.tags.map && article.tags.slice(0, 3).map(tag => (
+                    <span key={tag} className="px-2 py-0.5 sm:px-3 sm:py-1 bg-slate-100 text-slate-700 rounded-full text-xs sm:text-sm font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                  {article.tags && article.tags.length > 3 && (
+                    <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-slate-200 text-slate-600 rounded-full text-xs sm:text-sm font-medium">
+                      +{article.tags.length - 3} more
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Vote Actions and Share */}
@@ -6524,13 +6539,14 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                 {/* Share Options */}
                 <div className="bg-white border border-slate-200 rounded-2xl p-6">
                   <h3 className="text-lg font-semibold text-slate-900 mb-4">Share This Article</h3>
-                  <BlogShareButton 
+                  <BlogShareButton
                     title={article.title}
                     url={`/blog/${slug}`}
                     excerpt={article.excerpt}
                     variant="inline"
                   />
                 </div>
+
               </div>
             </div>
           </div>

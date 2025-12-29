@@ -311,6 +311,17 @@ export default function MapComponent() {
     }
   }, [isMobile]);
 
+  // Show filters tooltip briefly when landing on the map page
+  useEffect(() => {
+    // Show tooltip on both mobile and desktop when landing on map
+    setShowFiltersTooltip(true);
+    // Hide tooltip after 3 seconds
+    const timer = setTimeout(() => {
+      setShowFiltersTooltip(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array - only run once on mount
+
   // Remove planning radius function
   const removePlanningRadius = useCallback(() => {
     if (!map.current) return;
@@ -483,6 +494,7 @@ export default function MapComponent() {
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
   const [selectedDistanceBands, setSelectedDistanceBands] = useState<string[]>([]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showFiltersTooltip, setShowFiltersTooltip] = useState(false);
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minArea, setMinArea] = useState<number | null>(null);
@@ -3424,6 +3436,28 @@ export default function MapComponent() {
           />
         </div>
       </div>
+
+      {/* Filters Tooltip */}
+      {showFiltersTooltip && (
+        <div className={`fixed z-50 animate-in fade-in slide-in-from-top duration-300 ${
+          isMobile
+            ? 'top-16 left-4 right-4' // Mobile: full width with margins
+            : 'top-20 left-1/2 transform -translate-x-1/2' // Desktop: centered
+        }`}>
+          <div className="bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg border border-blue-500 relative">
+            <div className="flex items-center gap-2 justify-center">
+              <svg className="w-5 h-5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <span className="font-medium text-center">Use filters below for advanced search capabilities!</span>
+            </div>
+            {/* Arrow pointing down to filters - only on desktop */}
+            {!isMobile && (
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-l-8 border-r-8 border-t-8 border-transparent border-t-blue-600"></div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Collapsible Filter Panel */}
       {showFilters && (
