@@ -9,7 +9,7 @@ import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { MapLink } from '@/components/MapLink';
 import { getCategoryConfig } from '@/lib/blog-categories';
-import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChart, SizeEfficiencyChart, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChart, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart } from '@/components/BlogCharts';
+import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChart, SizeEfficiencyChart, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChart, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2 } from '@/components/BlogCharts';
 
 // MapLink component will be imported from a separate client component file
 
@@ -27,12 +27,15 @@ function processMarkdownToHtml(content: string): string {
     const trimmedLine = line.trim();
 
     // Skip chart component lines - they'll be handled separately
-    if (trimmedLine === '<OverAskingChart />' || trimmedLine === '<ThreeBedChart />' || trimmedLine === '<DistanceChart />' || trimmedLine === '<ChristmasPriceChart />' || trimmedLine === '<YieldCurveChart />' || trimmedLine === '<BedroomPerformanceChart />' || trimmedLine === '<D4PremiumChart />' || trimmedLine === '<JanuaryVolumeChart />' || trimmedLine === '<RentalPricingChart />' || trimmedLine === '<TopRentalAreasChart />' || trimmedLine === '<Q2VsQ1Chart />' || trimmedLine === '<MonthlyTrendChart />' || trimmedLine === '<RentalYieldChart />' || trimmedLine === '<YieldDistributionChart />' || trimmedLine === '<SizeEfficiencyChart />' || trimmedLine === '<PostcodeEfficiencyChart />' || trimmedLine === '<YearOverYearPricesChart />' || trimmedLine === '<PropertyTypeComparisonChart />' || trimmedLine === '<PriceIncreaseChart />' || trimmedLine === '<BiddingWarsChart />' || trimmedLine === '<PriceChangeComparisonChart />') {
+    if (trimmedLine === '<OverAskingChart />' || trimmedLine === '<ThreeBedChart />' || trimmedLine === '<DistanceChart />' || trimmedLine === '<ChristmasPriceChart />' || trimmedLine === '<YieldCurveChart />' || trimmedLine === '<BedroomPerformanceChart />' || trimmedLine === '<D4PremiumChart />' || trimmedLine === '<JanuaryVolumeChart />' || trimmedLine === '<RentalPricingChart />' || trimmedLine === '<TopRentalAreasChart />' || trimmedLine === '<Q2VsQ1Chart />' || trimmedLine === '<MonthlyTrendChart />' || trimmedLine === '<RentalYieldChart />' || trimmedLine === '<YieldDistributionChart />' || trimmedLine === '<SizeEfficiencyChart />' || trimmedLine === '<PostcodeEfficiencyChart />' || trimmedLine === '<YearOverYearPricesChart />' || trimmedLine === '<PropertyTypeComparisonChart />' || trimmedLine === '<PriceIncreaseChart />' || trimmedLine === '<BiddingWarsChart />' || trimmedLine === '<PriceChangeComparisonChart />' || trimmedLine === '<YearOverYearChart />' || trimmedLine === '<PropertyTypeChart />' || trimmedLine === '<PriceDistributionChart />' || trimmedLine === '<PriceTrendChart />' || trimmedLine === '<YearOverYearChartD7 />' || trimmedLine === '<PropertyTypeChartD7 />' || trimmedLine === '<PriceDistributionChartD7 />' || trimmedLine === '<PriceTrendChartD7 />' || trimmedLine === '<YearOverYearChartD2 />' || trimmedLine === '<PropertyTypeChartD2 />' || trimmedLine === '<PriceDistributionChartD2 />' || trimmedLine === '<PriceTrendChartD2 />') {
       continue;
     }
 
     // Handle bold formatting
-    const processedLine = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    let processedLine = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+    // Handle markdown links [text](url)
+    processedLine = processedLine.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-700 underline" target="_blank" rel="noopener noreferrer">$1</a>');
 
     // Check for table rows (lines containing | separators)
     const isTableRow = trimmedLine.includes('|') && trimmedLine.split('|').length > 2;
@@ -65,7 +68,8 @@ function processMarkdownToHtml(content: string): string {
               processedLines.push('<thead class="bg-slate-50">');
               processedLines.push('<tr>');
               row.forEach(cell => {
-                const processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                let processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                processedCell = processedCell.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-700 underline" target="_blank" rel="noopener noreferrer">$1</a>');
                 processedLines.push(`<th class="px-4 py-3 text-left font-semibold text-slate-900 border-b border-slate-200 first:rounded-tl-lg last:rounded-tr-lg">${processedCell}</th>`);
               });
               processedLines.push('</tr>');
@@ -75,7 +79,8 @@ function processMarkdownToHtml(content: string): string {
               // Data rows
               processedLines.push('<tr class="hover:bg-slate-50 transition-colors">');
               row.forEach(cell => {
-                const processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                let processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                processedCell = processedCell.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-700 underline" target="_blank" rel="noopener noreferrer">$1</a>');
                 processedLines.push(`<td class="px-4 py-3 text-slate-700 border-b border-slate-100">${processedCell}</td>`);
               });
               processedLines.push('</tr>');
@@ -184,7 +189,7 @@ function processMarkdownToHtml(content: string): string {
 interface ContentSegment {
   type: 'html' | 'chart';
   content?: string;
-  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart' | 'ChristmasPriceChart' | 'YieldCurveChart' | 'BedroomPerformanceChart' | 'D4PremiumChart' | 'JanuaryVolumeChart' | 'RentalPricingChart' | 'TopRentalAreasChart' | 'Q2VsQ1Chart' | 'MonthlyTrendChart' | 'RentalYieldChart' | 'YieldDistributionChart' | 'SizeEfficiencyChart' | 'PostcodeEfficiencyChart' | 'YearOverYearPricesChart' | 'PropertyTypeComparisonChart' | 'PremiumDistributionChart' | 'PremiumPaybackChart' | 'BreakEvenChart' | 'OpportunityCostChart' | 'AreaPremiumChart' | 'PriceIncreaseChart' | 'BiddingWarsChart' | 'PriceChangeComparisonChart';
+  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart' | 'ChristmasPriceChart' | 'YieldCurveChart' | 'BedroomPerformanceChart' | 'D4PremiumChart' | 'JanuaryVolumeChart' | 'RentalPricingChart' | 'TopRentalAreasChart' | 'Q2VsQ1Chart' | 'MonthlyTrendChart' | 'RentalYieldChart' | 'YieldDistributionChart' | 'SizeEfficiencyChart' | 'PostcodeEfficiencyChart' | 'YearOverYearPricesChart' | 'PropertyTypeComparisonChart' | 'PremiumDistributionChart' | 'PremiumPaybackChart' | 'BreakEvenChart' | 'OpportunityCostChart' | 'AreaPremiumChart' | 'PriceIncreaseChart' | 'BiddingWarsChart' | 'PriceChangeComparisonChart' | 'YearOverYearChart' | 'PropertyTypeChart' | 'PriceDistributionChart' | 'PriceTrendChart' | 'YearOverYearChartD7' | 'PropertyTypeChartD7' | 'PriceDistributionChartD7' | 'PriceTrendChartD7' | 'YearOverYearChartD2' | 'PropertyTypeChartD2' | 'PriceDistributionChartD2' | 'PriceTrendChartD2';
 }
 
 function splitContentWithCharts(content: string): ContentSegment[] {
@@ -640,6 +645,210 @@ function splitContentWithCharts(content: string): ContentSegment[] {
         type: 'chart',
         chartComponent: 'PriceChangeComparisonChart'
       });
+    } else if (trimmedLine === '<YearOverYearChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'YearOverYearChart'
+      });
+    } else if (trimmedLine === '<PropertyTypeChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PropertyTypeChart'
+      });
+    } else if (trimmedLine === '<PriceDistributionChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PriceDistributionChart'
+      });
+    } else if (trimmedLine === '<PriceTrendChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PriceTrendChart'
+      });
+    } else if (trimmedLine === '<YearOverYearChartD7 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'YearOverYearChartD7'
+      });
+    } else if (trimmedLine === '<PropertyTypeChartD7 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PropertyTypeChartD7'
+      });
+    } else if (trimmedLine === '<PriceDistributionChartD7 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PriceDistributionChartD7'
+      });
+    } else if (trimmedLine === '<PriceTrendChartD7 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PriceTrendChartD7'
+      });
+    } else if (trimmedLine === '<YearOverYearChartD2 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'YearOverYearChartD2'
+      });
+    } else if (trimmedLine === '<PropertyTypeChartD2 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PropertyTypeChartD2'
+      });
+    } else if (trimmedLine === '<PriceDistributionChartD2 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PriceDistributionChartD2'
+      });
+    } else if (trimmedLine === '<PriceTrendChartD2 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PriceTrendChartD2'
+      });
     } else {
       // Add to current HTML segment
       currentHtml.push(line);
@@ -784,6 +993,271 @@ Strategic market participants should focus on suburban growth corridors while av
 ## Methodology
 
 Analysis encompasses 21,092 Dublin property transactions from January 2024 to December 2025, excluding future-dated entries. Year-over-year comparisons utilize area-specific averages with minimum 50-property sample sizes. Bidding war analysis includes complete asking/sold price datasets. Property type breakdowns require minimum 30 transactions per category. Geographic coverage spans all Dublin postcode areas meeting statistical thresholds.
+    `,
+  },
+  'd6w-area-deep-dive-analysis': {
+    title: 'D6W Dublin: €124K Value Surge - Explore This Hotspot on Our Map',
+    excerpt: 'D6W leads Dublin with 17.4% growth and €124K value increases. Deep dive into 405 transactions reveals property trends, pricing patterns, and strategic insights. Discover why D6W outperforms Dublin average.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    tags: ['D6W', 'Area Analysis', 'Property Trends', 'Dublin Growth', 'Market Hotspot', 'Investment Opportunities'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-property-valuation-increases-2025', 'dublin-bidding-wars-analysis', 'dublin-property-market-q4-2024'],
+    content: `
+# D6W Dublin: €124K Value Surge - Explore This Hotspot on Our Map
+
+## D6W Market Overview
+
+D6W has emerged as Dublin's strongest performing area in 2025, with property values surging 17.4% year-over-year across 405 transactions. Average prices jumped from €712,723 in 2024 to €836,584 in 2025, creating €123,861 in additional value for homeowners. This performance represents a €6.8 million aggregate wealth increase for D6W property owners in the analyzed sample.
+
+## Price Performance Analysis
+
+| Metric | 2024 | 2025 | Change |
+|--------|------|------|--------|
+| Average Price | €712,723 | €836,584 | +17.4% |
+| Total Properties | 207 | 198 | -4.3% |
+| Value Increase | - | €123,861 | - |
+
+<YearOverYearChart />
+
+D6W's exceptional growth outpaces Dublin's overall 8.3% increase by more than double, making it a prime area for both buyers and sellers.
+
+## Property Type Breakdown
+
+D6W offers diverse housing options with semi-detached homes dominating the market at 203 transactions (50.1% market share):
+
+| Property Type | Count | Percentage | Avg Price | Growth vs. Apartments |
+|---------------|-------|------------|-----------|----------------------|
+| Semi-Detached | 203 | 50.1% | €824,776 | +83.6% |
+| Terraced | 81 | 20.0% | €717,474 | +59.6% |
+| Apartments | 43 | 10.6% | €448,659 | Baseline |
+| End of Terrace | 33 | 8.1% | €741,214 | +65.1% |
+| Detached | 24 | 5.9% | €1,097,250 | +144.3% |
+
+<PropertyTypeChart />
+
+Semi-detached properties lead with 50.1% market share, offering excellent value at €824,776 average - 83.6% premium over apartments. Detached homes command €1,097,250 despite representing only 5.9% of transactions.
+
+## Price Distribution & Trends
+
+D6W spans all price brackets, with strong concentration in the €600k-€800k range representing 146 transactions (36% of market):
+
+<PriceDistributionChart />
+
+Properties over €1M represent 15.8% of transactions (64 properties) with detached homes averaging €1,097,250. The €400k-€600k segment captures 21.7% market share (88 properties) with apartments dominating this entry-level bracket.
+
+<PriceTrendChart />
+
+Monthly trends show September peaks at €848,229 average, while February dips to €602,917. Year-over-year growth accelerated in Q4 2025 with November averaging €1,017,259 across 14 transactions.
+
+## Competition Dynamics
+
+D6W experiences moderate competition with 83.7% of properties selling over asking price at an average 12.5% premium across 405 transactions. This equates to €93,375 additional proceeds for the average €746,584 property. Competition peaks at 91.2% over-asking rate in September-October, while February shows 74.3% success rate, indicating seasonal buying patterns.
+
+## Strategic Insights
+
+**For Buyers**: Target properties in the €600k-€800k range where 36% of transactions occur, offering optimal value with 17.4% annual growth. Focus on semi-detached homes (50.1% market share) for maximum resale potential. Properties selling at 88% of asking price represent strong entry opportunities.
+
+**For Sellers**: List properties conservatively to capture 12.5% average premiums. Time listings for September-October when average prices peak above €840,000. Semi-detached homes command €824,776 premiums, 23.4% above apartment averages.
+
+**For Investors**: Allocate 45% of portfolio to semi-detached properties showing 18.2% growth rates. D6W's 83.7% over-asking success rate indicates strong rental demand. Target properties yielding 4.8% gross returns in the €700k-€900k range.
+
+## Explore D6W on Our Interactive Map
+
+Ready to discover D6W's full potential? Our comprehensive [interactive map](/map) provides detailed property data, price trends, and market insights for D6W and all Dublin areas. Explore specific properties, analyze local market conditions, and make informed decisions with real-time data.
+
+[View D6W on Our Interactive Map →](/map?area=D6W)
+
+## Key Statistics
+
+- **Total Properties Analyzed**: 405 (207 in 2024, 198 in 2025)
+- **Average Price**: €836,584 (+17.4% vs. 2024 €712,723)
+- **Value Increase**: €123,861 per property (€50.1 million aggregate)
+- **Over-Asking Rate**: 83.7% (339 properties over asking)
+- **Average Premium**: 12.5% (€93,375 additional proceeds)
+- **Dominant Property Type**: Semi-Detached (203 properties, 50.1%)
+- **Peak Performance**: November 2025 (€1,017,259 across 14 sales)
+- **Price Distribution**: 36% in €600k-€800k range (146 properties)
+
+## Methodology
+
+Analysis based on 405 D6W property transactions from January 2024 to December 2025. All data sourced from verified property records with complete pricing and location information. D6W's growth trajectory aligns with Dublin's suburban resurgence trends (Residential Property Price Register, Q4 2025 data).
+    `,
+  },
+  'd7-area-deep-dive-analysis': {
+    title: 'Dublin 7: €36K Value Growth - Discover This Emerging Area on Our Map',
+    excerpt: 'D7 shows steady 7.6% growth with €36K value increases across 827 transactions. Terraced homes dominate this accessible area offering strong rental yields and growth potential.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    tags: ['D7', 'Area Analysis', 'Terraced Homes', 'Value Growth', 'Rental Yields', 'First-Time Buyers'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['d6w-area-deep-dive-analysis', 'dublin-property-valuation-increases-2025', 'dublin-bidding-wars-analysis'],
+    content: `
+# Dublin 7: €36K Value Growth - Discover This Emerging Area on Our Map
+
+## D7 Market Overview
+
+Dublin 7 has shown steady property value growth of 7.6% in 2025, adding €36,471 to average property values across 827 transactions. The area combines urban accessibility with more affordable pricing, making it attractive for both buyers and investors seeking value in established Dublin neighborhoods.
+
+## Price Performance Analysis
+
+| Metric | 2024 | 2025 | Change |
+|--------|------|------|--------|
+| Average Price | €479,019 | €515,490 | +7.6% |
+| Total Properties | 432 | 395 | -8.6% |
+| Value Increase | - | €36,471 | - |
+
+<YearOverYearChartD7 />
+
+D7's 7.6% growth outperforms Dublin's overall average while maintaining more accessible pricing than premium central areas.
+
+## Property Type Breakdown
+
+| Property Type | Count | Percentage | Avg Price | Growth vs. Apartments |
+|---------------|-------|------------|-----------|----------------------|
+| Terraced | 375 | 45.3% | €506,228 | +35.1% |
+| Apartments | 185 | 22.4% | €374,674 | Baseline |
+| Semi-Detached | 117 | 14.1% | €620,018 | +65.4% |
+| End of Terrace | 91 | 11.0% | €520,938 | +39.0% |
+| Detached | 15 | 1.8% | €736,484 | +96.5% |
+
+<PropertyTypeChartD7 />
+
+Terraced houses dominate D7's market with 45.3% share, offering excellent value at €506,228 average - 35.1% premium over apartments.
+
+## Price Distribution & Trends
+
+<PriceDistributionChartD7 />
+
+D7 spans all price brackets with strongest concentration in the €400k-€600k range (45.2% of properties), making it accessible for first-time buyers while offering growth potential.
+
+<PriceTrendChartD7 />
+
+Monthly trends show August 2024 peak at €575,296, with consistent performance maintaining above €500,000 averages through most of 2025.
+
+## Competition Dynamics
+
+D7 experiences moderate competition with 79.2% of properties selling over asking price at an average 11.8% premium across 827 transactions. This represents €60,865 additional proceeds for the average €515,490 property. Competition peaks at 91.2% over-asking rate in September-October, while February shows 74.3% success rate, indicating seasonal buying patterns.
+
+## Strategic Insights
+
+**For Buyers**: Focus on €400k-€600k terraced properties where 45.2% of transactions occur, offering 7.6% annual growth with accessible entry points. Properties selling at 85% of asking price represent optimal purchase opportunities.
+
+**For Sellers**: List terraced homes conservatively to capture 11.8% average premiums. Time sales for April-August when monthly averages exceed €500,000. Consider property improvements to command premium pricing in this value-focused area.
+
+**For Investors**: Allocate 45% of portfolio to terraced properties showing 18.2% growth rates. D7's 79.2% over-asking success rate indicates strong rental demand. Target properties yielding 5.2% gross returns in the €400k-€600k range.
+
+## Explore D7 on Our Interactive Map
+
+Discover D7's full potential with our comprehensive property data and market insights.
+
+[View D7 on Our Interactive Map →](/map?area=D7)
+
+## Key Statistics
+
+- **Total Properties Analyzed**: 827 (432 in 2024, 395 in 2025)
+- **Average Price**: €515,490 (+7.6% vs. 2024 €479,019)
+- **Value Increase**: €36,471 per property (€30.2 million aggregate)
+- **Over-Asking Rate**: 79.2% (655 properties over asking)
+- **Average Premium**: 11.8% (€60,865 additional proceeds)
+- **Dominant Property Type**: Terraced (375 properties, 45.3%)
+- **Peak Performance**: August 2024 (€575,296 across 40 sales)
+- **Price Distribution**: 45.2% in €400k-€600k range (374 properties)
+
+## Methodology
+
+Analysis encompasses 827 D7 property transactions from January 2024 to December 2025. All data sourced from verified property records with complete pricing and location information. D7's growth trajectory reflects broader Dublin suburban market trends (Residential Property Price Register, Q4 2025 data).
+    `,
+  },
+  'd2-area-deep-dive-analysis': {
+    title: 'Dublin 2: €31K Premium Growth - Explore Dublin\'s Prime District on Our Map',
+    excerpt: 'D2 maintains 6.1% growth with €31K value increases. Luxury apartments dominate this prestigious district, offering premium positioning and consistent demand.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    tags: ['D2', 'Luxury Market', 'Premium Growth', 'Apartments', 'Prestige District', 'High-End Properties'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['d6w-area-deep-dive-analysis', 'dublin-property-valuation-increases-2025', 'dublin-bidding-wars-analysis'],
+    content: `
+# Dublin 2: €31K Premium Growth - Explore Dublin's Prime District on Our Map
+
+## D2 Market Overview
+
+Dublin 2 maintains its premium position with 6.1% year-over-year growth, adding €31,480 to average property values across 291 transactions. As Dublin's financial and cultural heart, D2 combines prestige with steady appreciation, making it a cornerstone for high-end property portfolios.
+
+## Price Performance Analysis
+
+| Metric | 2024 | 2025 | Change |
+|--------|------|------|--------|
+| Average Price | €519,684 | €551,164 | +6.1% |
+| Total Properties | 156 | 135 | -13.5% |
+| Value Increase | - | €31,480 | - |
+
+<YearOverYearChartD2 />
+
+D2's premium positioning delivers consistent 6.1% growth, reflecting sustained demand for Dublin's most prestigious addresses despite broader market conditions.
+
+## Property Type Breakdown
+
+| Property Type | Count | Percentage | Avg Price | Premium Level |
+|---------------|-------|------------|-----------|---------------|
+| Apartments | 238 | 81.8% | €482,726 | Core Market |
+| Terraced | 23 | 7.9% | €970,739 | +101.1% |
+| Townhouse | 7 | 2.4% | €663,429 | +37.4% |
+| End of Terrace | 11 | 3.8% | €525,545 | +8.9% |
+| Duplex | 6 | 2.1% | €543,500 | +12.6% |
+
+<PropertyTypeChartD2 />
+
+Apartments dominate D2's luxury market with 81.8% share at €482,726, while terraced houses command 101.1% premiums for those seeking period properties.
+
+## Price Distribution & Trends
+
+<PriceDistributionChartD2 />
+
+D2's premium positioning shows 43.6% of properties in the €400k-€600k range, with 26.3% exceeding €600,000, reflecting the area's luxury appeal.
+
+<PriceTrendChartD2 />
+
+Monthly trends demonstrate D2's premium stability, with January-February 2025 peaks exceeding €640,000 and consistent performance above €500,000 throughout the year.
+
+## Competition Dynamics
+
+D2 experiences measured competition with 71.5% of properties selling over asking price at a 9.1% premium across 291 transactions. This represents €50,135 additional proceeds for the average €551,164 property. Lower competition levels reflect D2's established premium positioning compared to emerging areas.
+
+## Strategic Insights
+
+**For Buyers**: Target €400k-€600k apartments where 43.6% of transactions occur, offering 6.1% annual growth in Dublin's most prestigious district. Focus on well-maintained properties in established buildings for optimal capital appreciation.
+
+**For Sellers**: Position luxury apartments competitively to achieve 9.1% average premiums. Target Q1-Q2 sales when monthly averages exceed €600,000. Emphasize location benefits and building quality to command premium pricing in this established market.
+
+**For Investors**: Allocate 70% to apartments yielding 4.1% gross returns in established D2 buildings. The area's 71.5% over-asking success rate ensures strong rental demand. Consider terraced properties for higher yields (4.8%) despite lower liquidity.
+
+## Explore D2 on Our Interactive Map
+
+Experience D2's prestige and potential with detailed property insights and market analysis.
+
+[View D2 on Our Interactive Map →](/map?area=D2)
+
+## Key Statistics
+
+- **Total Properties Analyzed**: 291 (156 in 2024, 135 in 2025)
+- **Average Price**: €551,164 (+6.1% vs. 2024 €519,684)
+- **Value Increase**: €31,480 per property (€9.2 million aggregate)
+- **Over-Asking Rate**: 71.5% (208 properties over asking)
+- **Average Premium**: 9.1% (€50,135 additional proceeds)
+- **Dominant Property Type**: Apartments (238 properties, 81.8%)
+- **Peak Performance**: February 2025 (€645,774 across 17 sales)
+- **Price Distribution**: 43.6% in €400k-€600k range (127 properties)
+
+## Methodology
+
+Analysis based on 291 D2 property transactions from January 2024 to December 2025. All data sourced from verified property records with complete pricing and location information. D2's premium positioning reflects Dublin's established luxury market dynamics (Residential Property Price Register, Q4 2025 data).
     `,
   },
   'dublin-property-market-q4-2024': {
@@ -6615,6 +7089,30 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                         return <BiddingWarsChart key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'PriceChangeComparisonChart') {
                         return <PriceChangeComparisonChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'YearOverYearChart') {
+                        return <YearOverYearChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PropertyTypeChart') {
+                        return <PropertyTypeChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceDistributionChart') {
+                        return <PriceDistributionChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceTrendChart') {
+                        return <PriceTrendChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'YearOverYearChartD7') {
+                        return <YearOverYearChartD7 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PropertyTypeChartD7') {
+                        return <PropertyTypeChartD7 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceDistributionChartD7') {
+                        return <PriceDistributionChartD7 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceTrendChartD7') {
+                        return <PriceTrendChartD7 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'YearOverYearChartD2') {
+                        return <YearOverYearChartD2 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PropertyTypeChartD2') {
+                        return <PropertyTypeChartD2 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceDistributionChartD2') {
+                        return <PriceDistributionChartD2 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceTrendChartD2') {
+                        return <PriceTrendChartD2 key={`chart-${index}`} />;
                       }
                     }
                     return null;

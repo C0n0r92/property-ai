@@ -1,0 +1,219 @@
+{
+  "PriceTrendChart": [
+    {
+      "month": "2024-01",
+      "avgPrice": 732250,
+      "sales": 12
+    },
+    {
+      "month": "2024-02",
+      "avgPrice": 602917,
+      "sales": 12
+    },
+    {
+      "month": "2024-03",
+      "avgPrice": 643172,
+      "sales": 16
+    },
+    {
+      "month": "2024-04",
+      "avgPrice": 706964,
+      "sales": 14
+    },
+    {
+      "month": "2024-05",
+      "avgPrice": 614488,
+      "sales": 21
+    },
+    {
+      "month": "2024-06",
+      "avgPrice": 655667,
+      "sales": 9
+    },
+    {
+      "month": "2024-07",
+      "avgPrice": 694913,
+      "sales": 23
+    },
+    {
+      "month": "2024-08",
+      "avgPrice": 750864,
+      "sales": 22
+    },
+    {
+      "month": "2024-09",
+      "avgPrice": 731575,
+      "sales": 20
+    },
+    {
+      "month": "2024-10",
+      "avgPrice": 832652,
+      "sales": 23
+    },
+    {
+      "month": "2024-11",
+      "avgPrice": 692115,
+      "sales": 13
+    },
+    {
+      "month": "2024-12",
+      "avgPrice": 783459,
+      "sales": 22
+    },
+    {
+      "month": "2025-01",
+      "avgPrice": 788833,
+      "sales": 18
+    },
+    {
+      "month": "2025-02",
+      "avgPrice": 898933,
+      "sales": 15
+    },
+    {
+      "month": "2025-03",
+      "avgPrice": 768571,
+      "sales": 7
+    },
+    {
+      "month": "2025-04",
+      "avgPrice": 774343,
+      "sales": 20
+    },
+    {
+      "month": "2025-05",
+      "avgPrice": 813837,
+      "sales": 19
+    },
+    {
+      "month": "2025-06",
+      "avgPrice": 805071,
+      "sales": 14
+    },
+    {
+      "month": "2025-07",
+      "avgPrice": 776634,
+      "sales": 23
+    },
+    {
+      "month": "2025-08",
+      "avgPrice": 831090,
+      "sales": 20
+    },
+    {
+      "month": "2025-09",
+      "avgPrice": 848229,
+      "sales": 28
+    },
+    {
+      "month": "2025-10",
+      "avgPrice": 878079,
+      "sales": 19
+    },
+    {
+      "month": "2025-11",
+      "avgPrice": 1017259,
+      "sales": 14
+    },
+    {
+      "month": "2025-12",
+      "avgPrice": 1200000,
+      "sales": 1
+    }
+  ],
+  "PropertyTypeChart": [
+    {
+      "type": "Semi-D",
+      "count": 203,
+      "avgPrice": 824776,
+      "percentage": "50.1"
+    },
+    {
+      "type": "Terrace",
+      "count": 81,
+      "avgPrice": 717474,
+      "percentage": "20.0"
+    },
+    {
+      "type": "Apartment",
+      "count": 43,
+      "avgPrice": 448659,
+      "percentage": "10.6"
+    },
+    {
+      "type": "End of Terrace",
+      "count": 33,
+      "avgPrice": 741214,
+      "percentage": "8.1"
+    },
+    {
+      "type": "Detached",
+      "count": 24,
+      "avgPrice": 1097250,
+      "percentage": "5.9"
+    },
+    {
+      "type": "Bungalow",
+      "count": 8,
+      "avgPrice": 705750,
+      "percentage": "2.0"
+    },
+    {
+      "type": "",
+      "count": 7,
+      "avgPrice": 1228857,
+      "percentage": "1.7"
+    },
+    {
+      "type": "Duplex",
+      "count": 5,
+      "avgPrice": 545600,
+      "percentage": "1.2"
+    },
+    {
+      "type": "Townhouse",
+      "count": 1,
+      "avgPrice": 570000,
+      "percentage": "0.2"
+    }
+  ],
+  "PriceDistributionChart": [
+    {
+      "range": "Under €400k",
+      "count": 23,
+      "percentage": "5.7"
+    },
+    {
+      "range": "€400k-€600k",
+      "count": 88,
+      "percentage": "21.7"
+    },
+    {
+      "range": "€600k-€800k",
+      "count": 146,
+      "percentage": "36.0"
+    },
+    {
+      "range": "€800k-€1M",
+      "count": 84,
+      "percentage": "20.7"
+    },
+    {
+      "range": "Over €1M",
+      "count": 64,
+      "percentage": "15.8"
+    }
+  ],
+  "YearOverYearChart": [
+    {
+      "year": "2024",
+      "avgPrice": 712723,
+      "sales": 207
+    },
+    {
+      "year": "2025",
+      "avgPrice": 836584,
+      "sales": 198
+    }
+  ]
+}

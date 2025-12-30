@@ -56,6 +56,7 @@ const DUBLIN_AREAS = [
   { name: 'Dublin 2', coords: [-6.2550, 53.3380], zoom: 14 },
   { name: 'Dublin 4', coords: [-6.2280, 53.3280], zoom: 14 },
   { name: 'Dublin 6', coords: [-6.2650, 53.3200], zoom: 14 },
+  { name: 'Dublin 7', coords: [-6.2800, 53.3600], zoom: 14 },
   { name: 'Dublin 8', coords: [-6.2900, 53.3380], zoom: 14 },
   { name: 'Rathmines', coords: [-6.2650, 53.3220], zoom: 15 },
   { name: 'Ranelagh', coords: [-6.2580, 53.3260], zoom: 15 },
@@ -140,7 +141,10 @@ export default function MapComponent() {
   const [zoomLevel, setZoomLevel] = useState(14); // Track zoom for legend display
   const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
-  
+
+  // Area filter for filtering by Dublin postcode (D2, D7, etc.)
+  const [areaFilter, setAreaFilter] = useState<string | null>(null);
+
   // Data source toggle: allows any combination of sold, forSale, rentals
   const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: true, savedOnly: false });
   
@@ -193,12 +197,16 @@ export default function MapComponent() {
   const [activeTab, setActiveTab] = useState<'details' | 'planning'>('details');
   const [isMobileAmenitiesMode, setIsMobileAmenitiesMode] = useState(false);
 
-  // Handle query parameters for focusing on specific properties and search
+  // Handle query parameters for focusing on specific properties, areas, and search
   useEffect(() => {
+    console.log('MapComponent useEffect running, mapReady:', mapReady, 'loading:', loading);
     const urlParams = new URLSearchParams(window.location.search);
     const focusId = urlParams.get('focus');
     const focusType = urlParams.get('type');
+    const areaParam = urlParams.get('area');
     const searchQuery = urlParams.get('search');
+
+    console.log('URL parameters:', { focusId, focusType, areaParam, searchQuery });
 
     if (focusId && focusType && !loading) {
       // Wait a bit for data to load, then find and focus the property
@@ -259,6 +267,62 @@ export default function MapComponent() {
         newUrl.searchParams.delete('type');
         window.history.replaceState({}, '', newUrl.toString());
       }, 2000); // Wait 2 seconds for data to load
+
+      return () => clearTimeout(timer);
+    }
+
+    // Handle area parameter - center map on specific Dublin area
+    if (areaParam) {
+      console.log('Processing area parameter:', areaParam);
+
+      // Wait for map to be fully ready before processing
+      const timer = setTimeout(() => {
+        if (!map.current || !mapReady) {
+          console.log('Map not ready yet, retrying area parameter processing');
+          return;
+        }
+
+        // Direct area matching for D2 and D7
+        let areaData;
+        if (areaParam.toLowerCase() === 'd2') {
+          areaData = DUBLIN_AREAS.find(area => area.name === 'Dublin 2');
+        } else if (areaParam.toLowerCase() === 'd7') {
+          areaData = DUBLIN_AREAS.find(area => area.name === 'Dublin 7');
+        } else {
+          // Fallback for other areas
+          areaData = DUBLIN_AREAS.find(area => {
+            const areaName = area.name.toLowerCase();
+            const param = areaParam.toLowerCase();
+            return areaName === param || areaName.includes(param) || param.includes(areaName.replace('dublin ', ''));
+          });
+        }
+
+        console.log('Found area data:', areaData);
+
+        if (areaData && map.current) {
+          console.log('Flying to area:', areaData.name, areaData.coords, areaData.zoom);
+
+          // Set area filter to show only properties from this postcode area
+          const postcodeNumber = areaParam.toLowerCase().replace('d', '');
+          setAreaFilter(areaParam.toUpperCase()); // D2, D7, etc.
+
+          // Center map on the area and set appropriate zoom
+          map.current.flyTo({
+            center: areaData.coords,
+            zoom: areaData.zoom,
+            duration: 2000
+          });
+
+          // Clean up area parameter after processing
+          setTimeout(() => {
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete('area');
+            window.history.replaceState({}, '', newUrl.toString());
+          }, 2500); // Wait a bit longer than the fly animation
+        } else {
+          console.log('No area data found for:', areaParam);
+        }
+      }, 2000); // Wait 2 seconds for map to be ready
 
       return () => clearTimeout(timer);
     }
@@ -1118,9 +1182,14 @@ export default function MapComponent() {
     return Array.from(years).sort((a, b) => b - a); // Most recent first
   }, [properties]);
 
-  // Filter properties based on difference and time filters
+  // Filter properties based on difference, time, and area filters
   const filteredProperties = useMemo(() => {
     let filtered = properties;
+
+    // Apply area filter first (by Dublin postcode)
+    if (areaFilter) {
+      filtered = filtered.filter(p => p.dublinPostcode === areaFilter);
+    }
     
     // Apply recent filter (takes priority)
     if (recentFilter) {
@@ -1245,7 +1314,12 @@ export default function MapComponent() {
   // Filter listings based on time filters (using scrapedAt date)
   const filteredListings = useMemo(() => {
     let filtered = listings;
-    
+
+    // Apply area filter first (by Dublin postcode)
+    if (areaFilter) {
+      filtered = filtered.filter(l => l.dublinPostcode === areaFilter);
+    }
+
     // Apply recent filter
     if (recentFilter) {
       const now = new Date();
@@ -1343,12 +1417,17 @@ export default function MapComponent() {
     }
 
     return filtered;
-  }, [listings, dataSources, user, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
+  }, [listings, dataSources, user, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter, areaFilter]);
 
   // Filter rentals based on filters
   const filteredRentals = useMemo(() => {
     let filtered = rentals;
-    
+
+    // Apply area filter first (by Dublin postcode)
+    if (areaFilter) {
+      filtered = filtered.filter(r => r.dublinPostcode === areaFilter);
+    }
+
     // Apply bedroom filter
     if (bedsFilter !== null) {
       filtered = filtered.filter(r => {
@@ -1399,7 +1478,7 @@ export default function MapComponent() {
     }
 
     return filtered;
-  }, [rentals, dataSources, user, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea]);
+  }, [rentals, dataSources, user, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, areaFilter]);
 
   // Get active data based on selected data sources
   const activeData = useMemo(() => {

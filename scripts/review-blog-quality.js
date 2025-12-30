@@ -234,7 +234,10 @@ function reviewBlogs() {
     '../blogs/blog14_value_erosion_2021_2025.md',
     '../blogs/blog15_bidding_wars_dublin.md',
     '../blogs/blog16_bidding_war_costs.md',
-    '../blogs/blog18_property_valuation_increases.md'
+    '../blogs/blog18_property_valuation_increases.md',
+    '../blogs/blog19_d6w_area_deep_dive.md',
+    '../blogs/blog20_d7_area_deep_dive.md',
+    '../blogs/blog21_d2_area_deep_dive.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');

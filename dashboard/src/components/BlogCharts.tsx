@@ -1863,3 +1863,582 @@ export function PriceChangeComparisonChart() {
     </ChartWrapper>
   );
 }
+
+export function YearOverYearChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D6W Year-over-Year Price Performance</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { year: '2024', avgPrice: 712723, sales: 207 },
+                { year: '2025', avgPrice: 836584, sales: 198 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="year"
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Bar dataKey="avgPrice" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D6W shows 17.4% annual growth from €712,723 to €836,584
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertyTypeChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D6W Property Types Distribution</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { type: 'Semi-Detached', count: 203, avgPrice: 824776, percentage: 50.1 },
+                { type: 'Terraced', count: 81, avgPrice: 717474, percentage: 20.0 },
+                { type: 'Apartments', count: 43, avgPrice: 448659, percentage: 10.6 },
+                { type: 'End of Terrace', count: 33, avgPrice: 741214, percentage: 8.1 },
+                { type: 'Detached', count: 24, avgPrice: 1097250, percentage: 5.9 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="type"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [value, 'Count']}
+              />
+              <Bar dataKey="count" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Semi-detached homes dominate D6W market with 50.1% share
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceDistributionChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D6W Price Distribution</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { range: 'Under €400k', count: 23, percentage: 5.7 },
+                { range: '€400k-€600k', count: 88, percentage: 21.7 },
+                { range: '€600k-€800k', count: 146, percentage: 36.0 },
+                { range: '€800k-€1M', count: 84, percentage: 20.7 },
+                { range: 'Over €1M', count: 64, percentage: 15.8 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="range"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value, 'Properties']}
+              />
+              <Bar dataKey="count" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D6W spans all price ranges with strongest concentration €600k-€800k
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceTrendChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D6W Monthly Price Trends (2024-2025)</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { month: '2024-01', avgPrice: 732250, sales: 12 },
+                { month: '2024-02', avgPrice: 602917, sales: 12 },
+                { month: '2024-03', avgPrice: 643172, sales: 16 },
+                { month: '2024-04', avgPrice: 706964, sales: 14 },
+                { month: '2024-05', avgPrice: 614488, sales: 21 },
+                { month: '2024-06', avgPrice: 655667, sales: 9 },
+                { month: '2024-07', avgPrice: 694913, sales: 23 },
+                { month: '2024-08', avgPrice: 750864, sales: 22 },
+                { month: '2024-09', avgPrice: 731575, sales: 20 },
+                { month: '2024-10', avgPrice: 832652, sales: 23 },
+                { month: '2024-11', avgPrice: 692115, sales: 13 },
+                { month: '2024-12', avgPrice: 783459, sales: 22 },
+                { month: '2024-12', avgPrice: 788833, sales: 18 },
+                { month: '2025-02', avgPrice: 898933, sales: 15 },
+                { month: '2025-03', avgPrice: 768571, sales: 7 },
+                { month: '2025-04', avgPrice: 774343, sales: 20 },
+                { month: '2025-05', avgPrice: 813837, sales: 19 },
+                { month: '2025-06', avgPrice: 805071, sales: 14 },
+                { month: '2025-07', avgPrice: 776634, sales: 23 },
+                { month: '2025-08', avgPrice: 831090, sales: 20 },
+                { month: '2025-09', avgPrice: 848229, sales: 28 },
+                { month: '2025-10', avgPrice: 878079, sales: 19 },
+                { month: '2025-11', avgPrice: 1017259, sales: 14 },
+                { month: '2025-12', avgPrice: 1200000, sales: 1 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="month"
+                fontSize={10}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+              />
+              <YAxis
+                label={{ value: 'Avg Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Line
+                type="monotone"
+                dataKey="avgPrice"
+                stroke="#DC2626"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D6W shows consistent price appreciation with seasonal variations
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YearOverYearChartD7() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D7 Year-over-Year Price Performance</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { year: '2024', avgPrice: 479019, sales: 432 },
+                { year: '2025', avgPrice: 515490, sales: 395 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="year"
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Bar dataKey="avgPrice" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D7 shows 7.6% annual growth from €479,019 to €515,490
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertyTypeChartD7() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D7 Property Types Distribution</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { type: 'Terraced', count: 375, avgPrice: 506228, percentage: 45.3 },
+                { type: 'Apartments', count: 185, avgPrice: 374674, percentage: 22.4 },
+                { type: 'Semi-Detached', count: 117, avgPrice: 620018, percentage: 14.1 },
+                { type: 'End of Terrace', count: 91, avgPrice: 520938, percentage: 11.0 },
+                { type: 'Detached', count: 15, avgPrice: 736484, percentage: 1.8 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="type"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [value, 'Count']}
+              />
+              <Bar dataKey="count" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Terraced houses dominate D7 market with 45.3% share
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceDistributionChartD7() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D7 Price Distribution</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { range: 'Under €400k', count: 255, percentage: 30.8 },
+                { range: '€400k-€600k', count: 374, percentage: 45.2 },
+                { range: '€600k-€800k', count: 157, percentage: 19.0 },
+                { range: '€800k-€1M', count: 29, percentage: 3.5 },
+                { range: 'Over €1M', count: 12, percentage: 1.5 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="range"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value, 'Properties']}
+              />
+              <Bar dataKey="count" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D7 spans all price ranges with strongest concentration €400k-€600k
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceTrendChartD7() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D7 Monthly Price Trends (2024-2025)</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { month: '2024-01', avgPrice: 469542, sales: 26 },
+                { month: '2024-02', avgPrice: 423685, sales: 32 },
+                { month: '2024-03', avgPrice: 420649, sales: 37 },
+                { month: '2024-04', avgPrice: 421054, sales: 28 },
+                { month: '2024-05', avgPrice: 474891, sales: 41 },
+                { month: '2024-06', avgPrice: 478630, sales: 27 },
+                { month: '2024-07', avgPrice: 460081, sales: 43 },
+                { month: '2024-08', avgPrice: 575296, sales: 40 },
+                { month: '2024-09', avgPrice: 518436, sales: 28 },
+                { month: '2024-10', avgPrice: 489433, sales: 52 },
+                { month: '2024-11', avgPrice: 512017, sales: 40 },
+                { month: '2024-12', avgPrice: 478437, sales: 38 },
+                { month: '2025-01', avgPrice: 488844, sales: 25 },
+                { month: '2025-02', avgPrice: 500726, sales: 31 },
+                { month: '2025-03', avgPrice: 527403, sales: 31 },
+                { month: '2025-04', avgPrice: 600947, sales: 42 },
+                { month: '2025-05', avgPrice: 481825, sales: 27 },
+                { month: '2025-06', avgPrice: 492736, sales: 33 },
+                { month: '2025-07', avgPrice: 509667, sales: 54 },
+                { month: '2025-08', avgPrice: 503864, sales: 33 },
+                { month: '2025-09', avgPrice: 501391, sales: 41 },
+                { month: '2025-10', avgPrice: 495145, sales: 39 },
+                { month: '2025-11', avgPrice: 538515, sales: 33 },
+                { month: '2025-12', avgPrice: 538000, sales: 6 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="month"
+                fontSize={10}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+              />
+              <YAxis
+                label={{ value: 'Avg Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Line
+                type="monotone"
+                dataKey="avgPrice"
+                stroke="#DC2626"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D7 shows steady price performance with August 2024 peak
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YearOverYearChartD2() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D2 Year-over-Year Price Performance</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { year: '2024', avgPrice: 519684, sales: 156 },
+                { year: '2025', avgPrice: 551164, sales: 135 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="year"
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Bar dataKey="avgPrice" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D2 shows 6.1% annual growth from €519,684 to €551,164
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertyTypeChartD2() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D2 Property Types Distribution</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { type: 'Apartments', count: 238, avgPrice: 482726, percentage: 81.8 },
+                { type: 'Terraced', count: 23, avgPrice: 970739, percentage: 7.9 },
+                { type: 'Townhouse', count: 7, avgPrice: 663429, percentage: 2.4 },
+                { type: 'End of Terrace', count: 11, avgPrice: 525545, percentage: 3.8 },
+                { type: 'Duplex', count: 6, avgPrice: 543500, percentage: 2.1 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+            >
+              <XAxis
+                dataKey="type"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [value, 'Count']}
+              />
+              <Bar dataKey="count" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Apartments dominate D2 luxury market with 81.8% share
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceDistributionChartD2() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D2 Price Distribution</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { range: 'Under €400k', count: 87, percentage: 29.9 },
+                { range: '€400k-€600k', count: 127, percentage: 43.6 },
+                { range: '€600k-€800k', count: 49, percentage: 16.8 },
+                { range: '€800k-€1M', count: 16, percentage: 5.5 },
+                { range: 'Over €1M', count: 12, percentage: 4.1 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="range"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value, 'Properties']}
+              />
+              <Bar dataKey="count" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D2 spans premium ranges with 43.6% in €400k-€600k bracket
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceTrendChartD2() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">D2 Monthly Price Trends (2024-2025)</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { month: '2024-01', avgPrice: 447375, sales: 8 },
+                { month: '2024-02', avgPrice: 503333, sales: 12 },
+                { month: '2024-03', avgPrice: 452556, sales: 9 },
+                { month: '2024-04', avgPrice: 472800, sales: 15 },
+                { month: '2024-05', avgPrice: 627536, sales: 14 },
+                { month: '2024-06', avgPrice: 500875, sales: 16 },
+                { month: '2024-07', avgPrice: 484929, sales: 14 },
+                { month: '2024-08', avgPrice: 604118, sales: 17 },
+                { month: '2024-09', avgPrice: 529508, sales: 13 },
+                { month: '2024-10', avgPrice: 433389, sales: 9 },
+                { month: '2024-11', avgPrice: 580316, sales: 16 },
+                { month: '2024-12', avgPrice: 489154, sales: 13 },
+                { month: '2025-01', avgPrice: 634513, sales: 16 },
+                { month: '2025-02', avgPrice: 645774, sales: 17 },
+                { month: '2025-03', avgPrice: 562273, sales: 11 },
+                { month: '2025-04', avgPrice: 517417, sales: 12 },
+                { month: '2025-05', avgPrice: 505654, sales: 13 },
+                { month: '2025-06', avgPrice: 456089, sales: 14 },
+                { month: '2025-07', avgPrice: 623095, sales: 11 },
+                { month: '2025-08', avgPrice: 486556, sales: 9 },
+                { month: '2025-09', avgPrice: 492577, sales: 13 },
+                { month: '2025-10', avgPrice: 453458, sales: 12 },
+                { month: '2025-11', avgPrice: 697200, sales: 5 },
+                { month: '2025-12', avgPrice: 680000, sales: 2 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="month"
+                fontSize={10}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+              />
+              <YAxis
+                label={{ value: 'Avg Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Line
+                type="monotone"
+                dataKey="avgPrice"
+                stroke="#DC2626"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D2 shows premium stability with Q1 2025 peaks
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}

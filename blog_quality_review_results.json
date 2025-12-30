@@ -1,8 +1,8 @@
 {
-  "reviewDate": "2025-12-30T11:08:14.100Z",
+  "reviewDate": "2025-12-30T13:07:52.615Z",
   "summary": {
-    "totalBlogs": 18,
-    "passed": 6,
+    "totalBlogs": 21,
+    "passed": 8,
     "averageScore": 77
   },
   "detailedResults": [
@@ -646,6 +646,113 @@
           "score": 12,
           "maxScore": 20,
           "percentage": 60
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog19_d6w_area_deep_dive.md",
+      "overallScore": 77,
+      "totalScore": 77,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 17,
+          "maxScore": 25,
+          "percentage": 68
+        },
+        "clarity": {
+          "score": 18,
+          "maxScore": 20,
+          "percentage": 90
+        },
+        "actionability": {
+          "score": 11,
+          "maxScore": 20,
+          "percentage": 56
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "../blogs/blog20_d7_area_deep_dive.md",
+      "overallScore": 81,
+      "totalScore": 81,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 17,
+          "maxScore": 25,
+          "percentage": 68
+        },
+        "clarity": {
+          "score": 19,
+          "maxScore": 20,
+          "percentage": 95
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog21_d2_area_deep_dive.md",
+      "overallScore": 82,
+      "totalScore": 82,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 17,
+          "maxScore": 25,
+          "percentage": 68
+        },
+        "clarity": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 68
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
         },
         "professionalism": {
           "score": 15,
