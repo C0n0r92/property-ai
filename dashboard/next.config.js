@@ -1,9 +1,4 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Disable Turbopack to avoid compatibility issues with Tailwind CSS v4
-  experimental: {
-    turbo: false,
-  },
+// Force webpack build to avoid Turbopack + Tailwind CSS v4 issues
+module.exports = {
+  // This config ensures we use webpack instead of turbopack
 };
-
-module.exports = nextConfig;
