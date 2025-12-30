@@ -494,8 +494,8 @@ export default function AreaPage() {
                   itemStyle={{
                     color: '#f9fafb',
                   }}
-                  formatter={(value: number, name: string, props: any) => [
-                    formatFullPrice(value),
+                  formatter={(value: number | undefined, name: string | undefined, props: any) => [
+                    formatFullPrice(value || 0),
                     `Typical Price (${props.payload.count} sales)`
                   ]}
                 />
@@ -543,7 +543,7 @@ export default function AreaPage() {
                     }}
                     labelStyle={{ color: '#f9fafb', fontWeight: '600' }}
                     itemStyle={{ color: '#f9fafb' }}
-                    formatter={(value: number) => [value.toLocaleString(), 'Sales']}
+                    formatter={(value: number | undefined) => [(value || 0).toLocaleString(), 'Sales']}
                   />
                   <Bar dataKey="count" fill="#2563EB" radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -577,7 +577,7 @@ export default function AreaPage() {
                     }}
                     labelStyle={{ color: '#f9fafb', fontWeight: '600' }}
                     itemStyle={{ color: '#f9fafb' }}
-                    formatter={(value: number) => [value.toLocaleString(), 'Sales']}
+                    formatter={(value: number | undefined) => [(value || 0).toLocaleString(), 'Sales']}
                   />
                   <Bar dataKey="count" fill="#059669" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -617,7 +617,7 @@ export default function AreaPage() {
                     }}
                     labelStyle={{ color: '#f9fafb', fontWeight: '600' }}
                     itemStyle={{ color: '#f9fafb' }}
-                    formatter={(value: number) => [value.toLocaleString(), 'Properties']}
+                    formatter={(value: number | undefined) => [(value || 0).toLocaleString(), 'Properties']}
                   />
                   <Bar dataKey="count" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -657,7 +657,7 @@ export default function AreaPage() {
                     }}
                     labelStyle={{ color: '#f9fafb', fontWeight: '600' }}
                     itemStyle={{ color: '#f9fafb' }}
-                    formatter={(value: number) => [formatFullPrice(value), 'Typical Price']}
+                    formatter={(value: number | undefined) => [formatFullPrice(value || 0), 'Typical Price']}
                   />
                   <Bar dataKey="medianPrice" fill="#F59E0B" radius={[4, 4, 0, 0]} />
                 </BarChart>

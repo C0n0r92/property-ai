@@ -117,10 +117,10 @@ export function ChristmasPriceChart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'Average Price') return [`€${value.toLocaleString()}`, name];
-                  if (name === 'Volume') return [value, name];
-                  if (name === 'Over-asking Rate') return [`${value}%`, name];
-                  return [value, name];
+                  if (name === 'Average Price') return [`€${(value || 0).toLocaleString()}`, name];
+                  if (name === 'Volume') return [value || 0, name];
+                  if (name === 'Over-asking Rate') return [`${value || 0}%`, name];
+                  return [value || 0, name];
                 }}
               />
               <Line
@@ -321,7 +321,7 @@ export function JanuaryVolumeChart() {
               />
               <Tooltip
                 formatter={(value, name) => [
-                  name === 'volume' ? value : `${value}%`,
+                  name === 'volume' ? value : `${value || 0}%`,
                   name === 'volume' ? 'Properties Sold' : 'Over-Asking Rate'
                 ]}
               />
@@ -367,11 +367,11 @@ export function RentalPricingChart() {
               <YAxis
                 label={{ value: 'Median Rent (€)', angle: -90, position: 'insideLeft' }}
                 fontSize={12}
-                tickFormatter={(value) => `€${value}`}
+                tickFormatter={(value) => `€${value || 0}`}
               />
               <Tooltip
                 formatter={(value, name) => [
-                  name === 'medianRent' ? `€${value.toLocaleString()}` : `${value}%`,
+                  name === 'medianRent' ? `€${value?.toLocaleString() || '0'}` : `${value || 0}%`,
                   name === 'medianRent' ? 'Median Rent' : 'Median Yield'
                 ]}
               />
@@ -424,7 +424,7 @@ export function TopRentalAreasChart() {
               />
               <Tooltip
                 formatter={(value, name) => [
-                  name === 'medianYield' ? `${value}%` : `€${value}`,
+                  name === 'medianYield' ? `${value || 0}%` : `€${value || 0}`,
                   name === 'medianYield' ? 'Median Yield' : 'Median Rent'
                 ]}
               />
@@ -475,9 +475,9 @@ export function Q2VsQ1Chart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'avgPrice') return [`€${value.toLocaleString()}`, 'Average Price'];
-                  if (name === 'avgOverAsk') return [`${value}%`, 'Over-Asking Rate'];
-                  return [value, name];
+                  if (name === 'avgPrice') return [`€${value?.toLocaleString() || '0'}`, 'Average Price'];
+                  if (name === 'avgOverAsk') return [`${value || 0}%`, 'Over-Asking Rate'];
+                  return [value || 0, name];
                 }}
               />
               <Bar yAxisId="price" dataKey="avgPrice" fill="#2563EB" name="avgPrice" radius={[4, 4, 0, 0]} />
@@ -527,9 +527,9 @@ export function MonthlyTrendChart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'avgPrice') return [`€${value.toLocaleString()}`, 'Average Price'];
-                  if (name === 'avgOverAsk') return [`${value}%`, 'Over-Asking Rate'];
-                  return [value, name];
+                  if (name === 'avgPrice') return [`€${value?.toLocaleString() || '0'}`, 'Average Price'];
+                  if (name === 'avgOverAsk') return [`${value || 0}%`, 'Over-Asking Rate'];
+                  return [value || 0, name];
                 }}
               />
               <Line yAxisId="price" type="monotone" dataKey="avgPrice" stroke="#2563EB" strokeWidth={2} name="avgPrice" />
@@ -583,8 +583,8 @@ export function RentalYieldChart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'avgYield') return [`${value}%`, 'Gross Yield'];
-                  if (name === 'avgRent') return [`€${value}`, 'Monthly Rent'];
+                  if (name === 'avgYield') return [`${value || 0}%`, 'Gross Yield'];
+                  if (name === 'avgRent') return [`€${value || 0}`, 'Monthly Rent'];
                   return [value, name];
                 }}
               />
@@ -625,7 +625,7 @@ export function YieldDistributionChart() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value) => [`${value}%`, 'Percentage']}
+                formatter={(value) => [`${value || 0}%`, 'Percentage']}
               />
               <Bar dataKey="percentage" fill="#2563EB" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -675,7 +675,7 @@ export function SizeEfficiencyChart() {
               <Tooltip
                 formatter={(value, name) => {
                   if (name === 'avgEfficiencyRatio') return [value, 'Bedrooms/㎡'];
-                  if (name === 'avgPricePerSqm') return [`€${value}`, 'Price/㎡'];
+                  if (name === 'avgPricePerSqm') return [`€${value || 0}`, 'Price/㎡'];
                   return [value, name];
                 }}
               />
@@ -725,7 +725,7 @@ export function PostcodeEfficiencyChart() {
               <Tooltip
                 formatter={(value, name) => {
                   if (name === 'avgEfficiency') return [value, 'Bedrooms/㎡'];
-                  if (name === 'avgPricePerSqm') return [`€${value}`, 'Price/㎡'];
+                  if (name === 'avgPricePerSqm') return [`€${value || 0}`, 'Price/㎡'];
                   return [value, name];
                 }}
               />
@@ -778,8 +778,8 @@ export function YearOverYearPricesChart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'avgPrice' || name === 'medianPrice') return [`€${value.toLocaleString()}`, name];
-                  if (name === 'avgPricePerSqm') return [`€${value.toLocaleString()}`, 'Price/㎡'];
+                  if (name === 'avgPrice' || name === 'medianPrice') return [`€${value?.toLocaleString() || '0'}`, name];
+                  if (name === 'avgPricePerSqm') return [`€${value?.toLocaleString() || '0'}`, 'Price/㎡'];
                   return [value, name];
                 }}
               />
@@ -835,10 +835,10 @@ export function PropertyTypeComparisonChart() {
               <YAxis
                 label={{ value: 'Year-over-Year % Change', angle: -90, position: 'insideLeft' }}
                 fontSize={12}
-                tickFormatter={(value) => `${value}%`}
+                tickFormatter={(value) => `${value || 0}%`}
               />
               <Tooltip
-                formatter={(value, name) => [`${value}%`, `${name} YoY Change`]}
+                formatter={(value, name) => [`${value || 0}%`, `${name} YoY Change`]}
               />
               <Line
                 type="monotone"
@@ -987,7 +987,7 @@ export function DistancePriceChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Price']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Price']}
               />
               <Bar dataKey="medianPrice" fill="#2563EB" name="Median Price" radius={[4, 4, 0, 0]} />
               <Bar dataKey="avgPrice" fill="#DC2626" name="Average Price" radius={[4, 4, 0, 0]} />
@@ -1247,7 +1247,7 @@ export function BiddingWarPremiumChart() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value) => [`${value}%`, 'Percentage of Bidding Wars']}
+                formatter={(value) => [`${value || 0}%`, 'Percentage of Bidding Wars']}
               />
               <Bar dataKey="percentage" fill="#F59E0B" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -1405,7 +1405,7 @@ export function BreakEvenChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Unrecovered Premium Amount']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Unrecovered Premium Amount']}
               />
               <Line
                 type="monotone"
@@ -1485,7 +1485,7 @@ export function OpportunityCostChart() {
               />
               <Tooltip
                 formatter={(value, name) => [
-                  name === 'extraMonthly' ? `€${value}/month` : `€${value.toLocaleString()}`,
+                  name === 'extraMonthly' ? `€${value}/month` : `€${value?.toLocaleString() || '0'}`,
                   name === 'extraMonthly' ? 'Extra Monthly Payment' : 'Total Extra Interest'
                 ]}
               />
@@ -1624,10 +1624,10 @@ export function PremiumDistributionChart() {
                   let label = name;
 
                   if (name === 'percentage') {
-                    formattedValue = `${value}%`;
+                    formattedValue = `${value || 0}%`;
                     label = 'Percentage of Bidding Wars';
                   } else if (name === 'avgPremium') {
-                    formattedValue = `${value}%`;
+                    formattedValue = `${value || 0}%`;
                     label = 'Average Premium';
                   } else {
                     label = 'Count';

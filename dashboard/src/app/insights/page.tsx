@@ -414,7 +414,7 @@ export default function InsightsPage() {
                   border: '1px solid var(--border)',
                   borderRadius: '8px',
                 }}
-                formatter={(value: number) => [formatFullPrice(value), 'Median Price']}
+                formatter={(value: number | undefined) => [formatFullPrice(value || 0), 'Median Price']}
                 labelFormatter={(label) => label}
               />
               <Area 
@@ -451,7 +451,7 @@ export default function InsightsPage() {
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                   }}
-                  formatter={(value: number) => [value.toLocaleString(), 'Properties']}
+                  formatter={(value: number | undefined) => [(value || 0).toLocaleString(), 'Properties']}
                 />
                 <Bar dataKey="count" fill="#2563EB" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -477,7 +477,7 @@ export default function InsightsPage() {
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                   }}
-                  formatter={(value: number) => [value.toLocaleString(), 'Sales']}
+                  formatter={(value: number | undefined) => [(value || 0).toLocaleString(), 'Sales']}
                 />
                 <Bar dataKey="count" fill="#059669" radius={[4, 4, 0, 0]} />
               </BarChart>
