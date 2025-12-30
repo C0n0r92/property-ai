@@ -193,10 +193,10 @@ export function Navigation() {
               </Link>
               {user && (
                 <Link
-                  href="/saved"
+                  href="/alerts"
                   className="px-4 py-2 rounded-lg text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors font-medium"
                 >
-                  Saved
+                  Alerts
                 </Link>
               )}
               {!user && (

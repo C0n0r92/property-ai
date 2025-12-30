@@ -36,7 +36,7 @@ const researchArticles = [
   {
     id: 'dublin-property-market-q4-2024',
     title: 'Dublin Property Market Q4 2024 Data: Complete Analysis & Price Trends',
-    excerpt: 'Dublin property market analysis Q4 2024 reveals price trends, market performance, and future outlook based on 43,000+ property transactions. Get the latest Dublin real estate insights.',
+    excerpt: 'Dublin property market analysis Q4 2024 reveals price trends, market performance, and future outlook based on 47,000+ property transactions. Get the latest Dublin real estate insights.',
     category: 'Market Analysis',
     date: '2024-03-15',
     readTime: '8 min read',

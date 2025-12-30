@@ -14,6 +14,7 @@ import { PropertyReportButton } from '@/components/PropertyReportButton';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { usePropertyShare } from '@/hooks/usePropertyShare';
+import { useSearchTracking } from '@/hooks/useSearchTracking';
 import { PropertyTypeFilter } from '@/components/filters/PropertyTypeFilter';
 import { WalkabilityScore } from '@/components/walkability/WalkabilityScore';
 import { WalkabilityBreakdown } from '@/components/walkability/WalkabilityBreakdown';
@@ -113,6 +114,7 @@ export default function MapComponent() {
   const { user } = useAuth();
   const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
   const { isInComparison } = useComparison();
+  const { trackMapSearch } = useSearchTracking();
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -291,6 +293,12 @@ export default function MapComponent() {
             });
             setSearchResults([]);
             setShowSearchResults(false);
+
+            // Track search for alert modal (only if coming from homepage search)
+            trackMapSearch({
+              name: bestMatch.place_name.split(',')[0],
+              coordinates: { lat: coords[1], lng: coords[0] },
+            });
           }
         } catch (error) {
           console.error('Auto-search error:', error);
@@ -3310,20 +3318,20 @@ export default function MapComponent() {
           </span>
           
           {/* Location Search */}
-          <div className="relative w-full sm:w-auto">
+          <div className="relative w-full sm:w-80 md:w-96">
             <div className="flex items-center">
-              <span className="absolute left-3 text-gray-500">🔍</span>
+              <span className="absolute left-4 text-gray-400 text-lg">🔍</span>
               <input
                 type="text"
-                placeholder="Search location..."
+                placeholder="Search any location in Dublin..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onFocus={() => setShowSearchResults(true)}
-                className="w-full sm:w-40 md:w-56 pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 text-sm"
+                className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-base font-medium shadow-lg"
               />
               {isSearching && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <div className="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
                 </div>
               )}
             </div>
@@ -3338,7 +3346,14 @@ export default function MapComponent() {
                       {DUBLIN_AREAS.slice(0, 8).map((area) => (
                         <button
                           key={area.name}
-                          onClick={() => flyToLocation(area.coords as [number, number], area.zoom)}
+                          onClick={() => {
+                            flyToLocation(area.coords as [number, number], area.zoom);
+                            // Track quick area jump for alert modal
+                            trackMapSearch({
+                              name: area.name,
+                              coordinates: { lat: area.coords[1], lng: area.coords[0] },
+                            });
+                          }}
                           className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
                         >
                           {area.name}
@@ -3355,6 +3370,12 @@ export default function MapComponent() {
                       setSearchedLocation({ name: result.place_name, coords: result.center });
                       setShowSearchResults(false);
                       setSearchQuery(result.place_name);
+
+                      // Track search for alert modal
+                      trackMapSearch({
+                        name: result.place_name.split(',')[0],
+                        coordinates: { lat: result.center[1], lng: result.center[0] },
+                      });
                     }}
                     className="w-full px-4 py-3 text-left hover:bg-gray-700 text-white text-sm border-b border-gray-700 last:border-b-0 transition-colors"
                   >

@@ -35,8 +35,20 @@ export const trackEvent = ({ action, category, label, value }: GTagEvent) => {
   }
 };
 
+// Generic track method
+export const track = (eventName: string, properties?: Record<string, any>) => {
+  trackEvent({
+    action: eventName,
+    category: 'custom',
+    label: properties ? JSON.stringify(properties) : undefined
+  });
+};
+
 // Predefined events for consistency
 export const analytics = {
+  // Generic track method
+  track,
+
   // Map events
   mapViewModeChanged: (mode: 'clusters' | 'price' | 'difference') => {
     trackEvent({ action: 'view_mode_changed', category: 'map', label: mode });
@@ -197,6 +209,104 @@ export const analytics = {
 
   areasQuickNavUsed: (areaName: string) => {
     trackEvent({ action: 'areas_quick_nav_used', category: 'engagement', label: areaName });
+  },
+
+  // Location Alert Events
+  alertModalShown: (location: string, source: 'homepage' | 'map' | 'areas') => {
+    trackEvent({ action: 'alert_modal_shown', category: 'conversion', label: `${source}:${location}` });
+  },
+
+  alertModalDismissed: (location: string, step: string, source: 'homepage' | 'map' | 'areas' | 'unknown' = 'unknown') => {
+    trackEvent({ action: 'alert_modal_dismissed', category: 'conversion', label: `${source}:${location}:${step}` });
+  },
+
+  alertStepTransition: (fromStep: string, toStep: string, location: string) => {
+    trackEvent({ action: 'alert_step_transition', category: 'conversion', label: `${fromStep}:${toStep}:${location}` });
+  },
+
+  alertPropertyTypeSelected: (propertyType: 'for_sale' | 'for_rent' | 'sold', location: string) => {
+    trackEvent({ action: 'alert_property_type_selected', category: 'conversion', label: `${propertyType}:${location}` });
+  },
+
+  alertConfigurationUpdated: (config: {
+    radius_km: number;
+    propertyType: 'for_sale' | 'for_rent' | 'sold';
+    min_bedrooms?: number;
+    max_bedrooms?: number;
+    min_price?: number;
+    max_price?: number;
+    price_threshold_percent?: number;
+  }) => {
+    trackEvent({
+      action: 'alert_configuration_updated',
+      category: 'conversion',
+      label: `${config.propertyType}:${config.radius_km}km`
+    });
+  },
+
+  alertPaymentStarted: (amount: number, location: string, propertyType: 'for_sale' | 'for_rent' | 'sold') => {
+    trackEvent({
+      action: 'alert_payment_started',
+      category: 'conversion',
+      label: `${propertyType}:${location}`,
+      value: amount
+    });
+  },
+
+  alertPaymentCompleted: (alertId: string, amount: number, location: string, propertyType: 'for_sale' | 'for_rent' | 'sold') => {
+    trackEvent({
+      action: 'alert_payment_completed',
+      category: 'revenue',
+      label: `${propertyType}:${location}`,
+      value: amount
+    });
+  },
+
+  alertCreated: (alertId: string, location: string, propertyType: 'for_sale' | 'for_rent' | 'sold', radius_km: number) => {
+    trackEvent({
+      action: 'alert_created',
+      category: 'engagement',
+      label: `${propertyType}:${location}:${radius_km}km`
+    });
+  },
+
+  alertEmailSent: (alertId: string, location: string, propertyCount: number, propertyType: 'for_sale' | 'for_rent' | 'sold') => {
+    trackEvent({
+      action: 'alert_email_sent',
+      category: 'engagement',
+      label: `${propertyType}:${location}`,
+      value: propertyCount
+    });
+  },
+
+  alertViewedFromEmail: (alertId: string, location: string, propertyType: 'for_sale' | 'for_rent' | 'sold') => {
+    trackEvent({
+      action: 'alert_viewed_from_email',
+      category: 'engagement',
+      label: `${propertyType}:${location}`
+    });
+  },
+
+  alertPageViewed: (tab: 'alerts' | 'properties') => {
+    trackEvent({ action: 'alert_page_viewed', category: 'engagement', label: tab });
+  },
+
+  alertRenewalOffered: (alertId: string, location: string, daysExpired: number) => {
+    trackEvent({
+      action: 'alert_renewal_offered',
+      category: 'engagement',
+      label: location,
+      value: daysExpired
+    });
+  },
+
+  alertRenewed: (alertId: string, location: string, amount: number) => {
+    trackEvent({
+      action: 'alert_renewed',
+      category: 'revenue',
+      label: location,
+      value: amount
+    });
   },
 };
 

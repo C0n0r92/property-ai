@@ -358,7 +358,7 @@ export function ComparisonInsights({ insights, properties }: ComparisonInsightsP
           {/* Footer note */}
           <div className="text-center pt-4 border-t border-slate-200">
             <p className="text-xs text-slate-500">
-              Insights generated based on your 43,000+ property transactions database and live amenities data
+              Insights generated based on your 47,000+ property transactions database and live amenities data
             </p>
           </div>
         </div>

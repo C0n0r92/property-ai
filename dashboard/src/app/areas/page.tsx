@@ -6,6 +6,7 @@ import { areaToSlug } from '@/lib/areas';
 import { formatFullPrice } from '@/lib/format';
 import { HeroSection } from '@/components/HeroSection';
 import { analytics } from '@/lib/analytics';
+import { useSearchTracking } from '@/hooks/useSearchTracking';
 
 interface AreaStats {
   name: string;
@@ -17,12 +18,13 @@ interface AreaStats {
 }
 
 export default function AreasIndexPage() {
+  const { trackAreasSearch } = useSearchTracking();
   const [areaStats, setAreaStats] = useState<AreaStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'count' | 'medianPrice' | 'change6m'>('count');
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const ITEMS_PER_PAGE = 20;
   
   useEffect(() => {
@@ -219,7 +221,14 @@ export default function AreasIndexPage() {
             key={area.name}
             href={`/areas/${areaToSlug(area.name)}`}
             className="card hover:shadow-lg transition-shadow"
-            onClick={() => analytics.areasAreaViewed(area.name)}
+            onClick={() => {
+              analytics.areasAreaViewed(area.name);
+              // Track for alert modal (use Dublin center as fallback coordinates)
+              trackAreasSearch({
+                name: area.name,
+                coordinates: { lat: 53.3498, lng: -6.2603 }, // Dublin center
+              });
+            }}
           >
             <div className="flex justify-between items-start mb-3">
               <h3 className="font-semibold text-lg text-[var(--foreground)]">{area.name}</h3>

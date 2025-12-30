@@ -71,7 +71,7 @@ export function BottomNav() {
       ),
     },
     {
-      href: '/saved',
+      href: '/alerts',
       label: 'Profile',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export function BottomNav() {
     if (href === '/areas' && pathname.startsWith('/areas')) return true;
     if (href === '/tools/compare' && pathname.startsWith('/tools')) return true;
     if (href === '/blog' && pathname.startsWith('/blog')) return true;
-    if (href === '/saved' && pathname.startsWith('/saved')) return true;
+    if (href === '/alerts' && pathname.startsWith('/alerts')) return true;
     if (href === '/login' && pathname.startsWith('/login')) return true;
     return false;
   };

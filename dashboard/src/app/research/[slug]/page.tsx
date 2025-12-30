@@ -20,7 +20,7 @@ const articles = {
 
 ## Executive Summary
 
-This comprehensive analysis examines Dublin's property market performance during Q4 2024, revealing key trends, price movements, and market dynamics based on over 43,000 property transactions recorded in our database.
+This comprehensive analysis examines Dublin's property market performance during Q4 2024, revealing key trends, price movements, and market dynamics based on over 47,000 property transactions recorded in our database.
 
 ## Key Findings
 

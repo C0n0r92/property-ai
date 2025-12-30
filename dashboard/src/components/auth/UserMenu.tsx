@@ -74,14 +74,14 @@ export function UserMenu() {
           </div>
 
           <Link
-            href={user.tier === 'free' ? '/insights' : '/saved'}
+            href={user.tier === 'free' ? '/insights' : '/alerts'}
             className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-[var(--muted)] transition-colors"
             onClick={() => setIsOpen(false)}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
-            {user.tier === 'free' ? 'Premium Features' : 'Manage Saved'}
+            {user.tier === 'free' ? 'Premium Features' : 'My Alerts'}
           </Link>
 
           {user.tier === 'free' && (

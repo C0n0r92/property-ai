@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { areaToSlug } from '@/lib/areas';
 import { formatFullPrice } from '@/lib/format';
+import { useSearchTracking } from '@/hooks/useSearchTracking';
 
 interface FeaturedArea {
   name: string;
@@ -24,6 +25,7 @@ interface MarketStats {
 
 export default function Home() {
   const router = useRouter();
+  const { trackHomepageSearch } = useSearchTracking();
   const [featuredAreas, setFeaturedAreas] = useState<FeaturedArea[]>([]);
   const [marketStats, setMarketStats] = useState<MarketStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,6 +34,7 @@ export default function Home() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+
 
   // Popular Dublin areas for suggestions
   const popularAreas = [
@@ -125,16 +128,39 @@ export default function Home() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
+    // Track search for alert modal - always track, regardless of results
+    if (searchResults.length > 0) {
+      const firstResult = searchResults[0];
+      trackHomepageSearch({
+        name: firstResult.place_name.split(',')[0],
+        coordinates: { lat: firstResult.center[1], lng: firstResult.center[0] },
+      });
+    } else {
+      // Use search query as location name with Dublin center coordinates
+      trackHomepageSearch({
+        name: searchQuery,
+        coordinates: { lat: 53.3498, lng: -6.2603 }, // Dublin center
+      });
+    }
+
     // Redirect to map with search query - map will auto-search
     router.push(`/map?search=${encodeURIComponent(searchQuery)}`);
   };
 
   const handleAreaSelect = (result: { place_name: string; center: [number, number] }) => {
-    setSearchQuery(result.place_name.split(',')[0]);
+    const locationName = result.place_name.split(',')[0];
+    setSearchQuery(locationName);
     setSearchResults([]);
     setShowSearchResults(false);
+
+    // Track search for alert modal
+    trackHomepageSearch({
+      name: locationName,
+      coordinates: { lat: result.center[1], lng: result.center[0] },
+    });
+
     // Redirect to map with search - map will auto-focus on this location
-    router.push(`/map?search=${encodeURIComponent(result.place_name.split(',')[0])}`);
+    router.push(`/map?search=${encodeURIComponent(locationName)}`);
   };
 
   return (
@@ -172,7 +198,7 @@ export default function Home() {
             </h1>
 
             <p className="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed max-w-3xl mx-auto">
-              Access real-time market intelligence on 43,000+ property transactions across Ireland.
+              Access real-time market intelligence on 47,000+ property transactions across Ireland.
               Make smarter property decisions with accurate data, trends, and insights.
             </p>
 
@@ -232,6 +258,13 @@ export default function Home() {
                           key={index}
                           onClick={() => {
                             setSearchQuery(area.name);
+
+                            // Track search for alert modal (use Dublin center as fallback coordinates)
+                            trackHomepageSearch({
+                              name: area.name,
+                              coordinates: { lat: 53.3498, lng: -6.2603 }, // Dublin center
+                            });
+
                             router.push(`/map?search=${encodeURIComponent(area.name)}`);
                           }}
                           className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
@@ -394,7 +427,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-4">Real Transaction Data</h3>
               <p className="text-slate-700 mb-6 leading-relaxed">
-                Access 43,000+ verified property sales with actual sold prices, asking prices, and sale dates. No estimates, just facts.
+                Access 47,000+ verified property sales with actual sold prices, asking prices, and sale dates. No estimates, just facts.
               </p>
               <Link href="/map" className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors group-hover:translate-x-1 transform transition-transform">
                 Explore Sales Data
