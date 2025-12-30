@@ -6,8 +6,8 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "dev": "next dev",
-    "dev:setup": "nvm use 20 || echo 'Please install nvm and run: nvm use 20' && next dev",
+    "dev": "next dev --turbo=false",
+    "dev:setup": "nvm use 20 || echo 'Please install nvm and run: nvm use 20' && next dev --turbo=false",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
