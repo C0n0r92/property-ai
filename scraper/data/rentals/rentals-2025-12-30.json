@@ -1,0 +1,23 @@
+[
+  {
+    "id": "fitzwilliam-street--ringsend--dublin-4-450-2025-12-30t17-07-40-823z",
+    "address": "Fitzwilliam Street, Ringsend, Dublin 4",
+    "monthlyRent": 450,
+    "beds": null,
+    "baths": null,
+    "areaSqm": null,
+    "propertyType": "Studio",
+    "berRating": null,
+    "furnishing": null,
+    "sourceUrl": "",
+    "sourcePage": 1,
+    "latitude": 53.3423585,
+    "longitude": -6.2273018,
+    "eircode": null,
+    "nominatimAddress": "Fitzwilliam Street, Ringsend, Pembroke East A Ward 1986, Dublin, Dublin 4, Leinster, D04 DR50, Éire / Ireland",
+    "rentPerSqm": null,
+    "rentPerBed": null,
+    "dublinPostcode": "D4",
+    "scrapedAt": "2025-12-30T17:07:40.823Z"
+  }
+]
