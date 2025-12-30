@@ -1888,7 +1888,7 @@ export function YearOverYearChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${(value as number).toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Average Price']}
               />
               <Bar dataKey="avgPrice" fill="#059669" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -2037,7 +2037,7 @@ export function PriceTrendChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${(value as number).toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Average Price']}
               />
               <Line
                 type="monotone"
@@ -2081,7 +2081,7 @@ export function YearOverYearChartD7() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${(value as number).toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Average Price']}
               />
               <Bar dataKey="avgPrice" fill="#059669" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -2230,7 +2230,7 @@ export function PriceTrendChartD7() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${(value as number).toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Average Price']}
               />
               <Line
                 type="monotone"
@@ -2274,7 +2274,7 @@ export function YearOverYearChartD2() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${(value as number).toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Average Price']}
               />
               <Bar dataKey="avgPrice" fill="#059669" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -2423,7 +2423,7 @@ export function PriceTrendChartD2() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${(value as number).toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${value?.toLocaleString() || '0'}`, 'Average Price']}
               />
               <Line
                 type="monotone"
