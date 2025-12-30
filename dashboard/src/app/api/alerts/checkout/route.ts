@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe();
 
     // One-time payment for 12 months of alerts
-    const ALERT_PRICE = 300; // €3.00 in cents
+    const ALERT_PRICE = 10; // €0.10 in cents
     const ALERT_DURATION_MONTHS = 12;
 
     // Create Stripe Checkout session (one-time payment, not subscription)

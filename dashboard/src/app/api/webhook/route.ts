@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createClient } from '@/lib/supabase/server';
 import { upgradeToPremium, downgradeToFree, syncStripeSubscription, getUserByEmail, getUserByStripeCustomerId } from '@/lib/user-tier';
 
 // Lazy initialization to avoid build-time errors
@@ -52,12 +53,13 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        
+
         console.log('Payment successful:', {
           sessionId: session.id,
           customerEmail: session.customer_email,
           amount: session.amount_total,
           plan: session.metadata?.plan,
+          alert_config: !!session.metadata?.alert_config,
           customerId: session.customer,
           subscriptionId: session.subscription,
         });
@@ -74,16 +76,94 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true });
         }
 
-        // Upgrade user to premium
-        const success = await upgradeToPremium(userId, {
-          customerId: session.customer as string,
-          subscriptionId: session.subscription as string,
-          plan: session.metadata?.plan || 'unknown',
-          amount: session.amount_total || 0,
-        });
+        // Check if this is an alert payment or subscription payment
+        if (session.metadata?.alert_config) {
+          // This is an alert payment - create location alert
+          console.log('Processing alert payment for user:', userId);
 
-        if (!success) {
-          console.error('Failed to upgrade user to premium');
+          const alertConfigStr = session.metadata.alert_config;
+          const alertDurationMonths = parseInt(session.metadata.alert_duration_months || '12');
+
+          try {
+            const alertConfig = JSON.parse(alertConfigStr);
+
+            // Calculate expiry date
+            const expiresAt = new Date();
+            expiresAt.setMonth(expiresAt.getMonth() + alertDurationMonths);
+
+            // Create the alert in database
+            const supabase = await createClient();
+            const { data: alert, error } = await supabase
+              .from('location_alerts')
+              .insert({
+                user_id: userId,
+                location_name: alertConfig.location_name,
+                location_coordinates: `POINT(${alertConfig.location_coordinates.lng} ${alertConfig.location_coordinates.lat})`,
+                search_radius_km: alertConfig.radius_km,
+                monitor_sold: alertConfig.monitor_sold || false,
+                monitor_sale: alertConfig.monitor_sale || false,
+                monitor_rental: alertConfig.monitor_rental || false,
+                sale_min_bedrooms: alertConfig.sale_min_bedrooms,
+                sale_max_bedrooms: alertConfig.sale_max_bedrooms,
+                sale_min_price: alertConfig.sale_min_price,
+                sale_max_price: alertConfig.sale_max_price,
+                sale_alert_on_new: alertConfig.sale_alert_on_new !== false,
+                sale_alert_on_price_drops: alertConfig.sale_alert_on_price_drops !== false,
+                rental_min_bedrooms: alertConfig.rental_min_bedrooms,
+                rental_max_bedrooms: alertConfig.rental_max_bedrooms,
+                rental_min_price: alertConfig.rental_min_price,
+                rental_max_price: alertConfig.rental_max_price,
+                rental_alert_on_new: alertConfig.rental_alert_on_new !== false,
+                sold_min_bedrooms: alertConfig.sold_min_bedrooms,
+                sold_max_bedrooms: alertConfig.sold_max_bedrooms,
+                sold_price_threshold_percent: alertConfig.sold_price_threshold_percent || 5,
+                sold_alert_on_under_asking: alertConfig.sold_alert_on_under_asking !== false,
+                sold_alert_on_over_asking: alertConfig.sold_alert_on_over_asking !== false,
+                stripe_payment_id: session.id,
+                status: 'active',
+                expires_at: expiresAt.toISOString(),
+                last_checked: new Date().toISOString(),
+              })
+              .select()
+              .single();
+
+            if (error) {
+              console.error('Failed to create alert:', error);
+              return NextResponse.json({ error: 'Failed to create alert' }, { status: 500 });
+            }
+
+            // Log the event
+            await supabase.from('alert_events').insert({
+              alert_id: alert.id,
+              event_type: 'email_sent',
+              event_data: {
+                type: 'welcome_email',
+                alert_config: alertConfig,
+              },
+              sent_at: new Date().toISOString(),
+            });
+
+            console.log(`Alert created for user ${userId}: ${alertConfig.location_name}`);
+
+          } catch (alertError) {
+            console.error('Error processing alert payment:', alertError);
+            return NextResponse.json({ error: 'Failed to process alert payment' }, { status: 500 });
+          }
+        } else {
+          // This is a subscription/premium payment
+          console.log('Processing subscription payment for user:', userId);
+
+          // Upgrade user to premium
+          const success = await upgradeToPremium(userId, {
+            customerId: session.customer as string,
+            subscriptionId: session.subscription as string,
+            plan: session.metadata?.plan || 'unknown',
+            amount: session.amount_total || 0,
+          });
+
+          if (!success) {
+            console.error('Failed to upgrade user to premium');
+          }
         }
 
         break;

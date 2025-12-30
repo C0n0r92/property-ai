@@ -42,9 +42,10 @@ export default function AlertsPage() {
     const paymentStatus = urlParams.get('payment');
 
     if (paymentStatus === 'success') {
-      // Clear URL and simulate webhook for local development
+      // Clear URL and check payment success
       window.history.replaceState({}, '', '/alerts');
-      simulateWebhookAfterPayment();
+      setSuccessMessage('🎉 Payment successful! Processing your alert...');
+      checkPaymentSuccess();
     } else if (paymentStatus === 'cancelled') {
       // Clear URL and show cancelled message
       window.history.replaceState({}, '', '/alerts');
@@ -85,29 +86,30 @@ export default function AlertsPage() {
     }
   };
 
-  const simulateWebhookAfterPayment = async () => {
+  const checkPaymentSuccess = async () => {
     try {
-      // Simulate webhook for local development (creates alert after payment)
-      const response = await fetch('/api/alerts/simulate-webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: 'simulated-session' }),
-      });
+      // Wait a moment for webhook to process, then check if alerts were created
+      setTimeout(async () => {
+        await fetchAlerts();
 
-      if (response.ok) {
-        // Track successful payment and alert creation
-        analytics.alertPaymentCompleted('simulated-alert-id', 300, 'simulated-location', 'for_sale');
-        analytics.alertCreated('simulated-alert-id', 'simulated-location', 'for_sale', 5);
+        // Check if we have any recent alerts (created in last 5 minutes)
+        const recentAlerts = alerts.filter(alert => {
+          const createdAt = new Date(alert.created_at);
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          return createdAt > fiveMinutesAgo;
+        });
 
-        setSuccessMessage('🎉 Payment successful! Your alert has been created and will start monitoring properties.');
-        // Auto-refresh alerts after a short delay
-        setTimeout(() => fetchAlerts(), 1000);
-      } else {
-        setError('Payment successful but alert creation failed. Please contact support.');
-      }
+        if (recentAlerts.length > 0) {
+          setSuccessMessage('🎉 Payment successful! Your alert has been created and will start monitoring properties.');
+          analytics.alertPaymentCompleted(recentAlerts[0].id, 10, recentAlerts[0].location_name, 'for_sale');
+          analytics.alertCreated(recentAlerts[0].id, recentAlerts[0].location_name, 'for_sale', recentAlerts[0].search_radius_km);
+        } else {
+          setError('Payment successful but alert creation may be delayed. Please refresh the page in a moment, or contact support if the issue persists.');
+        }
+      }, 3000); // Wait 3 seconds for webhook processing
     } catch (err) {
-      console.error('Webhook simulation error:', err);
-      setError('Payment successful but alert creation failed. Please try refreshing the page.');
+      console.error('Payment verification error:', err);
+      setError('Payment successful but alert creation failed. Please contact support.');
     }
   };
 
