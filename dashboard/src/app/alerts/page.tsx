@@ -101,7 +101,7 @@ export default function AlertsPage() {
 
         if (recentAlerts.length > 0) {
           setSuccessMessage('🎉 Payment successful! Your alert has been created and will start monitoring properties.');
-          analytics.alertPaymentCompleted(recentAlerts[0].id, 10, recentAlerts[0].location_name, 'for_sale');
+          analytics.alertPaymentCompleted(recentAlerts[0].id, 99, recentAlerts[0].location_name, 'for_sale');
           analytics.alertCreated(recentAlerts[0].id, recentAlerts[0].location_name, 'for_sale', recentAlerts[0].search_radius_km);
         } else {
           setError('Payment successful but alert creation may be delayed. Please refresh the page in a moment, or contact support if the issue persists.');

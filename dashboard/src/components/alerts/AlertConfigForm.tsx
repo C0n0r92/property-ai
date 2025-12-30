@@ -114,7 +114,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
         price_threshold_percent: config.sold_price_threshold_percent,
       });
 
-      analytics.alertPaymentStarted(10, config.location_name, propertyType);
+      analytics.alertPaymentStarted(99, config.location_name, propertyType);
 
       // Create Stripe checkout session
       const response = await fetch('/api/alerts/checkout', {
@@ -549,7 +549,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
                 <div className="text-sm text-slate-600">12 months of notifications</div>
               </div>
               <div className="text-right">
-                <div className="text-xl font-bold text-blue-600">€0.10</div>
+                <div className="text-xl font-bold text-blue-600">€0.99</div>
                 <div className="text-xs text-slate-500">one-time</div>
               </div>
             </div>
@@ -583,7 +583,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
               ) : (
                 <>
                   <CreditCard className="w-4 h-4" />
-                  Pay €0.10 & Set Up Alerts
+                  Pay €0.99 & Set Up Alerts
                 </>
               )}
             </button>
