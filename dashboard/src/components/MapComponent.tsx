@@ -142,7 +142,7 @@ export default function MapComponent() {
   const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
   
   // Data source toggle: allows any combination of sold, forSale, rentals
-  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: false, rentals: false, savedOnly: false });
+  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: true, savedOnly: false });
   
   // Hierarchical time filter state (only for sold properties)
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -312,11 +312,8 @@ export default function MapComponent() {
   useEffect(() => {
     if (isMobile && showFilters) {
       setShowFilters(false); // Close filters on mobile
-    } else if (!isMobile && !showFilters) {
-      // Only auto-open on desktop if no filters are currently active
-      // and user hasn't manually closed them (we'll track this)
-      setShowFilters(true);
     }
+    // Keep filters closed by default on desktop too
   }, [isMobile]);
 
   // Show filters tooltip briefly when landing on the map page
@@ -3285,14 +3282,6 @@ export default function MapComponent() {
             )}
           </div>
 
-          {/* Progressive Loading Info */}
-          <div className="text-xs text-gray-400 hidden md:block ml-2">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              Progressive loading active
-            </span>
-          </div>
-          
           {/* Count display - shows totals for all selected sources */}
           <span className="hidden sm:inline text-gray-400 text-sm font-medium">
             {loading ? 'Loading...' : (
@@ -3317,24 +3306,44 @@ export default function MapComponent() {
             )}
           </span>
           
-          {/* Location Search */}
-          <div className="relative w-full sm:w-80 md:w-96">
-            <div className="flex items-center">
-              <span className="absolute left-4 text-gray-400 text-lg">🔍</span>
-              <input
-                type="text"
-                placeholder="Search any location in Dublin..."
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                onFocus={() => setShowSearchResults(true)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-base font-medium shadow-lg"
-              />
-              {isSearching && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <div className="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              )}
+          {/* Location Search & Filters */}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-80 md:w-96">
+              <div className="flex items-center">
+                <span className="absolute left-4 text-gray-400 text-lg z-10">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search any location in Dublin..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={() => setShowSearchResults(true)}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-base font-medium shadow-lg"
+                />
+                {isSearching && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <div className="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* Filter Toggle Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-3 md:px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-1.5 md:gap-2 flex-shrink-0 ${
+                showFilters || activeFilterCount > 0
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
+              }`}
+            >
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
             
             {/* Search Results Dropdown */}
             {showSearchResults && (searchResults.length > 0 || searchQuery === '') && (
@@ -3395,7 +3404,7 @@ export default function MapComponent() {
 
         <div className="flex items-center gap-1.5 md:gap-3">
           {/* View Mode Toggle */}
-          <div className="flex rounded-lg overflow-hidden border border-gray-700">
+          <div className="flex rounded-lg overflow-hidden border border-gray-700 ml-2 md:ml-4">
             <button
               onClick={() => handleViewModeChange('clusters')}
               className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
@@ -3428,23 +3437,6 @@ export default function MapComponent() {
           </div>
           
           
-          {/* Filter Toggle Button */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 md:px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-1.5 md:gap-2 ${
-              showFilters || activeFilterCount > 0
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
-            }`}
-          >
-            <span>Filters</span>
-            {activeFilterCount > 0 && (
-              <span className="px-1.5 py-0.5 text-xs bg-white/20 rounded-full">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-
           {/* Inline Compare Button (Mobile Only) */}
           <ComparisonBar
             selectedProperty={selectedProperty || selectedListing || selectedRental}
@@ -3456,26 +3448,17 @@ export default function MapComponent() {
             }}
           />
         </div>
-      </div>
 
       {/* Filters Tooltip */}
       {showFiltersTooltip && (
-        <div className={`fixed z-50 animate-in fade-in slide-in-from-top duration-300 ${
-          isMobile
-            ? 'top-16 left-4 right-4' // Mobile: full width with margins
-            : 'top-20 left-1/2 transform -translate-x-1/2' // Desktop: centered
-        }`}>
-          <div className="bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg border border-blue-500 relative">
+        <div className="fixed z-50 animate-in fade-in slide-in-from-top duration-300 top-[104px] left-1/2 transform -translate-x-1/2 md:left-auto md:right-6 md:transform-none">
+          <div className="bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg border border-blue-500 relative max-w-xs">
             <div className="flex items-center gap-2 justify-center">
-              <svg className="w-5 h-5 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              <span className="font-medium text-center">Use filters below for advanced search capabilities!</span>
+              <span className="text-blue-200">🔍</span>
+              <span className="font-medium text-sm text-center">Click filters for advanced search!</span>
             </div>
-            {/* Arrow pointing down to filters - only on desktop */}
-            {!isMobile && (
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-l-8 border-r-8 border-t-8 border-transparent border-t-blue-600"></div>
-            )}
+            {/* Arrow pointing up to filters button */}
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 md:left-auto md:right-6 border-l-4 border-r-4 border-b-4 border-transparent border-b-blue-600"></div>
           </div>
         </div>
       )}
