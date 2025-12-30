@@ -1,9 +1,9 @@
 {
-  "reviewDate": "2025-12-28T20:40:48.900Z",
+  "reviewDate": "2025-12-30T11:08:14.100Z",
   "summary": {
     "totalBlogs": 18,
-    "passed": 5,
-    "averageScore": 76
+    "passed": 6,
+    "averageScore": 77
   },
   "detailedResults": [
     {
@@ -622,15 +622,15 @@
       "recommendations": []
     },
     {
-      "filename": "../blogs/blog1_asking_price_strategy.md",
-      "overallScore": 76,
-      "totalScore": 76,
+      "filename": "../blogs/blog18_property_valuation_increases.md",
+      "overallScore": 80,
+      "totalScore": 80,
       "maxScore": 100,
       "criteria": {
         "dataUsage": {
-          "score": 16,
+          "score": 18,
           "maxScore": 25,
-          "percentage": 64
+          "percentage": 72
         },
         "clarity": {
           "score": 15,
@@ -638,14 +638,14 @@
           "percentage": 75
         },
         "actionability": {
-          "score": 14,
+          "score": 20,
           "maxScore": 20,
-          "percentage": 70
+          "percentage": 100
         },
         "uniqueness": {
-          "score": 16,
+          "score": 12,
           "maxScore": 20,
-          "percentage": 80
+          "percentage": 60
         },
         "professionalism": {
           "score": 15,
@@ -653,7 +653,7 @@
           "percentage": 100
         }
       },
-      "passThreshold": false,
+      "passThreshold": true,
       "recommendations": []
     }
   ]

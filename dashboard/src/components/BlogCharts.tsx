@@ -1736,3 +1736,130 @@ export function AskingPriceBracketChart() {
     </ChartWrapper>
   );
 }
+
+export function PriceIncreaseChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">Top Areas by Property Value Increase (2024 → 2025)</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D6W', increase: 17.4, avgPrice2025: 836584 },
+                { area: 'D15', increase: 12.9, avgPrice2025: 493819 },
+                { area: 'D1', increase: 12.6, avgPrice2025: 421865 },
+                { area: 'D20', increase: 12.6, avgPrice2025: 488592 },
+                { area: 'D3', increase: 11.4, avgPrice2025: 654127 },
+                { area: 'D16', increase: 10.7, avgPrice2025: 681118 },
+                { area: 'D17', increase: 9.9, avgPrice2025: 369335 },
+                { area: 'D11', increase: 9.6, avgPrice2025: 423300 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="area"
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Annual Increase (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Annual Increase']}
+              />
+              <Bar dataKey="increase" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D6W leads with 17.4% annual growth, adding €124K to average property values
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BiddingWarsChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">2025 Bidding War Hotspots by Area</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D10', overAskingRate: 95.8, avgPremium: 17.4 },
+                { area: 'D12', overAskingRate: 93.5, avgPremium: 15.0 },
+                { area: 'D11', overAskingRate: 92.0, avgPremium: 14.3 },
+                { area: 'D20', overAskingRate: 91.5, avgPremium: 15.0 },
+                { area: 'D24', overAskingRate: 91.5, avgPremium: 14.1 },
+                { area: 'D22', overAskingRate: 90.7, avgPremium: 17.3 },
+                { area: 'D16', overAskingRate: 89.3, avgPremium: 10.5 },
+                { area: 'D6W', overAskingRate: 87.4, avgPremium: 13.7 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="area"
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Over-Asking Rate']}
+              />
+              <Bar dataKey="overAskingRate" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D10 shows extreme competition with 95.8% of properties selling over asking price
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceChangeComparisonChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">Price Change Distribution: Growth vs. Decline Areas</h3>
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { area: 'D6W', change: 17.4, type: 'Increase' },
+                { area: 'D15', change: 12.9, type: 'Increase' },
+                { area: 'D1', change: 12.6, type: 'Increase' },
+                { area: 'D20', change: 12.6, type: 'Increase' },
+                { area: 'D3', change: 11.4, type: 'Increase' },
+                { area: 'D4', change: -2.8, type: 'Decrease' }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="area"
+                fontSize={12}
+              />
+              <YAxis
+                label={{ value: 'Price Change (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Price Change']}
+              />
+              <Bar dataKey="change" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Dublin shows broad growth with one area (D4) experiencing slight decline at -2.8%
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}

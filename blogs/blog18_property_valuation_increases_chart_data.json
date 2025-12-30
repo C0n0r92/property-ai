@@ -1,0 +1,118 @@
+{
+  "PriceIncreaseChart": [
+    {
+      "area": "D6W",
+      "increase": 17.4,
+      "avgPrice2025": 836584
+    },
+    {
+      "area": "D15",
+      "increase": 12.9,
+      "avgPrice2025": 493819
+    },
+    {
+      "area": "D1",
+      "increase": 12.6,
+      "avgPrice2025": 421865
+    },
+    {
+      "area": "D20",
+      "increase": 12.6,
+      "avgPrice2025": 488592
+    },
+    {
+      "area": "D3",
+      "increase": 11.4,
+      "avgPrice2025": 654127
+    },
+    {
+      "area": "D16",
+      "increase": 10.7,
+      "avgPrice2025": 681118
+    },
+    {
+      "area": "D17",
+      "increase": 9.9,
+      "avgPrice2025": 369335
+    },
+    {
+      "area": "D11",
+      "increase": 9.6,
+      "avgPrice2025": 423300
+    }
+  ],
+  "BiddingWarsChart": [
+    {
+      "area": "D10",
+      "overAskingRate": 95.8,
+      "avgPremium": 17.4
+    },
+    {
+      "area": "D12",
+      "overAskingRate": 93.5,
+      "avgPremium": 15
+    },
+    {
+      "area": "D11",
+      "overAskingRate": 92,
+      "avgPremium": 14.3
+    },
+    {
+      "area": "D20",
+      "overAskingRate": 91.5,
+      "avgPremium": 15
+    },
+    {
+      "area": "D24",
+      "overAskingRate": 91.5,
+      "avgPremium": 14.1
+    },
+    {
+      "area": "D22",
+      "overAskingRate": 90.7,
+      "avgPremium": 17.3
+    },
+    {
+      "area": "D16",
+      "overAskingRate": 89.3,
+      "avgPremium": 10.5
+    },
+    {
+      "area": "D6W",
+      "overAskingRate": 87.4,
+      "avgPremium": 13.7
+    }
+  ],
+  "PriceChangeComparisonChart": [
+    {
+      "area": "D6W",
+      "change": 17.4,
+      "type": "Increase"
+    },
+    {
+      "area": "D15",
+      "change": 12.9,
+      "type": "Increase"
+    },
+    {
+      "area": "D1",
+      "change": 12.6,
+      "type": "Increase"
+    },
+    {
+      "area": "D20",
+      "change": 12.6,
+      "type": "Increase"
+    },
+    {
+      "area": "D3",
+      "change": 11.4,
+      "type": "Increase"
+    },
+    {
+      "area": "D4",
+      "change": -2.8,
+      "type": "Decrease"
+    }
+  ]
+}

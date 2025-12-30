@@ -234,7 +234,7 @@ function reviewBlogs() {
     '../blogs/blog14_value_erosion_2021_2025.md',
     '../blogs/blog15_bidding_wars_dublin.md',
     '../blogs/blog16_bidding_war_costs.md',
-    '../blogs/blog1_asking_price_strategy.md'
+    '../blogs/blog18_property_valuation_increases.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');

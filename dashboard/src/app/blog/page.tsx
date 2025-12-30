@@ -10,13 +10,25 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'dublin-property-valuation-increases-2025',
+    title: 'Dublin Property Valuation Inversion: Suburban Areas Outperforming City Center',
+    excerpt: 'Dublin property market shows remarkable valuation inversion with suburban areas achieving 17.4% growth while central districts decline. Analysis of 21,092 transactions reveals D6W gaining €124K in value and D10 at 95.8% over-asking rates.',
+    category: 'Market Analysis',
+    date: '2025-12-30',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Property Valuation', 'Valuation Inversion', 'Suburban Growth', 'Market Dynamics', 'Geographic Performance', 'Investment Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-bidding-war-costs',
     title: 'How Dublin Bidding Wars Can Add €90,000+ Over 30 Years',
     excerpt: 'Dublin bidding wars can cost €90,000+ over 30 years when you include both the premium and extra interest payments. Discover the true lifetime cost of competitive property buying.',
     category: 'Financial Analysis',
     date: '2025-12-28',
     readTime: '8 min read',
-    featured: true,
+    featured: false,
     tags: ['Bidding War Costs', 'Mortgage Impact', 'Long-term Costs', 'Property Investment', 'Financial Planning', 'Dublin Market'],
     author: 'Market Research Team',
     views: 1100,
@@ -558,7 +570,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 40 },
+          { label: 'Articles', value: 41 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}
