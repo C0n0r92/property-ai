@@ -308,7 +308,7 @@ export default function MapComponent() {
 
           // Center map on the area and set appropriate zoom
           map.current.flyTo({
-            center: areaData.coords,
+            center: areaData.coords as [number, number],
             zoom: areaData.zoom,
             duration: 2000
           });
