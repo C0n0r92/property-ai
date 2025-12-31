@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { ShareButton } from '@/components/ShareButton';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { ReadingProgress } from '@/components/ReadingProgress';
@@ -12,6 +13,54 @@ import { getCategoryConfig } from '@/lib/blog-categories';
 import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChart, SizeEfficiencyChart, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChart, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2, SeasonalPerformanceChart, MonthlyTimingChart, TimingValueTradeoffChart, BestTypeByAreaChart, MortgageImpactChart, OverpaymentSavingsChart, MonthlyPaymentBreakdownChart } from '@/components/BlogCharts';
 
 // MapLink component will be imported from a separate client component file
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const article = articles[params.slug];
+
+  if (!article) {
+    return {
+      title: 'Irish Property Data Blog',
+      description: 'Property market insights and analysis for Dublin and Ireland.',
+    };
+  }
+
+  const baseUrl = 'https://irishpropertydata.com';
+  const canonicalUrl = `${baseUrl}/blog/${params.slug}`;
+
+  return {
+    title: `${article.title} | Irish Property Data`,
+    description: article.excerpt,
+    keywords: [...article.tags, 'Dublin property', 'Irish property market'],
+    authors: [{ name: article.author }],
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      url: canonicalUrl,
+      siteName: 'Irish Property Data',
+      type: 'article',
+      publishedTime: article.date,
+      tags: article.tags,
+      images: [
+        {
+          url: '/opengraph-image',
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt,
+      images: ['/opengraph-image'],
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  };
+}
 
 // Function to process markdown content to HTML
 function processMarkdownToHtml(content: string): string {
