@@ -299,7 +299,7 @@ function calculateYieldData(properties: Property[]) {
  * Get nearby areas for comparison
  */
 // Cache for individual area stats (lazy loaded as needed)
-const areaStatsCache = new Map<string, { medianPrice: number; avgPricePerSqm: number; count: number }>();
+const areaStatsCache = new Map<string, { medianPrice: number; avgPrice: number; avgPricePerSqm: number; count: number }>();
 
 async function getNearbyAreasComparison(
   allProperties: Property[],
@@ -328,14 +328,14 @@ async function getNearbyAreasComparison(
     .filter(a => {
       const normalized = normalizeAreaName(a.name);
       return a.name.toLowerCase() !== currentArea.toLowerCase() &&
-        a.avgPrice >= priceRange.min &&
-        a.avgPrice <= priceRange.max &&
+        a.medianPrice >= priceRange.min &&
+        a.medianPrice <= priceRange.max &&
         a.count >= 10 &&
         DUBLIN_AREAS.some(da => da.name.toLowerCase() === normalized.toLowerCase());
     })
     .sort((a, b) => {
-      const aDiff = Math.abs(a.avgPrice - currentStats.avgPrice);
-      const bDiff = Math.abs(b.avgPrice - currentStats.avgPrice);
+      const aDiff = Math.abs(a.medianPrice - currentStats.avgPrice);
+      const bDiff = Math.abs(b.medianPrice - currentStats.avgPrice);
       return aDiff - bDiff;
     })
     .slice(0, 10); // Get top 10 candidates (we'll recalc accurately and take top 5)
@@ -357,19 +357,19 @@ async function getNearbyAreasComparison(
       
       const prices = areaProps.map(p => p.soldPrice).sort((a, b) => a - b);
       const medianPrice = prices[Math.floor(prices.length / 2)];
-      
+      const avgPrice = Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length);
+
       const withSqm = areaProps.filter(p => p.pricePerSqm && p.pricePerSqm > 0);
       const avgPricePerSqm = withSqm.length > 0
         ? Math.round(withSqm.reduce((sum, p) => sum + (p.pricePerSqm || 0), 0) / withSqm.length)
         : 0;
-      
-      areaStatsCache.set(cacheKey, { medianPrice, avgPricePerSqm, count: areaProps.length });
+
+      areaStatsCache.set(cacheKey, { medianPrice, avgPrice, avgPricePerSqm, count: areaProps.length });
     }
     
     const stats = areaStatsCache.get(cacheKey)!;
     return {
       name: area.name,
-      avgPrice: stats.avgPrice,
       ...stats,
     };
   }).filter((a): a is NonNullable<typeof a> => a !== null);
