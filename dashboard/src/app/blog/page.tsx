@@ -10,6 +10,18 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'compare-properties-complete-guide',
+    title: 'Master Property Comparison: Complete Guide to Dublin\'s Most Powerful Search Tool',
+    excerpt: 'Compare up to 5 Dublin properties side-by-side across 20,985 listings. Analyze mortgage costs, walkability scores, planning applications, and investment metrics. Step-by-step walkthrough with screenshots included.',
+    category: 'Tool Guide',
+    date: '2025-12-31',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Compare Properties', 'Tool Guide', 'Property Analysis', 'Decision Making', 'Feature Walkthrough', 'User Guide'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-property-timing-value-tradeoff',
     title: 'Dublin Property Timing: 31% Price Difference Between Best & Worst Months',
     excerpt: 'Dublin property prices vary by 31.0% between optimal and suboptimal months, with December averaging €708,728 vs April at €540,823. Autumn properties command 5.2% premiums over winter. Strategic timing delivers €167,905 additional value.',
@@ -642,7 +654,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 47 },
+          { label: 'Articles', value: 48 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

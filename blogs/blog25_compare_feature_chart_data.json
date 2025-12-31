@@ -1,0 +1,124 @@
+{
+  "PropertyTypeAvailability": [
+    {
+      "type": "Semi-D",
+      "count": 5848,
+      "percentage": "27.9"
+    },
+    {
+      "type": "Apartment",
+      "count": 5490,
+      "percentage": "26.2"
+    },
+    {
+      "type": "Terrace",
+      "count": 4674,
+      "percentage": "22.3"
+    },
+    {
+      "type": "End of Terrace",
+      "count": 1837,
+      "percentage": "8.8"
+    },
+    {
+      "type": "Detached",
+      "count": 1671,
+      "percentage": "8.0"
+    },
+    {
+      "type": "Duplex",
+      "count": 486,
+      "percentage": "2.3"
+    }
+  ],
+  "PriceRangeDistribution": [
+    {
+      "range": "Under €300K",
+      "count": 1907,
+      "percentage": "9.1"
+    },
+    {
+      "range": "€300K-€500K",
+      "count": 9001,
+      "percentage": "42.9"
+    },
+    {
+      "range": "€500K-€750K",
+      "count": 5859,
+      "percentage": "27.9"
+    },
+    {
+      "range": "€750K-€1M",
+      "count": 2296,
+      "percentage": "10.9"
+    },
+    {
+      "range": "€1M-€1.5M",
+      "count": 1225,
+      "percentage": "5.8"
+    },
+    {
+      "range": "Over €1.5M",
+      "count": 697,
+      "percentage": "3.3"
+    }
+  ],
+  "FeatureUsageRates": [
+    {
+      "feature": "Price & Value Comparison",
+      "usageRate": 100
+    },
+    {
+      "feature": "Property Details",
+      "usageRate": 95
+    },
+    {
+      "feature": "Location & Walkability",
+      "usageRate": 92
+    },
+    {
+      "feature": "Mortgage Calculator",
+      "usageRate": 87
+    },
+    {
+      "feature": "Investment Metrics",
+      "usageRate": 75
+    },
+    {
+      "feature": "Planning & Development",
+      "usageRate": 68
+    }
+  ],
+  "BedroomDistribution": [
+    {
+      "bedrooms": "1 bed",
+      "count": 1425,
+      "percentage": "6.8"
+    },
+    {
+      "bedrooms": "2 bed",
+      "count": 6138,
+      "percentage": "29.2"
+    },
+    {
+      "bedrooms": "3 bed",
+      "count": 8078,
+      "percentage": "38.5"
+    },
+    {
+      "bedrooms": "4 bed",
+      "count": 3532,
+      "percentage": "16.8"
+    },
+    {
+      "bedrooms": "5 bed",
+      "count": 927,
+      "percentage": "4.4"
+    },
+    {
+      "bedrooms": "6 bed",
+      "count": 146,
+      "percentage": "0.7"
+    }
+  ]
+}
