@@ -2442,3 +2442,87 @@ export function PriceTrendChartD2() {
     </ChartWrapper>
   );
 }
+
+export function SeasonalPerformanceChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <p className="text-sm text-slate-600 text-center">
+          Seasonal performance chart - data visualization coming soon
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function MonthlyTimingChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <p className="text-sm text-slate-600 text-center">
+          Monthly timing chart - data visualization coming soon
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function TimingValueTradeoffChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <p className="text-sm text-slate-600 text-center">
+          Timing value tradeoff chart - data visualization coming soon
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BestTypeByAreaChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <p className="text-sm text-slate-600 text-center">
+          Best property type by area chart - data visualization coming soon
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function MortgageImpactChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <p className="text-sm text-slate-600 text-center">
+          Mortgage impact chart - data visualization coming soon
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverpaymentSavingsChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <p className="text-sm text-slate-600 text-center">
+          Overpayment savings chart - data visualization coming soon
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function MonthlyPaymentBreakdownChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <p className="text-sm text-slate-600 text-center">
+          Monthly payment breakdown chart - data visualization coming soon
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
