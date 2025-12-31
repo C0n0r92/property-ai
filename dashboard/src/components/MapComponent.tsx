@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { formatFullPrice } from '@/lib/format';
+import { formatFullPrice, calculateDaysOnMarket, getDaysOnMarketBadge, analyzePriceHistory, getPriceDropBadge, analyzePropertyValue, getBestValueBadge } from '@/lib/format';
 import type { Property, Listing, RentalListing, RentalStats, Amenity, WalkabilityScore as WalkabilityScoreType, RouteInfo, AmenitiesFilter } from '@/types/property';
 import { SpiderfyManager, SpiderFeature } from '@/lib/spiderfy';
 import { analytics } from '@/lib/analytics';
@@ -592,6 +592,8 @@ export default function MapComponent() {
   const [minArea, setMinArea] = useState<number | null>(null);
   const [maxArea, setMaxArea] = useState<number | null>(null);
   const [yieldFilter, setYieldFilter] = useState<number | null>(null);
+  const [priceReducedFilter, setPriceReducedFilter] = useState<boolean>(false);
+  const [bestValueFilter, setBestValueFilter] = useState<boolean>(false);
 
   // Property sharing hooks
 
@@ -1431,13 +1433,30 @@ export default function MapComponent() {
       });
     }
 
+    // Price reduced filter
+    if (priceReducedFilter) {
+      filtered = filtered.filter(l => {
+        if (!l.priceHistory || l.priceHistory.length < 2) return false;
+        const priceAnalysis = analyzePriceHistory(l.priceHistory);
+        return priceAnalysis?.hasPriceDrop || false;
+      });
+    }
+
+    // Best value filter
+    if (bestValueFilter) {
+      filtered = filtered.filter(l => {
+        const valueAnalysis = analyzePropertyValue(l, listings);
+        return valueAnalysis?.isGoodValue || false;
+      });
+    }
+
     // Apply saved only filter
     if (dataSources.savedOnly && user?.tier === 'premium') {
       filtered = filtered.filter(l => isSaved(l.address, 'listing'));
     }
 
     return filtered;
-  }, [listings, dataSources, user, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter, areaFilter]);
+  }, [listings, dataSources, user, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter, areaFilter, priceReducedFilter, bestValueFilter, listings]);
 
   // Filter rentals based on filters
   const filteredRentals = useMemo(() => {
@@ -1566,8 +1585,10 @@ export default function MapComponent() {
     if (minArea !== null) count++;
     if (maxArea !== null) count++;
     if (yieldFilter !== null) count++;
+    if (priceReducedFilter) count++;
+    if (bestValueFilter) count++;
     return count;
-  }, [selectedYear, selectedQuarter, selectedMonth, recentFilter, differenceFilter, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
+  }, [selectedYear, selectedQuarter, selectedMonth, recentFilter, differenceFilter, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter, priceReducedFilter, bestValueFilter]);
 
   // Calculate filtered stats for the selected time period (sold properties)
   const filteredStats = useMemo(() => {
@@ -3875,6 +3896,44 @@ export default function MapComponent() {
                       </div>
                     )}
 
+                    {/* Price Reduced Filter - only for listings */}
+                    {dataSources.forSale && (
+                      <div>
+                        <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-gray-300">
+                          <input
+                            type="checkbox"
+                            checked={priceReducedFilter}
+                            onChange={(e) => setPriceReducedFilter(e.target.checked)}
+                            className="accent-red-500"
+                          />
+                          <span>Price reduced only</span>
+                          <span className="text-red-400">📉</span>
+                        </label>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Properties with price drops
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Best Value Filter - only for listings */}
+                    {dataSources.forSale && (
+                      <div>
+                        <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-gray-300">
+                          <input
+                            type="checkbox"
+                            checked={bestValueFilter}
+                            onChange={(e) => setBestValueFilter(e.target.checked)}
+                            className="accent-green-500"
+                          />
+                          <span>Best value only</span>
+                          <span className="text-green-400">💎</span>
+                        </label>
+                        <div className="text-xs text-gray-500 mt-1">
+                          10%+ below comparable prices
+                        </div>
+                      </div>
+                    )}
+
                     {/* Sale Type Difference - only for sold */}
                     {dataSources.sold && (
                       <div>
@@ -4249,6 +4308,29 @@ export default function MapComponent() {
                         <span className="text-gray-400 text-xs">• {selectedProperty.baths} bath</span>
                       )}
                       <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white text-xs font-medium">Sold</span>
+                      {/* Days on Market Badge */}
+                      {selectedProperty.first_seen_date && (() => {
+                        const daysOnMarket = calculateDaysOnMarket(selectedProperty.first_seen_date);
+                        const badge = getDaysOnMarketBadge(daysOnMarket);
+                        return badge ? (
+                          <span className={`px-2 py-0.5 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
+                            <span>{badge.emoji}</span>
+                            <span>{badge.text}</span>
+                          </span>
+                        ) : null;
+                      })()}
+                      {/* Price Drop Badge - only for listings, not sold properties */}
+                      {/* Best Value Badge */}
+                      {(() => {
+                        const valueAnalysis = analyzePropertyValue(selectedProperty, properties);
+                        const badge = getBestValueBadge(valueAnalysis);
+                        return badge ? (
+                          <span className={`px-2 py-0.5 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
+                            <span>{badge.emoji}</span>
+                            <span>{badge.text}</span>
+                          </span>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -4765,6 +4847,39 @@ export default function MapComponent() {
                         <span className="text-gray-400 text-xs">• {selectedListing.baths} bath</span>
                       )}
                       <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs font-medium">For Sale</span>
+                      {/* Days on Market Badge */}
+                      {selectedListing.first_seen_date && (() => {
+                        const daysOnMarket = calculateDaysOnMarket(selectedListing.first_seen_date);
+                        const badge = getDaysOnMarketBadge(daysOnMarket);
+                        return badge ? (
+                          <span className={`px-2 py-0.5 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
+                            <span>{badge.emoji}</span>
+                            <span>{badge.text}</span>
+                          </span>
+                        ) : null;
+                      })()}
+                      {/* Price Drop Badge */}
+                      {selectedListing.priceHistory && (() => {
+                        const priceAnalysis = analyzePriceHistory(selectedListing.priceHistory);
+                        const badge = getPriceDropBadge(priceAnalysis);
+                        return badge ? (
+                          <span className={`px-2 py-0.5 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
+                            <span>{badge.emoji}</span>
+                            <span>{badge.text}</span>
+                          </span>
+                        ) : null;
+                      })()}
+                      {/* Best Value Badge */}
+                      {(() => {
+                        const valueAnalysis = analyzePropertyValue(selectedListing, listings);
+                        const badge = getBestValueBadge(valueAnalysis);
+                        return badge ? (
+                          <span className={`px-2 py-0.5 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
+                            <span>{badge.emoji}</span>
+                            <span>{badge.text}</span>
+                          </span>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -4941,6 +5056,46 @@ export default function MapComponent() {
                 </div>
               )}
             </div>
+
+            {/* Price History Timeline */}
+            {selectedListing.priceHistory && selectedListing.priceHistory.length > 1 && (() => {
+              const priceAnalysis = analyzePriceHistory(selectedListing.priceHistory);
+              if (!priceAnalysis) return null;
+
+              return (
+                <div className="border-t border-gray-700 pt-4 mb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm font-medium text-gray-300">Price History</span>
+                    {priceAnalysis.hasPriceDrop && (
+                      <span className="px-2 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
+                        Price Reduced
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-400">Original Price</span>
+                      <span className="text-gray-300 line-through">€{priceAnalysis.originalPrice.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-400">Current Price</span>
+                      <span className="text-white font-semibold">€{priceAnalysis.latestPrice.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-red-400">Price Reduction</span>
+                      <span className="text-red-400 font-semibold">
+                        -€{priceAnalysis.priceDropAmount.toLocaleString()} ({priceAnalysis.priceDropPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 text-xs text-gray-500">
+                    Last updated: {new Date(priceAnalysis.lastPriceChange).toLocaleDateString()}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Action Buttons for Listings */}
             <div className="mb-6 space-y-3">

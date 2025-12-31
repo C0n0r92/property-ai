@@ -31,6 +31,8 @@ export interface Property {
   // Yield estimate (added by consolidate script)
   yieldEstimate?: YieldEstimate | null;
   dublinPostcode?: string | null;
+  // Days on market tracking
+  first_seen_date?: string | null;
 }
 
 export interface PropertyFilters {
@@ -83,6 +85,9 @@ export interface Listing {
   // Yield estimate (added by consolidate script)
   yieldEstimate?: YieldEstimate | null;
   dublinPostcode?: string | null;
+  // Price tracking for reduced listings
+  first_seen_date?: string | null;
+  priceHistory?: Array<{ date: string; price: number }> | null;
 }
 
 export interface ListingStats {

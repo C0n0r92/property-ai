@@ -170,12 +170,58 @@ export async function loadProperties(): Promise<Property[]> {
     for (const consolidatedPath of possiblePaths) {
       if (existsSync(consolidatedPath)) {
         const data = readFileSync(consolidatedPath, 'utf-8');
-        const consolidatedData = JSON.parse(data);
-        if (consolidatedData.properties && consolidatedData.properties.length > 0) {
-          console.log(`✅ Loaded ${consolidatedData.properties.length} properties from consolidated JSON`);
+        const rawData = JSON.parse(data);
+
+        // Handle flat array format (data.json) - separate listings from sold properties
+        if (Array.isArray(rawData)) {
+          console.log(`✅ Loaded ${rawData.length} total records from flat JSON, separating by type...`);
+
+          // Separate listings (properties with priceHistory) from sold properties
+          const listingsData = rawData.filter((item: any) => item.priceHistory && item.priceHistory.length > 0);
+          const propertiesData = rawData.filter((item: any) => !item.priceHistory || item.priceHistory.length === 0);
+
+          console.log(`Separated into ${propertiesData.length} sold properties and ${listingsData.length} listings`);
+
+          // Process sold properties
+          if (propertiesData.length > 0) {
+            const transformedProperties: Property[] = propertiesData.map((p: any, index: number) => ({
+              id: p.id || `json-${index}`,
+              address: p.address,
+              propertyType: p.propertyType || p.property_type,
+              beds: p.beds,
+              baths: p.baths,
+              areaSqm: p.areaSqm || p.area_sqm,
+              soldDate: p.soldDate || p.sold_date,
+              soldPrice: p.soldPrice || p.sold_price,
+              askingPrice: p.askingPrice || p.asking_price,
+              overUnderPercent: p.overUnderPercent || p.over_under_percent || (p.askingPrice && p.soldPrice ? ((p.soldPrice - p.askingPrice) / p.askingPrice) * 100 : 0),
+              latitude: p.latitude,
+              longitude: p.longitude,
+              eircode: p.eircode || p.eircode,
+              dublinPostcode: p.dublinPostcode || p.dublin_postcode,
+              pricePerSqm: p.pricePerSqm || p.price_per_sqm,
+              sourceUrl: p.sourceUrl || p.source_url,
+              sourcePage: p.sourcePage || p.source_page,
+              scrapedAt: p.scrapedAt || p.scraped_at,
+              nominatimAddress: p.nominatimAddress || p.nominatim_address,
+              yieldEstimate: p.yieldEstimate || p.yield_estimate
+            }));
+
+            // Apply filtering
+            const filtered = transformedProperties.filter(p => {
+              const year = parseInt(p.soldDate?.split('-')[0] || '0');
+              return year >= 2015 && year <= 2025 && p.soldPrice >= 10000 && p.soldPrice <= 50000000;
+            });
+
+            console.log(`Filtered to ${filtered.length} properties after applying filters`);
+            return filtered;
+          }
+        } else if (rawData.properties && rawData.properties.length > 0) {
+          // Handle structured format (fallback)
+          console.log(`✅ Loaded ${rawData.properties.length} properties from consolidated JSON`);
 
           // Transform and filter the data
-          const transformedProperties: Property[] = consolidatedData.properties.map((p: any, index: number) => ({
+          const transformedProperties: Property[] = rawData.properties.map((p: any, index: number) => ({
             id: p.id || `json-${index}`,
             address: p.address,
             propertyType: p.propertyType || p.property_type,
@@ -288,12 +334,23 @@ export async function loadListings(): Promise<Listing[]> {
     for (const consolidatedPath of possiblePaths) {
       if (existsSync(consolidatedPath)) {
         const data = readFileSync(consolidatedPath, 'utf-8');
-        const consolidatedData = JSON.parse(data);
-        if (consolidatedData.listings && consolidatedData.listings.length > 0) {
-          console.log(`✅ Loaded ${consolidatedData.listings.length} listings from consolidated JSON`);
+        const rawData = JSON.parse(data);
+
+        let listingsData: any[] = [];
+
+        // Handle flat array format (data.json) - extract listings
+        if (Array.isArray(rawData)) {
+          listingsData = rawData.filter((item: any) => item.priceHistory && item.priceHistory.length > 0);
+        } else if (rawData.listings && rawData.listings.length > 0) {
+          // Handle structured format (fallback)
+          listingsData = rawData.listings;
+        }
+
+        if (listingsData.length > 0) {
+          console.log(`✅ Loaded ${listingsData.length} listings from JSON`);
 
           // Transform JSON data to match our Listing interface
-          const transformedListings: Listing[] = consolidatedData.listings.map((l: any, index: number) => ({
+          const transformedListings: Listing[] = listingsData.map((l: any, index: number) => ({
             id: l.id || `json-${index}`,
             address: l.address,
             propertyType: l.propertyType || l.property_type,
