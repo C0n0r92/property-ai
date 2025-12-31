@@ -1,0 +1,23 @@
+[
+  {
+    "id": "townsend-street--dublin-2--dublin-2-3650-2025-12-31t17-14-46-771z",
+    "address": "Townsend Street, Dublin 2, Dublin 2",
+    "monthlyRent": 3650,
+    "beds": 3,
+    "baths": 1,
+    "areaSqm": null,
+    "propertyType": "House",
+    "berRating": null,
+    "furnishing": null,
+    "sourceUrl": "",
+    "sourcePage": 1,
+    "latitude": 53.3456547,
+    "longitude": -6.2504081,
+    "eircode": null,
+    "nominatimAddress": "Townsend Street, Mansion House A Ward 1986, Dublin, Dublin 2, Leinster, D02 R156, Éire / Ireland",
+    "rentPerSqm": null,
+    "rentPerBed": 1217,
+    "dublinPostcode": "D2",
+    "scrapedAt": "2025-12-31T17:14:46.773Z"
+  }
+]
