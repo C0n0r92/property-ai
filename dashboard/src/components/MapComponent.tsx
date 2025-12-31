@@ -13,7 +13,6 @@ import { PropertySnapshot } from '@/components/PropertySnapshot';
 import { PropertyReportButton } from '@/components/PropertyReportButton';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { usePropertyShare } from '@/hooks/usePropertyShare';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
 import { PropertyTypeFilter } from '@/components/filters/PropertyTypeFilter';
 import { WalkabilityScore } from '@/components/walkability/WalkabilityScore';
@@ -144,6 +143,9 @@ export default function MapComponent() {
 
   // Area filter for filtering by Dublin postcode (D2, D7, etc.)
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
+
+  // Rental availability filter (active only vs include historical)
+  const [rentalAvailabilityFilter, setRentalAvailabilityFilter] = useState<'active' | 'all'>('active');
 
 
   // Data source toggle: allows any combination of sold, forSale, rentals
@@ -592,9 +594,6 @@ export default function MapComponent() {
   const [yieldFilter, setYieldFilter] = useState<number | null>(null);
 
   // Property sharing hooks
-  const soldShare = usePropertyShare(soldSnapshotRef, selectedProperty, 'sold');
-  const listingShare = usePropertyShare(listingSnapshotRef, selectedListing, 'forSale');
-  const rentalShare = usePropertyShare(rentalSnapshotRef, selectedRental, 'rental');
 
   // Analytics-wrapped state setters
   const handleViewModeChange = (mode: 'clusters' | 'price' | 'difference') => {
@@ -1498,8 +1497,14 @@ export default function MapComponent() {
       filtered = filtered.filter(r => isSaved(r.address, 'rental'));
     }
 
+    // Apply rental availability filter
+    if (rentalAvailabilityFilter === 'active') {
+      filtered = filtered.filter(r => r.availabilityStatus === 'active');
+    }
+    // If 'all' is selected, include both active and historical rentals
+
     return filtered;
-  }, [rentals, dataSources, user, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, areaFilter]);
+  }, [rentals, dataSources, user, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, areaFilter, rentalAvailabilityFilter]);
 
   // Get active data based on selected data sources
   const activeData = useMemo(() => {
@@ -1532,6 +1537,7 @@ export default function MapComponent() {
       pricePerSqm: r.areaSqm ? Math.round(r.monthlyRent / r.areaSqm) : 0,
       isListing: false,
       isRental: true,
+      isHistoricalRental: r.availabilityStatus === 'no_longer_available', // Flag for historical rentals
     }));
     
     // Combine based on selected sources
@@ -1878,8 +1884,10 @@ export default function MapComponent() {
                 'case',
                 ['==', ['get', 'isInComparison'], true],
                 '#10B981', // Green for compared properties (overrides other colors)
+                ['==', ['get', 'isHistoricalRental'], true],
+                '#7C3AED', // Dark purple for historical rentals
                 ['==', ['get', 'isRental'], true],
-                '#A855F7', // Purple for rentals
+                '#A855F7', // Bright purple for active rentals
                 ['==', ['get', 'isListing'], true],
                 '#F43F5E', // Rose/hot pink for listings (for sale)
                 '#FFFFFF', // White for sold properties
@@ -1889,7 +1897,9 @@ export default function MapComponent() {
                 'case',
                 ['==', ['get', 'isInComparison'], true],
                 '#10B981', // Green for compared properties
-                '#A855F7' // Purple for rentals
+                ['==', ['get', 'isHistoricalRental'], true],
+                '#7C3AED', // Dark purple for historical rentals
+                '#A855F7' // Bright purple for active rentals
               ]
             : dataSources.forSale
             ? [
@@ -1925,13 +1935,20 @@ export default function MapComponent() {
             activeSourceCount > 1
               ? [
                   'case',
+                  ['==', ['get', 'isHistoricalRental'], true],
+                  '#000000', // Black stroke for historical rentals
                   ['==', ['get', 'isRental'], true],
-                  '#ffffff',
+                  '#ffffff', // White stroke for active rentals
                   ['==', ['get', 'isListing'], true],
                   '#ffffff',
                   '#374151', // Dark gray stroke for white dots
                 ]
-              : '#ffffff',
+              : [
+                  'case',
+                  ['==', ['get', 'isHistoricalRental'], true],
+                  '#000000', // Black stroke for historical rentals
+                  '#ffffff', // White stroke for others
+                ],
           ],
         },
       });
@@ -3367,6 +3384,17 @@ export default function MapComponent() {
             >
               Rentals
             </button>
+            {dataSources.rentals && (
+              <select
+                value={rentalAvailabilityFilter}
+                onChange={(e) => setRentalAvailabilityFilter(e.target.value as 'active' | 'all')}
+                className="ml-2 px-2 py-1 text-xs bg-gray-800 text-white border border-gray-600 rounded-md focus:outline-none focus:border-purple-500"
+                title="Filter rental availability"
+              >
+                <option value="active">Active Only</option>
+                <option value="all">Include Historical</option>
+              </select>
+            )}
             {user?.tier === 'premium' && (
               <button
                 onClick={() => toggleDataSource('savedOnly')}
@@ -4065,38 +4093,9 @@ export default function MapComponent() {
             onClick={(e) => e.stopPropagation()}
           >
 
-            {/* Share Error Notification */}
-            {soldShare.error && (
-              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
-                {soldShare.error}
-              </div>
-            )}
 
-            {/* Header with Minimize, Share and Close buttons */}
+            {/* Header with Save and Close buttons */}
             <div className={`absolute top-4 right-4 flex gap-1 z-10 ${isMobile && isMobileAmenitiesMode ? 'hidden' : ''}`}>
-              <button
-                onClick={() => {
-                  soldShare.shareProperty();
-                  analytics.propertyShared('sold');
-                }}
-                disabled={soldShare.isGenerating}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
-                title="Share this property"
-              >
-                {soldShare.isGenerating ? (
-                  <>
-                    <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Sharing...
-                  </>
-                ) : (
-                  <>
-                    Share
-                  </>
-                )}
-              </button>
               {user && user.tier === 'premium' && (
                 <button
                   onClick={async () => {
@@ -4592,31 +4591,8 @@ export default function MapComponent() {
             onClick={(e) => e.stopPropagation()}
           >
 
-            {/* Header with Minimize, Share and Close buttons */}
+            {/* Header with Save and Close buttons */}
             <div className={`absolute top-4 right-4 flex gap-2 z-10 ${isMobile && isMobileAmenitiesMode ? 'hidden' : ''}`}>
-              <button
-                onClick={() => {
-                  listingShare.shareProperty();
-                  analytics.propertyShared('forSale');
-                }}
-                disabled={listingShare.isGenerating}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors flex items-center gap-1 border border-gray-700"
-                title="Share this property"
-              >
-                {listingShare.isGenerating ? (
-                  <>
-                    <div className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </>
-                )}
-              </button>
               {user && (
                 <>
                   <button
@@ -4677,12 +4653,6 @@ export default function MapComponent() {
             </div>
 
 
-            {/* Share Error Notification */}
-            {listingShare.error && (
-              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
-                {listingShare.error}
-              </div>
-            )}
 
             {/* Minimize Button - Always Available */}
             <div className="absolute top-4 right-4 z-10">
@@ -5104,31 +5074,8 @@ export default function MapComponent() {
               }`}
               onClick={(e) => e.stopPropagation()}
             >
-            {/* Header with Minimize, Share and Close buttons */}
+            {/* Header with Close button */}
             <div className={`absolute top-4 right-4 flex gap-2 z-10 ${isMobile && isMobileAmenitiesMode ? 'hidden' : ''}`}>
-              <button
-                onClick={() => {
-                  rentalShare.shareProperty();
-                  analytics.propertyShared('rental');
-                }}
-                disabled={rentalShare.isGenerating}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-gray-300 hover:text-white rounded transition-colors flex items-center gap-1 border border-gray-700"
-                title="Share this property"
-              >
-                {rentalShare.isGenerating ? (
-                  <>
-                    <div className="w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </>
-                )}
-              </button>
               {user && (
                 <>
                   <button
@@ -5188,12 +5135,6 @@ export default function MapComponent() {
               </button>
             </div>
 
-            {/* Share Error Notification */}
-            {rentalShare.error && (
-              <div className="absolute top-12 right-4 bg-red-900/95 text-red-200 text-xs px-3 py-2 rounded border border-red-700 z-10 max-w-xs">
-                {rentalShare.error}
-              </div>
-            )}
 
             {/* Mobile Amenities Mode - Minimized Bar */}
             {isMobile && isMobileAmenitiesMode ? (
@@ -5204,9 +5145,36 @@ export default function MapComponent() {
                     <h3 className="font-semibold text-white text-sm truncate flex-1">
                       {selectedRental.address}
                     </h3>
-                    <span className="text-purple-300 text-xs font-mono">
-                      €{selectedRental.monthlyRent.toLocaleString()}/mo
-                    </span>
+                    <div className={`flex items-center gap-2 ${
+                      selectedRental.availabilityStatus === 'no_longer_available'
+                        ? 'opacity-75'
+                        : ''
+                    }`}>
+                      <span className={`text-lg font-bold font-mono ${
+                        selectedRental.availabilityStatus === 'no_longer_available'
+                          ? 'text-purple-400'
+                          : 'text-purple-300'
+                      }`}>
+                        €{selectedRental.monthlyRent.toLocaleString()}
+                      </span>
+                      <span className={`text-sm ${
+                        selectedRental.availabilityStatus === 'no_longer_available'
+                          ? 'text-purple-500'
+                          : 'text-purple-400'
+                      }`}>
+                        /month
+                      </span>
+                    </div>
+                    {selectedRental.availabilityStatus === 'no_longer_available' && (
+                      <div className="text-gray-500 text-xs mt-1 space-y-1">
+                        <div>Last seen: {selectedRental.lastSeenDate ? new Date(selectedRental.lastSeenDate).toLocaleDateString() : 'Unknown'}</div>
+                        {selectedRental.priceHistory && selectedRental.priceHistory.length > 1 && (
+                          <div className="text-gray-400">
+                            Price history: {selectedRental.priceHistory.length} records
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     {selectedRental.beds && (
@@ -5279,7 +5247,25 @@ export default function MapComponent() {
                       {selectedRental.baths && (
                         <span className="text-gray-400 text-xs">• {selectedRental.baths} bath</span>
                       )}
-                      <span className="px-2 py-0.5 rounded-full bg-purple-500 text-white text-xs font-medium">Rental</span>
+                      <div className="flex gap-2">
+                        <div className={`px-3 py-1 rounded-lg text-white text-xs font-semibold flex items-center gap-2 ${
+                          selectedRental.availabilityStatus === 'no_longer_available'
+                            ? 'bg-purple-900 border border-purple-700'
+                            : 'bg-purple-500'
+                        }`}>
+                          <div className={`w-2 h-2 rounded-full ${
+                            selectedRental.availabilityStatus === 'no_longer_available'
+                              ? 'bg-purple-600'
+                              : 'bg-white'
+                          }`}></div>
+                          {selectedRental.availabilityStatus === 'no_longer_available' ? 'No Longer Available' : 'Currently Available'}
+                        </div>
+                        {selectedRental.availabilityStatus === 'no_longer_available' && selectedRental.daysSinceLastSeen && (
+                          <span className="text-gray-400 text-xs font-medium">
+                            Last seen {selectedRental.daysSinceLastSeen} days ago
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

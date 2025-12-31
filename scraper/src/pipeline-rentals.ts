@@ -47,6 +47,8 @@ async function retryWithBackoff<T>(
 
 // ============== Types ==============
 
+type RentalAvailability = 'active' | 'no_longer_available';
+
 interface RentalListing {
   id: string;
   address: string;
@@ -67,6 +69,12 @@ interface RentalListing {
   rentPerBed: number | null;
   dublinPostcode: string | null;
   scrapedAt: string;
+  // Historical tracking fields
+  availabilityStatus?: RentalAvailability;
+  firstSeenDate?: string;
+  lastSeenDate?: string;
+  daysSinceLastSeen?: number;
+  priceHistory?: Array<{date: string, price: number}>;
 }
 
 // ============== Config ==============
@@ -128,7 +136,7 @@ class RentalScraper extends BaseDaftScraper<RentalListing> {
       const listings: any[] = [];
       const cards = document.querySelectorAll('[data-testid="card-container"]');
 
-      cards.forEach(card => {
+      cards.forEach((card, index) => {
         try {
           // Get address
           const addressEl = card.querySelector('[data-tracking="srp_address"]');
@@ -140,8 +148,14 @@ class RentalScraper extends BaseDaftScraper<RentalListing> {
           const rentMatch = priceText.match(/€([\d,]+)/);
           const monthlyRent = rentMatch ? parseInt(rentMatch[1].replace(/,/g, '')) : 0;
 
-          // Get link
-          const linkEl = card.querySelector('a[href*="/for-rent/"]') as HTMLAnchorElement;
+          // Get link - try multiple selectors
+          let linkEl = card.querySelector('a[href*="/for-rent/"]') as HTMLAnchorElement;
+          if (!linkEl) {
+            linkEl = card.querySelector('a[href*="daft.ie"]') as HTMLAnchorElement;
+          }
+          if (!linkEl) {
+            linkEl = card.querySelector('a') as HTMLAnchorElement; // Any link in the card
+          }
           const sourceUrl = linkEl?.href || '';
 
           // Get metadata
@@ -198,8 +212,9 @@ class RentalScraper extends BaseDaftScraper<RentalListing> {
   }
 
   protected async processItem(rawItem: any): Promise<RentalListing | null> {
-    // Check for duplicates
-    if (this.existingUrls.has(rawItem.sourceUrl)) return null;
+    // Check for duplicates - but allow empty URLs to pass through
+    // (We'll deduplicate properly in consolidation)
+    if (rawItem.sourceUrl && this.existingUrls.has(rawItem.sourceUrl)) return null;
 
     // Extract eircode and postcode
     const eircode = extractEircode(rawItem.address);

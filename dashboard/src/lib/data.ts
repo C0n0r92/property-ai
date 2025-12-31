@@ -489,7 +489,13 @@ export async function loadRentals(): Promise<RentalListing[]> {
         scrapedAt: r.scraped_at,
         nominatimAddress: r.nominatim_address,
         yieldEstimate: r.yield_estimate,
-        rentHistory: r.price_history || []
+        rentHistory: r.price_history || [],
+        // Historical tracking fields
+        availabilityStatus: (r as any).availability_status || 'active',
+        firstSeenDate: (r as any).first_seen_date,
+        lastSeenDate: (r as any).last_seen_date,
+        daysSinceLastSeen: (r as any).days_since_last_seen,
+        priceHistory: r.price_history || []
       }));
 
       return transformedRentals;

@@ -214,8 +214,7 @@ function generatePropertyId(address: string, soldDate: string, soldPrice: number
 }
 
 /**
- * Deduplicate listings/rentals by sourceUrl (or address), keeping most recent
- * and tracking price changes over time
+ * Deduplicate listings by sourceUrl, keeping most recent with price history
  */
 function deduplicateListingsRentals<T extends Listing | Rental>(
   items: T[],
@@ -288,6 +287,93 @@ function deduplicateListingsRentals<T extends Listing | Rental>(
   }
 
   return deduplicated;
+}
+
+/**
+ * Process rentals with snapshot-based availability tracking
+ * When we scrape all current rentals, anything not in the latest scrape is unavailable
+ */
+function processRentalsWithHistory(rentals: Rental[]): Rental[] {
+  const grouped = new Map<string, Rental[]>();
+
+  // Group by sourceUrl or fallback to address
+  for (const rental of rentals) {
+    const key = rental.sourceUrl || rental.address;
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    grouped.get(key)!.push(rental);
+  }
+
+  const processedRentals: Rental[] = [];
+  const now = new Date();
+
+  // Find the most recent scrape date (today's date)
+  const today = new Date().toISOString().split('T')[0];
+  const latestScrapeDate = new Date(today);
+
+  for (const [key, group] of grouped) {
+    // Sort by scrapedAt date (newest first)
+    group.sort((a, b) => {
+      const dateA = a.scrapedAt || '';
+      const dateB = b.scrapedAt || '';
+      return dateB.localeCompare(dateA);
+    });
+
+    const mostRecent = group[0];
+    const lastSeenDate = new Date(mostRecent.scrapedAt || '');
+
+    // NEW LOGIC: A rental is ACTIVE if it appears in today's scrape
+    // Otherwise it's NO LONGER AVAILABLE
+    const rentalDate = mostRecent.scrapedAt ? mostRecent.scrapedAt.split('T')[0] : '';
+    const availabilityStatus: 'active' | 'no_longer_available' = rentalDate === today ? 'active' : 'no_longer_available';
+
+    const daysSinceLastSeen = Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Add price tracking metadata for all rentals
+    const prices = group.map(rental => ({
+      date: rental.scrapedAt || '',
+      price: rental.monthlyRent
+    })).filter(p => p.price != null);
+
+    // Sort price history by date
+    prices.sort((a, b) => a.date.localeCompare(b.date));
+
+    // Add metadata for all rentals (both active and historical)
+    (mostRecent as any).availabilityStatus = availabilityStatus;
+    (mostRecent as any).firstSeenDate = prices[0]?.date || '';
+    (mostRecent as any).lastSeenDate = prices[prices.length - 1]?.date || '';
+    (mostRecent as any).daysSinceLastSeen = daysSinceLastSeen;
+
+    if (prices.length > 1) {
+      const firstDate = new Date(prices[0].date);
+      const lastDate = new Date(prices[prices.length - 1].date);
+      (mostRecent as any).daysOnMarket = Math.ceil((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24));
+
+      // Count price changes (significant changes > 1%)
+      let changes = 0;
+      for (let i = 1; i < prices.length; i++) {
+        const prevPrice = prices[i-1].price;
+        const currPrice = prices[i].price;
+        const changePercent = Math.abs((currPrice - prevPrice) / prevPrice) * 100;
+        if (changePercent > 1) changes++;
+      }
+      (mostRecent as any).priceChanges = changes;
+    } else {
+      (mostRecent as any).daysOnMarket = 1;
+      (mostRecent as any).priceChanges = 0;
+    }
+
+    (mostRecent as any).priceHistory = prices;
+    processedRentals.push(mostRecent);
+  }
+
+  console.log(`  Processed rentals with snapshot availability: ${rentals.length} → ${processedRentals.length} rentals`);
+  const activeCount = processedRentals.filter(r => (r as any).availabilityStatus === 'active').length;
+  const historicalCount = processedRentals.filter(r => (r as any).availabilityStatus === 'no_longer_available').length;
+  console.log(`  Active rentals: ${activeCount}, No longer available: ${historicalCount}`);
+
+  return processedRentals;
 }
 
 function deduplicateProperties(properties: Property[]): Property[] {
@@ -587,7 +673,7 @@ async function consolidate() {
 
   console.log('\n📂 Loading rentals...');
   const allRentalsRaw = loadAllFromDir<Rental>(DIRS.rentals, 'rentals'); // All dated files for price tracking
-  const allRentals = deduplicateListingsRentals(allRentalsRaw, 'rentals'); // Deduplicate with price history
+  const allRentals = processRentalsWithHistory(allRentalsRaw); // Process rentals with historical availability
   
   // Deduplicate properties
   console.log('\n🔄 Deduplicating sold properties...');

@@ -93,6 +93,8 @@ export interface ListingStats {
 }
 
 // Rental Listings
+export type RentalAvailability = 'active' | 'no_longer_available';
+
 export interface RentalListing {
   address: string;
   monthlyRent: number;
@@ -112,6 +114,12 @@ export interface RentalListing {
   rentPerBed: number | null;
   dublinPostcode: string | null;
   scrapedAt: string;
+  // Historical tracking fields
+  availabilityStatus: RentalAvailability;
+  firstSeenDate?: string;
+  lastSeenDate?: string;
+  daysSinceLastSeen?: number;
+  priceHistory?: Array<{date: string, price: number}>;
 }
 
 export interface RentalStats {
