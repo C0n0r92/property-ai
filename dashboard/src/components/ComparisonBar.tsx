@@ -23,8 +23,15 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
     return true; // Default to collapsed for SSR
   });
 
+
+
   // Handle compare button click
   const handleCompareClick = () => {
+    if (count < 2) {
+      alert('Please add another property to compare. You need at least 2 properties for comparison.');
+      return;
+    }
+
     if (onClearSelection) {
       onClearSelection();
     }
@@ -39,9 +46,10 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
     return (
       <button
         onClick={handleCompareClick}
+        title="Click to compare multiple properties with AI-powered analysis and insights"
         className="px-3 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 md:hidden"
       >
-        Compare ({count})
+        {count > 1 ? `Compare (${count})` : 'Add to compare'}
       </button>
     );
   }
@@ -87,13 +95,15 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
                       lg:top-4 lg:right-4
                       md:top-4 md:right-4
                       ${mobilePosition} sm:right-4`}>
+
         <button
           onClick={count > 0 ? handleCompareClick : () => setIsCollapsed(false)}
+          title={count > 0 ? "Click to compare multiple properties with AI-powered analysis and insights" : "Click to expand comparison panel"}
           className="bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-semibold
                      lg:px-3 lg:py-2
                      sm:px-3 sm:py-2 sm:text-sm sm:font-bold"
         >
-          {count > 0 ? `Compare Now (${count})` : 'Add to Comparison'}
+          {count > 1 ? `Compare Now (${count})` : count === 1 ? 'Add another to compare' : 'Add to Comparison'}
           <span className="ml-1 lg:inline sm:hidden">→</span>
         </button>
       </div>
@@ -139,7 +149,7 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
                 </p>
                 {isSelectedPropertyInComparison ? (
                   <div className={`mt-2 w-full bg-green-600 text-white ${hasPropertyOpen ? 'sm:text-[10px] sm:py-1 sm:px-2' : 'text-xs py-1.5 px-3'} rounded text-center`}>
-                    ✓ Already in Comparison
+                    Already in Comparison
                   </div>
                 ) : (
                   <button
@@ -182,7 +192,7 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
                   className="text-red-600 hover:text-red-700 text-sm opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                   title="Remove from comparison"
                 >
-                  ×
+Remove
                 </button>
               </div>
             );
@@ -194,9 +204,10 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
           {count > 0 && (
             <button
               onClick={handleCompareClick}
+              title="Click to compare multiple properties with AI-powered analysis and insights"
               className={`w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white ${hasPropertyOpen ? 'sm:text-xs sm:py-1.5 sm:px-2' : 'text-sm py-2.5 px-3'} rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg`}
             >
-              Compare Now ({count} properties)
+              {count > 1 ? `Compare Now (${count} properties)` : 'Add another property to compare'}
             </button>
           )}
 

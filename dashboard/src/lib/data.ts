@@ -185,7 +185,7 @@ export async function loadProperties(): Promise<Property[]> {
             soldDate: p.soldDate || p.sold_date,
             soldPrice: p.soldPrice || p.sold_price,
             askingPrice: p.askingPrice || p.asking_price,
-            overUnderPercent: p.overUnderPercent || p.over_under_percent,
+            overUnderPercent: p.overUnderPercent || p.over_under_percent || (p.askingPrice && p.soldPrice ? ((p.soldPrice - p.askingPrice) / p.askingPrice) * 100 : 0),
             latitude: p.latitude,
             longitude: p.longitude,
             eircode: p.eircode || p.eircode,
@@ -247,7 +247,7 @@ export async function loadProperties(): Promise<Property[]> {
         soldDate: p.sold_date,
         soldPrice: p.sold_price,
         askingPrice: p.asking_price,
-        overUnderPercent: p.over_under_percent,
+        overUnderPercent: p.over_under_percent || (p.asking_price && p.sold_price ? ((p.sold_price - p.asking_price) / p.asking_price) * 100 : 0),
         latitude: p.latitude,
         longitude: p.longitude,
         eircode: p.eircode,
@@ -590,7 +590,19 @@ export function getAreaStats(properties: Property[]): AreaStats[] {
     
     const overAsking = props.filter(p => p.overUnderPercent > 0);
     const pctOverAsking = Math.round((overAsking.length / props.length) * 100);
-    
+
+    // Calculate average over/under percent and euro values
+    const withAskingPrice = props.filter(p => p.askingPrice && p.askingPrice > 0);
+    const avgOverUnderPercent = withAskingPrice.length > 0
+      ? Math.round((withAskingPrice.reduce((sum, p) => sum + ((p.soldPrice - p.askingPrice) / p.askingPrice) * 100, 0) / withAskingPrice.length) * 10) / 10
+      : 0;
+
+    // Calculate average euro over/under (sold price - asking price)
+    const withAskingPriceEuro = props.filter(p => p.askingPrice && p.askingPrice > 0);
+    const avgOverUnderEuro = withAskingPriceEuro.length > 0
+      ? Math.round(withAskingPriceEuro.reduce((sum, p) => sum + (p.soldPrice - p.askingPrice), 0) / withAskingPriceEuro.length)
+      : 0;
+
     // Simplified 6-month change
     const now = new Date();
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
@@ -613,6 +625,8 @@ export function getAreaStats(properties: Property[]): AreaStats[] {
       medianPrice,
       avgPricePerSqm,
       pctOverAsking,
+      avgOverUnderPercent,
+      avgOverUnderEuro,
       change6m,
     });
   });

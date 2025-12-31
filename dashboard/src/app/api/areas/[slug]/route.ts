@@ -59,9 +59,11 @@ export async function GET(
         soldDate: p.soldDate,
         overUnderPercent: p.overUnderPercent,
         propertyType: p.propertyType,
-        bedrooms: p.beds,
+        bedrooms: p.beds || null,
         floorArea: p.areaSqm,
         berRating: null, // Not available in sold properties data
+        latitude: p.latitude,
+        longitude: p.longitude,
       }));
     
     // Get monthly trend (last 24 months)
@@ -107,7 +109,9 @@ export async function GET(
  * Calculate area statistics
  */
 function calculateAreaStats(properties: Property[]) {
-  const prices = properties.map(p => p.soldPrice).sort((a, b) => a - b);
+  // Filter out properties below €50,000 to exclude non-residential or erroneous data
+  const validProperties = properties.filter(p => p.soldPrice >= 50000);
+  const prices = validProperties.map(p => p.soldPrice).sort((a, b) => a - b);
   const medianPrice = prices[Math.floor(prices.length / 2)];
   const avgPrice = Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length);
   
@@ -119,9 +123,15 @@ function calculateAreaStats(properties: Property[]) {
   const overAsking = properties.filter(p => p.overUnderPercent > 0);
   const pctOverAsking = Math.round((overAsking.length / properties.length) * 100);
   
-  const avgOverUnder = Math.round(
+  const avgOverUnderPercent = Math.round(
     (properties.reduce((sum, p) => sum + p.overUnderPercent, 0) / properties.length) * 10
   ) / 10;
+
+  // Calculate average euro over/under
+  const withAskingPrice = properties.filter(p => p.askingPrice && p.askingPrice > 0);
+  const avgOverUnderEuro = withAskingPrice.length > 0
+    ? Math.round(withAskingPrice.reduce((sum, p) => sum + (p.soldPrice - p.askingPrice), 0) / withAskingPrice.length)
+    : 0;
   
   // Calculate 6-month change
   const now = new Date();
@@ -145,7 +155,8 @@ function calculateAreaStats(properties: Property[]) {
     avgPrice,
     avgPricePerSqm,
     pctOverAsking,
-    avgOverUnder,
+    avgOverUnderPercent,
+    avgOverUnderEuro,
     change6m,
     minPrice: prices[0],
     maxPrice: prices[prices.length - 1],
@@ -303,8 +314,8 @@ async function getNearbyAreasComparison(
   
   // Step 2: Filter to areas in our DUBLIN_AREAS list with similar prices
   const priceRange = {
-    min: currentStats.medianPrice * 0.7,
-    max: currentStats.medianPrice * 1.3,
+    min: currentStats.avgPrice * 0.7,
+    max: currentStats.avgPrice * 1.3,
   };
   
   // Helper to normalize area name (remove ", Dublin X" suffix)
@@ -317,14 +328,14 @@ async function getNearbyAreasComparison(
     .filter(a => {
       const normalized = normalizeAreaName(a.name);
       return a.name.toLowerCase() !== currentArea.toLowerCase() &&
-        a.medianPrice >= priceRange.min &&
-        a.medianPrice <= priceRange.max &&
+        a.avgPrice >= priceRange.min &&
+        a.avgPrice <= priceRange.max &&
         a.count >= 10 &&
         DUBLIN_AREAS.some(da => da.name.toLowerCase() === normalized.toLowerCase());
     })
     .sort((a, b) => {
-      const aDiff = Math.abs(a.medianPrice - currentStats.medianPrice);
-      const bDiff = Math.abs(b.medianPrice - currentStats.medianPrice);
+      const aDiff = Math.abs(a.avgPrice - currentStats.avgPrice);
+      const bDiff = Math.abs(b.avgPrice - currentStats.avgPrice);
       return aDiff - bDiff;
     })
     .slice(0, 10); // Get top 10 candidates (we'll recalc accurately and take top 5)
@@ -358,6 +369,7 @@ async function getNearbyAreasComparison(
     const stats = areaStatsCache.get(cacheKey)!;
     return {
       name: area.name,
+      avgPrice: stats.avgPrice,
       ...stats,
     };
   }).filter((a): a is NonNullable<typeof a> => a !== null);
@@ -365,15 +377,15 @@ async function getNearbyAreasComparison(
   // Step 4: Re-sort with accurate stats and take top 5
   return accurateStats
     .sort((a, b) => {
-      const aDiff = Math.abs(a.medianPrice - currentStats.medianPrice);
-      const bDiff = Math.abs(b.medianPrice - currentStats.medianPrice);
+      const aDiff = Math.abs(a.avgPrice - currentStats.avgPrice);
+      const bDiff = Math.abs(b.avgPrice - currentStats.avgPrice);
       return aDiff - bDiff;
     })
     .slice(0, 5)
     .map(area => ({
       name: area.name,
-      medianPrice: area.medianPrice,
-      priceDiff: Math.round(((area.medianPrice - currentStats.medianPrice) / currentStats.medianPrice) * 100),
+      avgPrice: area.avgPrice,
+      priceDiff: Math.round(((area.avgPrice - currentStats.avgPrice) / currentStats.avgPrice) * 100),
       avgPricePerSqm: area.avgPricePerSqm,
       sqmDiff: area.avgPricePerSqm > 0 && currentStats.avgPricePerSqm > 0
         ? Math.round(((area.avgPricePerSqm - currentStats.avgPricePerSqm) / currentStats.avgPricePerSqm) * 100)

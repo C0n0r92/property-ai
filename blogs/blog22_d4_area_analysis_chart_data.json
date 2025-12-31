@@ -1,0 +1,262 @@
+{
+  "PriceTrendChart": [
+    {
+      "month": "2024-01",
+      "avgPrice": 887278,
+      "sales": 36
+    },
+    {
+      "month": "2024-02",
+      "avgPrice": 825188,
+      "sales": 22
+    },
+    {
+      "month": "2024-03",
+      "avgPrice": 730772,
+      "sales": 49
+    },
+    {
+      "month": "2024-04",
+      "avgPrice": 862779,
+      "sales": 23
+    },
+    {
+      "month": "2024-05",
+      "avgPrice": 901158,
+      "sales": 38
+    },
+    {
+      "month": "2024-06",
+      "avgPrice": 768137,
+      "sales": 44
+    },
+    {
+      "month": "2024-07",
+      "avgPrice": 858974,
+      "sales": 45
+    },
+    {
+      "month": "2024-08",
+      "avgPrice": 878021,
+      "sales": 47
+    },
+    {
+      "month": "2024-09",
+      "avgPrice": 1378097,
+      "sales": 49
+    },
+    {
+      "month": "2024-10",
+      "avgPrice": 853439,
+      "sales": 46
+    },
+    {
+      "month": "2024-11",
+      "avgPrice": 1316395,
+      "sales": 39
+    },
+    {
+      "month": "2024-12",
+      "avgPrice": 918287,
+      "sales": 48
+    },
+    {
+      "month": "2025-01",
+      "avgPrice": 953064,
+      "sales": 33
+    },
+    {
+      "month": "2025-02",
+      "avgPrice": 791462,
+      "sales": 39
+    },
+    {
+      "month": "2025-03",
+      "avgPrice": 752237,
+      "sales": 52
+    },
+    {
+      "month": "2025-04",
+      "avgPrice": 1019794,
+      "sales": 39
+    },
+    {
+      "month": "2025-05",
+      "avgPrice": 920386,
+      "sales": 35
+    },
+    {
+      "month": "2025-06",
+      "avgPrice": 885771,
+      "sales": 35
+    },
+    {
+      "month": "2025-07",
+      "avgPrice": 926491,
+      "sales": 50
+    },
+    {
+      "month": "2025-08",
+      "avgPrice": 928066,
+      "sales": 38
+    },
+    {
+      "month": "2025-09",
+      "avgPrice": 1004512,
+      "sales": 42
+    },
+    {
+      "month": "2025-10",
+      "avgPrice": 895012,
+      "sales": 46
+    },
+    {
+      "month": "2025-11",
+      "avgPrice": 1055811,
+      "sales": 28
+    },
+    {
+      "month": "2025-12",
+      "avgPrice": 670000,
+      "sales": 2
+    }
+  ],
+  "PropertyTypeChart": [
+    {
+      "type": "Apartment",
+      "count": 393,
+      "avgPrice": 546240,
+      "percentage": "42.5"
+    },
+    {
+      "type": "Terrace",
+      "count": 238,
+      "avgPrice": 1008929,
+      "percentage": "25.7"
+    },
+    {
+      "type": "Semi-D",
+      "count": 119,
+      "avgPrice": 1623093,
+      "percentage": "12.9"
+    },
+    {
+      "type": "End of Terrace",
+      "count": 63,
+      "avgPrice": 938205,
+      "percentage": "6.8"
+    },
+    {
+      "type": "Detached",
+      "count": 44,
+      "avgPrice": 2149852,
+      "percentage": "4.8"
+    }
+  ],
+  "PriceDistributionChart": [
+    {
+      "range": "Under €400k",
+      "count": 111,
+      "percentage": "12.0"
+    },
+    {
+      "range": "€400k-€600k",
+      "count": 292,
+      "percentage": "31.6"
+    },
+    {
+      "range": "€600k-€800k",
+      "count": 168,
+      "percentage": "18.2"
+    },
+    {
+      "range": "€800k-€1M",
+      "count": 100,
+      "percentage": "10.8"
+    },
+    {
+      "range": "€1M-€2M",
+      "count": 188,
+      "percentage": "20.3"
+    },
+    {
+      "range": "Over €2M",
+      "count": 66,
+      "percentage": "7.1"
+    }
+  ],
+  "YearOverYearChart": [
+    {
+      "year": "2024",
+      "avgPrice": 938092,
+      "sales": 486
+    },
+    {
+      "year": "2025",
+      "avgPrice": 911790,
+      "sales": 439
+    }
+  ],
+  "SizeEfficiencyChart": [
+    {
+      "bedrooms": "1 bed",
+      "avgSizePerBed": 48,
+      "avgPricePerSqm": 8305,
+      "count": 111
+    },
+    {
+      "bedrooms": "2 bed",
+      "avgSizePerBed": 37,
+      "avgPricePerSqm": 8083,
+      "count": 365
+    },
+    {
+      "bedrooms": "3 bed",
+      "avgSizePerBed": 42,
+      "avgPricePerSqm": 7996,
+      "count": 212
+    },
+    {
+      "bedrooms": "4 bed",
+      "avgSizePerBed": 46,
+      "avgPricePerSqm": 8200,
+      "count": 114
+    },
+    {
+      "bedrooms": "5 bed",
+      "avgSizePerBed": 57,
+      "avgPricePerSqm": 8453,
+      "count": 54
+    },
+    {
+      "bedrooms": "6 bed",
+      "avgSizePerBed": 55,
+      "avgPricePerSqm": 11267,
+      "count": 7
+    },
+    {
+      "bedrooms": "7 bed",
+      "avgSizePerBed": 62,
+      "avgPricePerSqm": 6864,
+      "count": 2
+    },
+    {
+      "bedrooms": "13 bed",
+      "avgSizePerBed": 28,
+      "avgPricePerSqm": 5596,
+      "count": 1
+    },
+    {
+      "bedrooms": "9501 bed",
+      "avgSizePerBed": 0,
+      "avgPricePerSqm": 7453,
+      "count": 1
+    },
+    {
+      "bedrooms": "9502 bed",
+      "avgSizePerBed": 0,
+      "avgPricePerSqm": 7866,
+      "count": 5
+    }
+  ]
+}

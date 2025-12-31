@@ -1,0 +1,89 @@
+{
+  "PremiumDistributionChart": [
+    {
+      "range": "0-5%",
+      "count": 4329,
+      "percentage": "25.3"
+    },
+    {
+      "range": "5-10%",
+      "count": 4699,
+      "percentage": "27.5"
+    },
+    {
+      "range": "10-15%",
+      "count": 3697,
+      "percentage": "21.6"
+    },
+    {
+      "range": "15-20%",
+      "count": 2207,
+      "percentage": "12.9"
+    },
+    {
+      "range": "20%+",
+      "count": 2169,
+      "percentage": "12.7"
+    }
+  ],
+  "MortgageImpactChart": [
+    {
+      "propertyPrice": 500000,
+      "premiumAmount": 54943,
+      "extraInterest30Years": 27101,
+      "totalLifetimeCost": 82044
+    },
+    {
+      "propertyPrice": 750000,
+      "premiumAmount": 82415,
+      "extraInterest30Years": 40651,
+      "totalLifetimeCost": 123066
+    },
+    {
+      "propertyPrice": 1000000,
+      "premiumAmount": 109886,
+      "extraInterest30Years": 54201,
+      "totalLifetimeCost": 164088
+    }
+  ],
+  "OverpaymentSavingsChart": [
+    {
+      "loanAmount": 400000,
+      "extraMonthlyPayment": 100,
+      "interestSaved": 24678,
+      "yearsSaved": 2.7
+    },
+    {
+      "loanAmount": 600000,
+      "extraMonthlyPayment": 150,
+      "interestSaved": 37017,
+      "yearsSaved": 2.7
+    },
+    {
+      "loanAmount": 800000,
+      "extraMonthlyPayment": 200,
+      "interestSaved": 49355,
+      "yearsSaved": 2.7
+    }
+  ],
+  "MonthlyPaymentBreakdownChart": [
+    {
+      "propertyPrice": 500000,
+      "baseMonthlyPayment": 1796,
+      "premiumMonthlyPayment": 1994,
+      "extraMonthlyCost": 197
+    },
+    {
+      "propertyPrice": 750000,
+      "baseMonthlyPayment": 2694,
+      "premiumMonthlyPayment": 2990,
+      "extraMonthlyCost": 296
+    },
+    {
+      "propertyPrice": 1000000,
+      "baseMonthlyPayment": 3592,
+      "premiumMonthlyPayment": 3987,
+      "extraMonthlyCost": 395
+    }
+  ]
+}

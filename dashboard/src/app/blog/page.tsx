@@ -10,6 +10,42 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'dublin-property-timing-value-tradeoff',
+    title: 'Dublin Property Timing: 31% Price Difference Between Best & Worst Months',
+    excerpt: 'Dublin property prices vary by 31.0% between optimal and suboptimal months, with December averaging €708,728 vs April at €540,823. Autumn properties command 5.2% premiums over winter. Strategic timing delivers €167,905 additional value.',
+    category: 'Market Analysis',
+    date: '2025-12-31',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Property Timing', 'Market Cycles', 'Seasonal Trends', 'Price Optimization', 'Buying Strategy', 'Selling Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'mortgage-overpayment-savings-strategy',
+    title: 'How €100 Extra Monthly Mortgage Payments Save €37,000+ Over 30 Years',
+    excerpt: 'Dublin bidding wars add 11.0% premiums costing €164,088 lifetime on €1M homes. €150 monthly overpayments save €37,017 interest and reduce loan terms by 2.7 years. Use our mortgage calculator to model your savings.',
+    category: 'Financial Analysis',
+    date: '2025-12-31',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Mortgage Strategy', 'Overpayment Savings', 'Bidding War Costs', 'Financial Planning', 'Debt Reduction', 'Mortgage Calculator'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-4-area-analysis-contrarian-decline',
+    title: 'Dublin 4: Premium Location Showing -2.8% Price Decline - Explore on Our Map',
+    excerpt: 'D4 properties average €911,790 in 2025, down 2.8% from €938,092 in 2024. Despite decline, 75.2% sell over asking with 10.4% premiums. Apartments dominate at 42.5%, luxury properties represent 27.5% of market.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['D4', 'Area Analysis', 'Price Decline', 'Premium Location', 'Apartments', 'Luxury Market'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-property-valuation-increases-2025',
     title: 'Dublin Property Valuation Inversion: Suburban Areas Outperforming City Center',
     excerpt: 'Dublin property market shows remarkable valuation inversion with suburban areas achieving 17.4% growth while central districts decline. Analysis of 21,092 transactions reveals D6W gaining €124K in value and D10 at 95.8% over-asking rates.',
@@ -606,7 +642,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 44 },
+          { label: 'Articles', value: 47 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

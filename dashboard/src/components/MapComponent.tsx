@@ -145,6 +145,7 @@ export default function MapComponent() {
   // Area filter for filtering by Dublin postcode (D2, D7, etc.)
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
 
+
   // Data source toggle: allows any combination of sold, forSale, rentals
   const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: true, savedOnly: false });
   
@@ -166,6 +167,7 @@ export default function MapComponent() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchedLocation, setSearchedLocation] = useState<{ name: string; coords: [number, number] } | null>(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Collapsible filter panel state - hidden by default on all devices
   const [showFilters, setShowFilters] = useState(() => {
@@ -390,6 +392,25 @@ export default function MapComponent() {
     }, 3000);
     return () => clearTimeout(timer);
   }, []); // Empty dependency array - only run once on mount
+
+  // Handle clicks outside search dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    if (showSearchResults) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showSearchResults]);
 
   // Remove planning radius function
   const removePlanningRadius = useCallback(() => {
@@ -3387,7 +3408,7 @@ export default function MapComponent() {
           
           {/* Location Search & Filters */}
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-80 md:w-96">
+            <div ref={searchContainerRef} className="relative flex-1 sm:w-80 md:w-96">
               <div className="flex items-center">
                 <span className="absolute left-4 text-gray-400 text-lg z-10">🔍</span>
                 <input
@@ -4424,6 +4445,8 @@ export default function MapComponent() {
                 <span>🏠</span>
                 Calculate Mortgage
               </button>
+
+
             </div>
 
             {/* Nearby Amenities Section */}

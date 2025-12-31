@@ -58,6 +58,8 @@ export interface AreaStats {
   medianPrice: number;
   avgPricePerSqm: number;
   pctOverAsking: number;
+  avgOverUnderPercent: number;
+  avgOverUnderEuro: number;
   change6m: number;
 }
 

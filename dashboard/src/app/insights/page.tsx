@@ -24,6 +24,8 @@ interface AreaStat {
   medianPrice: number;
   avgPricePerSqm: number;
   pctOverAsking: number;
+  avgOverUnderPercent: number;
+  avgOverUnderEuro: number;
   change6m: number;
 }
 
@@ -378,7 +380,7 @@ export default function InsightsPage() {
         </div>
         <div className="card">
           <div className="stat-label">Over Asking</div>
-          <div className={`stat-value mt-2 ${data.stats.pctOverAsking > 50 ? 'price-positive' : ''}`}>
+          <div className={`stat-value mt-2 ${data.stats.pctOverAsking > 50 ? 'text-[var(--positive)]' : ''}`}>
             {data.stats.pctOverAsking}%
           </div>
         </div>
@@ -537,10 +539,10 @@ export default function InsightsPage() {
                   <td className="py-3 text-right font-mono text-[var(--muted-foreground)]">
                     €{area.avgPricePerSqm.toLocaleString()}
                   </td>
-                  <td className={`py-3 text-right font-mono ${area.pctOverAsking > 60 ? 'price-positive' : ''}`}>
+                  <td className={`py-3 text-right font-mono ${area.pctOverAsking > 60 ? 'text-[var(--positive)]' : ''}`}>
                     {area.pctOverAsking}%
                   </td>
-                  <td className={`py-3 text-right font-mono ${area.change6m >= 0 ? 'price-positive' : 'price-negative'}`}>
+                  <td className={`py-3 text-right font-mono ${area.change6m >= 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
                     {area.change6m >= 0 ? '+' : ''}{area.change6m}%
                   </td>
                   <td className="py-3 text-right text-[var(--muted-foreground)]">{area.count}</td>

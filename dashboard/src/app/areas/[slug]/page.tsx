@@ -8,6 +8,8 @@ import { formatFullPrice } from '@/lib/format';
 import { slugToArea, areaToSlug } from '@/lib/areas';
 import { AreaStructuredData } from '@/components/AreaStructuredData';
 import { ShareButton } from '@/components/ShareButton';
+import { analytics } from '@/lib/analytics';
+import { useSearchTracking } from '@/hooks/useSearchTracking';
 
 interface AreaData {
   area: string;
@@ -18,7 +20,8 @@ interface AreaData {
     avgPrice: number;
     avgPricePerSqm: number;
     pctOverAsking: number;
-    avgOverUnder: number;
+    avgOverUnderPercent: number;
+    avgOverUnderEuro: number;
     change6m: number;
     minPrice: number;
     maxPrice: number;
@@ -45,7 +48,8 @@ export default function AreaPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const areaName = slugToArea(slug);
-  
+  const { trackAreasSearch } = useSearchTracking();
+
   const [data, setData] = useState<AreaData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +126,21 @@ export default function AreaPage() {
     
     fetchData();
   }, [slug]);
-  
+
+  // Trigger alert modal after 5 seconds for area pages (only when data is available)
+  useEffect(() => {
+    if (!data?.stats || !areaName) return;
+
+    const timer = setTimeout(() => {
+      trackAreasSearch({
+        name: areaName,
+        coordinates: { lat: 53.3498, lng: -6.2603 }, // Dublin center coordinates
+      });
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [data?.stats, areaName, trackAreasSearch]);
+
   if (!areaName) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
@@ -177,7 +195,7 @@ export default function AreaPage() {
       </div>
     );
   }
-  
+
   const { stats, recentSales, monthlyTrend, propertyTypes, priceDistribution, bedroomBreakdown, yieldData, nearbyComparison } = data;
   
   // Format trend data for charts
@@ -205,6 +223,8 @@ export default function AreaPage() {
         totalSales={stats.totalSales}
         avgPricePerSqm={stats.avgPricePerSqm}
         pctOverAsking={stats.pctOverAsking}
+        avgOverUnderPercent={stats.avgOverUnderPercent}
+        avgOverUnderEuro={stats.avgOverUnderEuro}
         change6m={stats.change6m}
         recentSales={recentSales.slice(0, 5)}
         yieldData={yieldData}
@@ -220,11 +240,21 @@ export default function AreaPage() {
           <span className="text-foreground">{areaName}</span>
         </nav>
         
-        <h1 className="text-4xl font-bold mb-2">{areaName} House Prices 2025</h1>
+        <h1 className="text-4xl font-bold mb-2">{areaName}</h1>
         <p className="text-xl text-[var(--muted-foreground)] mb-4">
-          Complete market analysis based on {stats.totalSales.toLocaleString()} property sales
+          Average price analysis based on {stats.totalSales.toLocaleString()} property sales
         </p>
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
+          <Link
+            href={`/map?area=${slug}`}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary)]/90 transition-colors"
+            onClick={() => analytics.mapAreaNavigated(areaName)}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V7m0 0L9 4" />
+            </svg>
+            View on Map
+          </Link>
           <ShareButton
             areaName={areaName}
             medianPrice={stats.medianPrice}
@@ -235,17 +265,17 @@ export default function AreaPage() {
       </div>
       
       {/* Key Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
         <div className="card">
           <div className="stat-label flex items-center gap-1">
-            Typical Price
-            <span className="text-xs text-[var(--muted-foreground)] cursor-help" title="The middle price - half of properties sold for more, half for less. More accurate than average as it's not affected by extreme prices.">
+            Average Price
+            <span className="text-xs text-[var(--muted-foreground)] cursor-help" title="The mathematical average of all property prices. Can be influenced by very high or low priced properties.">
               ⓘ
             </span>
           </div>
-          <div className="stat-value mt-2">{formatFullPrice(stats.medianPrice)}</div>
+          <div className="stat-value mt-2">{formatFullPrice(stats.avgPrice)}</div>
           <div className="text-xs text-[var(--muted-foreground)] mt-1">
-            Half sold for more, half for less
+            Average price
           </div>
         </div>
         <div className="card">
@@ -254,25 +284,43 @@ export default function AreaPage() {
             {stats.avgPricePerSqm > 0 ? `€${stats.avgPricePerSqm.toLocaleString()}` : 'N/A'}
           </div>
           <div className="text-xs text-[var(--muted-foreground)] mt-1">
-            Price per square meter
+            € per sqm
           </div>
         </div>
         <div className="card">
           <div className="stat-label">% Over Asking</div>
-          <div className={`stat-value mt-2 ${stats.pctOverAsking > 50 ? 'price-positive' : ''}`}>
+          <div className={`stat-value mt-2 ${stats.pctOverAsking > 50 ? 'text-[var(--positive)]' : ''}`}>
             {stats.pctOverAsking}%
           </div>
           <div className="text-xs text-[var(--muted-foreground)] mt-1">
-            Sold above asking
+            % above asking
           </div>
         </div>
         <div className="card">
           <div className="stat-label">6mo Change</div>
-          <div className={`stat-value mt-2 ${stats.change6m >= 0 ? 'price-positive' : 'price-negative'}`}>
+          <div className={`stat-value mt-2 ${stats.change6m >= 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
             {stats.change6m >= 0 ? '+' : ''}{stats.change6m}%
           </div>
           <div className="text-xs text-[var(--muted-foreground)] mt-1">
-            Price trend
+            6-month change
+          </div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Avg Over/Under</div>
+          <div className={`stat-value mt-2 ${stats.avgOverUnderPercent > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
+            {stats.avgOverUnderPercent > 0 ? '+' : ''}{(stats.avgOverUnderPercent || 0).toFixed(1)}%
+          </div>
+          <div className="text-xs text-[var(--muted-foreground)] mt-1">
+            vs asking price
+          </div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Avg € Over/Under</div>
+          <div className={`stat-value mt-2 whitespace-nowrap ${stats.avgOverUnderEuro > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
+            {stats.avgOverUnderEuro > 0 ? '+' : ''}€{Math.abs(stats.avgOverUnderEuro).toLocaleString()}
+          </div>
+          <div className="text-xs text-[var(--muted-foreground)] mt-1">
+            € difference
           </div>
         </div>
       </div>
@@ -391,7 +439,7 @@ export default function AreaPage() {
               <thead>
                 <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)] text-sm">
                   <th className="pb-3 font-medium">Area</th>
-                  <th className="pb-3 font-medium text-right">Typical Price</th>
+                  <th className="pb-3 font-medium text-right">Average Price</th>
                   <th className="pb-3 font-medium text-right">vs {areaName}</th>
                   <th className="pb-3 font-medium text-right">€/sqm</th>
                   <th className="pb-3 font-medium text-right">Value</th>
@@ -414,7 +462,7 @@ export default function AreaPage() {
                         </Link>
                       </td>
                       <td className="py-3 text-right font-mono">
-                        {formatFullPrice(area.medianPrice)}
+                        {formatFullPrice(area.avgPrice)}
                       </td>
                       <td className={`py-3 text-right font-mono text-sm ${
                         area.priceDiff > 0 ? 'text-red-400' : area.priceDiff < 0 ? 'text-emerald-400' : ''
@@ -471,11 +519,13 @@ export default function AreaPage() {
                   tickLine={false}
                   tick={{ fill: '#6B7280', fontSize: 12 }}
                 />
-                <YAxis 
+                <YAxis
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: '#6B7280', fontSize: 12 }}
-                  tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `€${Math.round(value / 10000) * 10}k`}
+                  domain={[200000, 'dataMax']}
+                  interval={0}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -668,14 +718,19 @@ export default function AreaPage() {
       </div>
       
       {/* Recent Sales Table */}
-      {recentSales.length > 0 && (
+      {data && recentSales && recentSales.length > 0 && (
         <div className="card mb-8">
           <h2 className="text-2xl font-semibold mb-6">Recent Property Sales</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)] text-sm">
-                  <th className="pb-3 font-medium">Address</th>
+                  <th className="pb-3 font-medium flex items-center gap-1">
+                    Address
+                    <svg className="w-3 h-3 text-[var(--primary)] opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </th>
                   <th 
                     className="pb-3 font-medium text-right cursor-pointer hover:text-[var(--foreground)] transition-colors select-none"
                     onClick={() => handleSort('type')}
@@ -716,11 +771,31 @@ export default function AreaPage() {
               </thead>
               <tbody>
                 {sortedSales.slice(0, 20).map((sale: any, i: number) => (
-                  <tr 
-                    key={i} 
-                    className="border-b border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
+                  <tr
+                    key={i}
+                    className={`border-b border-[var(--border)] hover:bg-[var(--muted)] transition-colors ${
+                      sale.latitude && sale.longitude ? 'cursor-pointer' : ''
+                    }`}
+                    title={sale.latitude && sale.longitude ? 'Click to view on map' : 'Location data not available'}
+                    onClick={() => {
+                      if (sale.latitude && sale.longitude) {
+                        // Track the property map navigation
+                        analytics.mapAreaNavigated(`${areaName} - ${sale.address}`);
+
+                        // Navigate to map focused on this property
+                        window.open(`/map?focus=${encodeURIComponent(sale.address)}&type=listing`, '_blank');
+                      }
+                    }}
                   >
-                    <td className="py-3 max-w-xs truncate">{sale.address}</td>
+                    <td className="py-3 max-w-xs truncate text-[var(--primary)] hover:underline flex items-center gap-2">
+                      {sale.address}
+                      {sale.latitude && sale.longitude && (
+                        <svg className="w-3 h-3 text-[var(--primary)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      )}
+                    </td>
                     <td className="py-3 text-right text-sm text-[var(--muted-foreground)]">
                       {sale.propertyType || 'N/A'}
                     </td>
@@ -734,7 +809,7 @@ export default function AreaPage() {
                       {formatFullPrice(sale.soldPrice)}
                     </td>
                     <td className={`py-3 text-right font-mono ${
-                      sale.overUnderPercent >= 0 ? 'price-positive' : 'price-negative'
+                      sale.overUnderPercent >= 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'
                     }`}>
                       {sale.overUnderPercent >= 0 ? '+' : ''}{sale.overUnderPercent}%
                     </td>
@@ -758,10 +833,10 @@ export default function AreaPage() {
         
         <div className="space-y-6">
           <div>
-            <h3 className="font-semibold text-lg mb-2">What is the typical house price in {areaName}?</h3>
+            <h3 className="font-semibold text-lg mb-2">What is the average house price in {areaName}?</h3>
             <p className="text-[var(--muted-foreground)]">
-              Based on {stats.totalSales.toLocaleString()} property sales, the typical house price in {areaName} is{' '}
-              <strong className="text-foreground">{formatFullPrice(stats.medianPrice)}</strong> (half sold for more, half for less). 
+              Based on {stats.totalSales.toLocaleString()} property sales, the average house price in {areaName} is{' '}
+              <strong className="text-foreground">{formatFullPrice(stats.avgPrice)}</strong>.
               Prices range from {formatFullPrice(stats.minPrice)} to {formatFullPrice(stats.maxPrice)}.
             </p>
           </div>
@@ -771,8 +846,9 @@ export default function AreaPage() {
             <p className="text-[var(--muted-foreground)]">
               Yes, approximately <strong className="text-foreground">{stats.pctOverAsking}%</strong> of properties in{' '}
               {areaName} sell above their asking price. On average, properties sell{' '}
-              <strong className="text-foreground">{stats.avgOverUnder}%</strong>{' '}
-              {stats.avgOverUnder >= 0 ? 'over' : 'under'} asking price.
+              <strong className="text-foreground">{stats.avgOverUnderPercent}%</strong>{' '}
+              ({stats.avgOverUnderEuro >= 0 ? '+' : ''}€{formatFullPrice(Math.abs(stats.avgOverUnderEuro))}) {' '}
+              {stats.avgOverUnderPercent >= 0 ? 'over' : 'under'} asking price.
             </p>
           </div>
           

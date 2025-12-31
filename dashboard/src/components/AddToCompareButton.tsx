@@ -104,49 +104,24 @@ export function AddToCompareButton({
     return (
       <div className="relative" ref={dropdownRef}>
         <button
-          onClick={comparedProperties.length > 0 ? handleDropdownToggle : handleToggle}
+          onClick={handleDropdownToggle}
           disabled={!isAdded && isFull && comparedProperties.length === 0}
-          className={`${baseClasses.button} ${comparedProperties.length > 0 ? 'cursor-pointer' : ''}`}
-          title={comparedProperties.length > 0 ? 'Manage comparison' : (!isAdded && isFull ? 'Maximum 5 properties' : undefined)}
+          className={`${baseClasses.button} cursor-pointer`}
+          title={!isAdded && isFull ? 'Maximum 5 properties' : 'Manage comparison'}
         >
-          {isAdded ? (
-            <>
-              <span className="text-blue-600">✓</span>
-              Comparing Property
-              {comparedProperties.length > 1 && (
-                <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
-                  {comparedProperties.length}
-                </span>
-              )}
-            </>
-          ) : isFull ? (
-            <>
-              <span className="text-orange-600">⚠</span>
-              Manage Comparison
-              <span className="ml-1 bg-orange-100 text-orange-700 text-xs px-1.5 py-0.5 rounded-full">
-                {comparedProperties.length}
-              </span>
-            </>
-          ) : (
-            <>
-              <span>+</span>
-              Compare Property
-            </>
-          )}
-          {comparedProperties.length > 0 && (
-            <svg
-              className={`w-4 h-4 ml-1 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          )}
+          {comparedProperties.length > 0 ? 'Manage Comparison' : isAdded ? 'Comparing Property' : 'Compare Properties'}
+          <svg
+            className={`w-4 h-4 ml-1 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
 
         {/* Dropdown for managing comparison */}
-        {showDropdown && comparedProperties.length > 0 && (
+        {showDropdown && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-red-500 rounded-lg shadow-xl z-[9999] max-h-64 overflow-y-auto"
                style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px' }}>
             <div className="p-3">
@@ -162,61 +137,86 @@ export function AddToCompareButton({
                 </button>
               </div>
 
-              <div className="space-y-2 mb-3">
-                {comparedProperties.map((prop) => {
-                  let price: number | undefined;
-                  let isRent = false;
+              {/* Add current property button */}
+              {!isAdded && (
+                <div className="mb-3">
+                  <button
+                    onClick={() => {
+                      const success = addToComparison(property, type);
+                      if (!success) {
+                        // Show some feedback if failed to add
+                      }
+                    }}
+                    disabled={isFull}
+                    className="w-full px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded transition-colors"
+                  >
+                    Add Current Property
+                  </button>
+                </div>
+              )}
 
-                  if (prop._type === 'sold' && 'soldPrice' in prop) {
-                    price = prop.soldPrice || prop.askingPrice;
-                  } else if (prop._type === 'listing' && 'askingPrice' in prop) {
-                    price = prop.askingPrice;
-                  } else if (prop._type === 'rental' && 'monthlyRent' in prop) {
-                    price = prop.monthlyRent;
-                    isRent = true;
-                  }
+              {/* Existing compared properties */}
+              {comparedProperties.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {comparedProperties.map((prop) => {
+                    let price: number | undefined;
+                    let isRent = false;
 
-                  const formattedPrice = price ? formatFullPrice(price) + (isRent ? '/mo' : '') : 'N/A';
+                    if (prop._type === 'sold' && 'soldPrice' in prop) {
+                      price = prop.soldPrice || prop.askingPrice;
+                    } else if (prop._type === 'listing' && 'askingPrice' in prop) {
+                      price = prop.askingPrice;
+                    } else if (prop._type === 'rental' && 'monthlyRent' in prop) {
+                      price = prop.monthlyRent;
+                      isRent = true;
+                    }
 
-                  return (
-                    <div key={prop._comparisonId} className="flex items-center justify-between p-2 bg-slate-50 rounded border">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-medium text-slate-900 truncate">
-                          {prop.address.split(',')[0]}
+                    const formattedPrice = price ? formatFullPrice(price) + (isRent ? '/mo' : '') : 'N/A';
+
+                    return (
+                      <div key={prop._comparisonId} className="flex items-center justify-between p-2 bg-slate-50 rounded border">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium text-slate-900 truncate">
+                            {prop.address.split(',')[0]}
+                          </div>
+                          <div className="text-xs text-slate-600">
+                            {formattedPrice}
+                          </div>
                         </div>
-                        <div className="text-xs text-slate-600">
-                          {formattedPrice}
-                        </div>
+                        <button
+                          onClick={() => removeFromComparison(prop._comparisonId)}
+                          className="text-red-600 hover:text-red-700 ml-2 flex-shrink-0"
+                          title="Remove from comparison"
+                        >
+                          Remove
+                        </button>
                       </div>
-                      <button
-                        onClick={() => removeFromComparison(prop._comparisonId)}
-                        className="text-red-600 hover:text-red-700 ml-2 flex-shrink-0"
-                        title="Remove from comparison"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
 
-              <div className="flex gap-2">
-                <button
-                  onClick={clearComparison}
-                  className="flex-1 px-3 py-2 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-                >
-                  Clear All
-                </button>
-                <button
-                  onClick={() => {
-                    setShowDropdown(false);
-                    window.location.href = '/tools/compare';
-                  }}
-                  className="flex-1 px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-                >
-                  Compare Now
-                </button>
-              </div>
+              {/* Bottom buttons - only show Compare Now if 2+ properties */}
+              {comparedProperties.length >= 2 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      window.location.href = '/tools/compare';
+                    }}
+                    className="w-full px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+                  >
+                    Compare Now ({comparedProperties.length})
+                  </button>
+                </div>
+              )}
+
+              {/* Show message when no properties */}
+              {comparedProperties.length === 0 && isAdded && (
+                <div className="text-center text-sm text-slate-600 py-4">
+                  Current property added to comparison
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -236,7 +236,7 @@ export function AddToCompareButton({
           className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 focus:ring-2"
         />
         <span className={`text-sm ${isAdded ? 'text-blue-700' : 'text-slate-700'}`}>
-          Compare Property
+              Compare Properties
         </span>
       </label>
     );
@@ -252,13 +252,11 @@ export function AddToCompareButton({
     >
       {isAdded ? (
         <>
-          <span className="text-blue-600 font-bold">✓</span>
           <span className="hidden sm:inline">Comparing Property</span>
         </>
       ) : (
         <>
-          <span className="font-bold text-lg leading-none">+</span>
-          <span className="hidden sm:inline">Compare Property</span>
+          <span className="hidden sm:inline">Compare Properties</span>
         </>
       )}
     </button>

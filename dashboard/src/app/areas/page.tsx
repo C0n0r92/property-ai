@@ -14,6 +14,8 @@ interface AreaStats {
   medianPrice: number;
   avgPricePerSqm: number;
   pctOverAsking: number;
+  avgOverUnderPercent: number;
+  avgOverUnderEuro: number;
   change6m: number;
 }
 
@@ -257,6 +259,18 @@ export default function AreasIndexPage() {
                 </span>
               </div>
               <div className="flex justify-between">
+                <span className="text-sm text-[var(--muted-foreground)]">Avg Over/Under</span>
+                <span className={`font-semibold ${area.avgOverUnderPercent > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
+                  {area.avgOverUnderPercent > 0 ? '+' : ''}{area.avgOverUnderPercent.toFixed(1)}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-[var(--muted-foreground)]">Avg € Over/Under</span>
+                <span className={`font-semibold ${area.avgOverUnderEuro > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
+                  {area.avgOverUnderEuro > 0 ? '+' : ''}€{formatFullPrice(Math.abs(area.avgOverUnderEuro))}
+                </span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-sm text-[var(--muted-foreground)]">6M Change</span>
                 <span className={`font-semibold ${area.change6m > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
                   {area.change6m > 0 ? '+' : ''}{area.change6m.toFixed(1)}%
@@ -359,6 +373,8 @@ export default function AreasIndexPage() {
                 <th className="pb-3 font-medium text-right">Typical Price</th>
                 <th className="pb-3 font-medium text-right">€/sqm</th>
                 <th className="pb-3 font-medium text-right">% Over Asking</th>
+                <th className="pb-3 font-medium text-right">Avg % Over/Under</th>
+                <th className="pb-3 font-medium text-right">Avg € Over/Under</th>
                 <th className="pb-3 font-medium text-right">6mo Change</th>
                 <th className="pb-3 font-medium text-right">Sales</th>
                 <th className="pb-3 font-medium"></th>
@@ -391,6 +407,12 @@ export default function AreasIndexPage() {
                     </td>
                     <td className={`py-3 text-right font-mono ${area.pctOverAsking > 60 ? 'text-[var(--positive)]' : 'text-[var(--foreground)]'}`}>
                       {area.pctOverAsking}%
+                    </td>
+                    <td className={`py-3 text-right font-mono ${area.avgOverUnderPercent > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
+                      {area.avgOverUnderPercent > 0 ? '+' : ''}{area.avgOverUnderPercent}%
+                    </td>
+                    <td className={`py-3 text-right font-mono ${area.avgOverUnderEuro > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
+                      {area.avgOverUnderEuro > 0 ? '+' : ''}€{formatFullPrice(Math.abs(area.avgOverUnderEuro))}
                     </td>
                     <td className={`py-3 text-right font-mono ${area.change6m >= 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
                       {area.change6m >= 0 ? '+' : ''}{area.change6m}%
