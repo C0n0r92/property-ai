@@ -16,7 +16,7 @@ import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, Yie
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const article = articles[params.slug];
+  const article = articles[params.slug as keyof typeof articles];
 
   if (!article) {
     return {
