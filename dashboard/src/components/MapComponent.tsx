@@ -2175,13 +2175,15 @@ export default function MapComponent() {
           // Multiple properties at same location - trigger spiderfy
           spiderfyManager.current?.expand(clickedCoords, overlapping);
         } else {
-          // Single property - show details and zoom to focus on it
+          // Single property - show details and center map on it
           const props = clickedFeature.properties;
           if (props?.isRental) {
             // Find the full rental object
             const fullRental = rentals.find(r => r.address === props?.address);
             if (fullRental && fullRental.longitude && fullRental.latitude) {
               setSelectedRental(fullRental);
+              // Center map on the selected rental
+              flyToLocation([fullRental.longitude, fullRental.latitude], 16);
             }
             setSelectedProperty(null);
             setSelectedListing(null);
@@ -2190,6 +2192,8 @@ export default function MapComponent() {
             const fullListing = listings.find(l => l.address === props?.address);
             if (fullListing && fullListing.longitude && fullListing.latitude) {
               setSelectedListing(fullListing);
+              // Center map on the selected listing
+              flyToLocation([fullListing.longitude, fullListing.latitude], 16);
             }
             setSelectedProperty(null);
             setSelectedRental(null);
@@ -2200,6 +2204,8 @@ export default function MapComponent() {
             setSelectedProperty(fullProperty);
             setActiveTab('overview'); // Reset to overview tab when selecting new property
             if (isMobile) setShowFilters(false); // Close filters on mobile when selecting property
+            // Center map on the selected property
+            flyToLocation([fullProperty.longitude, fullProperty.latitude], 16);
           }
             setSelectedListing(null);
             setSelectedRental(null);
@@ -2272,41 +2278,6 @@ export default function MapComponent() {
         },
       });
 
-      // Add selected property highlight layer (on top of regular properties)
-      const currentProperty = selectedProperty || selectedListing || selectedRental;
-      console.log('Adding selected property layer for:', currentProperty?.address);
-      console.log('Selected property coords:', currentProperty?.longitude, currentProperty?.latitude);
-      if (currentProperty && currentProperty.longitude && currentProperty.latitude) {
-        console.log('Creating selected property highlight layer for address:', currentProperty.address);
-        try {
-          map.current.addLayer({
-            id: 'selected-property-point',
-            type: 'circle',
-            source: 'properties',
-            filter: ['==', ['get', 'address'], currentProperty.address],
-            paint: {
-              'circle-radius': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                9, 8,  // Larger than regular markers
-                14, 16,
-              ],
-              'circle-color': '#9333EA', // Purple/magenta for selected
-              'circle-opacity': 1.0,
-              'circle-stroke-width': 3,
-              'circle-stroke-color': '#ffffff',
-              // Add a subtle pulse effect
-              'circle-stroke-opacity': 0.8,
-            },
-          });
-          console.log('Selected property highlight layer created successfully');
-        } catch (error) {
-          console.error('Error creating selected property layer:', error);
-        }
-      } else {
-        console.log('Skipping selected property layer - missing coords or no selection');
-      }
 
       setupPointClickHandler('properties-points');
 
@@ -2346,31 +2317,6 @@ export default function MapComponent() {
         },
       });
 
-      // Add selected property highlight layer (on top of regular properties)
-      const currentProperty = selectedProperty || selectedListing || selectedRental;
-      if (currentProperty && currentProperty.longitude && currentProperty.latitude) {
-        map.current.addLayer({
-          id: 'selected-property-point',
-          type: 'circle',
-          source: 'properties',
-          filter: ['==', ['get', 'address'], currentProperty.address],
-          paint: {
-            'circle-radius': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              9, 10,  // Larger than regular markers
-              14, 20,
-            ],
-            'circle-color': '#9333EA', // Purple/magenta for selected
-            'circle-opacity': 1.0,
-            'circle-stroke-width': 4,
-            'circle-stroke-color': '#ffffff',
-            // Add a subtle pulse effect
-            'circle-stroke-opacity': 0.9,
-          },
-        });
-      }
 
       setupPointClickHandler('properties-points');
     }
@@ -2424,29 +2370,35 @@ export default function MapComponent() {
           // Multiple properties at same location - trigger spiderfy
           spiderfyManager.current?.expand(clickedCoords, overlapping);
         } else {
-          // Single property - show details as normal
+          // Single property - show details and center map on it
           const props = clickedFeature.properties;
           if (props?.isRental) {
             // Find the full rental object
             const fullRental = rentals.find(r => r.address === props?.address);
-            if (fullRental) {
+            if (fullRental && fullRental.longitude && fullRental.latitude) {
               setSelectedRental(fullRental);
+              // Center map on the selected rental
+              flyToLocation([fullRental.longitude, fullRental.latitude], 16);
             }
             setSelectedProperty(null);
             setSelectedListing(null);
           } else if (props?.isListing) {
             // Find the full listing object
             const fullListing = listings.find(l => l.address === props?.address);
-            if (fullListing) {
+            if (fullListing && fullListing.longitude && fullListing.latitude) {
               setSelectedListing(fullListing);
+              // Center map on the selected listing
+              flyToLocation([fullListing.longitude, fullListing.latitude], 16);
             }
             setSelectedProperty(null);
             setSelectedRental(null);
           } else {
             // Find the full property object
             const fullProperty = properties.find(p => p.address === props?.address);
-            if (fullProperty) {
+            if (fullProperty && fullProperty.longitude && fullProperty.latitude) {
               setSelectedProperty(fullProperty);
+              // Center map on the selected property
+              flyToLocation([fullProperty.longitude, fullProperty.latitude], 16);
             }
             setSelectedListing(null);
             setSelectedRental(null);
@@ -2654,7 +2606,7 @@ export default function MapComponent() {
     // Start the setup process
     setupLayers();
 
-  }, [mapReady, activeData, viewMode, dataSources, rentals, listings, properties, selectedProperty, selectedListing, selectedRental]);
+  }, [mapReady, activeData, viewMode, dataSources, rentals, listings, properties]);
 
   // Separate effect for planning radius (only when selected property changes)
   useEffect(() => {
@@ -2693,6 +2645,126 @@ export default function MapComponent() {
       }
     }
   }, [selectedProperty, selectedListing, selectedRental, mapReady, addPlanningRadius]);
+
+  // Separate effect for selected property star marker (only when selected property changes)
+  useEffect(() => {
+    if (!mapReady || !map.current) return;
+
+    // Remove existing selected property star marker
+    try {
+      if (map.current.getLayer('selected-property-star')) {
+        map.current.removeLayer('selected-property-star');
+        console.log('Removed existing selected property star marker');
+      }
+    } catch (error) {
+      // Layer might not exist
+    }
+
+    // Add new star marker if a property is selected
+    const currentProperty = selectedProperty || selectedListing || selectedRental;
+    if (currentProperty && currentProperty.longitude && currentProperty.latitude) {
+      console.log('Creating selected property star marker for:', currentProperty.address);
+
+      // Ensure we have a properties source (create if needed)
+      if (!map.current.getSource('properties')) {
+        console.log('Properties source not found, creating it for star marker');
+        // Create geojson from current properties data
+        const propertiesGeojson: GeoJSON.FeatureCollection = {
+          type: 'FeatureCollection',
+          features: [
+            ...properties.filter(p => p.longitude !== null && p.latitude !== null).map(p => ({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [p.longitude!, p.latitude!]
+              },
+              properties: {
+                address: p.address,
+                soldPrice: p.soldPrice,
+                pricePerSqm: p.pricePerSqm,
+                beds: p.beds,
+                baths: p.baths,
+                areaSqm: p.areaSqm,
+                propertyType: p.propertyType,
+                soldDate: p.soldDate,
+                sourceUrl: p.sourceUrl,
+              }
+            })),
+            ...listings.filter(l => l.longitude !== null && l.latitude !== null).map(l => ({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [l.longitude!, l.latitude!]
+              },
+              properties: {
+                address: l.address,
+                price: l.price,
+                beds: l.beds,
+                baths: l.baths,
+                areaSqm: l.areaSqm,
+                propertyType: l.propertyType,
+                sourceUrl: l.sourceUrl,
+                isListing: true,
+              }
+            })),
+            ...rentals.filter(r => r.longitude !== null && r.latitude !== null).map(r => ({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [r.longitude!, r.latitude!]
+              },
+              properties: {
+                address: r.address,
+                price: r.price,
+                beds: r.beds,
+                baths: r.baths,
+                areaSqm: r.areaSqm,
+                propertyType: r.propertyType,
+                sourceUrl: r.sourceUrl,
+                isRental: true,
+              }
+            }))
+          ]
+        };
+
+        map.current.addSource('properties', {
+          type: 'geojson',
+          data: propertiesGeojson,
+        });
+      }
+
+      try {
+        map.current.addLayer({
+          id: 'selected-property-star',
+          type: 'symbol',
+          source: 'properties',
+          filter: ['==', ['get', 'address'], currentProperty.address],
+          layout: {
+            'icon-image': 'star', // Mapbox Maki star icon
+            'icon-size': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              9, 2.0,  // Prominent star for selected property
+              14, 2.5,
+            ],
+            'icon-allow-overlap': true, // Ensure star is always visible
+            'icon-ignore-placement': true,
+          },
+          paint: {
+            'icon-color': '#FFD700', // Gold color for the star
+            'icon-halo-color': '#000000', // Black halo for contrast
+            'icon-halo-width': 1,
+          },
+        }, 'amenities-regular'); // Add above amenity layers if they exist
+        console.log('Selected property star marker created successfully');
+      } catch (error) {
+        console.error('Error creating selected property star marker:', error);
+      }
+    } else {
+      console.log('No property selected, skipping star marker creation');
+    }
+  }, [selectedProperty, selectedListing, selectedRental, mapReady, properties, listings, rentals]);
 
   // Update planning radius when tab changes
   useEffect(() => {
