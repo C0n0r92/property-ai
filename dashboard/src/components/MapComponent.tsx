@@ -2673,9 +2673,9 @@ export default function MapComponent() {
           type: 'FeatureCollection',
           features: [
             ...properties.filter(p => p.longitude !== null && p.latitude !== null).map(p => ({
-              type: 'Feature',
+              type: 'Feature' as const,
               geometry: {
-                type: 'Point',
+                type: 'Point' as const,
                 coordinates: [p.longitude!, p.latitude!]
               },
               properties: {
@@ -2689,16 +2689,16 @@ export default function MapComponent() {
                 soldDate: p.soldDate,
                 sourceUrl: p.sourceUrl,
               }
-            })),
+            } as GeoJSON.Feature<GeoJSON.Point>)),
             ...listings.filter(l => l.longitude !== null && l.latitude !== null).map(l => ({
-              type: 'Feature',
+              type: 'Feature' as const,
               geometry: {
-                type: 'Point',
+                type: 'Point' as const,
                 coordinates: [l.longitude!, l.latitude!]
               },
               properties: {
                 address: l.address,
-                price: l.price,
+                askingPrice: l.askingPrice,
                 beds: l.beds,
                 baths: l.baths,
                 areaSqm: l.areaSqm,
@@ -2706,16 +2706,16 @@ export default function MapComponent() {
                 sourceUrl: l.sourceUrl,
                 isListing: true,
               }
-            })),
+            } as GeoJSON.Feature<GeoJSON.Point>)),
             ...rentals.filter(r => r.longitude !== null && r.latitude !== null).map(r => ({
-              type: 'Feature',
+              type: 'Feature' as const,
               geometry: {
-                type: 'Point',
+                type: 'Point' as const,
                 coordinates: [r.longitude!, r.latitude!]
               },
               properties: {
                 address: r.address,
-                price: r.price,
+                monthlyRent: r.monthlyRent,
                 beds: r.beds,
                 baths: r.baths,
                 areaSqm: r.areaSqm,
@@ -2723,7 +2723,7 @@ export default function MapComponent() {
                 sourceUrl: r.sourceUrl,
                 isRental: true,
               }
-            }))
+            } as GeoJSON.Feature<GeoJSON.Point>))
           ]
         };
 
