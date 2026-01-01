@@ -1,8 +1,8 @@
 {
-  "reviewDate": "2025-12-30T13:07:52.615Z",
+  "reviewDate": "2026-01-01T15:55:23.775Z",
   "summary": {
     "totalBlogs": 21,
-    "passed": 8,
+    "passed": 6,
     "averageScore": 77
   },
   "detailedResults": [
@@ -695,8 +695,8 @@
     },
     {
       "filename": "../blogs/blog20_d7_area_deep_dive.md",
-      "overallScore": 81,
-      "totalScore": 81,
+      "overallScore": 79,
+      "totalScore": 79,
       "maxScore": 100,
       "criteria": {
         "dataUsage": {
@@ -710,9 +710,9 @@
           "percentage": 95
         },
         "actionability": {
-          "score": 14,
+          "score": 12,
           "maxScore": 20,
-          "percentage": 70
+          "percentage": 60
         },
         "uniqueness": {
           "score": 16,
@@ -725,13 +725,13 @@
           "percentage": 100
         }
       },
-      "passThreshold": true,
+      "passThreshold": false,
       "recommendations": []
     },
     {
       "filename": "../blogs/blog21_d2_area_deep_dive.md",
-      "overallScore": 82,
-      "totalScore": 82,
+      "overallScore": 79,
+      "totalScore": 79,
       "maxScore": 100,
       "criteria": {
         "dataUsage": {
@@ -740,14 +740,14 @@
           "percentage": 68
         },
         "clarity": {
-          "score": 20,
+          "score": 19,
           "maxScore": 20,
-          "percentage": 100
+          "percentage": 95
         },
         "actionability": {
-          "score": 14,
+          "score": 12,
           "maxScore": 20,
-          "percentage": 68
+          "percentage": 60
         },
         "uniqueness": {
           "score": 16,
@@ -760,7 +760,7 @@
           "percentage": 100
         }
       },
-      "passThreshold": true,
+      "passThreshold": false,
       "recommendations": []
     }
   ]

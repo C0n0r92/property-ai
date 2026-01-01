@@ -1,0 +1,225 @@
+{
+  "MonthlyPriceTrendChart": [
+    {
+      "month": "February",
+      "avgPrice": 559349,
+      "volume": 1656,
+      "overAskingRate": 79.49146110056927
+    },
+    {
+      "month": "May",
+      "avgPrice": 562573,
+      "volume": 1793,
+      "overAskingRate": 79.23848800337308
+    },
+    {
+      "month": "April",
+      "avgPrice": 568088,
+      "volume": 1585,
+      "overAskingRate": 79.03227353838479
+    },
+    {
+      "month": "March",
+      "avgPrice": 569879,
+      "volume": 1730,
+      "overAskingRate": 78.30259288960171
+    },
+    {
+      "month": "June",
+      "avgPrice": 594672,
+      "volume": 1619,
+      "overAskingRate": 83.10392449872
+    },
+    {
+      "month": "January",
+      "avgPrice": 597708,
+      "volume": 1418,
+      "overAskingRate": 78.95392029716444
+    },
+    {
+      "month": "July",
+      "avgPrice": 608076,
+      "volume": 2198,
+      "overAskingRate": 82.56838564371907
+    },
+    {
+      "month": "October",
+      "avgPrice": 612261,
+      "volume": 2212,
+      "overAskingRate": 82.10669420290685
+    },
+    {
+      "month": "December",
+      "avgPrice": 614775,
+      "volume": 1165,
+      "overAskingRate": 75.28408659900171
+    },
+    {
+      "month": "August",
+      "avgPrice": 616547,
+      "volume": 1938,
+      "overAskingRate": 82.56100522293319
+    },
+    {
+      "month": "November",
+      "avgPrice": 624779,
+      "volume": 1755,
+      "overAskingRate": 80.88668573094164
+    },
+    {
+      "month": "September",
+      "avgPrice": 629926,
+      "volume": 2024,
+      "overAskingRate": 83.35580271879564
+    }
+  ],
+  "SeasonalVolumeChart": [
+    {
+      "month": "February",
+      "volume": 1656,
+      "avgPrice": 559349
+    },
+    {
+      "month": "May",
+      "volume": 1793,
+      "avgPrice": 562573
+    },
+    {
+      "month": "April",
+      "volume": 1585,
+      "avgPrice": 568088
+    },
+    {
+      "month": "March",
+      "volume": 1730,
+      "avgPrice": 569879
+    },
+    {
+      "month": "June",
+      "volume": 1619,
+      "avgPrice": 594672
+    },
+    {
+      "month": "January",
+      "volume": 1418,
+      "avgPrice": 597708
+    },
+    {
+      "month": "July",
+      "volume": 2198,
+      "avgPrice": 608076
+    },
+    {
+      "month": "October",
+      "volume": 2212,
+      "avgPrice": 612261
+    },
+    {
+      "month": "December",
+      "volume": 1165,
+      "avgPrice": 614775
+    },
+    {
+      "month": "August",
+      "volume": 1938,
+      "avgPrice": 616547
+    },
+    {
+      "month": "November",
+      "volume": 1755,
+      "avgPrice": 624779
+    },
+    {
+      "month": "September",
+      "volume": 2024,
+      "avgPrice": 629926
+    }
+  ],
+  "SellerTimingChart": [
+    {
+      "month": "September",
+      "avgPrice": 629926,
+      "overAskingRate": 83.35580271879564,
+      "sellerScore": 52507.987383440064
+    },
+    {
+      "month": "August",
+      "avgPrice": 616547,
+      "overAskingRate": 82.56100522293319,
+      "sellerScore": 50902.74008718379
+    },
+    {
+      "month": "November",
+      "avgPrice": 624779,
+      "overAskingRate": 80.88668573094164,
+      "sellerScore": 50536.30262429199
+    }
+  ],
+  "BuyerTimingChart": [
+    {
+      "month": "February",
+      "avgPrice": 559349,
+      "savingsVsPeak": 70577
+    },
+    {
+      "month": "May",
+      "avgPrice": 562573,
+      "savingsVsPeak": 67353
+    },
+    {
+      "month": "April",
+      "avgPrice": 568088,
+      "savingsVsPeak": 61838
+    }
+  ],
+  "PriceVolatilityChart": [
+    {
+      "month": "February",
+      "priceDeviation": 0
+    },
+    {
+      "month": "May",
+      "priceDeviation": 4.568060416282925
+    },
+    {
+      "month": "April",
+      "priceDeviation": 12.382220836816526
+    },
+    {
+      "month": "March",
+      "priceDeviation": 14.919874746730521
+    },
+    {
+      "month": "June",
+      "priceDeviation": 50.04888278050923
+    },
+    {
+      "month": "January",
+      "priceDeviation": 54.35056746532156
+    },
+    {
+      "month": "July",
+      "priceDeviation": 69.04090567748699
+    },
+    {
+      "month": "October",
+      "priceDeviation": 74.97059948708504
+    },
+    {
+      "month": "December",
+      "priceDeviation": 78.53266644940986
+    },
+    {
+      "month": "August",
+      "priceDeviation": 81.04339940773907
+    },
+    {
+      "month": "November",
+      "priceDeviation": 92.7072559048982
+    },
+    {
+      "month": "September",
+      "priceDeviation": 100
+    }
+  ]
+}

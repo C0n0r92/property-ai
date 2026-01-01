@@ -1,0 +1,125 @@
+{
+  "BuyerProfileComparisonChart": [
+    {
+      "profile": "First-time Buyer",
+      "medianPrice": 400000,
+      "avgPrice": 398396,
+      "propertyCount": 7002
+    },
+    {
+      "profile": "Family Home",
+      "medianPrice": 592250,
+      "avgPrice": 600462,
+      "propertyCount": 4402
+    },
+    {
+      "profile": "Premium Property",
+      "medianPrice": 835000,
+      "avgPrice": 847773,
+      "propertyCount": 1557
+    },
+    {
+      "profile": "Luxury Investment",
+      "medianPrice": 1200000,
+      "avgPrice": 1205361,
+      "propertyCount": 807
+    }
+  ],
+  "MortgageStrategyChart": [
+    {
+      "profile": "First-time Buyer",
+      "standardMonthly": 1437,
+      "extra100Monthly": 1537,
+      "extra200Monthly": 1637
+    },
+    {
+      "profile": "Family Home",
+      "standardMonthly": 2128,
+      "extra100Monthly": 2228,
+      "extra200Monthly": 2328
+    },
+    {
+      "profile": "Premium Property",
+      "standardMonthly": 3000,
+      "extra100Monthly": 3100,
+      "extra200Monthly": 3200
+    },
+    {
+      "profile": "Luxury Investment",
+      "standardMonthly": 4311,
+      "extra100Monthly": 4411,
+      "extra200Monthly": 4511
+    }
+  ],
+  "BreakEvenChart": [
+    {
+      "profile": "First-time Buyer",
+      "breakEven100Years": 0.1,
+      "breakEven200Years": 0.1
+    },
+    {
+      "profile": "Family Home",
+      "breakEven100Years": 0.1,
+      "breakEven200Years": 0.1
+    },
+    {
+      "profile": "Premium Property",
+      "breakEven100Years": 0.1,
+      "breakEven200Years": 0.1
+    },
+    {
+      "profile": "Luxury Investment",
+      "breakEven100Years": 0.1,
+      "breakEven200Years": 0.1
+    }
+  ],
+  "LongTermSavingsChart": [
+    {
+      "profile": "First-time Buyer",
+      "totalSavings": 33281,
+      "yearsSaved": 4.6,
+      "monthlyExtra": 150
+    },
+    {
+      "profile": "Family Home",
+      "totalSavings": 34826,
+      "yearsSaved": 3.3,
+      "monthlyExtra": 150
+    },
+    {
+      "profile": "Premium Property",
+      "totalSavings": 37339,
+      "yearsSaved": 2.4,
+      "monthlyExtra": 150
+    },
+    {
+      "profile": "Luxury Investment",
+      "totalSavings": 35216,
+      "yearsSaved": 1.7,
+      "monthlyExtra": 150
+    }
+  ],
+  "ScenarioComparisonChart": [
+    {
+      "scenario": "Conservative",
+      "interestRate": 4.5,
+      "standardMonthly": 1520,
+      "extraMonthly": 1670,
+      "totalSavings": 46203
+    },
+    {
+      "scenario": "Current Market",
+      "interestRate": 3.5,
+      "standardMonthly": 1437,
+      "extraMonthly": 1587,
+      "totalSavings": 33281
+    },
+    {
+      "scenario": "Aggressive",
+      "interestRate": 2.5,
+      "standardMonthly": 1615,
+      "extraMonthly": 1765,
+      "totalSavings": 15011
+    }
+  ]
+}

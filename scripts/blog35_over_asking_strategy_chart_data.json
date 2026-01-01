@@ -1,0 +1,208 @@
+{
+  "overAskingByPriceBracketChart": [
+    {
+      "bracket": "€0-300k",
+      "successRate": 86.262077294686,
+      "averagePremium": 13.10597479873991,
+      "sampleSize": 3312
+    },
+    {
+      "bracket": "€300k-500k",
+      "successRate": 85.63818453015128,
+      "averagePremium": 11.12463796964416,
+      "sampleSize": 9386
+    },
+    {
+      "bracket": "€500k-700k",
+      "successRate": 81.51969981238274,
+      "averagePremium": 9.730891829689282,
+      "sampleSize": 4264
+    },
+    {
+      "bracket": "€700k-1M",
+      "successRate": 75.1818916734034,
+      "averagePremium": 9.907349462365584,
+      "sampleSize": 2474
+    },
+    {
+      "bracket": "€1M+",
+      "successRate": 52.504526252263126,
+      "averagePremium": 10.11593103448277,
+      "sampleSize": 1657
+    }
+  ],
+  "overAskingByPropertyTypeChart": [
+    {
+      "propertyType": "Apartment",
+      "successRate": 80.39532794249776,
+      "averagePremium": 10.140918641037075,
+      "sampleSize": 5565
+    },
+    {
+      "propertyType": "Semi-D",
+      "successRate": 83.90568939005638,
+      "averagePremium": 10.344121360211755,
+      "sampleSize": 5853
+    },
+    {
+      "propertyType": "Terrace",
+      "successRate": 83.23366082870568,
+      "averagePremium": 11.794026173979981,
+      "sampleSize": 4682
+    },
+    {
+      "propertyType": "Detached",
+      "successRate": 63.5280095351609,
+      "averagePremium": 10.248142589118215,
+      "sampleSize": 1678
+    },
+    {
+      "propertyType": "End of Terrace",
+      "successRate": 84.44806960304513,
+      "averagePremium": 12.49050225370253,
+      "sampleSize": 1839
+    },
+    {
+      "propertyType": "Duplex",
+      "successRate": 86.73469387755102,
+      "averagePremium": 10.68950588235294,
+      "sampleSize": 490
+    }
+  ],
+  "overAskingByPostcodeChart": [
+    {
+      "postcode": "D15",
+      "successRate": 87.30745532963647,
+      "averagePremium": 9.443232180663378,
+      "averagePrice": 463571,
+      "sampleSize": 1623
+    },
+    {
+      "postcode": "D18",
+      "successRate": 77.76816608996539,
+      "averagePremium": 8.632825361512795,
+      "averagePrice": 705234,
+      "sampleSize": 1156
+    },
+    {
+      "postcode": "D24",
+      "successRate": 91.45052833813641,
+      "averagePremium": 13.170115546218506,
+      "averagePrice": 402977,
+      "sampleSize": 1041
+    },
+    {
+      "postcode": "D9",
+      "successRate": 85.24416135881104,
+      "averagePremium": 10.897509339975112,
+      "averagePrice": 525205,
+      "sampleSize": 942
+    },
+    {
+      "postcode": "D4",
+      "successRate": 75.24324324324324,
+      "averagePremium": 10.433778735632195,
+      "averagePrice": 925609,
+      "sampleSize": 925
+    },
+    {
+      "postcode": "D8",
+      "successRate": 76.53508771929825,
+      "averagePremium": 11.479584527220622,
+      "averagePrice": 470420,
+      "sampleSize": 912
+    },
+    {
+      "postcode": "D12",
+      "successRate": 90.57043073341094,
+      "averagePremium": 15.180706940874062,
+      "averagePrice": 479919,
+      "sampleSize": 859
+    },
+    {
+      "postcode": "D14",
+      "successRate": 83.70986920332936,
+      "averagePremium": 10.728835227272729,
+      "averagePrice": 767192,
+      "sampleSize": 841
+    },
+    {
+      "postcode": "D3",
+      "successRate": 79.10628019323671,
+      "averagePremium": 10.673557251908395,
+      "averagePrice": 618071,
+      "sampleSize": 828
+    },
+    {
+      "postcode": "D7",
+      "successRate": 78.96009673518742,
+      "averagePremium": 11.84950995405819,
+      "averagePrice": 496439,
+      "sampleSize": 827
+    }
+  ],
+  "premiumDistributionChart": [
+    {
+      "range": "0-5%",
+      "count": 4329,
+      "percentage": 25.31430910473072,
+      "averageInRange": 2.6332732732732826
+    },
+    {
+      "range": "5-10%",
+      "count": 4699,
+      "percentage": 27.477925267528214,
+      "averageInRange": 7.313196424771251
+    },
+    {
+      "range": "10-15%",
+      "count": 3697,
+      "percentage": 21.61861879422256,
+      "averageInRange": 12.254406275358434
+    },
+    {
+      "range": "15-20%",
+      "count": 2207,
+      "percentage": 12.90567803052453,
+      "averageInRange": 17.154476665156327
+    },
+    {
+      "range": "20%+",
+      "count": 2169,
+      "percentage": 12.683468802993977,
+      "averageInRange": 27.195988934993082
+    }
+  ],
+  "optimalStrategyChart": [
+    {
+      "bracket": "€0-300k",
+      "effectiveness": 1130.5486111111086,
+      "successRate": 86.262077294686,
+      "averagePremium": 13.10597479873991
+    },
+    {
+      "bracket": "€300k-500k",
+      "effectiveness": 952.693799275514,
+      "successRate": 85.63818453015128,
+      "averagePremium": 11.12463796964416
+    },
+    {
+      "bracket": "€500k-700k",
+      "effectiveness": 793.2593808630381,
+      "successRate": 81.51969981238274,
+      "averagePremium": 9.730891829689282
+    },
+    {
+      "bracket": "€700k-1M",
+      "effectiveness": 744.8532740501207,
+      "successRate": 75.1818916734034,
+      "averagePremium": 9.907349462365584
+    },
+    {
+      "bracket": "€1M+",
+      "effectiveness": 531.1321665660839,
+      "successRate": 52.504526252263126,
+      "averagePremium": 10.11593103448277
+    }
+  ]
+}

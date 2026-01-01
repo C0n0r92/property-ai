@@ -2526,3 +2526,655 @@ export function MonthlyPaymentBreakdownChart() {
     </ChartWrapper>
   );
 }
+
+// New chart components for blogs 31-35
+
+export function PropertyTypeSavingsChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Apartment', interestSaved: 33859, timeSaved: 4.7, sampleSize: 5565 },
+                { propertyType: 'Semi-D', interestSaved: 36721, timeSaved: 2.8, sampleSize: 5853 },
+                { propertyType: 'Terrace', interestSaved: 35880, timeSaved: 3.3, sampleSize: 4682 },
+                { propertyType: 'Detached', interestSaved: 38427, timeSaved: 1.8, sampleSize: 1678 },
+                { propertyType: 'End of Terrace', interestSaved: 35590, timeSaved: 3.6, sampleSize: 1839 },
+                { propertyType: 'Duplex', interestSaved: 34407, timeSaved: 4.3, sampleSize: 490 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Interest Saved (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => ['€' + value.toLocaleString(), 'Interest Saved']}
+              />
+              <Bar dataKey="interestSaved" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Detached homes save €38,427 in interest with €150 monthly overpayments
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BiddingWarImpactChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Duplex', overAskingRate: 86.7, averagePremium: 10.7, sampleSize: 490 },
+                { propertyType: 'End of Terrace', overAskingRate: 84.4, averagePremium: 12.5, sampleSize: 1839 },
+                { propertyType: 'Semi-D', overAskingRate: 83.9, averagePremium: 10.3, sampleSize: 5853 },
+                { propertyType: 'Terrace', overAskingRate: 83.2, averagePremium: 11.8, sampleSize: 4682 },
+                { propertyType: 'Apartment', overAskingRate: 80.4, averagePremium: 10.1, sampleSize: 5565 },
+                { propertyType: 'Detached', overAskingRate: 63.5, averagePremium: 10.2, sampleSize: 1678 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Over-Asking Rate']}
+              />
+              <Bar dataKey="overAskingRate" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Detached homes experience lowest bidding competition at 63.5% over-asking rate
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YieldByPostcodeChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D11', averageYield: 9.40, averagePrice: 311485, sampleSize: 194 },
+                { postcode: 'D1', averageYield: 9.17, averagePrice: 341593, sampleSize: 302 },
+                { postcode: 'D2', averageYield: 8.40, averagePrice: 522472, sampleSize: 280 },
+                { postcode: 'D15', averageYield: 8.36, averagePrice: 439376, sampleSize: 1533 },
+                { postcode: 'D9', averageYield: 8.21, averagePrice: 367742, sampleSize: 314 },
+                { postcode: 'D24', averageYield: 7.96, averagePrice: 376241, sampleSize: 855 },
+                { postcode: 'D3', averageYield: 7.52, averagePrice: 502214, sampleSize: 646 },
+                { postcode: 'D8', averageYield: 7.51, averagePrice: 451485, sampleSize: 843 },
+                { postcode: 'D13', averageYield: 7.50, averagePrice: 414841, sampleSize: 191 },
+                { postcode: 'D7', averageYield: 7.40, averagePrice: 410906, sampleSize: 443 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Average Yield']}
+              />
+              <Bar dataKey="averageYield" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D11 delivers 9.40% yields on €311K properties, leading Dublin rental returns
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YieldByPriceBracketChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { bracket: '€0-300k', averageYield: 11.14, yieldPerMillion: 43.06, sampleSize: 1030 },
+                { bracket: '€300k-500k', averageYield: 7.97, yieldPerMillion: 20.34, sampleSize: 4248 },
+                { bracket: '€500k-700k', averageYield: 6.40, yieldPerMillion: 11.13, sampleSize: 1611 },
+                { bracket: '€700k-1M', averageYield: 5.21, yieldPerMillion: 6.49, sampleSize: 500 },
+                { bracket: '€1M+', averageYield: 3.58, yieldPerMillion: 2.67, sampleSize: 181 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="bracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Average Yield']}
+              />
+              <Line type="monotone" dataKey="averageYield" stroke="#059669" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          €300k properties deliver 11.14% yields, declining to 3.58% for €1M+ homes
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BestValueAreasChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D11', averageYield: 9.40, averagePrice: 311485, sampleSize: 194 },
+                { postcode: 'D1', averageYield: 9.17, averagePrice: 341593, sampleSize: 302 },
+                { postcode: 'D2', averageYield: 8.40, averagePrice: 522472, sampleSize: 280 },
+                { postcode: 'D15', averageYield: 8.36, averagePrice: 439376, sampleSize: 1533 },
+                { postcode: 'D9', averageYield: 8.21, averagePrice: 367742, sampleSize: 314 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Average Yield']}
+              />
+              <Bar dataKey="averageYield" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D11-D9 offer best yield-to-price balance for rental investments
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YieldDistributionChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { range: '2-4%', count: 779, percentage: 10.3 },
+                { range: '4-6%', count: 1523, percentage: 20.1 },
+                { range: '6-8%', count: 3421, percentage: 45.2 },
+                { range: '8-10%', count: 1847, percentage: 24.4 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="range"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [name === 'count' ? value : value + '%', name === 'count' ? 'Properties' : 'Percentage']}
+              />
+              <Bar dataKey="count" fill="#059669" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          45.2% of rental properties yield 6-8%, representing balanced investment range
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BedroomEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { bedrooms: 1, averagePrice: 316368, averageSqm: 47, pricePerSqm: 6692, sampleSize: 1307 },
+                { bedrooms: 2, averagePrice: 430044, averageSqm: 75, pricePerSqm: 5732, sampleSize: 5657 },
+                { bedrooms: 3, averagePrice: 575353, averageSqm: 116, pricePerSqm: 4974, sampleSize: 7305 },
+                { bedrooms: 4, averagePrice: 886325, averageSqm: 158, pricePerSqm: 5607, sampleSize: 3306 },
+                { bedrooms: 5, averagePrice: 1335808, averageSqm: 227, pricePerSqm: 5881, sampleSize: 889 },
+                { bedrooms: 6, averagePrice: 888292, averageSqm: 172, pricePerSqm: 5163, sampleSize: 510 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="bedrooms"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Value per Bedroom (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => ['€' + value.toLocaleString(), 'Value per Bedroom']}
+              />
+              <Line type="monotone" dataKey="averagePrice" stroke="#7C3AED" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          3-bedroom homes deliver €191,784 value per bedroom, optimal family sizing
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertyTypeEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Apartment', averageSqm: 72, averageBedrooms: 1.71, bedroomsPerSqm: 2.365, pricePerSqm: 5525, sampleSize: 5054 },
+                { propertyType: 'Bungalow', averageSqm: 106, averageBedrooms: 2.06, bedroomsPerSqm: 1.950, pricePerSqm: 6357, sampleSize: 428 },
+                { propertyType: 'Terrace', averageSqm: 104, averageBedrooms: 1.63, bedroomsPerSqm: 1.572, pricePerSqm: 5634, sampleSize: 4212 },
+                { propertyType: 'End of Terrace', averageSqm: 103, averageBedrooms: 1.26, bedroomsPerSqm: 1.231, pricePerSqm: 5366, sampleSize: 1624 },
+                { propertyType: 'Duplex', averageSqm: 100, averageBedrooms: 1.23, bedroomsPerSqm: 1.227, pricePerSqm: 4396, sampleSize: 436 },
+                { propertyType: 'Semi-D', averageSqm: 136, averageBedrooms: 1.58, bedroomsPerSqm: 1.161, pricePerSqm: 5182, sampleSize: 5328 },
+                { propertyType: 'Townhouse', averageSqm: 202, averageBedrooms: 1.77, bedroomsPerSqm: 0.875, pricePerSqm: 2842, sampleSize: 109 },
+                { propertyType: 'Detached', averageSqm: 201, averageBedrooms: 6.03, bedroomsPerSqm: 0.300, pricePerSqm: 5717, sampleSize: 1574 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Bedrooms per sqm', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value, 'Bedrooms per sqm']}
+              />
+              <Bar dataKey="bedroomsPerSqm" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Apartments deliver 2.365 bedrooms per sqm, 7.9x more efficient than detached homes
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function SizeBracketEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { sizeBracket: '0-70 sqm', averagePrice: 362354, averageBedrooms: 1.85, pricePerSqm: 6444, bedsPerSqm: 3.287, sampleSize: 4029 },
+                { sizeBracket: '70-100 sqm', averagePrice: 467898, averageBedrooms: 1.84, pricePerSqm: 5588, bedsPerSqm: 2.192, sampleSize: 6692 },
+                { sizeBracket: '100-130 sqm', averagePrice: 610982, averageBedrooms: 1.41, pricePerSqm: 5412, bedsPerSqm: 1.245, sampleSize: 4101 },
+                { sizeBracket: '130-160 sqm', averagePrice: 801570, averageBedrooms: 1.15, pricePerSqm: 5625, bedsPerSqm: 0.810, sampleSize: 1970 },
+                { sizeBracket: '160-200 sqm', averagePrice: 1035672, averageBedrooms: 2.96, pricePerSqm: 5884, bedsPerSqm: 0.168, sampleSize: 1116 },
+                { sizeBracket: '200-250 sqm', averagePrice: 1342468, averageBedrooms: 2.22, pricePerSqm: 6122, bedsPerSqm: 0.101, sampleSize: 567 },
+                { sizeBracket: '250+ sqm', averagePrice: 2128390, averageBedrooms: 3.97, pricePerSqm: 6250, bedsPerSqm: 0.117, sampleSize: 476 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="sizeBracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Bedrooms per sqm', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value, 'Bedrooms per sqm']}
+              />
+              <Bar dataKey="bedsPerSqm" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          0-70 sqm properties deliver 3.287 bedrooms per sqm, declining to 0.101 for 200+ sqm homes
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function EfficiencyParadoxChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { bracket: '0-70 sqm', costPerBedroomPerSqm: 35 },
+                { bracket: '70-100 sqm', costPerBedroomPerSqm: 30 },
+                { bracket: '100-130 sqm', costPerBedroomPerSqm: 38 },
+                { bracket: '130-160 sqm', costPerBedroomPerSqm: 49 },
+                { bracket: '160-200 sqm', costPerBedroomPerSqm: 198 },
+                { bracket: '200-250 sqm', costPerBedroomPerSqm: 276 },
+                { bracket: '250+ sqm', costPerBedroomPerSqm: 157 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="bracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Cost per Bedroom per sqm (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => ['€' + value, 'Cost per Bedroom per sqm']}
+              />
+              <Bar dataKey="costPerBedroomPerSqm" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          70-100 sqm properties offer best value at €30 per bedroom per sqm
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverAskingByPriceBracketChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { bracket: '€0-300k', successRate: 86.3, averagePremium: 13.1, sampleSize: 3312 },
+                { bracket: '€300k-500k', successRate: 85.6, averagePremium: 11.1, sampleSize: 9386 },
+                { bracket: '€500k-700k', successRate: 81.5, averagePremium: 9.7, sampleSize: 4264 },
+                { bracket: '€700k-1M', successRate: 75.2, averagePremium: 9.9, sampleSize: 2474 },
+                { bracket: '€1M+', successRate: 52.5, averagePremium: 10.1, sampleSize: 1657 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="bracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Success Rate']}
+              />
+              <Bar dataKey="successRate" fill="#EA580C" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          €300k properties achieve 86.3% over-asking success with 13.1% average premiums
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverAskingByPropertyTypeChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Duplex', successRate: 86.7, averagePremium: 10.7, sampleSize: 490 },
+                { propertyType: 'End of Terrace', successRate: 84.4, averagePremium: 12.5, sampleSize: 1839 },
+                { propertyType: 'Semi-D', successRate: 83.9, averagePremium: 10.3, sampleSize: 5853 },
+                { propertyType: 'Terrace', successRate: 83.2, averagePremium: 11.8, sampleSize: 4682 },
+                { propertyType: 'Apartment', successRate: 80.4, averagePremium: 10.1, sampleSize: 5565 },
+                { propertyType: 'Detached', successRate: 63.5, averagePremium: 10.2, sampleSize: 1678 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Success Rate']}
+              />
+              <Bar dataKey="successRate" fill="#EA580C" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Duplex properties lead with 86.7% over-asking success rates
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverAskingByPostcodeChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D24', successRate: 91.5, averagePremium: 13.2, averagePrice: 402977, sampleSize: 1041 },
+                { postcode: 'D12', successRate: 90.6, averagePremium: 15.2, averagePrice: 479919, sampleSize: 859 },
+                { postcode: 'D14', successRate: 83.7, averagePremium: 10.7, averagePrice: 767192, sampleSize: 841 },
+                { postcode: 'D9', successRate: 85.2, averagePremium: 10.9, averagePrice: 525205, sampleSize: 942 },
+                { postcode: 'D4', successRate: 75.2, averagePremium: 10.4, averagePrice: 925609, sampleSize: 925 },
+                { postcode: 'D8', successRate: 76.5, averagePremium: 11.5, averagePrice: 470420, sampleSize: 912 },
+                { postcode: 'D7', successRate: 79.0, averagePremium: 11.8, averagePrice: 496439, sampleSize: 827 },
+                { postcode: 'D3', successRate: 79.1, averagePremium: 10.7, averagePrice: 618071, sampleSize: 828 },
+                { postcode: 'D18', successRate: 77.8, averagePremium: 8.6, averagePrice: 705234, sampleSize: 1156 },
+                { postcode: 'D15', successRate: 87.3, averagePremium: 9.4, averagePrice: 463571, sampleSize: 1623 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value + '%', 'Success Rate']}
+              />
+              <Bar dataKey="successRate" fill="#EA580C" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D24 leads Dublin over-asking with 91.5% success and 13.2% average premiums
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PremiumDistributionChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { range: '0-5%', count: 4329, percentage: 25.3, averageInRange: 2.6 },
+                { range: '5-10%', count: 4699, percentage: 27.5, averageInRange: 7.3 },
+                { range: '10-15%', count: 3697, percentage: 21.6, averageInRange: 12.3 },
+                { range: '15-20%', count: 2207, percentage: 12.9, averageInRange: 17.2 },
+                { range: '20%+', count: 2169, percentage: 12.7, averageInRange: 27.2 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="range"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Properties', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [name === 'count' ? value.toLocaleString() : value + '%', name === 'count' ? 'Properties' : 'Percentage']}
+              />
+              <Bar dataKey="count" fill="#EA580C" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          49.1% of over-asking cases achieve 5-15% premiums, with 12.7% exceeding 20%
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OptimalStrategyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { bracket: '€0-300k', effectiveness: 1130.5, successRate: 86.3, averagePremium: 13.1 },
+                { bracket: '€300k-500k', effectiveness: 952.7, successRate: 85.6, averagePremium: 11.1 },
+                { bracket: '€500k-700k', effectiveness: 793.3, successRate: 81.5, averagePremium: 9.7 },
+                { bracket: '€700k-1M', effectiveness: 744.9, successRate: 75.2, averagePremium: 9.9 },
+                { bracket: '€1M+', effectiveness: 531.1, successRate: 52.5, averagePremium: 10.1 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="bracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Effectiveness Score', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [value, 'Effectiveness Score']}
+              />
+              <Bar dataKey="effectiveness" fill="#EA580C" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          €300k properties deliver highest over-asking effectiveness at 1,130.5 points
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}

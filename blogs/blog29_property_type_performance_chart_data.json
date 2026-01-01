@@ -1,0 +1,252 @@
+{
+  "PropertyTypePriceRankingChart": [
+    {
+      "type": "Detached",
+      "avgPrice": 1128367,
+      "marketShare": 8.099237378125302,
+      "count": 1678
+    },
+    {
+      "type": "Semi-D",
+      "avgPrice": 688016,
+      "marketShare": 28.250796408919783,
+      "count": 5853
+    },
+    {
+      "type": "Bungalow",
+      "avgPrice": 656804,
+      "marketShare": 2.229944975383724,
+      "count": 462
+    },
+    {
+      "type": "Terrace",
+      "avgPrice": 570193,
+      "marketShare": 22.598706438845447,
+      "count": 4682
+    },
+    {
+      "type": "Townhouse",
+      "avgPrice": 556331,
+      "marketShare": 0.5840332078385945,
+      "count": 121
+    },
+    {
+      "type": "End of Terrace",
+      "avgPrice": 537327,
+      "marketShare": 8.876339415001448,
+      "count": 1839
+    },
+    {
+      "type": "Duplex",
+      "avgPrice": 431591,
+      "marketShare": 2.3650931557100106,
+      "count": 490
+    },
+    {
+      "type": "Apartment",
+      "avgPrice": 393838,
+      "marketShare": 26.860700839849404,
+      "count": 5565
+    }
+  ],
+  "OverAskingPerformanceChart": [
+    {
+      "type": "Duplex",
+      "overAskingRate": 86.73469387755102,
+      "overAskingCount": 425,
+      "totalCount": 490
+    },
+    {
+      "type": "End of Terrace",
+      "overAskingRate": 84.44806960304513,
+      "overAskingCount": 1553,
+      "totalCount": 1839
+    },
+    {
+      "type": "Semi-D",
+      "overAskingRate": 83.90568939005638,
+      "overAskingCount": 4911,
+      "totalCount": 5853
+    },
+    {
+      "type": "Terrace",
+      "overAskingRate": 83.23366082870568,
+      "overAskingCount": 3897,
+      "totalCount": 4682
+    },
+    {
+      "type": "Apartment",
+      "overAskingRate": 80.39532794249776,
+      "overAskingCount": 4474,
+      "totalCount": 5565
+    },
+    {
+      "type": "Townhouse",
+      "overAskingRate": 76.85950413223141,
+      "overAskingCount": 93,
+      "totalCount": 121
+    },
+    {
+      "type": "Bungalow",
+      "overAskingRate": 74.67532467532467,
+      "overAskingCount": 345,
+      "totalCount": 462
+    },
+    {
+      "type": "Detached",
+      "overAskingRate": 63.5280095351609,
+      "overAskingCount": 1066,
+      "totalCount": 1678
+    }
+  ],
+  "PremiumPerformanceChart": [
+    {
+      "type": "End of Terrace",
+      "avgPremium": 6.518091642844749,
+      "avgPrice": 537327,
+      "avgAsking": 504447
+    },
+    {
+      "type": "Apartment",
+      "avgPremium": 2.592145293070473,
+      "avgPrice": 393838,
+      "avgAsking": 383887
+    },
+    {
+      "type": "Duplex",
+      "avgPremium": -2.740525585831149,
+      "avgPrice": 431591,
+      "avgAsking": 443752
+    },
+    {
+      "type": "Bungalow",
+      "avgPremium": -3.76077705304761,
+      "avgPrice": 656804,
+      "avgAsking": 682471
+    },
+    {
+      "type": "Townhouse",
+      "avgPremium": -3.802405777240215,
+      "avgPrice": 556331,
+      "avgAsking": 578321
+    },
+    {
+      "type": "Semi-D",
+      "avgPremium": -6.6378757612420305,
+      "avgPrice": 688016,
+      "avgAsking": 736933
+    },
+    {
+      "type": "Terrace",
+      "avgPremium": -6.969525087422575,
+      "avgPrice": 570193,
+      "avgAsking": 612910
+    },
+    {
+      "type": "Detached",
+      "avgPremium": -24.330399567880114,
+      "avgPrice": 1128367,
+      "avgAsking": 1491176
+    }
+  ],
+  "GrowthPerformanceChart": [
+    {
+      "type": "Townhouse",
+      "growthRate": 27.22349527165556,
+      "avg2024": 496062,
+      "avg2025": 631108
+    },
+    {
+      "type": "Duplex",
+      "growthRate": 8.406167491448537,
+      "avg2024": 414182,
+      "avg2025": 448999
+    },
+    {
+      "type": "Terrace",
+      "growthRate": 8.316471246556766,
+      "avg2024": 549303,
+      "avg2025": 594986
+    },
+    {
+      "type": "End of Terrace",
+      "growthRate": 7.88609287601246,
+      "avg2024": 517488,
+      "avg2025": 558298
+    },
+    {
+      "type": "Apartment",
+      "growthRate": 7.659798740358936,
+      "avg2024": 380337,
+      "avg2025": 409470
+    },
+    {
+      "type": "Bungalow",
+      "growthRate": 7.645899485749502,
+      "avg2024": 631512,
+      "avg2025": 679797
+    },
+    {
+      "type": "Semi-D",
+      "growthRate": 4.125317508800839,
+      "avg2024": 674663,
+      "avg2025": 702495
+    },
+    {
+      "type": "Detached",
+      "growthRate": -2.603023549281684,
+      "avg2024": 1141792,
+      "avg2025": 1112071
+    }
+  ],
+  "ValueEfficiencyChart": [
+    {
+      "type": "End of Terrace",
+      "pricePerBed": 1199,
+      "avgBeds": 448.2948857453754,
+      "totalBedrooms": 823966
+    },
+    {
+      "type": "Terrace",
+      "pricePerBed": 1505,
+      "avgBeds": 378.81125615236465,
+      "totalBedrooms": 1770185
+    },
+    {
+      "type": "Apartment",
+      "pricePerBed": 1513,
+      "avgBeds": 260.2658159597412,
+      "totalBedrooms": 1448119
+    },
+    {
+      "type": "Townhouse",
+      "pricePerBed": 1757,
+      "avgBeds": 316.68595041322317,
+      "totalBedrooms": 38319
+    },
+    {
+      "type": "Duplex",
+      "pricePerBed": 1989,
+      "avgBeds": 216.97142857142856,
+      "totalBedrooms": 106316
+    },
+    {
+      "type": "Bungalow",
+      "pricePerBed": 2084,
+      "avgBeds": 315.1475054229935,
+      "totalBedrooms": 145283
+    },
+    {
+      "type": "Semi-D",
+      "pricePerBed": 3349,
+      "avgBeds": 205.49700905828064,
+      "totalBedrooms": 1202363
+    },
+    {
+      "type": "Detached",
+      "pricePerBed": 14189,
+      "avgBeds": 79.56682577565633,
+      "totalBedrooms": 133354
+    }
+  ]
+}

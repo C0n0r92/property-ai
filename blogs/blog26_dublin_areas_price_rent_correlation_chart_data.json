@@ -1,0 +1,454 @@
+{
+  "AreaPriceRankingChart": [
+    {
+      "postcode": "D6",
+      "avgPrice": 943153,
+      "propertyCount": 667,
+      "growthRate": 5.528161252645224
+    },
+    {
+      "postcode": "D4",
+      "avgPrice": 903774,
+      "propertyCount": 895,
+      "growthRate": 2.3584286112305204
+    },
+    {
+      "postcode": "D6W",
+      "avgPrice": 742975,
+      "propertyCount": 362,
+      "growthRate": 14.885523187882633
+    },
+    {
+      "postcode": "D14",
+      "avgPrice": 730610,
+      "propertyCount": 763,
+      "growthRate": 7.450176866362063
+    },
+    {
+      "postcode": "D18",
+      "avgPrice": 681898,
+      "propertyCount": 1082,
+      "growthRate": 5.432963524750421
+    },
+    {
+      "postcode": "D16",
+      "avgPrice": 634916,
+      "propertyCount": 686,
+      "growthRate": 10.80009012886892
+    },
+    {
+      "postcode": "D13",
+      "avgPrice": 549810,
+      "propertyCount": 733,
+      "growthRate": 5.189266300567812
+    },
+    {
+      "postcode": "D2",
+      "avgPrice": 522472,
+      "propertyCount": 280,
+      "growthRate": 3.2792960991770586
+    },
+    {
+      "postcode": "D5",
+      "avgPrice": 521042,
+      "propertyCount": 602,
+      "growthRate": 5.225765337718348
+    },
+    {
+      "postcode": "D3",
+      "avgPrice": 502214,
+      "propertyCount": 646,
+      "growthRate": 5.61823313274365
+    },
+    {
+      "postcode": "D7",
+      "avgPrice": 489285,
+      "propertyCount": 797,
+      "growthRate": 7.788167822849432
+    },
+    {
+      "postcode": "D12",
+      "avgPrice": 486245,
+      "propertyCount": 681,
+      "growthRate": 6.293638162301978
+    },
+    {
+      "postcode": "D9",
+      "avgPrice": 476866,
+      "propertyCount": 772,
+      "growthRate": 3.551245449092908
+    },
+    {
+      "postcode": "D20",
+      "avgPrice": 469562,
+      "propertyCount": 94,
+      "growthRate": 0.14377584510713068
+    },
+    {
+      "postcode": "D8",
+      "avgPrice": 451485,
+      "propertyCount": 843,
+      "growthRate": 10.481755244119267
+    }
+  ],
+  "PriceGrowthChart": [
+    {
+      "postcode": "D6W",
+      "growthRate": 14.885523187882633,
+      "avgPrice2025": 742975,
+      "propertyCount": 362
+    },
+    {
+      "postcode": "D16",
+      "growthRate": 10.80009012886892,
+      "avgPrice2025": 634916,
+      "propertyCount": 686
+    },
+    {
+      "postcode": "D8",
+      "growthRate": 10.481755244119267,
+      "avgPrice2025": 451485,
+      "propertyCount": 843
+    },
+    {
+      "postcode": "D15",
+      "growthRate": 8.948859611007794,
+      "avgPrice2025": 439376,
+      "propertyCount": 1533
+    },
+    {
+      "postcode": "D11",
+      "growthRate": 8.560626979025125,
+      "avgPrice2025": 406736,
+      "propertyCount": 659
+    },
+    {
+      "postcode": "D22",
+      "growthRate": 8.427290480750498,
+      "avgPrice2025": 361751,
+      "propertyCount": 421
+    },
+    {
+      "postcode": "D7",
+      "growthRate": 7.788167822849432,
+      "avgPrice2025": 489285,
+      "propertyCount": 797
+    },
+    {
+      "postcode": "D14",
+      "growthRate": 7.450176866362063,
+      "avgPrice2025": 730610,
+      "propertyCount": 763
+    },
+    {
+      "postcode": "D1",
+      "growthRate": 7.199148260941156,
+      "avgPrice2025": 361237,
+      "propertyCount": 333
+    },
+    {
+      "postcode": "D12",
+      "growthRate": 6.293638162301978,
+      "avgPrice2025": 486245,
+      "propertyCount": 681
+    },
+    {
+      "postcode": "D24",
+      "growthRate": 6.175622528876082,
+      "avgPrice2025": 402213,
+      "propertyCount": 1003
+    },
+    {
+      "postcode": "D3",
+      "growthRate": 5.61823313274365,
+      "avgPrice2025": 502214,
+      "propertyCount": 646
+    },
+    {
+      "postcode": "D6",
+      "growthRate": 5.528161252645224,
+      "avgPrice2025": 943153,
+      "propertyCount": 667
+    },
+    {
+      "postcode": "D18",
+      "growthRate": 5.432963524750421,
+      "avgPrice2025": 681898,
+      "propertyCount": 1082
+    },
+    {
+      "postcode": "D5",
+      "growthRate": 5.225765337718348,
+      "avgPrice2025": 521042,
+      "propertyCount": 602
+    }
+  ],
+  "PriceRentCorrelationChart": [
+    {
+      "postcode": "D6",
+      "avgPrice": 943153,
+      "avgRent": 3720,
+      "rentYield": 4.732765997599808
+    },
+    {
+      "postcode": "D4",
+      "avgPrice": 903774,
+      "avgRent": 5054,
+      "rentYield": 6.710616095169626
+    },
+    {
+      "postcode": "D6W",
+      "avgPrice": 742975,
+      "avgRent": 3435,
+      "rentYield": 5.548544439575595
+    },
+    {
+      "postcode": "D14",
+      "avgPrice": 730610,
+      "avgRent": 3257,
+      "rentYield": 5.349658301998045
+    },
+    {
+      "postcode": "D18",
+      "avgPrice": 681898,
+      "avgRent": 3185,
+      "rentYield": 5.604701979652718
+    },
+    {
+      "postcode": "D16",
+      "avgPrice": 634916,
+      "avgRent": 2442,
+      "rentYield": 4.6158600967766175
+    },
+    {
+      "postcode": "D13",
+      "avgPrice": 549810,
+      "avgRent": 3256,
+      "rentYield": 7.106266598019313
+    },
+    {
+      "postcode": "D2",
+      "avgPrice": 522472,
+      "avgRent": 3125,
+      "rentYield": 7.176927484957924
+    },
+    {
+      "postcode": "D5",
+      "avgPrice": 521042,
+      "avgRent": 2796,
+      "rentYield": 6.439608118675768
+    },
+    {
+      "postcode": "D3",
+      "avgPrice": 502214,
+      "avgRent": 2904,
+      "rentYield": 6.9394185795273176
+    },
+    {
+      "postcode": "D7",
+      "avgPrice": 489285,
+      "avgRent": 2815,
+      "rentYield": 6.904212240612184
+    },
+    {
+      "postcode": "D12",
+      "avgPrice": 486245,
+      "avgRent": 2966,
+      "rentYield": 7.320143672247312
+    },
+    {
+      "postcode": "D9",
+      "avgPrice": 476866,
+      "avgRent": 3045,
+      "rentYield": 7.661623795825393
+    },
+    {
+      "postcode": "D20",
+      "avgPrice": 469562,
+      "avgRent": 2500,
+      "rentYield": 6.388926151331503
+    },
+    {
+      "postcode": "D8",
+      "avgPrice": 451485,
+      "avgRent": 2560,
+      "rentYield": 6.803170895080108
+    },
+    {
+      "postcode": "D15",
+      "avgPrice": 439376,
+      "avgRent": 2790,
+      "rentYield": 7.6195079310755895
+    },
+    {
+      "postcode": "D11",
+      "avgPrice": 406736,
+      "avgRent": 2520,
+      "rentYield": 7.435741280898998
+    },
+    {
+      "postcode": "D24",
+      "avgPrice": 402213,
+      "avgRent": 2707,
+      "rentYield": 8.075362494541386
+    },
+    {
+      "postcode": "D22",
+      "avgPrice": 361751,
+      "avgRent": 2576,
+      "rentYield": 8.546145086608545
+    },
+    {
+      "postcode": "D1",
+      "avgPrice": 361237,
+      "avgRent": 2474,
+      "rentYield": 8.218464748348204
+    }
+  ],
+  "HighValueAreasChart": [
+    {
+      "postcode": "D16",
+      "avgPrice": 634916,
+      "avgRent": 2442,
+      "rentYield": 4.6158600967766175,
+      "priceToRentRatio": 259.9732173074295
+    },
+    {
+      "postcode": "D6",
+      "avgPrice": 943153,
+      "avgRent": 3720,
+      "rentYield": 4.732765997599808,
+      "priceToRentRatio": 253.55151735973683
+    },
+    {
+      "postcode": "D14",
+      "avgPrice": 730610,
+      "avgRent": 3257,
+      "rentYield": 5.349658301998045,
+      "priceToRentRatio": 224.3133920444623
+    },
+    {
+      "postcode": "D6W",
+      "avgPrice": 742975,
+      "avgRent": 3435,
+      "rentYield": 5.548544439575595,
+      "priceToRentRatio": 216.27293663557413
+    },
+    {
+      "postcode": "D18",
+      "avgPrice": 681898,
+      "avgRent": 3185,
+      "rentYield": 5.604701979652718,
+      "priceToRentRatio": 214.1059425383319
+    },
+    {
+      "postcode": "D5",
+      "avgPrice": 521042,
+      "avgRent": 2796,
+      "rentYield": 6.439608118675768,
+      "priceToRentRatio": 186.3467431379608
+    },
+    {
+      "postcode": "D4",
+      "avgPrice": 903774,
+      "avgRent": 5054,
+      "rentYield": 6.710616095169626,
+      "priceToRentRatio": 178.8211369837969
+    },
+    {
+      "postcode": "D8",
+      "avgPrice": 451485,
+      "avgRent": 2560,
+      "rentYield": 6.803170895080108,
+      "priceToRentRatio": 176.38833692503763
+    },
+    {
+      "postcode": "D7",
+      "avgPrice": 489285,
+      "avgRent": 2815,
+      "rentYield": 6.904212240612184,
+      "priceToRentRatio": 173.80693961598118
+    },
+    {
+      "postcode": "D3",
+      "avgPrice": 502214,
+      "avgRent": 2904,
+      "rentYield": 6.9394185795273176,
+      "priceToRentRatio": 172.9251501761605
+    }
+  ],
+  "RentGrowthVsPriceChart": [
+    {
+      "postcode": "D2",
+      "priceGrowth": 3.2792960991770586,
+      "rentGrowth": 4.1060347361508125,
+      "avgRent": 3125
+    },
+    {
+      "postcode": "D6W",
+      "priceGrowth": 14.885523187882633,
+      "rentGrowth": 3.8687527835506432,
+      "avgRent": 3435
+    },
+    {
+      "postcode": "D13",
+      "priceGrowth": 5.189266300567812,
+      "rentGrowth": 2.0514536026669004,
+      "avgRent": 3256
+    },
+    {
+      "postcode": "D8",
+      "priceGrowth": 10.481755244119267,
+      "rentGrowth": 1.2351082231881443,
+      "avgRent": 2560
+    },
+    {
+      "postcode": "D22",
+      "priceGrowth": 8.427290480750498,
+      "rentGrowth": 1.0906733566080729,
+      "avgRent": 2576
+    },
+    {
+      "postcode": "D15",
+      "priceGrowth": 8.948859611007794,
+      "rentGrowth": 1.0655826711139573,
+      "avgRent": 2790
+    },
+    {
+      "postcode": "D18",
+      "priceGrowth": 5.432963524750421,
+      "rentGrowth": 1.0375598389986576,
+      "avgRent": 3185
+    },
+    {
+      "postcode": "D14",
+      "priceGrowth": 7.450176866362063,
+      "rentGrowth": 0.7809693295305543,
+      "avgRent": 3257
+    },
+    {
+      "postcode": "D9",
+      "priceGrowth": 3.551245449092908,
+      "rentGrowth": 0.3642078362976757,
+      "avgRent": 3045
+    },
+    {
+      "postcode": "D11",
+      "priceGrowth": 8.560626979025125,
+      "rentGrowth": -0.30981727577107127,
+      "avgRent": 2520
+    },
+    {
+      "postcode": "D24",
+      "priceGrowth": 6.175622528876082,
+      "rentGrowth": -0.3814220561919905,
+      "avgRent": 2707
+    },
+    {
+      "postcode": "D7",
+      "priceGrowth": 7.788167822849432,
+      "rentGrowth": -0.552021618126489,
+      "avgRent": 2815
+    }
+  ]
+}

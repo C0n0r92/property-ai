@@ -1,0 +1,264 @@
+{
+  "SpaceEfficiencyRankingChart": [
+    {
+      "postcode": "D1",
+      "pricePerSqm": 3143,
+      "avgSqm": 130,
+      "efficiencyScore": 31.818764725144987
+    },
+    {
+      "postcode": "D15",
+      "pricePerSqm": 3739,
+      "avgSqm": 126,
+      "efficiencyScore": 26.74795583331649
+    },
+    {
+      "postcode": "D22",
+      "pricePerSqm": 4131,
+      "avgSqm": 91,
+      "efficiencyScore": 24.207487787602027
+    },
+    {
+      "postcode": "D17",
+      "pricePerSqm": 4173,
+      "avgSqm": 84,
+      "efficiencyScore": 23.96279306033949
+    },
+    {
+      "postcode": "D24",
+      "pricePerSqm": 4189,
+      "avgSqm": 96,
+      "efficiencyScore": 23.871352694742058
+    },
+    {
+      "postcode": "D10",
+      "pricePerSqm": 4277,
+      "avgSqm": 78,
+      "efficiencyScore": 23.379972987696387
+    },
+    {
+      "postcode": "D11",
+      "pricePerSqm": 4375,
+      "avgSqm": 94,
+      "efficiencyScore": 22.858267224403647
+    },
+    {
+      "postcode": "D20",
+      "pricePerSqm": 4714,
+      "avgSqm": 98,
+      "efficiencyScore": 21.213663938843467
+    },
+    {
+      "postcode": "D13",
+      "pricePerSqm": 5140,
+      "avgSqm": 115,
+      "efficiencyScore": 19.456663196249053
+    },
+    {
+      "postcode": "D9",
+      "pricePerSqm": 5262,
+      "avgSqm": 101,
+      "efficiencyScore": 19.00533857649727
+    },
+    {
+      "postcode": "D5",
+      "pricePerSqm": 5355,
+      "avgSqm": 104,
+      "efficiencyScore": 18.67310417036466
+    },
+    {
+      "postcode": "D12",
+      "pricePerSqm": 5451,
+      "avgSqm": 90,
+      "efficiencyScore": 18.34634817657342
+    }
+  ],
+  "PropertyTypeEfficiencyChart": [
+    {
+      "type": "Duplex",
+      "pricePerSqm": 4392,
+      "avgSqm": 98,
+      "efficiencyScore": 22.768580801528774
+    },
+    {
+      "type": "Semi-D",
+      "pricePerSqm": 5340,
+      "avgSqm": 131,
+      "efficiencyScore": 18.727527863948946
+    },
+    {
+      "type": "End of Terrace",
+      "pricePerSqm": 5395,
+      "avgSqm": 100,
+      "efficiencyScore": 18.535848745150435
+    },
+    {
+      "type": "Apartment",
+      "pricePerSqm": 5460,
+      "avgSqm": 72,
+      "efficiencyScore": 18.313762452606664
+    },
+    {
+      "type": "Terrace",
+      "pricePerSqm": 5630,
+      "avgSqm": 102,
+      "efficiencyScore": 17.762442857473072
+    },
+    {
+      "type": "Detached",
+      "pricePerSqm": 6056,
+      "avgSqm": 191,
+      "efficiencyScore": 16.511737513788
+    },
+    {
+      "type": "",
+      "pricePerSqm": 6191,
+      "avgSqm": 110,
+      "efficiencyScore": 16.15306438324628
+    },
+    {
+      "type": "Bungalow",
+      "pricePerSqm": 6258,
+      "avgSqm": 98,
+      "efficiencyScore": 15.979493967042139
+    }
+  ],
+  "BedroomEfficiencyChart": [
+    {
+      "bedrooms": "1 Bed",
+      "sqmPerBedroom": 47,
+      "pricePerSqm": 6699,
+      "efficiencyScore": 14.927549309635115
+    },
+    {
+      "bedrooms": "2 Bed",
+      "sqmPerBedroom": 38,
+      "pricePerSqm": 5708,
+      "efficiencyScore": 8.758958658855507
+    },
+    {
+      "bedrooms": "3 Bed",
+      "sqmPerBedroom": 38,
+      "pricePerSqm": 5055,
+      "efficiencyScore": 6.593883481350365
+    },
+    {
+      "bedrooms": "4 Bed",
+      "sqmPerBedroom": 38,
+      "pricePerSqm": 5750,
+      "efficiencyScore": 4.347634107707692
+    },
+    {
+      "bedrooms": "5 Bed",
+      "sqmPerBedroom": 44,
+      "pricePerSqm": 5878,
+      "efficiencyScore": 3.4025537542689004
+    },
+    {
+      "bedrooms": "6 Bed",
+      "sqmPerBedroom": 50,
+      "pricePerSqm": 5700,
+      "efficiencyScore": 2.9242204212926097
+    }
+  ],
+  "SizeBracketEfficiencyChart": [
+    {
+      "sizeBracket": "Micro (0-50m²)",
+      "pricePerSqm": 7256,
+      "avgSqm": 42,
+      "propertyCount": 876
+    },
+    {
+      "sizeBracket": "Small (50-80m²)",
+      "pricePerSqm": 5983,
+      "avgSqm": 67,
+      "propertyCount": 4236
+    },
+    {
+      "sizeBracket": "Medium (80-120m²)",
+      "pricePerSqm": 5494,
+      "avgSqm": 96,
+      "propertyCount": 5384
+    },
+    {
+      "sizeBracket": "Large (120-160m²)",
+      "pricePerSqm": 5573,
+      "avgSqm": 135,
+      "propertyCount": 2074
+    },
+    {
+      "sizeBracket": "XL (160-200m²)",
+      "pricePerSqm": 5876,
+      "avgSqm": 176,
+      "propertyCount": 727
+    },
+    {
+      "sizeBracket": "XXL (200m²+)",
+      "pricePerSqm": 6304,
+      "avgSqm": 272,
+      "propertyCount": 660
+    }
+  ],
+  "ValueOpportunityChart": [
+    {
+      "postcode": "D1",
+      "efficiencyScore": 31.818764725144987,
+      "avgPrice": 407910,
+      "valueRatio": 78.00446606501781
+    },
+    {
+      "postcode": "D10",
+      "efficiencyScore": 23.379972987696387,
+      "avgPrice": 332678,
+      "valueRatio": 70.27800981651043
+    },
+    {
+      "postcode": "D17",
+      "efficiencyScore": 23.96279306033949,
+      "avgPrice": 350614,
+      "valueRatio": 68.34532272974089
+    },
+    {
+      "postcode": "D22",
+      "efficiencyScore": 24.207487787602027,
+      "avgPrice": 377931,
+      "valueRatio": 64.0527356181884
+    },
+    {
+      "postcode": "D24",
+      "efficiencyScore": 23.871352694742058,
+      "avgPrice": 403955,
+      "valueRatio": 59.09416100981639
+    },
+    {
+      "postcode": "D15",
+      "efficiencyScore": 26.74795583331649,
+      "avgPrice": 471215,
+      "valueRatio": 56.76379607632289
+    },
+    {
+      "postcode": "D11",
+      "efficiencyScore": 22.858267224403647,
+      "avgPrice": 413366,
+      "valueRatio": 55.297869007014015
+    },
+    {
+      "postcode": "D20",
+      "efficiencyScore": 21.213663938843467,
+      "avgPrice": 461905,
+      "valueRatio": 45.926447188448584
+    },
+    {
+      "postcode": "D12",
+      "efficiencyScore": 18.34634817657342,
+      "avgPrice": 490559,
+      "valueRatio": 37.39884932477465
+    },
+    {
+      "postcode": "D8",
+      "efficiencyScore": 17.467446261927705,
+      "avgPrice": 471116,
+      "valueRatio": 37.07672483003794
+    }
+  ]
+}

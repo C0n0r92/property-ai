@@ -1,0 +1,208 @@
+{
+  "bedroomEfficiencyChart": [
+    {
+      "bedrooms": 1,
+      "averagePrice": 316368,
+      "averageSqm": 47,
+      "pricePerSqm": 6692,
+      "sampleSize": 1307
+    },
+    {
+      "bedrooms": 2,
+      "averagePrice": 430044,
+      "averageSqm": 75,
+      "pricePerSqm": 5732,
+      "sampleSize": 5657
+    },
+    {
+      "bedrooms": 3,
+      "averagePrice": 575353,
+      "averageSqm": 116,
+      "pricePerSqm": 4974,
+      "sampleSize": 7305
+    },
+    {
+      "bedrooms": 4,
+      "averagePrice": 886325,
+      "averageSqm": 158,
+      "pricePerSqm": 5607,
+      "sampleSize": 3306
+    },
+    {
+      "bedrooms": 5,
+      "averagePrice": 1335809,
+      "averageSqm": 227,
+      "pricePerSqm": 5881,
+      "sampleSize": 889
+    },
+    {
+      "bedrooms": 6,
+      "averagePrice": 888292,
+      "averageSqm": 172,
+      "pricePerSqm": 5163,
+      "sampleSize": 510
+    }
+  ],
+  "propertyTypeEfficiencyChart": [
+    {
+      "propertyType": "Apartment",
+      "averageSqm": 72,
+      "averageBedrooms": 170.98872180451127,
+      "bedroomsPerSqm": 2.364669550388885,
+      "pricePerSqm": 5525,
+      "sampleSize": 5054
+    },
+    {
+      "propertyType": "Bungalow",
+      "averageSqm": 106,
+      "averageBedrooms": 206.06308411214954,
+      "bedroomsPerSqm": 1.9502028812453707,
+      "pricePerSqm": 6357,
+      "sampleSize": 428
+    },
+    {
+      "propertyType": "Terrace",
+      "averageSqm": 104,
+      "averageBedrooms": 162.73219373219374,
+      "bedroomsPerSqm": 1.5719754869909102,
+      "pricePerSqm": 5634,
+      "sampleSize": 4212
+    },
+    {
+      "propertyType": "End of Terrace",
+      "averageSqm": 103,
+      "averageBedrooms": 126.44704433497537,
+      "bedroomsPerSqm": 1.231461364136558,
+      "pricePerSqm": 5366,
+      "sampleSize": 1624
+    },
+    {
+      "propertyType": "Duplex",
+      "averageSqm": 100,
+      "averageBedrooms": 123.11238532110092,
+      "bedroomsPerSqm": 1.2270402856548503,
+      "pricePerSqm": 4396,
+      "sampleSize": 436
+    },
+    {
+      "propertyType": "Semi-D",
+      "averageSqm": 136,
+      "averageBedrooms": 157.5015015015015,
+      "bedroomsPerSqm": 1.1614409059805972,
+      "pricePerSqm": 5182,
+      "sampleSize": 5328
+    },
+    {
+      "propertyType": "Townhouse",
+      "averageSqm": 202,
+      "averageBedrooms": 176.93577981651376,
+      "bedroomsPerSqm": 0.8746048949939006,
+      "pricePerSqm": 2842,
+      "sampleSize": 109
+    },
+    {
+      "propertyType": "Detached",
+      "averageSqm": 201,
+      "averageBedrooms": 60.324015247776366,
+      "bedroomsPerSqm": 0.2996623709274163,
+      "pricePerSqm": 5717,
+      "sampleSize": 1574
+    },
+    {
+      "propertyType": "",
+      "averageSqm": 117,
+      "averageBedrooms": 3.078048780487805,
+      "bedroomsPerSqm": 0.026196921135227594,
+      "pricePerSqm": 6142,
+      "sampleSize": 205
+    }
+  ],
+  "sizeBracketEfficiencyChart": [
+    {
+      "sizeBracket": "0-70 sqm",
+      "averagePrice": 362354,
+      "pricePerSqm": 6444,
+      "bedsPerSqm": 3.2867948329199876,
+      "sampleSize": 4029
+    },
+    {
+      "sizeBracket": "70-100 sqm",
+      "averagePrice": 467898,
+      "pricePerSqm": 5588,
+      "bedsPerSqm": 2.1917757368943938,
+      "sampleSize": 6692
+    },
+    {
+      "sizeBracket": "100-130 sqm",
+      "averagePrice": 610982,
+      "pricePerSqm": 5412,
+      "bedsPerSqm": 1.2454922344930164,
+      "sampleSize": 4101
+    },
+    {
+      "sizeBracket": "130-160 sqm",
+      "averagePrice": 801570,
+      "pricePerSqm": 5625,
+      "bedsPerSqm": 0.8098163486366042,
+      "sampleSize": 1970
+    },
+    {
+      "sizeBracket": "160-200 sqm",
+      "averagePrice": 1035672,
+      "pricePerSqm": 5884,
+      "bedsPerSqm": 0.16845418126706413,
+      "sampleSize": 1116
+    },
+    {
+      "sizeBracket": "200-250 sqm",
+      "averagePrice": 1342468,
+      "pricePerSqm": 6122,
+      "bedsPerSqm": 0.10103983445005554,
+      "sampleSize": 567
+    },
+    {
+      "sizeBracket": "250+ sqm",
+      "averagePrice": 2128390,
+      "pricePerSqm": 6250,
+      "bedsPerSqm": 0.11653973467038597,
+      "sampleSize": 476
+    }
+  ],
+  "efficiencyParadoxChart": [
+    {
+      "bracket": "70-100 sqm",
+      "costPerBedroomPerSqm": 30.448920024555914,
+      "bedroomsPerSqm": 2.1917757368943938
+    },
+    {
+      "bracket": "0-70 sqm",
+      "costPerBedroomPerSqm": 34.86337934082042,
+      "bedroomsPerSqm": 3.2867948329199876
+    },
+    {
+      "bracket": "100-130 sqm",
+      "costPerBedroomPerSqm": 38.49433151172376,
+      "bedroomsPerSqm": 1.2454922344930164
+    },
+    {
+      "bracket": "130-160 sqm",
+      "costPerBedroomPerSqm": 48.73786921187247,
+      "bedroomsPerSqm": 0.8098163486366042
+    },
+    {
+      "bracket": "250+ sqm",
+      "costPerBedroomPerSqm": 157.46471558956767,
+      "bedroomsPerSqm": 0.11653973467038597
+    },
+    {
+      "bracket": "160-200 sqm",
+      "costPerBedroomPerSqm": 198.45638158132346,
+      "bedroomsPerSqm": 0.16845418126706413
+    },
+    {
+      "bracket": "200-250 sqm",
+      "costPerBedroomPerSqm": 276.29694172196565,
+      "bedroomsPerSqm": 0.10103983445005554
+    }
+  ]
+}
