@@ -2558,7 +2558,7 @@ export function PropertyTypeSavingsChart() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value) => ['€' + value.toLocaleString(), 'Interest Saved']}
+                formatter={(value) => ['€' + (value || 0).toLocaleString(), 'Interest Saved']}
               />
               <Bar dataKey="interestSaved" fill="#2563EB" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -2816,7 +2816,7 @@ export function BedroomEfficiencyChart() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value) => ['€' + value.toLocaleString(), 'Value per Bedroom']}
+                formatter={(value) => ['€' + (value || 0).toLocaleString(), 'Value per Bedroom']}
               />
               <Line type="monotone" dataKey="averagePrice" stroke="#7C3AED" strokeWidth={2} />
             </LineChart>
@@ -3123,7 +3123,7 @@ export function PremiumDistributionChartNew2() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value, name) => [name === 'count' ? value.toLocaleString() : value + '%', name === 'count' ? 'Properties' : 'Percentage']}
+                formatter={(value, name) => [name === 'count' ? (value || 0).toLocaleString() : (value || 0) + '%', name === 'count' ? 'Properties' : 'Percentage']}
               />
               <Bar dataKey="count" fill="#EA580C" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -3208,7 +3208,7 @@ export function D3PropertyTypesChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${(value || 0).toLocaleString()}`, 'Average Price']}
               />
               <Bar dataKey="averagePrice" fill="#2563EB" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -3270,7 +3270,7 @@ export function D3MonthlyTrendsChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${(value || 0).toLocaleString()}`, 'Average Price']}
               />
               <Line type="monotone" dataKey="averagePrice" stroke="#2563EB" strokeWidth={2} />
             </LineChart>
@@ -3540,7 +3540,7 @@ export function GeographicPriceVariationsChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${(value || 0).toLocaleString()}`, 'Average Price']}
               />
               <Bar dataKey="averagePrice" fill="#2563EB" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -3876,7 +3876,7 @@ export function CyclicalPerformanceChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${(value || 0).toLocaleString()}`, 'Average Price']}
               />
               <Line type="monotone" dataKey="Apartment" stroke="#2563EB" strokeWidth={2} name="Apartments" />
               <Line type="monotone" dataKey="SemiD" stroke="#DC2626" strokeWidth={2} name="Semi-Detached" />
@@ -3974,8 +3974,8 @@ export function PeakPerformanceChart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'peakPrice') return [`€${value.toLocaleString()}`, 'Peak Price'];
-                  return [value, name];
+                  if (name === 'peakPrice') return [`€${(value || 0).toLocaleString()}`, 'Peak Price'];
+                  return [value || 0, name];
                 }}
               />
               <Bar yAxisId="price" dataKey="peakPrice" fill="#2563EB" radius={[4, 4, 0, 0]} />
@@ -4018,7 +4018,7 @@ export function MarketTimingChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Seasonal Advantage']}
+                formatter={(value) => [`€${(value || 0).toLocaleString()}`, 'Seasonal Advantage']}
               />
               <Bar dataKey="seasonalAdvantage" fill="#10B981" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -4060,7 +4060,10 @@ export function PriceVolatilityChart() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value) => [`${value > 0 ? '+' : ''}${value}%`, 'Price Change']}
+                formatter={(value) => {
+                  const numValue = Number(value) || 0;
+                  return [`${numValue > 0 ? '+' : ''}${numValue}%`, 'Price Change'];
+                }}
               />
               <Line type="monotone" dataKey="Apartment" stroke="#2563EB" strokeWidth={2} name="Apartments" />
               <Line type="monotone" dataKey="SemiD" stroke="#DC2626" strokeWidth={2} name="Semi-Detached" />
@@ -4156,9 +4159,9 @@ export function SizeEfficiencyChartNew2() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'pricePerSqm') return [`€${value}`, 'Price per SqM'];
-                  if (name === 'averagePrice') return [`€${value.toLocaleString()}`, 'Average Price'];
-                  return [value, name];
+                  if (name === 'pricePerSqm') return [`€${value || 0}`, 'Price per SqM'];
+                  if (name === 'averagePrice') return [`€${(value || 0).toLocaleString()}`, 'Average Price'];
+                  return [value || 0, name];
                 }}
               />
               <Line yAxisId="price" type="monotone" dataKey="pricePerSqm" stroke="#2563EB" strokeWidth={3} />
@@ -4244,7 +4247,10 @@ export function ValueEfficiencyChart() {
                 fontSize={12}
               />
               <Tooltip
-                formatter={(value) => [`${value > 0 ? '+' : ''}${value}%`, 'Efficiency Difference']}
+                formatter={(value) => {
+                  const numValue = Number(value) || 0;
+                  return [`${numValue > 0 ? '+' : ''}${numValue}%`, 'Efficiency Difference'];
+                }}
               />
               <Bar dataKey="percentageDifference" fill="#F59E0B" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -4288,7 +4294,7 @@ export function QuarterlyTimingChart() {
                 tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip
-                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+                formatter={(value) => [`€${(value || 0).toLocaleString()}`, 'Average Price']}
               />
               <Line type="monotone" dataKey="Compact" stroke="#2563EB" strokeWidth={2} name="Compact" />
               <Line type="monotone" dataKey="Standard" stroke="#DC2626" strokeWidth={2} name="Standard" />
@@ -4426,8 +4432,8 @@ export function BuyerProfileOptimizationChart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === 'averagePrice') return [`€${value.toLocaleString()}`, 'Average Price'];
-                  return [value, name];
+                  if (name === 'averagePrice') return [`€${(value || 0).toLocaleString()}`, 'Average Price'];
+                  return [value || 0, name];
                 }}
               />
               <Bar dataKey="averagePrice" fill="#2563EB" radius={[4, 4, 0, 0]} />

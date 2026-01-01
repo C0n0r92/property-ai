@@ -15,18 +15,16 @@ import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, Yie
 // MapLink component will be imported from a separate client component file
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const article = articles[params.slug as keyof typeof articles];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = articles[slug as keyof typeof articles];
 
   if (!article) {
-    return {
-      title: 'Irish Property Data Blog',
-      description: 'Property market insights and analysis for Dublin and Ireland.',
-    };
+    notFound();
   }
 
   const baseUrl = 'https://irishpropertydata.com';
-  const canonicalUrl = `${baseUrl}/blog/${params.slug}`;
+  const canonicalUrl = `${baseUrl}/blog/${slug}`;
 
   return {
     title: `${article.title} | Irish Property Data`,
@@ -1390,6 +1388,14 @@ function splitContentWithCharts(content: string): ContentSegment[] {
   return segments;
 }
 
+// Generate static params for all blog posts
+export async function generateStaticParams() {
+  const slugs = Object.keys(articles);
+  return slugs.map((slug) => ({
+    slug: slug,
+  }));
+}
+
 // Article data - this will be moved to a data file later
 export const articles = {
   'dublin-d3-area-analysis': {
@@ -1403,7 +1409,7 @@ export const articles = {
     views: 0,
     relatedArticles: ['dublin-4-area-analysis-contrarian-decline', 'dublin-6-area-deep-dive-analysis', 'dublin-2-area-deep-dive-analysis'],
     content: `
-${require('fs').readFileSync(require('path').join(process.cwd(), '../blog41_d3_area_analysis.md'), 'utf8')}
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blogs/blog36_d3_area_analysis.md'), 'utf8')}
     `,
   },
   'size-based-mortgage-strategy': {
@@ -1417,7 +1423,7 @@ ${require('fs').readFileSync(require('path').join(process.cwd(), '../blog41_d3_a
     views: 0,
     relatedArticles: ['mortgage-overpayment-savings-strategy', 'mortgage-overpayment-by-property-type', 'dublin-bidding-war-costs'],
     content: `
-${require('fs').readFileSync(require('path').join(process.cwd(), '../blog42_size_based_mortgage_strategy.md'), 'utf8')}
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blogs/blog32_property_type_mortgage_strategy.md'), 'utf8')}
     `,
   },
   'geographic-price-intelligence': {
@@ -1431,7 +1437,7 @@ ${require('fs').readFileSync(require('path').join(process.cwd(), '../blog42_size
     views: 0,
     relatedArticles: ['dublin-property-map-guide', 'dublin-areas-complete-guide-rankings', 'dublin-postcode-power-rankings'],
     content: `
-${require('fs').readFileSync(require('path').join(process.cwd(), '../blog43_geographic_price_intelligence.md'), 'utf8')}
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blogs/blog33_geographic_yield_patterns.md'), 'utf8')}
     `,
   },
   'property-type-cyclical-performance': {
@@ -1445,7 +1451,7 @@ ${require('fs').readFileSync(require('path').join(process.cwd(), '../blog43_geog
     views: 0,
     relatedArticles: ['dublin-property-timing-value-tradeoff', 'january-2025-timing', 'christmas-property-market-analysis'],
     content: `
-${require('fs').readFileSync(require('path').join(process.cwd(), '../blog44_property_type_cyclical_performance.md'), 'utf8')}
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blogs/blog30_seasonal_timing_analysis.md'), 'utf8')}
     `,
   },
   'size-efficiency-paradox-analysis': {
@@ -1459,7 +1465,7 @@ ${require('fs').readFileSync(require('path').join(process.cwd(), '../blog44_prop
     views: 0,
     relatedArticles: ['dublin-property-size-efficiency', 'property-size-premium-2025', 'dublin-apartment-market-2025'],
     content: `
-${require('fs').readFileSync(require('path').join(process.cwd(), '../blog45_size_efficiency_paradox.md'), 'utf8')}
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blogs/blog28_space_efficiency_analysis.md'), 'utf8')}
     `,
   },
   'compare-properties-complete-guide': {
@@ -8126,7 +8132,6 @@ According to the Residential Tenancies Board, Dublin's rental demand increased 1
 
 Analysis includes 1,623 D15 property transactions from January 2024 to December 2025 with complete price and property data. Geographic boundaries follow official Dublin postcode classifications. Growth calculations use year-over-year average price comparisons with transaction-weighted analysis.
     `,
-    relatedArticles: ['d2-area-deep-dive-analysis', 'd7-area-deep-dive-analysis', 'd6w-area-deep-dive-analysis'],
   },
 
   'mortgage-overpayment-by-property-type': {
@@ -8263,7 +8268,6 @@ According to the Banking & Payments Federation Ireland, mortgage overpayments re
 
 Analysis includes 21,093 Dublin property transactions from January 2024 to December 2025 with complete price and bidding data. Mortgage calculations use 3.5% interest rate and 80% loan-to-value ratios. Overpayment savings calculated using standard amortization formulas with extra payments applied to principal reduction. Property type classifications follow standard Dublin market definitions.
     `,
-    relatedArticles: ['mortgage-overpayment-savings-strategy', 'dublin-bidding-war-costs', 'dublin-mortgage-calculator-guide'],
   },
 
   'dublin-geographic-yield-analysis': {
@@ -8420,7 +8424,6 @@ According to the Residential Tenancies Board, Dublin's average rental yield decr
 
 Analysis includes 7,570 Dublin properties with high-confidence yield estimates from January 2024 to December 2025. Yields calculated using gross rental income divided by property value. Geographic analysis follows official Dublin postcode boundaries with minimum 30-property sample sizes for statistical reliability. Yield estimates validated against RTB rental price data and local market conditions.
     `,
-    relatedArticles: ['dublin-rental-yield-analysis-best-areas', 'dublin-property-market-q4-2024', 'dublin-areas-price-rent-correlation'],
   },
 
   'dublin-property-size-efficiency': {
@@ -8569,7 +8572,6 @@ According to the Central Statistics Office, Irish household sizes averaged 2.8 p
 
 Analysis includes 18,974 Dublin properties with complete size and bedroom data from January 2024 to December 2025. Size measurements use square meter specifications with bedroom counts validated against property descriptions. Efficiency calculations use price per bedroom per square meter ratios with statistical weighting by transaction volume. Property type classifications follow standard Dublin market definitions.
     `,
-    relatedArticles: ['dublin-property-valuation-increases-2025', 'dublin-bidding-wars-analysis', 'dublin-property-market-q4-2024'],
   },
 
   'dublin-over-asking-strategy-guide': {
@@ -8730,7 +8732,6 @@ According to Daft.ie, Dublin properties sold over asking price 79% of the time i
 
 Analysis includes 21,093 Dublin property transactions with complete asking and sold price data from January 2024 to December 2025. Over-asking effectiveness calculated as percentage of properties selling above asking price. Premium calculations use (sold price - asking price) / asking price ratios with statistical weighting by transaction volume. Geographic analysis follows official Dublin postcode boundaries with minimum 30-property sample sizes for reliability.
     `,
-    relatedArticles: ['dublin-bidding-wars-analysis', 'dublin-properties-over-asking-price-2024', 'dublin-bidding-war-costs'],
   },
 };
 
@@ -8742,11 +8743,9 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
     notFound();
   }
 
+  // Blog content rendering enabled
   return (
     <div>
-      <BlogViewTracker articleSlug={slug} />
-      <ReadingProgress />
-
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
         {/* Hero Section with Article Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
