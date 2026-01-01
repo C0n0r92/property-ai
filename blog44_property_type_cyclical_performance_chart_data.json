@@ -1,0 +1,502 @@
+{
+  "cyclicalPerformanceChart": [
+    {
+      "propertyType": "Apartment",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 363831,
+          "salesVolume": 634,
+          "totalValue": 231
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 373991,
+          "salesVolume": 762,
+          "totalValue": 285
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 387574,
+          "salesVolume": 749,
+          "totalValue": 290
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 392084,
+          "salesVolume": 841,
+          "totalValue": 330
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 400310,
+          "salesVolume": 624,
+          "totalValue": 250
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 409241,
+          "salesVolume": 666,
+          "totalValue": 273
+        }
+      ]
+    },
+    {
+      "propertyType": "Semi-D",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 642018,
+          "salesVolume": 621,
+          "totalValue": 399
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 628938,
+          "salesVolume": 685,
+          "totalValue": 431
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 709197,
+          "salesVolume": 849,
+          "totalValue": 602
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 699691,
+          "salesVolume": 890,
+          "totalValue": 623
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 695201,
+          "salesVolume": 684,
+          "totalValue": 476
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 693281,
+          "salesVolume": 659,
+          "totalValue": 457
+        }
+      ]
+    },
+    {
+      "propertyType": "Terrace",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 527513,
+          "salesVolume": 569,
+          "totalValue": 300
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 522510,
+          "salesVolume": 552,
+          "totalValue": 288
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 569162,
+          "salesVolume": 702,
+          "totalValue": 400
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 567753,
+          "salesVolume": 718,
+          "totalValue": 408
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 558993,
+          "salesVolume": 572,
+          "totalValue": 320
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 606390,
+          "salesVolume": 500,
+          "totalValue": 303
+        }
+      ]
+    },
+    {
+      "propertyType": "Detached",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 1036208,
+          "salesVolume": 181,
+          "totalValue": 188
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 1054800,
+          "salesVolume": 203,
+          "totalValue": 214
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 1209363,
+          "salesVolume": 267,
+          "totalValue": 323
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 1211417,
+          "salesVolume": 269,
+          "totalValue": 326
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 1089296,
+          "salesVolume": 194,
+          "totalValue": 211
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 1066824,
+          "salesVolume": 173,
+          "totalValue": 185
+        }
+      ]
+    }
+  ],
+  "seasonalIndexChart": [
+    {
+      "propertyType": "Apartment",
+      "seasonalData": [
+        {
+          "quarter": "2024-Q1",
+          "priceIndex": 100,
+          "volumeIndex": 100
+        },
+        {
+          "quarter": "2024-Q2",
+          "priceIndex": 102.79229335164753,
+          "volumeIndex": 120.18927444794953
+        },
+        {
+          "quarter": "2024-Q3",
+          "priceIndex": 106.52570084391908,
+          "volumeIndex": 118.13880126182966
+        },
+        {
+          "quarter": "2024-Q4",
+          "priceIndex": 107.76524899042192,
+          "volumeIndex": 132.64984227129338
+        },
+        {
+          "quarter": "2025-Q1",
+          "priceIndex": 110.0262562589468,
+          "volumeIndex": 98.42271293375394
+        },
+        {
+          "quarter": "2025-Q2",
+          "priceIndex": 112.48102061390517,
+          "volumeIndex": 105.04731861198738
+        }
+      ]
+    },
+    {
+      "propertyType": "Semi-D",
+      "seasonalData": [
+        {
+          "quarter": "2024-Q1",
+          "priceIndex": 100,
+          "volumeIndex": 100
+        },
+        {
+          "quarter": "2024-Q2",
+          "priceIndex": 97.96279508264996,
+          "volumeIndex": 110.30595813204509
+        },
+        {
+          "quarter": "2024-Q3",
+          "priceIndex": 110.46384628475259,
+          "volumeIndex": 136.71497584541063
+        },
+        {
+          "quarter": "2024-Q4",
+          "priceIndex": 108.9831950230953,
+          "volumeIndex": 143.31723027375202
+        },
+        {
+          "quarter": "2025-Q1",
+          "priceIndex": 108.28373535025099,
+          "volumeIndex": 110.14492753623189
+        },
+        {
+          "quarter": "2025-Q2",
+          "priceIndex": 107.98465119074537,
+          "volumeIndex": 106.11916264090178
+        }
+      ]
+    },
+    {
+      "propertyType": "Terrace",
+      "seasonalData": [
+        {
+          "quarter": "2024-Q1",
+          "priceIndex": 100,
+          "volumeIndex": 100
+        },
+        {
+          "quarter": "2024-Q2",
+          "priceIndex": 99.05159278981064,
+          "volumeIndex": 97.01230228471002
+        },
+        {
+          "quarter": "2024-Q3",
+          "priceIndex": 107.89543144097702,
+          "volumeIndex": 123.3743409490334
+        },
+        {
+          "quarter": "2024-Q4",
+          "priceIndex": 107.62825455711645,
+          "volumeIndex": 126.18629173989456
+        },
+        {
+          "quarter": "2025-Q1",
+          "priceIndex": 105.96772949244865,
+          "volumeIndex": 100.52724077328648
+        },
+        {
+          "quarter": "2025-Q2",
+          "priceIndex": 114.95262573769962,
+          "volumeIndex": 87.87346221441125
+        }
+      ]
+    },
+    {
+      "propertyType": "Detached",
+      "seasonalData": [
+        {
+          "quarter": "2024-Q1",
+          "priceIndex": 100,
+          "volumeIndex": 100
+        },
+        {
+          "quarter": "2024-Q2",
+          "priceIndex": 101.79426966054297,
+          "volumeIndex": 112.15469613259668
+        },
+        {
+          "quarter": "2024-Q3",
+          "priceIndex": 116.71046098058106,
+          "volumeIndex": 147.51381215469613
+        },
+        {
+          "quarter": "2024-Q4",
+          "priceIndex": 116.90867160817837,
+          "volumeIndex": 148.61878453038676
+        },
+        {
+          "quarter": "2025-Q1",
+          "priceIndex": 105.12331202643625,
+          "volumeIndex": 107.18232044198895
+        },
+        {
+          "quarter": "2025-Q2",
+          "priceIndex": 102.95467020372382,
+          "volumeIndex": 95.58011049723757
+        }
+      ]
+    }
+  ],
+  "peakPerformanceChart": [
+    {
+      "propertyType": "Apartment",
+      "peakPriceQuarter": "2025-Q2",
+      "peakPrice": 409241,
+      "peakVolumeQuarter": "2024-Q4",
+      "peakVolume": 841
+    },
+    {
+      "propertyType": "Semi-D",
+      "peakPriceQuarter": "2024-Q3",
+      "peakPrice": 709197,
+      "peakVolumeQuarter": "2024-Q4",
+      "peakVolume": 890
+    },
+    {
+      "propertyType": "Terrace",
+      "peakPriceQuarter": "2025-Q2",
+      "peakPrice": 606390,
+      "peakVolumeQuarter": "2024-Q4",
+      "peakVolume": 718
+    },
+    {
+      "propertyType": "Detached",
+      "peakPriceQuarter": "2024-Q4",
+      "peakPrice": 1211417,
+      "peakVolumeQuarter": "2024-Q4",
+      "peakVolume": 269
+    }
+  ],
+  "marketTimingChart": [
+    {
+      "propertyType": "Apartment",
+      "buyerQuarter": "2024-Q1",
+      "buyerPrice": 363831,
+      "sellerQuarter": "2025-Q2",
+      "sellerPrice": 409241,
+      "seasonalAdvantage": 45410
+    },
+    {
+      "propertyType": "Semi-D",
+      "buyerQuarter": "2024-Q2",
+      "buyerPrice": 628938,
+      "sellerQuarter": "2024-Q3",
+      "sellerPrice": 709197,
+      "seasonalAdvantage": 80259
+    },
+    {
+      "propertyType": "Terrace",
+      "buyerQuarter": "2024-Q2",
+      "buyerPrice": 522510,
+      "sellerQuarter": "2025-Q2",
+      "sellerPrice": 606390,
+      "seasonalAdvantage": 83880
+    },
+    {
+      "propertyType": "Detached",
+      "buyerQuarter": "2024-Q1",
+      "buyerPrice": 1036208,
+      "sellerQuarter": "2024-Q4",
+      "sellerPrice": 1211417,
+      "seasonalAdvantage": 175209
+    }
+  ],
+  "priceVolatilityChart": [
+    {
+      "propertyType": "Apartment",
+      "volatilityData": [
+        {
+          "quarterTransition": "2024-Q1→2024-Q2",
+          "priceChange": 2.7922933516475212
+        },
+        {
+          "quarterTransition": "2024-Q2→2024-Q3",
+          "priceChange": 3.6319916314151497
+        },
+        {
+          "quarterTransition": "2024-Q3→2024-Q4",
+          "priceChange": 1.1636141669877669
+        },
+        {
+          "quarterTransition": "2024-Q4→2025-Q1",
+          "priceChange": 2.098085690616125
+        },
+        {
+          "quarterTransition": "2025-Q1→2025-Q2",
+          "priceChange": 2.23107141733614
+        }
+      ]
+    },
+    {
+      "propertyType": "Semi-D",
+      "volatilityData": [
+        {
+          "quarterTransition": "2024-Q1→2024-Q2",
+          "priceChange": -2.037204917350029
+        },
+        {
+          "quarterTransition": "2024-Q2→2024-Q3",
+          "priceChange": 12.761019315093696
+        },
+        {
+          "quarterTransition": "2024-Q3→2024-Q4",
+          "priceChange": -1.340394447103058
+        },
+        {
+          "quarterTransition": "2024-Q4→2025-Q1",
+          "priceChange": -0.6418050715948268
+        },
+        {
+          "quarterTransition": "2025-Q1→2025-Q2",
+          "priceChange": -0.2762041395581958
+        }
+      ]
+    },
+    {
+      "propertyType": "Terrace",
+      "volatilityData": [
+        {
+          "quarterTransition": "2024-Q1→2024-Q2",
+          "priceChange": -0.9484072101893594
+        },
+        {
+          "quarterTransition": "2024-Q2→2024-Q3",
+          "priceChange": 8.928517353510072
+        },
+        {
+          "quarterTransition": "2024-Q3→2024-Q4",
+          "priceChange": -0.24762576162154515
+        },
+        {
+          "quarterTransition": "2024-Q4→2025-Q1",
+          "priceChange": -1.5428337767817109
+        },
+        {
+          "quarterTransition": "2025-Q1→2025-Q2",
+          "priceChange": 8.478898517771146
+        }
+      ]
+    },
+    {
+      "propertyType": "Detached",
+      "volatilityData": [
+        {
+          "quarterTransition": "2024-Q1→2024-Q2",
+          "priceChange": 1.7942696605429649
+        },
+        {
+          "quarterTransition": "2024-Q2→2024-Q3",
+          "priceChange": 14.653272104392187
+        },
+        {
+          "quarterTransition": "2024-Q3→2024-Q4",
+          "priceChange": 0.16983107249510426
+        },
+        {
+          "quarterTransition": "2024-Q4→2025-Q1",
+          "priceChange": -10.0808258443317
+        },
+        {
+          "quarterTransition": "2025-Q1→2025-Q2",
+          "priceChange": -2.0629504349777847
+        }
+      ]
+    }
+  ],
+  "autumnForecastChart": [
+    {
+      "propertyType": "Apartment",
+      "autumnAvgPrice": 389829,
+      "springAvgPrice": 404776,
+      "autumnPremium": -3.692610486265603
+    },
+    {
+      "propertyType": "Semi-D",
+      "autumnAvgPrice": 704444,
+      "springAvgPrice": 694241,
+      "autumnPremium": 1.4697731913993621
+    },
+    {
+      "propertyType": "Terrace",
+      "autumnAvgPrice": 568458,
+      "springAvgPrice": 582692,
+      "autumnPremium": -2.442812128575812
+    },
+    {
+      "propertyType": "Detached",
+      "autumnAvgPrice": 1210390,
+      "springAvgPrice": 1078060,
+      "autumnPremium": 12.274797210570629
+    }
+  ]
+}

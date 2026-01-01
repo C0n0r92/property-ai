@@ -1,0 +1,260 @@
+{
+  "d3PropertyTypesChart": [
+    {
+      "propertyType": "Apartment",
+      "count": 193,
+      "averagePrice": 373008,
+      "averageSize": 58
+    },
+    {
+      "propertyType": "Terrace",
+      "count": 304,
+      "averagePrice": 581719,
+      "averageSize": 101
+    },
+    {
+      "propertyType": "Semi-D",
+      "count": 157,
+      "averagePrice": 867260,
+      "averageSize": 133
+    },
+    {
+      "propertyType": "Detached",
+      "count": 33,
+      "averagePrice": 1377998,
+      "averageSize": 193
+    },
+    {
+      "propertyType": "End of Terrace",
+      "count": 95,
+      "averagePrice": 575559,
+      "averageSize": 92
+    }
+  ],
+  "d3BedroomAnalysisChart": [
+    {
+      "bedrooms": 1,
+      "count": 83,
+      "averagePrice": 314985
+    },
+    {
+      "bedrooms": 2,
+      "count": 281,
+      "averagePrice": 412220
+    },
+    {
+      "bedrooms": 3,
+      "count": 282,
+      "averagePrice": 646994
+    },
+    {
+      "bedrooms": 4,
+      "count": 128,
+      "averagePrice": 1001540
+    },
+    {
+      "bedrooms": 5,
+      "count": 36,
+      "averagePrice": 1271540
+    }
+  ],
+  "d3MonthlyTrendsChart": [
+    {
+      "month": "2024-01",
+      "salesCount": 29,
+      "averagePrice": 564810
+    },
+    {
+      "month": "2024-02",
+      "salesCount": 33,
+      "averagePrice": 569579
+    },
+    {
+      "month": "2024-03",
+      "salesCount": 34,
+      "averagePrice": 513324
+    },
+    {
+      "month": "2024-04",
+      "salesCount": 38,
+      "averagePrice": 571737
+    },
+    {
+      "month": "2024-05",
+      "salesCount": 29,
+      "averagePrice": 483621
+    },
+    {
+      "month": "2024-06",
+      "salesCount": 46,
+      "averagePrice": 576386
+    },
+    {
+      "month": "2024-07",
+      "salesCount": 36,
+      "averagePrice": 594944
+    },
+    {
+      "month": "2024-08",
+      "salesCount": 39,
+      "averagePrice": 680087
+    },
+    {
+      "month": "2024-09",
+      "salesCount": 38,
+      "averagePrice": 589223
+    },
+    {
+      "month": "2024-10",
+      "salesCount": 45,
+      "averagePrice": 584233
+    },
+    {
+      "month": "2024-11",
+      "salesCount": 39,
+      "averagePrice": 634168
+    },
+    {
+      "month": "2024-12",
+      "salesCount": 40,
+      "averagePrice": 640956
+    },
+    {
+      "month": "2025-01",
+      "salesCount": 29,
+      "averagePrice": 673741
+    },
+    {
+      "month": "2025-02",
+      "salesCount": 36,
+      "averagePrice": 569929
+    },
+    {
+      "month": "2025-03",
+      "salesCount": 25,
+      "averagePrice": 747948
+    },
+    {
+      "month": "2025-04",
+      "salesCount": 30,
+      "averagePrice": 586487
+    },
+    {
+      "month": "2025-05",
+      "salesCount": 32,
+      "averagePrice": 536373
+    },
+    {
+      "month": "2025-06",
+      "salesCount": 29,
+      "averagePrice": 686878
+    },
+    {
+      "month": "2025-07",
+      "salesCount": 44,
+      "averagePrice": 690511
+    },
+    {
+      "month": "2025-08",
+      "salesCount": 40,
+      "averagePrice": 685501
+    },
+    {
+      "month": "2025-09",
+      "salesCount": 44,
+      "averagePrice": 702057
+    },
+    {
+      "month": "2025-10",
+      "salesCount": 39,
+      "averagePrice": 708607
+    },
+    {
+      "month": "2025-11",
+      "salesCount": 32,
+      "averagePrice": 569631
+    },
+    {
+      "month": "2025-12",
+      "salesCount": 2,
+      "averagePrice": 943500
+    }
+  ],
+  "d3SizeEfficiencyChart": [
+    {
+      "sizeBracket": "Compact (<70sqm)",
+      "count": 264,
+      "averagePricePerSqm": 5314
+    },
+    {
+      "sizeBracket": "Standard (70-100sqm)",
+      "count": 240,
+      "averagePricePerSqm": 6074
+    },
+    {
+      "sizeBracket": "Spacious (100-140sqm)",
+      "count": 194,
+      "averagePricePerSqm": 6201
+    },
+    {
+      "sizeBracket": "Large (140-200sqm)",
+      "count": 78,
+      "averagePricePerSqm": 6083
+    },
+    {
+      "sizeBracket": "XL (200sqm+)",
+      "count": 52,
+      "averagePricePerSqm": 5981
+    }
+  ],
+  "d3QuarterlyPerformanceChart": [
+    {
+      "quarter": "2024-Q1",
+      "salesCount": 96,
+      "averagePrice": 548215
+    },
+    {
+      "quarter": "2024-Q2",
+      "salesCount": 113,
+      "averagePrice": 551016
+    },
+    {
+      "quarter": "2024-Q3",
+      "salesCount": 113,
+      "averagePrice": 622406
+    },
+    {
+      "quarter": "2024-Q4",
+      "salesCount": 124,
+      "averagePrice": 618236
+    },
+    {
+      "quarter": "2025-Q1",
+      "salesCount": 90,
+      "averagePrice": 652830
+    },
+    {
+      "quarter": "2025-Q2",
+      "salesCount": 91,
+      "averagePrice": 600857
+    }
+  ],
+  "d3MarketOverviewChart": [
+    {
+      "metric": "Average Price",
+      "value": 618071
+    },
+    {
+      "metric": "Average Size",
+      "value": 98
+    },
+    {
+      "metric": "Price per SqM",
+      "value": 5857
+    },
+    {
+      "metric": "Total Properties",
+      "value": 828
+    }
+  ]
+}

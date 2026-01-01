@@ -1,0 +1,155 @@
+{
+  "sizeBandMortgageChart": [
+    {
+      "sizeBand": "Compact",
+      "averagePrice": 361961,
+      "mortgageAmount": 289569,
+      "monthlyPayment": 1300,
+      "sampleSize": 4049
+    },
+    {
+      "sizeBand": "Standard",
+      "averagePrice": 467872,
+      "mortgageAmount": 374298,
+      "monthlyPayment": 1681,
+      "sampleSize": 6696
+    },
+    {
+      "sizeBand": "Spacious",
+      "averagePrice": 633327,
+      "mortgageAmount": 506662,
+      "monthlyPayment": 2275,
+      "sampleSize": 4864
+    },
+    {
+      "sizeBand": "Large",
+      "averagePrice": 929640,
+      "mortgageAmount": 743712,
+      "monthlyPayment": 3340,
+      "sampleSize": 2326
+    },
+    {
+      "sizeBand": "XL",
+      "averagePrice": 1684389,
+      "mortgageAmount": 1347512,
+      "monthlyPayment": 6051,
+      "sampleSize": 1061
+    }
+  ],
+  "overpaymentSavingsChart": [
+    {
+      "overpaymentAmount": 5000,
+      "Compact": 269,
+      "Standard": 269,
+      "Spacious": 269,
+      "Large": 269,
+      "XL": 269
+    },
+    {
+      "overpaymentAmount": 10000,
+      "Compact": 539,
+      "Standard": 539,
+      "Spacious": 539,
+      "Large": 539,
+      "XL": 539
+    },
+    {
+      "overpaymentAmount": 15000,
+      "Compact": 808,
+      "Standard": 808,
+      "Spacious": 808,
+      "Large": 808,
+      "XL": 808
+    }
+  ],
+  "sizeBandOverAskingChart": [
+    {
+      "sizeBand": "Compact",
+      "successRate": 80.29142998271178,
+      "averagePremium": 10.927849892340834,
+      "sampleSize": 4049
+    },
+    {
+      "sizeBand": "Standard",
+      "successRate": 85.45400238948626,
+      "averagePremium": 11.397434463474271,
+      "sampleSize": 6696
+    },
+    {
+      "sizeBand": "Spacious",
+      "successRate": 83.55263157894737,
+      "averagePremium": 10.464768700787348,
+      "sampleSize": 4864
+    },
+    {
+      "sizeBand": "Large",
+      "successRate": 75.40842648323301,
+      "averagePremium": 10.608511972633986,
+      "sampleSize": 2326
+    },
+    {
+      "sizeBand": "XL",
+      "successRate": 54.94816211121584,
+      "averagePremium": 10.618644939965696,
+      "sampleSize": 1061
+    }
+  ],
+  "breakEvenAnalysisChart": [
+    {
+      "overpaymentAmount": 5000,
+      "Compact": 18.557915413713054,
+      "Standard": 18.557915413713054,
+      "Spacious": 18.557915413713054,
+      "Large": 18.557915413713054,
+      "XL": 18.557915413713054
+    },
+    {
+      "overpaymentAmount": 10000,
+      "Compact": 18.557915413713054,
+      "Standard": 18.557915413713054,
+      "Spacious": 18.557915413713054,
+      "Large": 18.557915413713054,
+      "XL": 18.557915413713054
+    },
+    {
+      "overpaymentAmount": 15000,
+      "Compact": 18.557915413713058,
+      "Standard": 18.557915413713058,
+      "Spacious": 18.557915413713058,
+      "Large": 18.557915413713058,
+      "XL": 18.557915413713058
+    }
+  ],
+  "yieldBySizeBandChart": [
+    {
+      "sizeBand": "Compact",
+      "averageYield": 8.244313088665137,
+      "averagePrice": 364048,
+      "sampleSize": 3079
+    },
+    {
+      "sizeBand": "Standard",
+      "averageYield": 7.940078756476658,
+      "averagePrice": 473058,
+      "sampleSize": 4825
+    },
+    {
+      "sizeBand": "Spacious",
+      "averageYield": 6.755151515151496,
+      "averagePrice": 636861,
+      "sampleSize": 3069
+    },
+    {
+      "sizeBand": "Large",
+      "averageYield": 5.75023663453111,
+      "averagePrice": 943175,
+      "sampleSize": 1141
+    },
+    {
+      "sizeBand": "XL",
+      "averageYield": 5.676490384615387,
+      "averagePrice": 1746930,
+      "sampleSize": 416
+    }
+  ]
+}

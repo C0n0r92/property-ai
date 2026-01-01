@@ -1,0 +1,829 @@
+{
+  "geographicPriceVariationsChart": [
+    {
+      "postcode": "D4",
+      "averagePrice": 925609,
+      "pricePerSqm": 7735,
+      "sampleSize": 925
+    },
+    {
+      "postcode": "D14",
+      "averagePrice": 767192,
+      "pricePerSqm": 6436,
+      "sampleSize": 841
+    },
+    {
+      "postcode": "D6W",
+      "averagePrice": 773277,
+      "pricePerSqm": 6164,
+      "sampleSize": 405
+    },
+    {
+      "postcode": "D18",
+      "averagePrice": 705234,
+      "pricePerSqm": 5587,
+      "sampleSize": 1156
+    },
+    {
+      "postcode": "D16",
+      "averagePrice": 647426,
+      "pricePerSqm": 5642,
+      "sampleSize": 746
+    },
+    {
+      "postcode": "D3",
+      "averagePrice": 618071,
+      "pricePerSqm": 5857,
+      "sampleSize": 828
+    },
+    {
+      "postcode": "D1",
+      "averagePrice": 398203,
+      "pricePerSqm": 5109,
+      "sampleSize": 366
+    },
+    {
+      "postcode": "D2",
+      "averagePrice": 534288,
+      "pricePerSqm": 6979,
+      "sampleSize": 291
+    },
+    {
+      "postcode": "D13",
+      "averagePrice": 585608,
+      "pricePerSqm": 4992,
+      "sampleSize": 804
+    },
+    {
+      "postcode": "D8",
+      "averagePrice": 470420,
+      "pricePerSqm": 5952,
+      "sampleSize": 912
+    },
+    {
+      "postcode": "D9",
+      "averagePrice": 525205,
+      "pricePerSqm": 5032,
+      "sampleSize": 942
+    },
+    {
+      "postcode": "D5",
+      "averagePrice": 546357,
+      "pricePerSqm": 4921,
+      "sampleSize": 731
+    },
+    {
+      "postcode": "D7",
+      "averagePrice": 496439,
+      "pricePerSqm": 5348,
+      "sampleSize": 827
+    },
+    {
+      "postcode": "D20",
+      "averagePrice": 457152,
+      "pricePerSqm": 4553,
+      "sampleSize": 167
+    },
+    {
+      "postcode": "D15",
+      "averagePrice": 463571,
+      "pricePerSqm": 3499,
+      "sampleSize": 1623
+    },
+    {
+      "postcode": "D24",
+      "averagePrice": 402977,
+      "pricePerSqm": 3679,
+      "sampleSize": 1041
+    },
+    {
+      "postcode": "D12",
+      "averagePrice": 479919,
+      "pricePerSqm": 4204,
+      "sampleSize": 859
+    },
+    {
+      "postcode": "D11",
+      "averagePrice": 403799,
+      "pricePerSqm": 3669,
+      "sampleSize": 687
+    },
+    {
+      "postcode": "D22",
+      "averagePrice": 375496,
+      "pricePerSqm": 3700,
+      "sampleSize": 493
+    },
+    {
+      "postcode": "D17",
+      "averagePrice": 353270,
+      "pricePerSqm": 3687,
+      "sampleSize": 158
+    },
+    {
+      "postcode": "D10",
+      "averagePrice": 331413,
+      "pricePerSqm": 3746,
+      "sampleSize": 213
+    }
+  ],
+  "priceEfficiencyChart": [
+    {
+      "postcode": "D4",
+      "pricePerSqm": 7735,
+      "rank": 1
+    },
+    {
+      "postcode": "D14",
+      "pricePerSqm": 6436,
+      "rank": 2
+    },
+    {
+      "postcode": "D6W",
+      "pricePerSqm": 6164,
+      "rank": 3
+    },
+    {
+      "postcode": "D18",
+      "pricePerSqm": 5587,
+      "rank": 4
+    },
+    {
+      "postcode": "D16",
+      "pricePerSqm": 5642,
+      "rank": 5
+    },
+    {
+      "postcode": "D3",
+      "pricePerSqm": 5857,
+      "rank": 6
+    },
+    {
+      "postcode": "D1",
+      "pricePerSqm": 5109,
+      "rank": 7
+    },
+    {
+      "postcode": "D2",
+      "pricePerSqm": 6979,
+      "rank": 8
+    },
+    {
+      "postcode": "D13",
+      "pricePerSqm": 4992,
+      "rank": 9
+    },
+    {
+      "postcode": "D8",
+      "pricePerSqm": 5952,
+      "rank": 10
+    },
+    {
+      "postcode": "D9",
+      "pricePerSqm": 5032,
+      "rank": 11
+    },
+    {
+      "postcode": "D5",
+      "pricePerSqm": 4921,
+      "rank": 12
+    },
+    {
+      "postcode": "D7",
+      "pricePerSqm": 5348,
+      "rank": 13
+    },
+    {
+      "postcode": "D20",
+      "pricePerSqm": 4553,
+      "rank": 14
+    },
+    {
+      "postcode": "D15",
+      "pricePerSqm": 3499,
+      "rank": 15
+    },
+    {
+      "postcode": "D24",
+      "pricePerSqm": 3679,
+      "rank": 16
+    },
+    {
+      "postcode": "D12",
+      "pricePerSqm": 4204,
+      "rank": 17
+    },
+    {
+      "postcode": "D11",
+      "pricePerSqm": 3669,
+      "rank": 18
+    },
+    {
+      "postcode": "D22",
+      "pricePerSqm": 3700,
+      "rank": 19
+    },
+    {
+      "postcode": "D17",
+      "pricePerSqm": 3687,
+      "rank": 20
+    },
+    {
+      "postcode": "D10",
+      "pricePerSqm": 3746,
+      "rank": 21
+    }
+  ],
+  "overAskingSuccessChart": [
+    {
+      "postcode": "D4",
+      "successRate": 75.24324324324324,
+      "averagePremium": 10.433778735632195
+    },
+    {
+      "postcode": "D14",
+      "successRate": 83.70986920332936,
+      "averagePremium": 10.728835227272729
+    },
+    {
+      "postcode": "D6W",
+      "successRate": 83.20987654320989,
+      "averagePremium": 12.589495548961423
+    },
+    {
+      "postcode": "D18",
+      "successRate": 77.76816608996539,
+      "averagePremium": 8.632825361512795
+    },
+    {
+      "postcode": "D16",
+      "successRate": 85.25469168900804,
+      "averagePremium": 9.590597484276728
+    },
+    {
+      "postcode": "D3",
+      "successRate": 79.10628019323671,
+      "averagePremium": 10.673557251908395
+    },
+    {
+      "postcode": "D1",
+      "successRate": 67.4863387978142,
+      "averagePremium": 9.659514170040483
+    },
+    {
+      "postcode": "D2",
+      "successRate": 71.1340206185567,
+      "averagePremium": 9.12772946859903
+    },
+    {
+      "postcode": "D13",
+      "successRate": 77.98507462686567,
+      "averagePremium": 9.286012759170665
+    },
+    {
+      "postcode": "D8",
+      "successRate": 76.53508771929825,
+      "averagePremium": 11.479584527220622
+    },
+    {
+      "postcode": "D9",
+      "successRate": 85.24416135881104,
+      "averagePremium": 10.897509339975112
+    },
+    {
+      "postcode": "D5",
+      "successRate": 88.23529411764706,
+      "averagePremium": 11.553720930232554
+    },
+    {
+      "postcode": "D7",
+      "successRate": 78.96009673518742,
+      "averagePremium": 11.84950995405819
+    },
+    {
+      "postcode": "D20",
+      "successRate": 89.22155688622755,
+      "averagePremium": 13.505167785234908
+    },
+    {
+      "postcode": "D15",
+      "successRate": 87.30745532963647,
+      "averagePremium": 9.443232180663378
+    },
+    {
+      "postcode": "D24",
+      "successRate": 91.45052833813641,
+      "averagePremium": 13.170115546218506
+    },
+    {
+      "postcode": "D12",
+      "successRate": 90.57043073341094,
+      "averagePremium": 15.180706940874062
+    },
+    {
+      "postcode": "D11",
+      "successRate": 89.66521106259097,
+      "averagePremium": 12.933620129870139
+    },
+    {
+      "postcode": "D22",
+      "successRate": 90.46653144016227,
+      "averagePremium": 15.53352017937221
+    },
+    {
+      "postcode": "D17",
+      "successRate": 83.54430379746836,
+      "averagePremium": 9.470606060606059
+    },
+    {
+      "postcode": "D10",
+      "successRate": 92.48826291079813,
+      "averagePremium": 16.56715736040608
+    }
+  ],
+  "propertySizeVariationsChart": [
+    {
+      "postcode": "D4",
+      "averageSize": 108,
+      "pricePerSqm": 7735
+    },
+    {
+      "postcode": "D14",
+      "averageSize": 133,
+      "pricePerSqm": 6436
+    },
+    {
+      "postcode": "D6W",
+      "averageSize": 110,
+      "pricePerSqm": 6164
+    },
+    {
+      "postcode": "D18",
+      "averageSize": 118,
+      "pricePerSqm": 5587
+    },
+    {
+      "postcode": "D16",
+      "averageSize": 107,
+      "pricePerSqm": 5642
+    },
+    {
+      "postcode": "D3",
+      "averageSize": 98,
+      "pricePerSqm": 5857
+    },
+    {
+      "postcode": "D1",
+      "averageSize": 112,
+      "pricePerSqm": 5109
+    },
+    {
+      "postcode": "D2",
+      "averageSize": 72,
+      "pricePerSqm": 6979
+    },
+    {
+      "postcode": "D13",
+      "averageSize": 109,
+      "pricePerSqm": 4992
+    },
+    {
+      "postcode": "D8",
+      "averageSize": 76,
+      "pricePerSqm": 5952
+    },
+    {
+      "postcode": "D9",
+      "averageSize": 93,
+      "pricePerSqm": 5032
+    },
+    {
+      "postcode": "D5",
+      "averageSize": 92,
+      "pricePerSqm": 4921
+    },
+    {
+      "postcode": "D7",
+      "averageSize": 76,
+      "pricePerSqm": 5348
+    },
+    {
+      "postcode": "D20",
+      "averageSize": 90,
+      "pricePerSqm": 4553
+    },
+    {
+      "postcode": "D15",
+      "averageSize": 94,
+      "pricePerSqm": 3499
+    },
+    {
+      "postcode": "D24",
+      "averageSize": 83,
+      "pricePerSqm": 3679
+    },
+    {
+      "postcode": "D12",
+      "averageSize": 68,
+      "pricePerSqm": 4204
+    },
+    {
+      "postcode": "D11",
+      "averageSize": 78,
+      "pricePerSqm": 3669
+    },
+    {
+      "postcode": "D22",
+      "averageSize": 77,
+      "pricePerSqm": 3700
+    },
+    {
+      "postcode": "D17",
+      "averageSize": 73,
+      "pricePerSqm": 3687
+    },
+    {
+      "postcode": "D10",
+      "averageSize": 66,
+      "pricePerSqm": 3746
+    }
+  ],
+  "pricePredictabilityChart": [
+    {
+      "postcode": "D4",
+      "coefficientOfVariation": 92.24105261633846,
+      "predictabilityRank": 1
+    },
+    {
+      "postcode": "D14",
+      "coefficientOfVariation": 43.799890522598325,
+      "predictabilityRank": 2
+    },
+    {
+      "postcode": "D6W",
+      "coefficientOfVariation": 38.87650802736217,
+      "predictabilityRank": 3
+    },
+    {
+      "postcode": "D18",
+      "coefficientOfVariation": 70.11837148286688,
+      "predictabilityRank": 4
+    },
+    {
+      "postcode": "D16",
+      "coefficientOfVariation": 29.432950754255653,
+      "predictabilityRank": 5
+    },
+    {
+      "postcode": "D3",
+      "coefficientOfVariation": 57.044566498313266,
+      "predictabilityRank": 6
+    },
+    {
+      "postcode": "D1",
+      "coefficientOfVariation": 64.31371982677517,
+      "predictabilityRank": 7
+    },
+    {
+      "postcode": "D2",
+      "coefficientOfVariation": 53.23258893069722,
+      "predictabilityRank": 8
+    },
+    {
+      "postcode": "D13",
+      "coefficientOfVariation": 51.94597237789237,
+      "predictabilityRank": 9
+    },
+    {
+      "postcode": "D8",
+      "coefficientOfVariation": 45.908089224703964,
+      "predictabilityRank": 10
+    },
+    {
+      "postcode": "D9",
+      "coefficientOfVariation": 41.35481655980476,
+      "predictabilityRank": 11
+    },
+    {
+      "postcode": "D5",
+      "coefficientOfVariation": 30.911998628314464,
+      "predictabilityRank": 12
+    },
+    {
+      "postcode": "D7",
+      "coefficientOfVariation": 37.53856315436025,
+      "predictabilityRank": 13
+    },
+    {
+      "postcode": "D20",
+      "coefficientOfVariation": 42.63956985251373,
+      "predictabilityRank": 14
+    },
+    {
+      "postcode": "D15",
+      "coefficientOfVariation": 57.87152107493496,
+      "predictabilityRank": 15
+    },
+    {
+      "postcode": "D24",
+      "coefficientOfVariation": 31.27849623069062,
+      "predictabilityRank": 16
+    },
+    {
+      "postcode": "D12",
+      "coefficientOfVariation": 27.43401338936366,
+      "predictabilityRank": 17
+    },
+    {
+      "postcode": "D11",
+      "coefficientOfVariation": 37.85027162263292,
+      "predictabilityRank": 18
+    },
+    {
+      "postcode": "D22",
+      "coefficientOfVariation": 28.813513853619256,
+      "predictabilityRank": 19
+    },
+    {
+      "postcode": "D17",
+      "coefficientOfVariation": 25.411779746887397,
+      "predictabilityRank": 20
+    },
+    {
+      "postcode": "D10",
+      "coefficientOfVariation": 17.87273551757533,
+      "predictabilityRank": 21
+    }
+  ],
+  "rentalYieldMapChart": [
+    {
+      "postcode": "D1",
+      "averageYield": 9.148228228228238,
+      "averagePrice": 398203
+    },
+    {
+      "postcode": "D22",
+      "averageYield": 8.867743467933492,
+      "averagePrice": 375496
+    },
+    {
+      "postcode": "D24",
+      "averageYield": 8.447437686939173,
+      "averagePrice": 402977
+    },
+    {
+      "postcode": "D2",
+      "averageYield": 8.397321428571425,
+      "averagePrice": 534288
+    },
+    {
+      "postcode": "D15",
+      "averageYield": 8.363750815394663,
+      "averagePrice": 463571
+    },
+    {
+      "postcode": "D11",
+      "averageYield": 8.178194233687414,
+      "averagePrice": 403799
+    },
+    {
+      "postcode": "D9",
+      "averageYield": 8.154961139896372,
+      "averagePrice": 525205
+    },
+    {
+      "postcode": "D4",
+      "averageYield": 7.823776536312836,
+      "averagePrice": 925609
+    },
+    {
+      "postcode": "D13",
+      "averageYield": 7.779467939972712,
+      "averagePrice": 585608
+    },
+    {
+      "postcode": "D12",
+      "averageYield": 7.713641703377395,
+      "averagePrice": 479919
+    },
+    {
+      "postcode": "D5",
+      "averageYield": 7.554883720930231,
+      "averagePrice": 546357
+    },
+    {
+      "postcode": "D3",
+      "averageYield": 7.52411764705883,
+      "averagePrice": 618071
+    },
+    {
+      "postcode": "D8",
+      "averageYield": 7.506797153024906,
+      "averagePrice": 470420
+    },
+    {
+      "postcode": "D7",
+      "averageYield": 7.348444165621085,
+      "averagePrice": 496439
+    },
+    {
+      "postcode": "D18",
+      "averageYield": 6.571238447319776,
+      "averagePrice": 705234
+    },
+    {
+      "postcode": "D20",
+      "averageYield": 6.563829787234042,
+      "averagePrice": 457152
+    },
+    {
+      "postcode": "D14",
+      "averageYield": 5.864692005242466,
+      "averagePrice": 767192
+    },
+    {
+      "postcode": "D6W",
+      "averageYield": 5.849640883977901,
+      "averagePrice": 773277
+    },
+    {
+      "postcode": "D10",
+      "averageYield": 5.643000000000001,
+      "averagePrice": 331413
+    },
+    {
+      "postcode": "D16",
+      "averageYield": 5.581472303206994,
+      "averagePrice": 647426
+    }
+  ],
+  "buyerTypeScoresChart": [
+    {
+      "postcode": "D4",
+      "firstTimeBuyerScore": 45,
+      "investorScore": 429,
+      "luxuryBuyerScore": 66
+    },
+    {
+      "postcode": "D14",
+      "firstTimeBuyerScore": 46,
+      "investorScore": 335,
+      "luxuryBuyerScore": 66
+    },
+    {
+      "postcode": "D6W",
+      "firstTimeBuyerScore": 46,
+      "investorScore": 334,
+      "luxuryBuyerScore": 58
+    },
+    {
+      "postcode": "D18",
+      "firstTimeBuyerScore": 46,
+      "investorScore": 367,
+      "luxuryBuyerScore": 58
+    },
+    {
+      "postcode": "D16",
+      "firstTimeBuyerScore": 47,
+      "investorScore": 322,
+      "luxuryBuyerScore": 55
+    },
+    {
+      "postcode": "D3",
+      "firstTimeBuyerScore": 47,
+      "investorScore": 416,
+      "luxuryBuyerScore": 54
+    },
+    {
+      "postcode": "D1",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 491,
+      "luxuryBuyerScore": 54
+    },
+    {
+      "postcode": "D2",
+      "firstTimeBuyerScore": 47,
+      "investorScore": 455,
+      "luxuryBuyerScore": 53
+    },
+    {
+      "postcode": "D13",
+      "firstTimeBuyerScore": 47,
+      "investorScore": 428,
+      "luxuryBuyerScore": 52
+    },
+    {
+      "postcode": "D8",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 414,
+      "luxuryBuyerScore": 49
+    },
+    {
+      "postcode": "D9",
+      "firstTimeBuyerScore": 47,
+      "investorScore": 450,
+      "luxuryBuyerScore": 48
+    },
+    {
+      "postcode": "D5",
+      "firstTimeBuyerScore": 47,
+      "investorScore": 422,
+      "luxuryBuyerScore": 48
+    },
+    {
+      "postcode": "D7",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 407,
+      "luxuryBuyerScore": 46
+    },
+    {
+      "postcode": "D20",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 373,
+      "luxuryBuyerScore": 45
+    },
+    {
+      "postcode": "D15",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 462,
+      "luxuryBuyerScore": 41
+    },
+    {
+      "postcode": "D24",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 468,
+      "luxuryBuyerScore": 39
+    },
+    {
+      "postcode": "D12",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 431,
+      "luxuryBuyerScore": 38
+    },
+    {
+      "postcode": "D11",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 454,
+      "luxuryBuyerScore": 38
+    },
+    {
+      "postcode": "D22",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 489,
+      "luxuryBuyerScore": 38
+    },
+    {
+      "postcode": "D17",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 42,
+      "luxuryBuyerScore": 37
+    },
+    {
+      "postcode": "D10",
+      "firstTimeBuyerScore": 48,
+      "investorScore": 328,
+      "luxuryBuyerScore": 35
+    }
+  ],
+  "decisionFrameworkChart": [
+    {
+      "buyerType": "First-Time Buyers",
+      "topAreas": [
+        "D10",
+        "D17",
+        "D22"
+      ],
+      "keyFactors": [
+        "Affordability",
+        "Price Predictability",
+        "Market Stability"
+      ]
+    },
+    {
+      "buyerType": "Investors",
+      "topAreas": [
+        "D1",
+        "D22",
+        "D24"
+      ],
+      "keyFactors": [
+        "Rental Yield",
+        "Over-Asking Success",
+        "Capital Appreciation"
+      ]
+    },
+    {
+      "buyerType": "Luxury Buyers",
+      "topAreas": [
+        "D4",
+        "D14",
+        "D6W"
+      ],
+      "keyFactors": [
+        "Premium Pricing",
+        "Property Size",
+        "Area Prestige"
+      ]
+    }
+  ]
+}

@@ -10,6 +10,66 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'dublin-d3-area-analysis',
+    title: 'Dublin D3: East Dublin\'s Emerging Property Market',
+    excerpt: 'Dublin D3 emerges as East Dublin\'s most dynamic property market in 2024-2025, with 828 transactions averaging €618,071. The area achieves 84.8% over-asking success rates while maintaining competitive pricing relative to premium Dublin 4.',
+    category: 'Area Analysis',
+    date: '2026-01-01',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['D3', 'Area Analysis', 'East Dublin', 'Property Market', 'Over-Asking Success'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'size-based-mortgage-strategy',
+    title: 'Size-Based Mortgage Strategy: How Property Size Impacts Overpayment Savings',
+    excerpt: 'Property size significantly influences mortgage overpayment effectiveness, with compact homes under 70 square meters offering €269 annual savings per €5,000 overpayment versus €1,415 monthly premiums for XL properties over 200 square meters.',
+    category: 'Financial Analysis',
+    date: '2026-01-01',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Mortgage Strategy', 'Overpayment Savings', 'Property Size', 'Size Efficiency', 'Mortgage Calculator'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'geographic-price-intelligence',
+    title: 'Geographic Price Intelligence: How Map Features Enable Smart Dublin Property Decisions',
+    excerpt: 'Dublin\'s geographic price variations reveal €2.1M differences between premium D4 (€925K average) and accessible D22 (€375K average), with map-based analysis enabling 28% better decision-making through area-specific intelligence.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Geographic Analysis', 'Map Features', 'Price Intelligence', 'Decision Making', 'Area Comparison'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'property-type-cyclical-performance',
+    title: 'Dublin Property Seasons: When to Buy and Sell Apartments vs Houses for Maximum Value',
+    excerpt: 'Dublin property types exhibit distinct cyclical performance patterns, with apartments peaking in Q3-Q4 at 11.5% premium pricing while detached homes achieve 23.8% seasonal advantages. Understanding these rhythms enables €150K+ strategic advantages.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Property Types', 'Cyclical Performance', 'Seasonal Patterns', 'Market Timing', 'Quarterly Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'size-efficiency-paradox-analysis',
+    title: 'Size Efficiency Paradox: Dublin Property Size Trade-offs and Strategic Advantages',
+    excerpt: 'Dublin property sizes reveal counterintuitive efficiency patterns, with compact homes under 70 square meters commanding €6,625/sqm premiums while XL properties over 200 square meters achieve only €6,231/sqm despite superior over-asking success.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Size Efficiency', 'Property Size', 'Efficiency Paradox', 'Value Analysis', 'Size Trade-offs'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'compare-properties-complete-guide',
     title: 'Master Property Comparison: Complete Guide to Dublin\'s Most Powerful Search Tool',
     excerpt: 'Compare up to 5 Dublin properties side-by-side across 20,985 listings. Analyze mortgage costs, walkability scores, planning applications, and investment metrics. Step-by-step walkthrough with screenshots included.',
@@ -714,7 +774,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 48 },
+          { label: 'Articles', value: 53 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

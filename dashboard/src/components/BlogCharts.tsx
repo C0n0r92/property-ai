@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, ScatterChart, Scatter } from 'recharts';
 
 interface ChartWrapperProps {
   children: React.ReactNode;
@@ -601,7 +601,7 @@ export function RentalYieldChart() {
   );
 }
 
-export function YieldDistributionChart() {
+export function YieldDistributionChartNew() {
   const distributionData = [
     { bracket: 'Under 4%', count: 877, percentage: 3.22 },
     { bracket: '4-5%', count: 1509, percentage: 5.54 },
@@ -639,7 +639,7 @@ export function YieldDistributionChart() {
   );
 }
 
-export function SizeEfficiencyChart() {
+export function SizeEfficiencyChartNew() {
   return (
     <ChartWrapper>
       <div className="my-8">
@@ -1590,7 +1590,7 @@ export function AreaPremiumChart() {
 }
 
 // Charts for Blog 16: Bidding War Costs
-export function PremiumDistributionChart() {
+export function PremiumDistributionChartNew() {
   return (
     <ChartWrapper>
       <div className="my-8">
@@ -2503,7 +2503,7 @@ export function MortgageImpactChart() {
   );
 }
 
-export function OverpaymentSavingsChart() {
+export function OverpaymentSavingsChartPlaceholder() {
   return (
     <ChartWrapper>
       <div className="my-8">
@@ -2746,7 +2746,7 @@ export function BestValueAreasChart() {
   );
 }
 
-export function YieldDistributionChart() {
+export function YieldDistributionChartNew2() {
   return (
     <ChartWrapper>
       <div className="my-8">
@@ -3095,7 +3095,7 @@ export function OverAskingByPostcodeChart() {
   );
 }
 
-export function PremiumDistributionChart() {
+export function PremiumDistributionChartNew2() {
   return (
     <ChartWrapper>
       <div className="my-8">
@@ -3173,6 +3173,1269 @@ export function OptimalStrategyChart() {
         </div>
         <p className="text-sm text-slate-600 text-center">
           €300k properties deliver highest over-asking effectiveness at 1,130.5 points
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// D3 Area Analysis Charts
+export function D3PropertyTypesChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Apartment', count: 363, averagePrice: 478000, averageSize: 75 },
+                { propertyType: 'Semi-D', count: 230, averagePrice: 716000, averageSize: 120 },
+                { propertyType: 'Terrace', count: 167, averagePrice: 637000, averageSize: 105 },
+                { propertyType: 'Detached', count: 68, averagePrice: 895000, averageSize: 150 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Bar dataKey="averagePrice" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Semi-detached properties command premium pricing at €716k in D3
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function D3MonthlyTrendsChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { month: '2024-01', salesCount: 44, averagePrice: 607000 },
+                { month: '2024-02', salesCount: 52, averagePrice: 593000 },
+                { month: '2024-03', salesCount: 58, averagePrice: 612000 },
+                { month: '2024-04', salesCount: 50, averagePrice: 615000 },
+                { month: '2024-05', salesCount: 62, averagePrice: 628000 },
+                { month: '2024-06', salesCount: 55, averagePrice: 632000 },
+                { month: '2024-07', salesCount: 68, averagePrice: 641000 },
+                { month: '2024-08', salesCount: 72, averagePrice: 638000 },
+                { month: '2024-09', salesCount: 78, averagePrice: 693000 },
+                { month: '2024-10', salesCount: 85, averagePrice: 635000 },
+                { month: '2024-11', salesCount: 65, averagePrice: 622000 },
+                { month: '2024-12', salesCount: 59, averagePrice: 629000 },
+                { month: '2025-01', salesCount: 48, averagePrice: 605000 },
+                { month: '2025-02', salesCount: 51, averagePrice: 611000 },
+                { month: '2025-03', salesCount: 54, averagePrice: 618000 },
+                { month: '2025-04', salesCount: 49, averagePrice: 625000 },
+                { month: '2025-05', salesCount: 61, averagePrice: 632000 },
+                { month: '2025-06', salesCount: 56, averagePrice: 638000 },
+                { month: '2025-07', salesCount: 73, averagePrice: 645000 },
+                { month: '2025-08', salesCount: 69, averagePrice: 642000 },
+                { month: '2025-09', salesCount: 82, averagePrice: 698000 },
+                { month: '2025-10', salesCount: 89, averagePrice: 651000 },
+                { month: '2025-11', salesCount: 67, averagePrice: 635000 },
+                { month: '2025-12', salesCount: 2, averagePrice: 650000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="month"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Line type="monotone" dataKey="averagePrice" stroke="#2563EB" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D3 shows consistent pricing with September peaks around €650k-€700k
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Size-Based Mortgage Charts
+export function SizeBandMortgageChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { sizeBand: 'Compact', averagePrice: 362000, mortgageAmount: 289600, monthlyPayment: 1628 },
+                { sizeBand: 'Standard', averagePrice: 468000, mortgageAmount: 374400, monthlyPayment: 2103 },
+                { sizeBand: 'Spacious', averagePrice: 633000, mortgageAmount: 506400, monthlyPayment: 2852 },
+                { sizeBand: 'Large', averagePrice: 930000, mortgageAmount: 744000, monthlyPayment: 4195 },
+                { sizeBand: 'XL', averagePrice: 1701000, mortgageAmount: 1360800, monthlyPayment: 7658 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="sizeBand"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Monthly Payment (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value}`, 'Monthly Payment']}
+              />
+              <Bar dataKey="monthlyPayment" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          XL properties require €7,658 monthly payments versus compact homes at €1,628
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverpaymentSavingsChartNew() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { overpaymentAmount: 5000, Compact: 269, Standard: 269, Spacious: 269, Large: 269, XL: 269 },
+                { overpaymentAmount: 10000, Compact: 539, Standard: 539, Spacious: 539, Large: 539, XL: 539 },
+                { overpaymentAmount: 15000, Compact: 808, Standard: 808, Spacious: 808, Large: 808, XL: 808 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="overpaymentAmount"
+                fontSize={12}
+                tickFormatter={(value) => `€${value}`}
+              />
+              <YAxis
+                label={{ value: 'Annual Savings (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value}`, 'Annual Savings']}
+              />
+              <Line type="monotone" dataKey="Compact" stroke="#2563EB" strokeWidth={3} />
+              <Line type="monotone" dataKey="Standard" stroke="#DC2626" strokeWidth={3} />
+              <Line type="monotone" dataKey="Spacious" stroke="#10B981" strokeWidth={3} />
+              <Line type="monotone" dataKey="Large" stroke="#F59E0B" strokeWidth={3} />
+              <Line type="monotone" dataKey="XL" stroke="#8B5CF6" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          All size bands achieve identical €269 annual savings per €5,000 overpayment
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function SizeBandOverAskingChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { sizeBand: 'Compact', successRate: 80.3, averagePremium: 10.9 },
+                { sizeBand: 'Standard', successRate: 85.5, averagePremium: 11.4 },
+                { sizeBand: 'Spacious', successRate: 83.6, averagePremium: 10.5 },
+                { sizeBand: 'Large', successRate: 75.4, averagePremium: 10.6 },
+                { sizeBand: 'XL', successRate: 54.7, averagePremium: 10.6 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="sizeBand"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Success Rate']}
+              />
+              <Bar dataKey="successRate" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Standard properties achieve highest 85.5% over-asking success rates
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BreakEvenAnalysisChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { overpaymentAmount: 5000, Compact: 4.2, Standard: 4.2, Spacious: 4.2, Large: 4.2, XL: 4.2 },
+                { overpaymentAmount: 10000, Compact: 8.4, Standard: 8.4, Spacious: 8.4, Large: 8.4, XL: 8.4 },
+                { overpaymentAmount: 15000, Compact: 12.5, Standard: 12.5, Spacious: 12.5, Large: 12.5, XL: 12.5 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis
+                dataKey="overpaymentAmount"
+                fontSize={12}
+                tickFormatter={(value) => `€${value}`}
+              />
+              <YAxis
+                label={{ value: 'Break-even Years', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value} years`, 'Break-even']}
+              />
+              <Bar dataKey="Compact" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          €5,000 overpayments break even in 4.2 years across all property sizes
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YieldBySizeBandChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart
+              data={[
+                { sizeBand: 'Compact', averageYield: 8.17, averagePrice: 307000 },
+                { sizeBand: 'Standard', averageYield: 8.27, averagePrice: 381000 },
+                { sizeBand: 'Spacious', averageYield: 8.06, averagePrice: 451000 },
+                { sizeBand: 'Large', averageYield: 6.15, averagePrice: 758000 },
+                { sizeBand: 'XL', averageYield: 5.96, averagePrice: 1930000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="averagePrice"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <YAxis
+                label={{ value: 'Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'averageYield') return [`${value}%`, 'Yield'];
+                  return [value, name];
+                }}
+              />
+              <Scatter dataKey="averageYield" fill="#2563EB" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Smaller properties deliver higher yields despite lower absolute returns
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Geographic Price Intelligence Charts
+export function GeographicPriceVariationsChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D1', averagePrice: 398203, pricePerSqm: 5109 },
+                { postcode: 'D2', averagePrice: 534288, pricePerSqm: 7527 },
+                { postcode: 'D3', averagePrice: 618071, pricePerSqm: 5897 },
+                { postcode: 'D4', averagePrice: 925609, pricePerSqm: 8726 },
+                { postcode: 'D6W', averagePrice: 773277, pricePerSqm: 6984 },
+                { postcode: 'D7', averagePrice: 496439, pricePerSqm: 6528 },
+                { postcode: 'D8', averagePrice: 470420, pricePerSqm: 6112 },
+                { postcode: 'D9', averagePrice: 525205, pricePerSqm: 6108 },
+                { postcode: 'D10', averagePrice: 331413, pricePerSqm: 5874 },
+                { postcode: 'D11', averagePrice: 403799, pricePerSqm: 6199 },
+                { postcode: 'D12', averagePrice: 479919, pricePerSqm: 6758 },
+                { postcode: 'D13', averagePrice: 585608, pricePerSqm: 5413 },
+                { postcode: 'D14', averagePrice: 767192, pricePerSqm: 7017 },
+                { postcode: 'D15', averagePrice: 463571, pricePerSqm: 5882 },
+                { postcode: 'D16', averagePrice: 647426, pricePerSqm: 6998 },
+                { postcode: 'D17', averagePrice: 353270, pricePerSqm: 5738 },
+                { postcode: 'D18', averagePrice: 705234, pricePerSqm: 6246 },
+                { postcode: 'D20', averagePrice: 457152, pricePerSqm: 5967 },
+                { postcode: 'D22', averagePrice: 375496, pricePerSqm: 5727 },
+                { postcode: 'D24', averagePrice: 402977, pricePerSqm: 6345 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Bar dataKey="averagePrice" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D4 commands premium pricing at €926k versus D10 accessibility at €331k
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D10', pricePerSqm: 5874, rank: 1 },
+                { postcode: 'D17', pricePerSqm: 5738, rank: 2 },
+                { postcode: 'D22', pricePerSqm: 5727, rank: 3 },
+                { postcode: 'D15', pricePerSqm: 5882, rank: 4 },
+                { postcode: 'D3', pricePerSqm: 5897, rank: 5 },
+                { postcode: 'D24', pricePerSqm: 6345, rank: 6 },
+                { postcode: 'D8', pricePerSqm: 6112, rank: 7 },
+                { postcode: 'D9', pricePerSqm: 6108, rank: 8 },
+                { postcode: 'D11', pricePerSqm: 6199, rank: 9 },
+                { postcode: 'D20', pricePerSqm: 5967, rank: 10 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Price per SqM (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value}`, 'Price per SqM']}
+              />
+              <Bar dataKey="pricePerSqm" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D10 offers best value at €5,874/sqm versus premium areas
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverAskingSuccessChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D14', successRate: 85.6, averagePremium: 11.0 },
+                { postcode: 'D4', successRate: 82.1, averagePremium: 10.4 },
+                { postcode: 'D6W', successRate: 83.7, averagePremium: 10.1 },
+                { postcode: 'D18', successRate: 79.2, averagePremium: 10.8 },
+                { postcode: 'D16', successRate: 78.9, averagePremium: 10.6 },
+                { postcode: 'D3', successRate: 84.8, averagePremium: 9.9 },
+                { postcode: 'D13', successRate: 81.3, averagePremium: 10.2 },
+                { postcode: 'D2', successRate: 82.7, averagePremium: 10.3 },
+                { postcode: 'D15', successRate: 87.3, averagePremium: 9.4 },
+                { postcode: 'D1', successRate: 67.5, averagePremium: 9.7 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Success Rate']}
+              />
+              <Bar dataKey="successRate" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D15 achieves highest 87.3% over-asking success rate
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertySizeVariationsChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart
+              data={[
+                { postcode: 'D4', averageSize: 108, pricePerSqm: 8726 },
+                { postcode: 'D6W', averageSize: 110, pricePerSqm: 6984 },
+                { postcode: 'D13', averageSize: 109, pricePerSqm: 5413 },
+                { postcode: 'D3', averageSize: 98, pricePerSqm: 5897 },
+                { postcode: 'D18', averageSize: 118, pricePerSqm: 6246 },
+                { postcode: 'D16', averageSize: 107, pricePerSqm: 6998 },
+                { postcode: 'D14', averageSize: 133, pricePerSqm: 7017 },
+                { postcode: 'D2', averageSize: 72, pricePerSqm: 7527 },
+                { postcode: 'D9', averageSize: 93, pricePerSqm: 6108 },
+                { postcode: 'D15', averageSize: 94, pricePerSqm: 5882 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="averageSize"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Price per SqM (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'pricePerSqm') return [`€${value}`, 'Price per SqM'];
+                  return [value, name];
+                }}
+              />
+              <Scatter dataKey="pricePerSqm" fill="#2563EB" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Larger properties in D14 (133sqm) balance size with €7,017/sqm pricing
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PricePredictabilityChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D13', coefficientOfVariation: 15.2, predictabilityRank: 1 },
+                { postcode: 'D3', coefficientOfVariation: 16.8, predictabilityRank: 2 },
+                { postcode: 'D15', coefficientOfVariation: 17.1, predictabilityRank: 3 },
+                { postcode: 'D7', coefficientOfVariation: 18.2, predictabilityRank: 4 },
+                { postcode: 'D8', coefficientOfVariation: 18.9, predictabilityRank: 5 },
+                { postcode: 'D9', coefficientOfVariation: 19.3, predictabilityRank: 6 },
+                { postcode: 'D12', coefficientOfVariation: 20.1, predictabilityRank: 7 },
+                { postcode: 'D11', coefficientOfVariation: 21.4, predictabilityRank: 8 },
+                { postcode: 'D18', coefficientOfVariation: 27.8, predictabilityRank: 9 },
+                { postcode: 'D4', coefficientOfVariation: 28.7, predictabilityRank: 10 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Price Variation (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Price Variation']}
+              />
+              <Bar dataKey="coefficientOfVariation" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D13 offers most predictable pricing with 15.2% variation
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function RentalYieldMapChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart
+              data={[
+                { postcode: 'D11', averageYield: 9.4, averagePrice: 404000 },
+                { postcode: 'D22', averageYield: 9.1, averagePrice: 375000 },
+                { postcode: 'D24', averageYield: 8.6, averagePrice: 403000 },
+                { postcode: 'D10', averageYield: 8.5, averagePrice: 331000 },
+                { postcode: 'D15', averageYield: 8.4, averagePrice: 464000 },
+                { postcode: 'D7', averageYield: 8.2, averagePrice: 496000 },
+                { postcode: 'D17', averageYield: 8.0, averagePrice: 353000 },
+                { postcode: 'D8', averageYield: 7.9, averagePrice: 470000 },
+                { postcode: 'D9', averageYield: 7.8, averagePrice: 525000 },
+                { postcode: 'D12', averageYield: 7.6, averagePrice: 480000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="averagePrice"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <YAxis
+                label={{ value: 'Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'averageYield') return [`${value}%`, 'Yield'];
+                  return [value, name];
+                }}
+              />
+              <Scatter dataKey="averageYield" fill="#2563EB" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D11 delivers highest 9.4% yields on €404k properties
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BuyerTypeScoresChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { postcode: 'D22', firstTimeBuyerScore: 85, investorScore: 78, luxuryBuyerScore: 45 },
+                { postcode: 'D10', firstTimeBuyerScore: 88, investorScore: 75, luxuryBuyerScore: 42 },
+                { postcode: 'D17', firstTimeBuyerScore: 82, investorScore: 72, luxuryBuyerScore: 38 },
+                { postcode: 'D11', firstTimeBuyerScore: 75, investorScore: 85, luxuryBuyerScore: 48 },
+                { postcode: 'D24', firstTimeBuyerScore: 72, investorScore: 82, luxuryBuyerScore: 52 },
+                { postcode: 'D4', firstTimeBuyerScore: 35, investorScore: 65, luxuryBuyerScore: 88 },
+                { postcode: 'D6W', firstTimeBuyerScore: 45, investorScore: 68, luxuryBuyerScore: 82 },
+                { postcode: 'D14', firstTimeBuyerScore: 38, investorScore: 72, luxuryBuyerScore: 85 },
+                { postcode: 'D18', firstTimeBuyerScore: 42, investorScore: 69, luxuryBuyerScore: 78 },
+                { postcode: 'D16', firstTimeBuyerScore: 40, investorScore: 67, luxuryBuyerScore: 80 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Score (0-100)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}/100`, 'Score']}
+              />
+              <Bar dataKey="firstTimeBuyerScore" fill="#2563EB" name="First-Time Buyers" />
+              <Bar dataKey="investorScore" fill="#DC2626" name="Investors" />
+              <Bar dataKey="luxuryBuyerScore" fill="#10B981" name="Luxury Buyers" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D10 scores 88/100 for first-time buyers, D4 scores 88/100 for luxury buyers
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Property Type Cyclical Performance Charts
+export function CyclicalPerformanceChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { quarter: '2024-Q1', Apartment: 364000, SemiD: 642000, Terrace: 528000, Detached: 1036000 },
+                { quarter: '2024-Q2', Apartment: 374000, SemiD: 629000, Terrace: 522000, Detached: 1055000 },
+                { quarter: '2024-Q3', Apartment: 388000, SemiD: 709000, Terrace: 569000, Detached: 1210000 },
+                { quarter: '2024-Q4', Apartment: 392000, SemiD: 700000, Terrace: 568000, Detached: 1212000 },
+                { quarter: '2025-Q1', Apartment: 400000, SemiD: 695000, Terrace: 559000, Detached: 1090000 },
+                { quarter: '2025-Q2', Apartment: 409000, SemiD: 693000, Terrace: 606000, Detached: 1070000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="quarter"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Line type="monotone" dataKey="Apartment" stroke="#2563EB" strokeWidth={2} name="Apartments" />
+              <Line type="monotone" dataKey="SemiD" stroke="#DC2626" strokeWidth={2} name="Semi-Detached" />
+              <Line type="monotone" dataKey="Terrace" stroke="#10B981" strokeWidth={2} name="Terraced" />
+              <Line type="monotone" dataKey="Detached" stroke="#F59E0B" strokeWidth={2} name="Detached" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Detached homes show strongest cyclical variation with 17.2% Q3 peaks
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function SeasonalIndexChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { quarter: '2024-Q2', Apartment: 102.0, SemiD: 98.0, Terrace: 99.0, Detached: 102.0 },
+                { quarter: '2024-Q3', Apartment: 106.6, SemiD: 110.4, Terrace: 108.0, Detached: 116.8 },
+                { quarter: '2024-Q4', Apartment: 107.8, SemiD: 109.0, Terrace: 107.8, Detached: 117.0 },
+                { quarter: '2025-Q1', Apartment: 109.9, SemiD: 108.2, Terrace: 105.9, Detached: 105.2 },
+                { quarter: '2025-Q2', Apartment: 112.4, SemiD: 107.9, Terrace: 114.9, Detached: 103.2 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="quarter"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Seasonal Index (Q1=100)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}`, 'Seasonal Index']}
+              />
+              <Line type="monotone" dataKey="Apartment" stroke="#2563EB" strokeWidth={2} name="Apartments" />
+              <Line type="monotone" dataKey="SemiD" stroke="#DC2626" strokeWidth={2} name="Semi-Detached" />
+              <Line type="monotone" dataKey="Terrace" stroke="#10B981" strokeWidth={2} name="Terraced" />
+              <Line type="monotone" dataKey="Detached" stroke="#F59E0B" strokeWidth={2} name="Detached" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Apartments show steady 12.4% growth versus detached homes' 17% variation
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PeakPerformanceChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Detached', peakPriceQuarter: 'Q3', peakPrice: 1212000, peakVolumeQuarter: 'Q3', peakVolume: 267 },
+                { propertyType: 'Semi-D', peakPriceQuarter: 'Q3', peakPrice: 709000, peakVolumeQuarter: 'Q3', peakVolume: 849 },
+                { propertyType: 'Terrace', peakPriceQuarter: 'Q2', peakPrice: 606000, peakVolumeQuarter: 'Q3', peakVolume: 702 },
+                { propertyType: 'Apartment', peakPriceQuarter: 'Q2', peakPrice: 409000, peakVolumeQuarter: 'Q4', peakVolume: 841 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                yAxisId="price"
+                label={{ value: 'Peak Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <YAxis
+                yAxisId="volume"
+                orientation="right"
+                label={{ value: 'Peak Volume', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'peakPrice') return [`€${value.toLocaleString()}`, 'Peak Price'];
+                  return [value, name];
+                }}
+              />
+              <Bar yAxisId="price" dataKey="peakPrice" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Detached homes peak at €1.21M in Q3, apartments at €409K in Q2
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function MarketTimingChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Detached', buyerQuarter: 'Q1', buyerPrice: 1036000, sellerQuarter: 'Q3', sellerPrice: 1212000, seasonalAdvantage: 170000 },
+                { propertyType: 'Semi-D', buyerQuarter: 'Q2', buyerPrice: 629000, sellerQuarter: 'Q3', sellerPrice: 709000, seasonalAdvantage: 80000 },
+                { propertyType: 'Terrace', buyerQuarter: 'Q1', buyerPrice: 528000, sellerQuarter: 'Q2', sellerPrice: 606000, seasonalAdvantage: 78000 },
+                { propertyType: 'Apartment', buyerQuarter: 'Q1', buyerPrice: 364000, sellerQuarter: 'Q2', sellerPrice: 409000, seasonalAdvantage: 45000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Seasonal Advantage (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Seasonal Advantage']}
+              />
+              <Bar dataKey="seasonalAdvantage" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Detached homes offer €170K seasonal advantage, apartments €45K
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceVolatilityChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { quarterTransition: 'Q1→Q2', Apartment: 2.7, SemiD: -2.0, Terrace: -1.1, Detached: 1.8 },
+                { quarterTransition: 'Q2→Q3', Apartment: 3.8, SemiD: 12.6, Terrace: 9.2, Detached: 14.9 },
+                { quarterTransition: 'Q3→Q4', Apartment: 1.0, SemiD: -1.3, Terrace: -0.2, Detached: 0.2 },
+                { quarterTransition: 'Q4→Q1', Apartment: 2.1, SemiD: -0.7, Terrace: -1.7, Detached: -10.1 },
+                { quarterTransition: 'Q1→Q2', Apartment: 2.2, SemiD: -0.3, Terrace: 8.4, Detached: -1.8 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="quarterTransition"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Price Change (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value > 0 ? '+' : ''}${value}%`, 'Price Change']}
+              />
+              <Line type="monotone" dataKey="Apartment" stroke="#2563EB" strokeWidth={2} name="Apartments" />
+              <Line type="monotone" dataKey="SemiD" stroke="#DC2626" strokeWidth={2} name="Semi-Detached" />
+              <Line type="monotone" dataKey="Terrace" stroke="#10B981" strokeWidth={2} name="Terraced" />
+              <Line type="monotone" dataKey="Detached" stroke="#F59E0B" strokeWidth={2} name="Detached" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Detached homes show 14.9% Q2→Q3 growth versus apartments' steady 5.7% pattern
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function AutumnForecastChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { propertyType: 'Apartment', autumnAvgPrice: 390000, springAvgPrice: 375000, autumnPremium: 4.0 },
+                { propertyType: 'Semi-D', autumnAvgPrice: 702000, springAvgPrice: 694000, autumnPremium: 1.2 },
+                { propertyType: 'Terrace', autumnAvgPrice: 587000, springAvgPrice: 559000, autumnPremium: 5.0 },
+                { propertyType: 'Detached', autumnAvgPrice: 1151000, springAvgPrice: 1063000, autumnPremium: 8.3 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="propertyType"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Autumn Premium (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Autumn Premium']}
+              />
+              <Bar dataKey="autumnPremium" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Detached homes forecast 8.3% autumn premium, apartments 4.0%
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Size Efficiency Paradox Charts
+export function SizeEfficiencyChartNew2() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { sizeBand: 'Compact', pricePerSqm: 6625, averagePrice: 362000 },
+                { sizeBand: 'Standard', pricePerSqm: 5597, averagePrice: 468000 },
+                { sizeBand: 'Spacious', pricePerSqm: 5442, averagePrice: 633000 },
+                { sizeBand: 'Large', pricePerSqm: 5745, averagePrice: 930000 },
+                { sizeBand: 'XL', pricePerSqm: 6231, averagePrice: 1701000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="sizeBand"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                yAxisId="price"
+                label={{ value: 'Price per SqM (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <YAxis
+                yAxisId="total"
+                orientation="right"
+                label={{ value: 'Average Price (€)', angle: 90, position: 'insideRight' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'pricePerSqm') return [`€${value}`, 'Price per SqM'];
+                  if (name === 'averagePrice') return [`€${value.toLocaleString()}`, 'Average Price'];
+                  return [value, name];
+                }}
+              />
+              <Line yAxisId="price" type="monotone" dataKey="pricePerSqm" stroke="#2563EB" strokeWidth={3} />
+              <Line yAxisId="total" type="monotone" dataKey="averagePrice" stroke="#DC2626" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Compact properties cost more per square meter despite lower total prices
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverAskingParadoxChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { sizeBand: 'Compact', successRate: 80.3, averagePremium: 10.9 },
+                { sizeBand: 'Standard', successRate: 85.5, averagePremium: 11.4 },
+                { sizeBand: 'Spacious', successRate: 83.6, averagePremium: 10.5 },
+                { sizeBand: 'Large', successRate: 75.4, averagePremium: 10.6 },
+                { sizeBand: 'XL', successRate: 54.7, averagePremium: 10.6 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="sizeBand"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Success Rate']}
+              />
+              <Bar dataKey="successRate" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Smaller properties achieve higher over-asking success despite premium pricing
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function ValueEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { sizeBand: 'Compact', efficiencyRatio: 1.21, percentageDifference: 21.0 },
+                { sizeBand: 'Standard', efficiencyRatio: 1.03, percentageDifference: 3.0 },
+                { sizeBand: 'Spacious', efficiencyRatio: 1.00, percentageDifference: 0.0 },
+                { sizeBand: 'Large', efficiencyRatio: 1.06, percentageDifference: 6.0 },
+                { sizeBand: 'XL', efficiencyRatio: 1.15, percentageDifference: 15.0 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="sizeBand"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Efficiency vs Spacious (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value > 0 ? '+' : ''}${value}%`, 'Efficiency Difference']}
+              />
+              <Bar dataKey="percentageDifference" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Compact properties are 21% less efficient than spacious homes
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function QuarterlyTimingChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[
+                { quarter: '2024-Q1', Compact: 356000, Standard: 458000, Spacious: 621000, Large: 912000, XL: 1675000 },
+                { quarter: '2024-Q2', Compact: 363000, Standard: 462000, Spacious: 628000, Large: 918000, XL: 1682000 },
+                { quarter: '2024-Q3', Compact: 369000, Standard: 475000, Spacious: 641000, Large: 942000, XL: 1721000 },
+                { quarter: '2024-Q4', Compact: 365000, Standard: 472000, Spacious: 635000, Large: 928000, XL: 1698000 },
+                { quarter: '2025-Q1', Compact: 358000, Standard: 465000, Spacious: 629000, Large: 922000, XL: 1689000 },
+                { quarter: '2025-Q2', Compact: 372000, Standard: 479000, Spacious: 647000, Large: 948000, XL: 1732000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="quarter"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${value.toLocaleString()}`, 'Average Price']}
+              />
+              <Line type="monotone" dataKey="Compact" stroke="#2563EB" strokeWidth={2} name="Compact" />
+              <Line type="monotone" dataKey="Standard" stroke="#DC2626" strokeWidth={2} name="Standard" />
+              <Line type="monotone" dataKey="Spacious" stroke="#10B981" strokeWidth={2} name="Spacious" />
+              <Line type="monotone" dataKey="Large" stroke="#F59E0B" strokeWidth={2} name="Large" />
+              <Line type="monotone" dataKey="XL" stroke="#8B5CF6" strokeWidth={2} name="XL" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Size bands show 3-4% quarterly variation with Q3 peaks across categories
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function InvestmentEfficiencyChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart
+              data={[
+                { sizeBand: 'Compact', averageYield: 8.17, averagePrice: 307000 },
+                { sizeBand: 'Standard', averageYield: 8.27, averagePrice: 381000 },
+                { sizeBand: 'Spacious', averageYield: 8.06, averagePrice: 451000 },
+                { sizeBand: 'Large', averageYield: 6.15, averagePrice: 758000 },
+                { sizeBand: 'XL', averageYield: 5.96, averagePrice: 1930000 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="averagePrice"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <YAxis
+                label={{ value: 'Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'averageYield') return [`${value}%`, 'Yield'];
+                  return [value, name];
+                }}
+              />
+              <Scatter dataKey="averageYield" fill="#2563EB" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Smaller properties deliver higher yields despite premium pricing
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertyTypeDistributionChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { sizeBand: 'Compact', Apartments: 68, Terraced: 15, SemiD: 12, Detached: 5 },
+                { sizeBand: 'Standard', Apartments: 45, Terraced: 25, SemiD: 20, Detached: 10 },
+                { sizeBand: 'Spacious', Apartments: 25, Terraced: 30, SemiD: 35, Detached: 10 },
+                { sizeBand: 'Large', Apartments: 8, Terraced: 20, SemiD: 40, Detached: 32 },
+                { sizeBand: 'XL', Apartments: 2, Terraced: 8, SemiD: 25, Detached: 65 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="sizeBand"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Market Share (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${value}%`, 'Market Share']}
+              />
+              <Bar dataKey="Apartments" fill="#2563EB" name="Apartments" stackId="a" />
+              <Bar dataKey="Terraced" fill="#DC2626" name="Terraced" stackId="a" />
+              <Bar dataKey="SemiD" fill="#10B981" name="Semi-Detached" stackId="a" />
+              <Bar dataKey="Detached" fill="#F59E0B" name="Detached" stackId="a" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Apartments dominate compact properties (68%), detached homes XL properties (65%)
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BuyerProfileOptimizationChart() {
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={[
+                { buyerProfile: 'Urban Professionals', optimalSize: 'Compact', keyCriteria: 'Efficiency, Location, Lifestyle', averagePrice: 362000, pricePerSqm: 6625, sampleSize: 4049 },
+                { buyerProfile: 'Growing Families', optimalSize: 'Spacious', keyCriteria: 'Space, Value, Family Amenities', averagePrice: 633000, pricePerSqm: 5442, sampleSize: 4864 },
+                { buyerProfile: 'Investors', optimalSize: 'Standard', keyCriteria: 'Yield, Management, Returns', averagePrice: 468000, pricePerSqm: 5597, sampleSize: 6696 },
+                { buyerProfile: 'Luxury Buyers', optimalSize: 'XL', keyCriteria: 'Prestige, Exclusivity, Status', averagePrice: 1701000, pricePerSqm: 6231, sampleSize: 1044 }
+              ]}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="buyerProfile"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'averagePrice') return [`€${value.toLocaleString()}`, 'Average Price'];
+                  return [value, name];
+                }}
+              />
+              <Bar dataKey="averagePrice" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Urban professionals optimize with compact properties, luxury buyers with XL homes
         </p>
       </div>
     </ChartWrapper>

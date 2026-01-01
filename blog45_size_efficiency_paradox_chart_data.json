@@ -1,0 +1,614 @@
+{
+  "sizeEfficiencyChart": [
+    {
+      "sizeBand": "Compact",
+      "averagePrice": 361961,
+      "pricePerSqm": 6625,
+      "sampleSize": 4049
+    },
+    {
+      "sizeBand": "Standard",
+      "averagePrice": 467872,
+      "pricePerSqm": 5597,
+      "sampleSize": 6696
+    },
+    {
+      "sizeBand": "Spacious",
+      "averagePrice": 633327,
+      "pricePerSqm": 5442,
+      "sampleSize": 4864
+    },
+    {
+      "sizeBand": "Large",
+      "averagePrice": 929640,
+      "pricePerSqm": 5745,
+      "sampleSize": 2326
+    },
+    {
+      "sizeBand": "XL",
+      "averagePrice": 1684389,
+      "pricePerSqm": 6136,
+      "sampleSize": 1061
+    }
+  ],
+  "overAskingParadoxChart": [
+    {
+      "sizeBand": "Compact",
+      "successRate": 80.29142998271178,
+      "averagePremium": 10.927849892340834,
+      "sampleSize": 4049
+    },
+    {
+      "sizeBand": "Standard",
+      "successRate": 85.45400238948626,
+      "averagePremium": 11.397434463474271,
+      "sampleSize": 6696
+    },
+    {
+      "sizeBand": "Spacious",
+      "successRate": 83.55263157894737,
+      "averagePremium": 10.464768700787348,
+      "sampleSize": 4864
+    },
+    {
+      "sizeBand": "Large",
+      "successRate": 75.40842648323301,
+      "averagePremium": 10.608511972633986,
+      "sampleSize": 2326
+    },
+    {
+      "sizeBand": "XL",
+      "successRate": 54.94816211121584,
+      "averagePremium": 10.618644939965696,
+      "sampleSize": 1061
+    }
+  ],
+  "valueEfficiencyChart": [
+    {
+      "sizeBand": "Compact",
+      "efficiencyRatio": 1.2172986533382901,
+      "percentageDifference": 21.72986533382901
+    },
+    {
+      "sizeBand": "Standard",
+      "efficiencyRatio": 1.0283630768697434,
+      "percentageDifference": 2.8363076869743375
+    },
+    {
+      "sizeBand": "Large",
+      "efficiencyRatio": 1.055578371931743,
+      "percentageDifference": 5.557837193174309
+    },
+    {
+      "sizeBand": "XL",
+      "efficiencyRatio": 1.1275117464012512,
+      "percentageDifference": 12.751174640125118
+    }
+  ],
+  "quarterlyTimingChart": [
+    {
+      "sizeBand": "Compact",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 338487,
+          "salesVolume": 450
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 341738,
+          "salesVolume": 515
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 361907,
+          "salesVolume": 544
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 359484,
+          "salesVolume": 621
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 362336,
+          "salesVolume": 475
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 370902,
+          "salesVolume": 479
+        }
+      ]
+    },
+    {
+      "sizeBand": "Standard",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 438816,
+          "salesVolume": 723
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 445710,
+          "salesVolume": 830
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 459601,
+          "salesVolume": 966
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 461428,
+          "salesVolume": 977
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 471347,
+          "salesVolume": 788
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 485830,
+          "salesVolume": 783
+        }
+      ]
+    },
+    {
+      "sizeBand": "Spacious",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 602816,
+          "salesVolume": 506
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 579884,
+          "salesVolume": 570
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 628313,
+          "salesVolume": 712
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 640525,
+          "salesVolume": 734
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 644984,
+          "salesVolume": 566
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 640439,
+          "salesVolume": 571
+        }
+      ]
+    },
+    {
+      "sizeBand": "Large",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 863349,
+          "salesVolume": 239
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 888312,
+          "salesVolume": 273
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 954225,
+          "salesVolume": 343
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 916167,
+          "salesVolume": 347
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 930711,
+          "salesVolume": 292
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 914064,
+          "salesVolume": 239
+        }
+      ]
+    },
+    {
+      "sizeBand": "XL",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "averagePrice": 1477725,
+          "salesVolume": 124
+        },
+        {
+          "quarter": "2024-Q2",
+          "averagePrice": 1536157,
+          "salesVolume": 107
+        },
+        {
+          "quarter": "2024-Q3",
+          "averagePrice": 1806215,
+          "salesVolume": 165
+        },
+        {
+          "quarter": "2024-Q4",
+          "averagePrice": 1792158,
+          "salesVolume": 178
+        },
+        {
+          "quarter": "2025-Q1",
+          "averagePrice": 1610328,
+          "salesVolume": 117
+        },
+        {
+          "quarter": "2025-Q2",
+          "averagePrice": 1665264,
+          "salesVolume": 127
+        }
+      ]
+    }
+  ],
+  "investmentEfficiencyChart": [
+    {
+      "sizeBand": "Compact",
+      "averageYield": 8.244313088665137,
+      "averagePrice": 364048,
+      "sampleSize": 3079
+    },
+    {
+      "sizeBand": "Standard",
+      "averageYield": 7.940078756476658,
+      "averagePrice": 473058,
+      "sampleSize": 4825
+    },
+    {
+      "sizeBand": "Spacious",
+      "averageYield": 6.755151515151496,
+      "averagePrice": 636861,
+      "sampleSize": 3069
+    },
+    {
+      "sizeBand": "Large",
+      "averageYield": 5.75023663453111,
+      "averagePrice": 943175,
+      "sampleSize": 1141
+    },
+    {
+      "sizeBand": "XL",
+      "averageYield": 5.676490384615387,
+      "averagePrice": 1746930,
+      "sampleSize": 416
+    }
+  ],
+  "propertyTypeDistributionChart": [
+    {
+      "sizeBand": "Compact",
+      "distributionData": [
+        {
+          "propertyType": "Apartment",
+          "count": 2787,
+          "percentage": 68.83181032353669
+        },
+        {
+          "propertyType": "Terrace",
+          "count": 724,
+          "percentage": 17.88095826129909
+        },
+        {
+          "propertyType": "End of Terrace",
+          "count": 196,
+          "percentage": 4.8407014077550015
+        },
+        {
+          "propertyType": "Semi-D",
+          "count": 111,
+          "percentage": 2.7414176339836995
+        },
+        {
+          "propertyType": "Bungalow",
+          "count": 109,
+          "percentage": 2.692022721659669
+        },
+        {
+          "propertyType": "",
+          "count": 44,
+          "percentage": 1.0866880711286737
+        },
+        {
+          "propertyType": "Duplex",
+          "count": 30,
+          "percentage": 0.7409236848604593
+        },
+        {
+          "propertyType": "Townhouse",
+          "count": 28,
+          "percentage": 0.6915287725364287
+        },
+        {
+          "propertyType": "Detached",
+          "count": 20,
+          "percentage": 0.49394912324030626
+        }
+      ]
+    },
+    {
+      "sizeBand": "Standard",
+      "distributionData": [
+        {
+          "propertyType": "Terrace",
+          "count": 1969,
+          "percentage": 29.405615292712067
+        },
+        {
+          "propertyType": "Apartment",
+          "count": 1957,
+          "percentage": 29.226403823178014
+        },
+        {
+          "propertyType": "Semi-D",
+          "count": 1464,
+          "percentage": 21.863799283154123
+        },
+        {
+          "propertyType": "End of Terrace",
+          "count": 775,
+          "percentage": 11.574074074074074
+        },
+        {
+          "propertyType": "Duplex",
+          "count": 182,
+          "percentage": 2.7180406212664274
+        },
+        {
+          "propertyType": "Bungalow",
+          "count": 120,
+          "percentage": 1.7921146953405016
+        },
+        {
+          "propertyType": "Detached",
+          "count": 112,
+          "percentage": 1.6726403823178015
+        },
+        {
+          "propertyType": "",
+          "count": 79,
+          "percentage": 1.1798088410991636
+        },
+        {
+          "propertyType": "Townhouse",
+          "count": 38,
+          "percentage": 0.5675029868578256
+        }
+      ]
+    },
+    {
+      "sizeBand": "Spacious",
+      "distributionData": [
+        {
+          "propertyType": "Semi-D",
+          "count": 2465,
+          "percentage": 50.67845394736842
+        },
+        {
+          "propertyType": "Terrace",
+          "count": 985,
+          "percentage": 20.250822368421055
+        },
+        {
+          "propertyType": "End of Terrace",
+          "count": 461,
+          "percentage": 9.477796052631579
+        },
+        {
+          "propertyType": "Detached",
+          "count": 316,
+          "percentage": 6.496710526315789
+        },
+        {
+          "propertyType": "Apartment",
+          "count": 242,
+          "percentage": 4.975328947368421
+        },
+        {
+          "propertyType": "Duplex",
+          "count": 204,
+          "percentage": 4.194078947368421
+        },
+        {
+          "propertyType": "Bungalow",
+          "count": 113,
+          "percentage": 2.3231907894736845
+        },
+        {
+          "propertyType": "",
+          "count": 53,
+          "percentage": 1.0896381578947367
+        },
+        {
+          "propertyType": "Townhouse",
+          "count": 24,
+          "percentage": 0.4934210526315789
+        },
+        {
+          "propertyType": "Site",
+          "count": 1,
+          "percentage": 0.020559210526315787
+        }
+      ]
+    },
+    {
+      "sizeBand": "Large",
+      "distributionData": [
+        {
+          "propertyType": "Semi-D",
+          "count": 1046,
+          "percentage": 44.96990541702493
+        },
+        {
+          "propertyType": "Detached",
+          "count": 591,
+          "percentage": 25.408426483233015
+        },
+        {
+          "propertyType": "Terrace",
+          "count": 359,
+          "percentage": 15.434221840068787
+        },
+        {
+          "propertyType": "End of Terrace",
+          "count": 151,
+          "percentage": 6.491831470335339
+        },
+        {
+          "propertyType": "Bungalow",
+          "count": 62,
+          "percentage": 2.6655202063628547
+        },
+        {
+          "propertyType": "Apartment",
+          "count": 51,
+          "percentage": 2.1926053310404128
+        },
+        {
+          "propertyType": "",
+          "count": 29,
+          "percentage": 1.246775580395529
+        },
+        {
+          "propertyType": "Duplex",
+          "count": 20,
+          "percentage": 0.8598452278589854
+        },
+        {
+          "propertyType": "Townhouse",
+          "count": 15,
+          "percentage": 0.6448839208942391
+        },
+        {
+          "propertyType": "Site",
+          "count": 1,
+          "percentage": 0.04299226139294927
+        },
+        {
+          "propertyType": "terrace",
+          "count": 1,
+          "percentage": 0.04299226139294927
+        }
+      ]
+    },
+    {
+      "sizeBand": "XL",
+      "distributionData": [
+        {
+          "propertyType": "Detached",
+          "count": 535,
+          "percentage": 50.42412818096136
+        },
+        {
+          "propertyType": "Semi-D",
+          "count": 239,
+          "percentage": 22.525918944392085
+        },
+        {
+          "propertyType": "Terrace",
+          "count": 180,
+          "percentage": 16.96512723845429
+        },
+        {
+          "propertyType": "End of Terrace",
+          "count": 42,
+          "percentage": 3.9585296889726673
+        },
+        {
+          "propertyType": "Bungalow",
+          "count": 25,
+          "percentage": 2.35626767200754
+        },
+        {
+          "propertyType": "",
+          "count": 18,
+          "percentage": 1.6965127238454287
+        },
+        {
+          "propertyType": "Apartment",
+          "count": 18,
+          "percentage": 1.6965127238454287
+        },
+        {
+          "propertyType": "Townhouse",
+          "count": 3,
+          "percentage": 0.2827521206409048
+        },
+        {
+          "propertyType": "Site",
+          "count": 1,
+          "percentage": 0.0942507068803016
+        }
+      ]
+    }
+  ],
+  "buyerProfileOptimizationChart": [
+    {
+      "buyerProfile": "Urban Professionals",
+      "optimalSize": "Compact",
+      "keyCriteria": [
+        "price_per_sqm",
+        "location_efficiency",
+        "maintenance_cost"
+      ],
+      "averagePrice": 361961,
+      "pricePerSqm": 6625,
+      "sampleSize": 4049
+    },
+    {
+      "buyerProfile": "Growing Families",
+      "optimalSize": "Spacious",
+      "keyCriteria": [
+        "space_requirements",
+        "resale_value",
+        "family_friendly"
+      ],
+      "averagePrice": 633327,
+      "pricePerSqm": 5442,
+      "sampleSize": 4864
+    },
+    {
+      "buyerProfile": "Investors",
+      "optimalSize": "Standard",
+      "keyCriteria": [
+        "rental_yield",
+        "capital_appreciation",
+        "management_ease"
+      ],
+      "averagePrice": 467872,
+      "pricePerSqm": 5597,
+      "sampleSize": 6696
+    },
+    {
+      "buyerProfile": "Luxury Buyers",
+      "optimalSize": "XL",
+      "keyCriteria": [
+        "prestige",
+        "exclusivity",
+        "investment_potential"
+      ],
+      "averagePrice": 1684389,
+      "pricePerSqm": 6136,
+      "sampleSize": 1061
+    }
+  ]
+}

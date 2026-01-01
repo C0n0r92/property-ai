@@ -10,7 +10,7 @@ import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { MapLink } from '@/components/MapLink';
 import { getCategoryConfig } from '@/lib/blog-categories';
-import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChart, SizeEfficiencyChart, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChart, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2, SeasonalPerformanceChart, MonthlyTimingChart, TimingValueTradeoffChart, BestTypeByAreaChart, MortgageImpactChart, OverpaymentSavingsChart, MonthlyPaymentBreakdownChart, PropertyTypeSavingsChart, BiddingWarImpactChart, YieldByPostcodeChart, YieldByPriceBracketChart, BestValueAreasChart, YieldDistributionChart as YieldDistributionChartNew, BedroomEfficiencyChart, PropertyTypeEfficiencyChart, SizeBracketEfficiencyChart, EfficiencyParadoxChart, OverAskingByPriceBracketChart, OverAskingByPropertyTypeChart, OverAskingByPostcodeChart, PremiumDistributionChart as PremiumDistributionChartNew, OptimalStrategyChart } from '@/components/BlogCharts';
+import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChartNew, SizeEfficiencyChartNew, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChartNew, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2, SeasonalPerformanceChart, MonthlyTimingChart, TimingValueTradeoffChart, BestTypeByAreaChart, MortgageImpactChart, OverpaymentSavingsChartNew, MonthlyPaymentBreakdownChart, PropertyTypeSavingsChart, BiddingWarImpactChart, YieldByPostcodeChart, YieldByPriceBracketChart, BestValueAreasChart, YieldDistributionChartNew2, BedroomEfficiencyChart, PropertyTypeEfficiencyChart, SizeBracketEfficiencyChart, EfficiencyParadoxChart, OverAskingByPriceBracketChart, OverAskingByPropertyTypeChart, OverAskingByPostcodeChart, PremiumDistributionChartNew2, OptimalStrategyChart, D3PropertyTypesChart, D3MonthlyTrendsChart, SizeBandMortgageChart, OverpaymentSavingsChartNew as OverpaymentSavingsChartNew2, SizeBandOverAskingChart, BreakEvenAnalysisChart, YieldBySizeBandChart, GeographicPriceVariationsChart, PriceEfficiencyChart, OverAskingSuccessChart, PropertySizeVariationsChart, PricePredictabilityChart, RentalYieldMapChart, BuyerTypeScoresChart, CyclicalPerformanceChart, SeasonalIndexChart, PeakPerformanceChart, MarketTimingChart, PriceVolatilityChart, AutumnForecastChart, SizeEfficiencyChartNew2, OverAskingParadoxChart, ValueEfficiencyChart, QuarterlyTimingChart, InvestmentEfficiencyChart, PropertyTypeDistributionChart, BuyerProfileOptimizationChart } from '@/components/BlogCharts';
 
 // MapLink component will be imported from a separate client component file
 
@@ -76,7 +76,7 @@ function processMarkdownToHtml(content: string): string {
     const trimmedLine = line.trim();
 
     // Skip chart component lines - they'll be handled separately
-    if (trimmedLine === '<OverAskingChart />' || trimmedLine === '<ThreeBedChart />' || trimmedLine === '<DistanceChart />' || trimmedLine === '<ChristmasPriceChart />' || trimmedLine === '<YieldCurveChart />' || trimmedLine === '<BedroomPerformanceChart />' || trimmedLine === '<D4PremiumChart />' || trimmedLine === '<JanuaryVolumeChart />' || trimmedLine === '<RentalPricingChart />' || trimmedLine === '<TopRentalAreasChart />' || trimmedLine === '<Q2VsQ1Chart />' || trimmedLine === '<MonthlyTrendChart />' || trimmedLine === '<RentalYieldChart />' || trimmedLine === '<YieldDistributionChart />' || trimmedLine === '<SizeEfficiencyChart />' || trimmedLine === '<PostcodeEfficiencyChart />' || trimmedLine === '<YearOverYearPricesChart />' || trimmedLine === '<PropertyTypeComparisonChart />' || trimmedLine === '<PriceIncreaseChart />' || trimmedLine === '<BiddingWarsChart />' || trimmedLine === '<PriceChangeComparisonChart />' || trimmedLine === '<YearOverYearChart />' || trimmedLine === '<PropertyTypeChart />' || trimmedLine === '<PriceDistributionChart />' || trimmedLine === '<PriceTrendChart />' || trimmedLine === '<YearOverYearChartD7 />' || trimmedLine === '<PropertyTypeChartD7 />' || trimmedLine === '<PriceDistributionChartD7 />' || trimmedLine === '<PriceTrendChartD7 />' || trimmedLine === '<YearOverYearChartD2 />' || trimmedLine === '<PropertyTypeChartD2 />' || trimmedLine === '<PriceDistributionChartD2 />' || trimmedLine === '<PriceTrendChartD2 />' || trimmedLine === '<SeasonalPerformanceChart />' || trimmedLine === '<MonthlyTimingChart />' || trimmedLine === '<TimingValueTradeoffChart />' || trimmedLine === '<BestTypeByAreaChart />' || trimmedLine === '<MortgageImpactChart />' || trimmedLine === '<OverpaymentSavingsChart />' || trimmedLine === '<MonthlyPaymentBreakdownChart />' || trimmedLine === '<PropertyTypeSavingsChart />' || trimmedLine === '<BiddingWarImpactChart />' || trimmedLine === '<YieldByPostcodeChart />' || trimmedLine === '<YieldByPriceBracketChart />' || trimmedLine === '<BestValueAreasChart />' || trimmedLine === '<YieldDistributionChartNew />' || trimmedLine === '<BedroomEfficiencyChart />' || trimmedLine === '<PropertyTypeEfficiencyChart />' || trimmedLine === '<SizeBracketEfficiencyChart />' || trimmedLine === '<EfficiencyParadoxChart />' || trimmedLine === '<OverAskingByPriceBracketChart />' || trimmedLine === '<OverAskingByPropertyTypeChart />' || trimmedLine === '<OverAskingByPostcodeChart />' || trimmedLine === '<PremiumDistributionChartNew />' || trimmedLine === '<OptimalStrategyChart />') {
+    if (trimmedLine === '<OverAskingChart />' || trimmedLine === '<ThreeBedChart />' || trimmedLine === '<DistanceChart />' || trimmedLine === '<ChristmasPriceChart />' || trimmedLine === '<YieldCurveChart />' || trimmedLine === '<BedroomPerformanceChart />' || trimmedLine === '<D4PremiumChart />' || trimmedLine === '<JanuaryVolumeChart />' || trimmedLine === '<RentalPricingChart />' || trimmedLine === '<TopRentalAreasChart />' || trimmedLine === '<Q2VsQ1Chart />' || trimmedLine === '<MonthlyTrendChart />' || trimmedLine === '<RentalYieldChart />' || trimmedLine === '<YieldDistributionChartNew />' || trimmedLine === '<SizeEfficiencyChartNew />' || trimmedLine === '<PostcodeEfficiencyChart />' || trimmedLine === '<YearOverYearPricesChart />' || trimmedLine === '<PropertyTypeComparisonChart />' || trimmedLine === '<PriceIncreaseChart />' || trimmedLine === '<BiddingWarsChart />' || trimmedLine === '<PriceChangeComparisonChart />' || trimmedLine === '<YearOverYearChart />' || trimmedLine === '<PropertyTypeChart />' || trimmedLine === '<PriceDistributionChart />' || trimmedLine === '<PriceTrendChart />' || trimmedLine === '<YearOverYearChartD7 />' || trimmedLine === '<PropertyTypeChartD7 />' || trimmedLine === '<PriceDistributionChartD7 />' || trimmedLine === '<PriceTrendChartD7 />' || trimmedLine === '<YearOverYearChartD2 />' || trimmedLine === '<PropertyTypeChartD2 />' || trimmedLine === '<PriceDistributionChartD2 />' || trimmedLine === '<PriceTrendChartD2 />' || trimmedLine === '<SeasonalPerformanceChart />' || trimmedLine === '<MonthlyTimingChart />' || trimmedLine === '<TimingValueTradeoffChart />' || trimmedLine === '<BestTypeByAreaChart />' || trimmedLine === '<MortgageImpactChart />' || trimmedLine === '<OverpaymentSavingsChartNew />' || trimmedLine === '<MonthlyPaymentBreakdownChart />' || trimmedLine === '<PropertyTypeSavingsChart />' || trimmedLine === '<BiddingWarImpactChart />' || trimmedLine === '<YieldByPostcodeChart />' || trimmedLine === '<YieldByPriceBracketChart />' || trimmedLine === '<BestValueAreasChart />' || trimmedLine === '<YieldDistributionChartNew2 />' || trimmedLine === '<BedroomEfficiencyChart />' || trimmedLine === '<PropertyTypeEfficiencyChart />' || trimmedLine === '<SizeBracketEfficiencyChart />' || trimmedLine === '<EfficiencyParadoxChart />' || trimmedLine === '<OverAskingByPriceBracketChart />' || trimmedLine === '<OverAskingByPropertyTypeChart />' || trimmedLine === '<OverAskingByPostcodeChart />' || trimmedLine === '<PremiumDistributionChartNew2 />' || trimmedLine === '<OptimalStrategyChart />' || trimmedLine === '<D3PropertyTypesChart />' || trimmedLine === '<D3MonthlyTrendsChart />' || trimmedLine === '<SizeBandMortgageChart />' || trimmedLine === '<OverpaymentSavingsChartNew2 />' || trimmedLine === '<SizeBandOverAskingChart />' || trimmedLine === '<BreakEvenAnalysisChart />' || trimmedLine === '<YieldBySizeBandChart />' || trimmedLine === '<GeographicPriceVariationsChart />' || trimmedLine === '<PriceEfficiencyChart />' || trimmedLine === '<OverAskingSuccessChart />' || trimmedLine === '<PropertySizeVariationsChart />' || trimmedLine === '<PricePredictabilityChart />' || trimmedLine === '<RentalYieldMapChart />' || trimmedLine === '<BuyerTypeScoresChart />' || trimmedLine === '<CyclicalPerformanceChart />' || trimmedLine === '<SeasonalIndexChart />' || trimmedLine === '<PeakPerformanceChart />' || trimmedLine === '<MarketTimingChart />' || trimmedLine === '<PriceVolatilityChart />' || trimmedLine === '<AutumnForecastChart />' || trimmedLine === '<SizeEfficiencyChartNew2 />' || trimmedLine === '<OverAskingParadoxChart />' || trimmedLine === '<ValueEfficiencyChart />' || trimmedLine === '<QuarterlyTimingChart />' || trimmedLine === '<InvestmentEfficiencyChart />' || trimmedLine === '<PropertyTypeDistributionChart />' || trimmedLine === '<BuyerProfileOptimizationChart />') {
       continue;
     }
 
@@ -243,7 +243,7 @@ function processMarkdownToHtml(content: string): string {
 interface ContentSegment {
   type: 'html' | 'chart';
   content?: string;
-  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart' | 'ChristmasPriceChart' | 'YieldCurveChart' | 'BedroomPerformanceChart' | 'D4PremiumChart' | 'JanuaryVolumeChart' | 'RentalPricingChart' | 'TopRentalAreasChart' | 'Q2VsQ1Chart' | 'MonthlyTrendChart' | 'RentalYieldChart' | 'YieldDistributionChart' | 'SizeEfficiencyChart' | 'PostcodeEfficiencyChart' | 'YearOverYearPricesChart' | 'PropertyTypeComparisonChart' | 'PremiumDistributionChart' | 'PremiumPaybackChart' | 'BreakEvenChart' | 'OpportunityCostChart' | 'AreaPremiumChart' | 'PriceIncreaseChart' | 'BiddingWarsChart' | 'PriceChangeComparisonChart' | 'YearOverYearChart' | 'PropertyTypeChart' | 'PriceDistributionChart' | 'PriceTrendChart' | 'YearOverYearChartD7' | 'PropertyTypeChartD7' | 'PriceDistributionChartD7' | 'PriceTrendChartD7' | 'YearOverYearChartD2' | 'PropertyTypeChartD2' | 'PriceDistributionChartD2' | 'PriceTrendChartD2' | 'PropertyTypeSavingsChart' | 'BiddingWarImpactChart' | 'YieldByPostcodeChart' | 'YieldByPriceBracketChart' | 'BestValueAreasChart' | 'YieldDistributionChartNew' | 'BedroomEfficiencyChart' | 'PropertyTypeEfficiencyChart' | 'SizeBracketEfficiencyChart' | 'EfficiencyParadoxChart' | 'OverAskingByPriceBracketChart' | 'OverAskingByPropertyTypeChart' | 'OverAskingByPostcodeChart' | 'PremiumDistributionChartNew' | 'OptimalStrategyChart';
+  chartComponent?: 'OverAskingChart' | 'ThreeBedChart' | 'DistanceChart' | 'ChristmasPriceChart' | 'YieldCurveChart' | 'BedroomPerformanceChart' | 'D4PremiumChart' | 'JanuaryVolumeChart' | 'RentalPricingChart' | 'TopRentalAreasChart' | 'Q2VsQ1Chart' | 'MonthlyTrendChart' | 'RentalYieldChart' | 'YieldDistributionChart' | 'SizeEfficiencyChart' | 'PostcodeEfficiencyChart' | 'YearOverYearPricesChart' | 'PropertyTypeComparisonChart' | 'PremiumDistributionChart' | 'PremiumPaybackChart' | 'BreakEvenChart' | 'OpportunityCostChart' | 'AreaPremiumChart' | 'PriceIncreaseChart' | 'BiddingWarsChart' | 'PriceChangeComparisonChart' | 'YearOverYearChart' | 'PropertyTypeChart' | 'PriceDistributionChart' | 'PriceTrendChart' | 'YearOverYearChartD7' | 'PropertyTypeChartD7' | 'PriceDistributionChartD7' | 'PriceTrendChartD7' | 'YearOverYearChartD2' | 'PropertyTypeChartD2' | 'PriceDistributionChartD2' | 'PriceTrendChartD2' | 'PropertyTypeSavingsChart' | 'BiddingWarImpactChart' | 'YieldByPostcodeChart' | 'YieldByPriceBracketChart' | 'BestValueAreasChart' | 'YieldDistributionChartNew' | 'BedroomEfficiencyChart' | 'PropertyTypeEfficiencyChart' | 'SizeBracketEfficiencyChart' | 'EfficiencyParadoxChart' | 'OverAskingByPriceBracketChart' | 'OverAskingByPropertyTypeChart' | 'OverAskingByPostcodeChart' | 'PremiumDistributionChartNew' | 'OptimalStrategyChart' | 'D3PropertyTypesChart' | 'D3MonthlyTrendsChart' | 'SizeBandMortgageChart' | 'OverpaymentSavingsChartNew2' | 'SizeBandOverAskingChart' | 'BreakEvenAnalysisChart' | 'YieldBySizeBandChart' | 'GeographicPriceVariationsChart' | 'PriceEfficiencyChart' | 'OverAskingSuccessChart' | 'PropertySizeVariationsChart' | 'PricePredictabilityChart' | 'RentalYieldMapChart' | 'BuyerTypeScoresChart' | 'CyclicalPerformanceChart' | 'SeasonalIndexChart' | 'PeakPerformanceChart' | 'MarketTimingChart' | 'PriceVolatilityChart' | 'AutumnForecastChart' | 'SizeEfficiencyChartNew2' | 'OverAskingParadoxChart' | 'ValueEfficiencyChart' | 'QuarterlyTimingChart' | 'InvestmentEfficiencyChart' | 'PropertyTypeDistributionChart' | 'BuyerProfileOptimizationChart';
 }
 
 function splitContentWithCharts(content: string): ContentSegment[] {
@@ -903,6 +903,465 @@ function splitContentWithCharts(content: string): ContentSegment[] {
         type: 'chart',
         chartComponent: 'PriceTrendChartD2'
       });
+    } else if (trimmedLine === '<D3PropertyTypesChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'D3PropertyTypesChart'
+      });
+    } else if (trimmedLine === '<D3MonthlyTrendsChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'D3MonthlyTrendsChart'
+      });
+    } else if (trimmedLine === '<SizeBandMortgageChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'SizeBandMortgageChart'
+      });
+    } else if (trimmedLine === '<OverpaymentSavingsChartNew2 />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'OverpaymentSavingsChartNew2'
+      });
+    } else if (trimmedLine === '<SizeBandOverAskingChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'SizeBandOverAskingChart'
+      });
+    } else if (trimmedLine === '<BreakEvenAnalysisChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'BreakEvenAnalysisChart'
+      });
+    } else if (trimmedLine === '<YieldBySizeBandChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'YieldBySizeBandChart'
+      });
+    } else if (trimmedLine === '<GeographicPriceVariationsChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'GeographicPriceVariationsChart'
+      });
+    } else if (trimmedLine === '<PriceEfficiencyChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PriceEfficiencyChart'
+      });
+    } else if (trimmedLine === '<OverAskingSuccessChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'OverAskingSuccessChart'
+      });
+    } else if (trimmedLine === '<PropertySizeVariationsChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PropertySizeVariationsChart'
+      });
+    } else if (trimmedLine === '<PricePredictabilityChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'PricePredictabilityChart'
+      });
+    } else if (trimmedLine === '<RentalYieldMapChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'RentalYieldMapChart'
+      });
+    } else if (trimmedLine === '<BuyerTypeScoresChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+        const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+        if (htmlContent.trim() !== '') {
+          segments.push({
+            type: 'html',
+            content: htmlContent
+          });
+        }
+        currentHtml = [];
+      }
+      // Add chart segment
+      segments.push({
+        type: 'chart',
+        chartComponent: 'BuyerTypeScoresChart'
+      });
+    } else if (trimmedLine === '<CyclicalPerformanceChart />') {
+      // Save current HTML segment if it has content
+      if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'CyclicalPerformanceChart'
+        });
+      } else if (trimmedLine === '<SeasonalIndexChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'SeasonalIndexChart'
+        });
+      } else if (trimmedLine === '<PeakPerformanceChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'PeakPerformanceChart'
+        });
+      } else if (trimmedLine === '<MarketTimingChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'MarketTimingChart'
+        });
+      } else if (trimmedLine === '<PriceVolatilityChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'PriceVolatilityChart'
+        });
+      } else if (trimmedLine === '<AutumnForecastChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'AutumnForecastChart'
+        });
+      } else if (trimmedLine === '<SizeEfficiencyChartNew2 />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'SizeEfficiencyChartNew2'
+        });
+      } else if (trimmedLine === '<OverAskingParadoxChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'OverAskingParadoxChart'
+        });
+      } else if (trimmedLine === '<ValueEfficiencyChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'ValueEfficiencyChart'
+        });
+      } else if (trimmedLine === '<QuarterlyTimingChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'QuarterlyTimingChart'
+        });
+      } else if (trimmedLine === '<InvestmentEfficiencyChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'InvestmentEfficiencyChart'
+        });
+      } else if (trimmedLine === '<PropertyTypeDistributionChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'PropertyTypeDistributionChart'
+        });
+      } else if (trimmedLine === '<BuyerProfileOptimizationChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        // Add chart segment
+        segments.push({
+          type: 'chart',
+          chartComponent: 'BuyerProfileOptimizationChart'
+        });
     } else {
       // Add to current HTML segment
       currentHtml.push(line);
@@ -933,6 +1392,76 @@ function splitContentWithCharts(content: string): ContentSegment[] {
 
 // Article data - this will be moved to a data file later
 export const articles = {
+  'dublin-d3-area-analysis': {
+    title: 'Dublin D3: East Dublin\'s Emerging Property Market',
+    excerpt: 'Dublin D3 emerges as East Dublin\'s most dynamic property market in 2024-2025, with 828 transactions averaging €618,071. The area achieves 84.8% over-asking success rates while maintaining competitive pricing relative to premium Dublin 4.',
+    category: 'Area Analysis',
+    date: '2026-01-01',
+    readTime: '5 min read',
+    tags: ['D3', 'Area Analysis', 'East Dublin', 'Property Market', 'Over-Asking Success'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-4-area-analysis-contrarian-decline', 'dublin-6-area-deep-dive-analysis', 'dublin-2-area-deep-dive-analysis'],
+    content: `
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blog41_d3_area_analysis.md'), 'utf8')}
+    `,
+  },
+  'size-based-mortgage-strategy': {
+    title: 'Size-Based Mortgage Strategy: How Property Size Impacts Overpayment Savings',
+    excerpt: 'Property size significantly influences mortgage overpayment effectiveness, with compact homes under 70 square meters offering €269 annual savings per €5,000 overpayment versus €1,415 monthly premiums for XL properties over 200 square meters.',
+    category: 'Financial Analysis',
+    date: '2026-01-01',
+    readTime: '6 min read',
+    tags: ['Mortgage Strategy', 'Overpayment Savings', 'Property Size', 'Size Efficiency', 'Mortgage Calculator'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['mortgage-overpayment-savings-strategy', 'mortgage-overpayment-by-property-type', 'dublin-bidding-war-costs'],
+    content: `
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blog42_size_based_mortgage_strategy.md'), 'utf8')}
+    `,
+  },
+  'geographic-price-intelligence': {
+    title: 'Geographic Price Intelligence: How Map Features Enable Smart Dublin Property Decisions',
+    excerpt: 'Dublin\'s geographic price variations reveal €2.1M differences between premium D4 (€925K average) and accessible D22 (€375K average), with map-based analysis enabling 28% better decision-making through area-specific intelligence.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '7 min read',
+    tags: ['Geographic Analysis', 'Map Features', 'Price Intelligence', 'Decision Making', 'Area Comparison'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-property-map-guide', 'dublin-areas-complete-guide-rankings', 'dublin-postcode-power-rankings'],
+    content: `
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blog43_geographic_price_intelligence.md'), 'utf8')}
+    `,
+  },
+  'property-type-cyclical-performance': {
+    title: 'Dublin Property Seasons: When to Buy and Sell Apartments vs Houses for Maximum Value',
+    excerpt: 'Dublin property types exhibit distinct cyclical performance patterns, with apartments peaking in Q3-Q4 at 11.5% premium pricing while detached homes achieve 23.8% seasonal advantages. Understanding these rhythms enables €150K+ strategic advantages.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '6 min read',
+    tags: ['Property Types', 'Cyclical Performance', 'Seasonal Patterns', 'Market Timing', 'Quarterly Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-property-timing-value-tradeoff', 'january-2025-timing', 'christmas-property-market-analysis'],
+    content: `
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blog44_property_type_cyclical_performance.md'), 'utf8')}
+    `,
+  },
+  'size-efficiency-paradox-analysis': {
+    title: 'Size Efficiency Paradox: Dublin Property Size Trade-offs and Strategic Advantages',
+    excerpt: 'Dublin property sizes reveal counterintuitive efficiency patterns, with compact homes under 70 square meters commanding €6,625/sqm premiums while XL properties over 200 square meters achieve only €6,231/sqm despite superior over-asking success.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '7 min read',
+    tags: ['Size Efficiency', 'Property Size', 'Efficiency Paradox', 'Value Analysis', 'Size Trade-offs'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-property-size-efficiency', 'property-size-premium-2025', 'dublin-apartment-market-2025'],
+    content: `
+${require('fs').readFileSync(require('path').join(process.cwd(), '../blog45_size_efficiency_paradox.md'), 'utf8')}
+    `,
+  },
   'compare-properties-complete-guide': {
     title: 'Master Property Comparison: Complete Guide to Dublin\'s Most Powerful Search Tool',
     excerpt: 'Compare up to 5 Dublin properties side-by-side across 20,985 listings. Analyze mortgage costs, walkability scores, planning applications, and investment metrics. Step-by-step walkthrough with screenshots included.',
@@ -8333,9 +8862,9 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                       } else if (segment.chartComponent === 'RentalYieldChart') {
                         return <RentalYieldChart key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'YieldDistributionChart') {
-                        return <YieldDistributionChart key={`chart-${index}`} />;
+                        return <YieldDistributionChartNew key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'SizeEfficiencyChart') {
-                        return <SizeEfficiencyChart key={`chart-${index}`} />;
+                        return <SizeEfficiencyChartNew key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'PostcodeEfficiencyChart') {
                         return <PostcodeEfficiencyChart key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'YearOverYearPricesChart') {
@@ -8343,7 +8872,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                       } else if (segment.chartComponent === 'PropertyTypeComparisonChart') {
                         return <PropertyTypeComparisonChart key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'PremiumDistributionChart') {
-                        return <PremiumDistributionChart key={`chart-${index}`} />;
+                        return <PremiumDistributionChartNew key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'PremiumPaybackChart') {
                         return <PremiumPaybackChart key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'BreakEvenChart') {
@@ -8412,6 +8941,60 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                         return <PremiumDistributionChartNew key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'OptimalStrategyChart') {
                         return <OptimalStrategyChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'D3PropertyTypesChart') {
+                        return <D3PropertyTypesChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'D3MonthlyTrendsChart') {
+                        return <D3MonthlyTrendsChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'SizeBandMortgageChart') {
+                        return <SizeBandMortgageChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'OverpaymentSavingsChartNew2') {
+                        return <OverpaymentSavingsChartNew2 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'SizeBandOverAskingChart') {
+                        return <SizeBandOverAskingChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'BreakEvenAnalysisChart') {
+                        return <BreakEvenAnalysisChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'YieldBySizeBandChart') {
+                        return <YieldBySizeBandChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'GeographicPriceVariationsChart') {
+                        return <GeographicPriceVariationsChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceEfficiencyChart') {
+                        return <PriceEfficiencyChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'OverAskingSuccessChart') {
+                        return <OverAskingSuccessChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PropertySizeVariationsChart') {
+                        return <PropertySizeVariationsChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PricePredictabilityChart') {
+                        return <PricePredictabilityChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'RentalYieldMapChart') {
+                        return <RentalYieldMapChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'BuyerTypeScoresChart') {
+                        return <BuyerTypeScoresChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'CyclicalPerformanceChart') {
+                        return <CyclicalPerformanceChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'SeasonalIndexChart') {
+                        return <SeasonalIndexChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PeakPerformanceChart') {
+                        return <PeakPerformanceChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'MarketTimingChart') {
+                        return <MarketTimingChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PriceVolatilityChart') {
+                        return <PriceVolatilityChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'AutumnForecastChart') {
+                        return <AutumnForecastChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'SizeEfficiencyChartNew2') {
+                        return <SizeEfficiencyChartNew2 key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'OverAskingParadoxChart') {
+                        return <OverAskingParadoxChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'ValueEfficiencyChart') {
+                        return <ValueEfficiencyChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'QuarterlyTimingChart') {
+                        return <QuarterlyTimingChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'InvestmentEfficiencyChart') {
+                        return <InvestmentEfficiencyChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'PropertyTypeDistributionChart') {
+                        return <PropertyTypeDistributionChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'BuyerProfileOptimizationChart') {
+                        return <BuyerProfileOptimizationChart key={`chart-${index}`} />;
                       }
                     }
                     return null;
