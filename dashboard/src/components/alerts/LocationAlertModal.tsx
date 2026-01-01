@@ -87,9 +87,13 @@ export function LocationAlertModal() {
   };
 
   // Don't render if modal is not open or no location
+  console.log('LocationAlertModal: modalState.isOpen:', modalState.isOpen, 'modalState.location:', !!modalState.location);
   if (!modalState.isOpen || !modalState.location) {
+    console.log('LocationAlertModal: Not rendering modal');
     return null;
   }
+
+  console.log('LocationAlertModal: Rendering modal for location:', modalState.location.name);
 
   const locationName = modalState.location.name;
 

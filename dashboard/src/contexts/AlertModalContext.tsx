@@ -94,7 +94,7 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    console.log('Setting modal state to open');
+    console.log('Setting modal state to open for location:', location.name);
     setModalState({
       isOpen: true,
       step: 'initial',

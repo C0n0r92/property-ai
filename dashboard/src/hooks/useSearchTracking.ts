@@ -41,7 +41,7 @@ export function useSearchTracking() {
 
     console.log('Starting 4-second timer for location:', searchEvent.location.name);
 
-    // Start 7-second timer
+    // Start 4-second timer (reduced for testing)
     timerRef.current = setTimeout(() => {
       console.log('Timer expired, checking if modal can still be shown');
       // Double-check modal can still be shown (user might have dismissed it)
@@ -55,7 +55,7 @@ export function useSearchTracking() {
       } else {
         console.log('Modal cannot be shown anymore');
       }
-    }, 4000); // 4 seconds for testing
+    }, 2500); // 2.5 second wait
   }, [showAlertModal, canShowModal, clearTimer]);
 
   // Track search on homepage

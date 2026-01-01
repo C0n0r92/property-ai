@@ -3686,6 +3686,12 @@ export default function MapComponent() {
                         setSearchedLocation({ name: firstResult.place_name, coords: firstResult.center });
                         setShowSearchResults(false);
                         setSearchQuery(firstResult.place_name);
+
+                        // Track search for alert modal
+                        trackMapSearch({
+                          name: firstResult.place_name.split(',')[0],
+                          coordinates: { lat: firstResult.center[1], lng: firstResult.center[0] },
+                        });
                       }
                     }
                   }}

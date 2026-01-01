@@ -18,6 +18,12 @@ function processMarkdownToHtml(content: string): string {
   // Remove template literal backticks and trim
   let processed = content.replace(/^`|`$/g, '').trim();
 
+  // Handle images
+  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="w-full rounded-lg shadow-lg mb-4 mt-6" />');
+
+  // Handle links
+  processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-800 underline font-medium" target="_blank" rel="noopener noreferrer">$1</a>');
+
   // Handle headers
   processed = processed.replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold text-slate-900 mt-8 mb-3">$1</h3>');
   processed = processed.replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold text-slate-900 mt-10 mb-4">$1</h2>');
@@ -25,6 +31,9 @@ function processMarkdownToHtml(content: string): string {
 
   // Handle bold text
   processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Handle italic text
+  processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
 
   // Handle list items (convert to paragraphs with bullet points)
   processed = processed.replace(/^- (.*$)/gm, '<p class="text-slate-700 leading-relaxed mb-4 text-lg">• $1</p>');
@@ -35,7 +44,7 @@ function processMarkdownToHtml(content: string): string {
 
   for (const line of lines) {
     const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith('<h') && !trimmed.startsWith('<p')) {
+    if (trimmed && !trimmed.startsWith('<h') && !trimmed.startsWith('<p') && !trimmed.startsWith('<img') && !trimmed.startsWith('<a')) {
       htmlLines.push(`<p class="text-slate-700 leading-relaxed mb-4 text-lg">${trimmed}</p>`);
     } else if (trimmed) {
       htmlLines.push(trimmed);
