@@ -24,6 +24,10 @@ import { getDistanceContext } from '@/lib/distance-calculator';
 import { AddToCompareButton } from '@/components/AddToCompareButton';
 import { ComparisonBar } from '@/components/ComparisonBar';
 import { useComparison } from '@/contexts/ComparisonContext';
+import { Bookmark, BarChart3, Minus, X, Home, MapPin, Building2, Bed, Bath, Ruler, Calculator } from 'lucide-react';
+import { Tooltip } from '@/components/mortgage/Tooltip';
+import { CollapsibleSection } from '@/components/CollapsibleSection';
+import { PlanningCard } from '@/components/PlanningCard';
 
 // Mapbox access token
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -113,7 +117,7 @@ export default function MapComponent() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
-  const { isInComparison } = useComparison();
+  const { isInComparison, comparedProperties } = useComparison();
   const { trackMapSearch } = useSearchTracking();
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -198,8 +202,62 @@ export default function MapComponent() {
   const [travelMode, setTravelMode] = useState<'walking' | 'cycling' | 'driving'>('walking');
 
   // Mobile-specific states
-  const [activeTab, setActiveTab] = useState<'details' | 'planning'>('details');
+  const [activeTab, setActiveTab] = useState<'overview' | 'location' | 'planning'>('overview');
   const [isMobileAmenitiesMode, setIsMobileAmenitiesMode] = useState(false);
+
+  // Collapsible sections state (Overview tab only)
+  const [expandedSections, setExpandedSections] = useState({
+    additionalDetails: false,
+  });
+
+  // Persist active tab
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTab = localStorage.getItem('propertyCardActiveTab');
+      if (savedTab && ['overview', 'location', 'planning'].includes(savedTab)) {
+        setActiveTab(savedTab as 'overview' | 'location' | 'planning');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('propertyCardActiveTab', activeTab);
+  }, [activeTab]);
+
+  // Persist expanded sections
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('propertyCardExpandedSections');
+      if (saved) {
+        try {
+          setExpandedSections(JSON.parse(saved));
+        } catch (e) {
+          // If parsing fails, use default state
+          console.warn('Failed to parse saved expanded sections:', e);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('propertyCardExpandedSections', JSON.stringify(expandedSections));
+  }, [expandedSections]);
+
+  // Automatically show amenities when Location tab is active
+  useEffect(() => {
+    const hasSelectedProperty = selectedProperty || selectedListing || selectedRental;
+    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : selectedRental ? 'rental' : null;
+
+    if (activeTab === 'location' && !showAmenities && hasSelectedProperty && propertyType) {
+      setShowAmenities(true);
+      analytics.amenitiesExplored(propertyType as 'sold' | 'forSale' | 'rental');
+    } else if (activeTab !== 'location' && showAmenities) {
+      setShowAmenities(false);
+      if (propertyType) {
+        analytics.amenitiesExited(propertyType as 'sold' | 'forSale' | 'rental');
+      }
+    }
+  }, [activeTab, showAmenities, selectedProperty, selectedListing, selectedRental]);
 
   // Handle query parameters for focusing on specific properties, areas, and search
   useEffect(() => {
@@ -220,7 +278,7 @@ export default function MapComponent() {
           const property = properties.find(p => p.address === focusId);
           if (property) {
             setSelectedProperty(property);
-            setActiveTab('details'); // Reset to details tab when focusing property
+            setActiveTab('overview'); // Reset to overview tab when focusing property
             if (isMobile) setShowFilters(false); // Close filters on mobile when focusing property
             // Center map on the property
             if (map.current && property.latitude && property.longitude) {
@@ -236,7 +294,7 @@ export default function MapComponent() {
           const listing = listings.find(l => l.address === focusId);
           if (listing) {
             setSelectedListing(listing);
-            setActiveTab('details'); // Reset to details tab when focusing listing
+            setActiveTab('overview'); // Reset to overview tab when focusing listing
             if (isMobile) setShowFilters(false); // Close filters on mobile when focusing listing
             // Center map on the listing
             if (map.current && listing.latitude && listing.longitude) {
@@ -252,7 +310,7 @@ export default function MapComponent() {
           const rental = rentals.find(r => r.address === focusId);
           if (rental) {
             setSelectedRental(rental);
-            setActiveTab('details'); // Reset to details tab when focusing rental
+            setActiveTab('overview'); // Reset to overview tab when focusing rental
             if (isMobile) setShowFilters(false); // Close filters on mobile when focusing rental
             // Center map on the rental
             if (map.current && rental.latitude && rental.longitude) {
@@ -491,25 +549,55 @@ export default function MapComponent() {
       if (map.current?.getSource('planning-radius')) {
         // Remove layers first
         if (map.current?.getLayer('planning-radius-outline')) {
-          map.current?.removeLayer('planning-radius-outline');
+          try {
+            map.current?.removeLayer('planning-radius-outline');
+          } catch (e) {
+            console.warn('Failed to remove planning-radius-outline layer:', e);
+          }
         }
         if (map.current?.getLayer('planning-radius-fill')) {
-          map.current?.removeLayer('planning-radius-fill');
+          try {
+            map.current?.removeLayer('planning-radius-fill');
+          } catch (e) {
+            console.warn('Failed to remove planning-radius-fill layer:', e);
+          }
         }
         if (map.current?.getLayer('planning-radius-center')) {
-          map.current?.removeLayer('planning-radius-center');
+          try {
+            map.current?.removeLayer('planning-radius-center');
+          } catch (e) {
+            console.warn('Failed to remove planning-radius-center layer:', e);
+          }
         }
         // Then remove the source
-        map.current?.removeSource('planning-radius');
+        try {
+          map.current?.removeSource('planning-radius');
+        } catch (e) {
+          console.warn('Failed to remove planning-radius source:', e);
+        }
       }
 
       if (map.current?.getSource('planning-center')) {
         // Remove center marker layer first
         if (map.current?.getLayer('planning-center-marker')) {
-          map.current?.removeLayer('planning-center-marker');
+          try {
+            map.current?.removeLayer('planning-center-marker');
+          } catch (e) {
+            console.warn('Failed to remove planning-center-marker layer:', e);
+          }
         }
         // Then remove the source
-        map.current?.removeSource('planning-center');
+        try {
+          map.current?.removeSource('planning-center');
+        } catch (e) {
+          console.warn('Failed to remove planning-center source:', e);
+        }
+      }
+
+      // Double-check that sources are actually removed before adding
+      if (map.current?.getSource('planning-radius')) {
+        console.warn('planning-radius source still exists after cleanup, skipping add');
+        return;
       }
 
       // Add source and layers
@@ -749,7 +837,7 @@ export default function MapComponent() {
       const fullRental = rentals.find(r => r.address === props?.address);
       if (fullRental) {
         setSelectedRental(fullRental);
-        setActiveTab('details'); // Reset to details tab when selecting new rental
+        setActiveTab('overview'); // Reset to overview tab when selecting new rental
         if (isMobile) setShowFilters(false); // Close filters on mobile when selecting rental
         analytics.mapPropertyClicked('rental');
       }
@@ -760,7 +848,7 @@ export default function MapComponent() {
       const fullListing = listings.find(l => l.address === props?.address);
       if (fullListing) {
         setSelectedListing(fullListing);
-        setActiveTab('details'); // Reset to details tab when selecting new listing
+        setActiveTab('overview'); // Reset to overview tab when selecting new listing
         if (isMobile) setShowFilters(false); // Close filters on mobile when selecting listing
         analytics.mapPropertyClicked('forSale');
       }
@@ -771,7 +859,7 @@ export default function MapComponent() {
       const fullProperty = properties.find(p => p.address === props?.address);
       if (fullProperty) {
         setSelectedProperty(fullProperty);
-        setActiveTab('details'); // Reset to details tab when selecting new property
+        setActiveTab('overview'); // Reset to overview tab when selecting new property
         analytics.mapPropertyClicked('sold');
       }
       setSelectedListing(null);
@@ -1720,8 +1808,7 @@ export default function MapComponent() {
   // Hide navigation controls on mobile when property panel is open
   useEffect(() => {
     if (!map.current) return;
-    
-    const isMobile = window.innerWidth < 768;
+
     const hasPropertyOpen = selectedProperty || selectedListing || selectedRental;
     
     if (isMobile && hasPropertyOpen) {
@@ -2059,7 +2146,7 @@ export default function MapComponent() {
             const fullProperty = properties.find(p => p.address === props?.address);
           if (fullProperty && fullProperty.longitude && fullProperty.latitude) {
             setSelectedProperty(fullProperty);
-            setActiveTab('details'); // Reset to details tab when selecting new property
+            setActiveTab('overview'); // Reset to overview tab when selecting new property
             if (isMobile) setShowFilters(false); // Close filters on mobile when selecting property
           }
             setSelectedListing(null);
@@ -4153,72 +4240,90 @@ export default function MapComponent() {
           >
 
 
-            {/* Header with Save and Close buttons */}
+            {/* Header with icon-only buttons */}
             <div className={`absolute top-4 right-4 flex gap-1 z-10 ${isMobile && isMobileAmenitiesMode ? 'hidden' : ''}`}>
               {user && user.tier === 'premium' && (
-                <button
-                  onClick={async () => {
-                    const propertyId = selectedProperty.address; // Use address as unique ID
-                    const alreadySaved = isSaved(propertyId, 'sold');
+                <Tooltip content={isSaved(selectedProperty.address, 'sold') ? 'Remove from saved properties' : 'Save this property'} showIcon={false}>
+                  <button
+                    onClick={async () => {
+                      const propertyId = selectedProperty.address; // Use address as unique ID
+                      const alreadySaved = isSaved(propertyId, 'sold');
 
-                    if (alreadySaved) {
-                      const result = await unsaveProperty(propertyId, 'sold');
-                      if (result.success) {
-                        analytics.propertyUnsaved('sold');
+                      if (alreadySaved) {
+                        const result = await unsaveProperty(propertyId, 'sold');
+                        if (result.success) {
+                          analytics.propertyUnsaved('sold');
+                        }
+                      } else {
+                        const result = await saveProperty(
+                          propertyId,
+                          'sold',
+                          selectedProperty,
+                          undefined
+                        );
+                        if (result.success) {
+                          analytics.propertySaved('sold');
+                        }
                       }
-                    } else {
-                      const result = await saveProperty(
-                        propertyId,
-                        'sold',
-                        selectedProperty,
-                        undefined
-                      );
-                      if (result.success) {
-                        analytics.propertySaved('sold');
-                      }
-                    }
-                  }}
-                  className={`px-2 py-1 text-xs rounded transition-colors border ${
-                    isSaved(selectedProperty.address, 'sold')
-                      ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
-                      : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
-                  }`}
-                  title={isSaved(selectedProperty.address, 'sold') ? 'Remove from saved properties' : 'Save this property'}
-                >
-                  {isSaved(selectedProperty.address, 'sold') ? 'Saved' : 'Save'}
-                </button>
+                    }}
+                    className={`w-11 h-11 flex items-center justify-center rounded transition-colors border ${
+                      isSaved(selectedProperty.address, 'sold')
+                        ? 'bg-red-600 hover:bg-red-700 text-white border-red-500'
+                        : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border-gray-700'
+                    }`}
+                    title={isSaved(selectedProperty.address, 'sold') ? 'Remove from saved properties' : 'Save this property'}
+                  >
+                    <Bookmark className={`w-4 h-4 ${isSaved(selectedProperty.address, 'sold') ? 'fill-current' : ''}`} />
+                  </button>
+                </Tooltip>
               )}
               {user && (
-                <PropertyReportButton
-                  propertyId={selectedProperty.address}
-                  propertyType="sold"
-                  address={selectedProperty.address}
-                  latitude={selectedProperty.latitude}
-                  longitude={selectedProperty.longitude}
-                />
+                <Tooltip content="Generate property report" showIcon={false}>
+                  <div className="w-11 h-11">
+                    <PropertyReportButton
+                      propertyId={selectedProperty.address}
+                      propertyType="sold"
+                      address={selectedProperty.address}
+                      latitude={selectedProperty.latitude}
+                      longitude={selectedProperty.longitude}
+                      className="w-full h-full flex items-center justify-center rounded border border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                    />
+                  </div>
+                </Tooltip>
               )}
-              <button
-                onClick={() => setIsMobileAmenitiesMode(true)}
-                className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
-                title="Minimize property card"
-              >
-                −
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log('Close button clicked for property:', selectedProperty?.address);
-                  isClosingRef.current = true;
-                  setSelectedProperty(null);
-                  setTimeout(() => {
-                    isClosingRef.current = false;
-                  }, 100);
-                }}
-                className="text-gray-500 hover:text-white text-xl p-1 rounded hover:bg-gray-700 transition-colors"
-                title="Close property card"
-              >
-                ✕
-              </button>
+              <Tooltip content="Minimize property card" showIcon={false}>
+                <button
+                  onClick={() => {
+                    if (isMobile) {
+                      setIsMobileAmenitiesMode(true);
+                    } else {
+                      // On desktop, minimize closes the card
+                      setSelectedProperty(null);
+                    }
+                  }}
+                  className="w-11 h-11 flex items-center justify-center rounded transition-colors border border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white"
+                  title="Minimize property card"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+              </Tooltip>
+              <Tooltip content="Close property card" showIcon={false}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Close button clicked for property:', selectedProperty?.address);
+                    isClosingRef.current = true;
+                    setSelectedProperty(null);
+                    setTimeout(() => {
+                      isClosingRef.current = false;
+                    }, 100);
+                  }}
+                  className="w-11 h-11 flex items-center justify-center rounded transition-colors border border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white"
+                  title="Close property card"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
 
 
@@ -4267,373 +4372,444 @@ export default function MapComponent() {
               </>
             ) : (
               <>
-                {/* Mobile Tab Navigation */}
-                <div className="flex gap-1 mb-2 px-2 pt-12">
-                <button
-                  onClick={() => setActiveTab('details')}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-                    activeTab === 'details'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
-                  }`}
-                  style={{ minHeight: '44px' }} // Ensure 44px touch target
-                >
-                  Details
-                </button>
-                <button
-                  onClick={() => setActiveTab('planning')}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-                    activeTab === 'planning'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
-                  }`}
-                  style={{ minHeight: '44px' }} // Ensure 44px touch target
-                >
-                  Planning Permission
-                </button>
-                </div>
-
-
-                {/* Unified Header */}
-                <div className="flex items-start justify-between mb-4 pt-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-white mb-1 text-lg leading-tight">
-                      {selectedProperty.address}
-                    </h3>
-                    <div className="flex items-center gap-3 text-sm text-gray-300">
-                      {selectedProperty.beds && (
-                        <span className="text-gray-400 text-xs">{selectedProperty.beds} bed</span>
-                      )}
-                      {selectedProperty.baths && (
-                        <span className="text-gray-400 text-xs">• {selectedProperty.baths} bath</span>
-                      )}
-                      <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white text-xs font-medium">Sold</span>
-                      {/* Days on Market Badge */}
-                      {selectedProperty.first_seen_date && (() => {
-                        const daysOnMarket = calculateDaysOnMarket(selectedProperty.first_seen_date);
-                        const badge = getDaysOnMarketBadge(daysOnMarket);
-                        return badge ? (
-                          <span className={`px-2 py-0.5 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
-                            <span>{badge.emoji}</span>
-                            <span>{badge.text}</span>
-                          </span>
-                        ) : null;
-                      })()}
-                      {/* Price Drop Badge - only for listings, not sold properties */}
-                      {/* Best Value Badge */}
-                      {(() => {
-                        const valueAnalysis = analyzePropertyValue(selectedProperty, properties);
-                        const badge = getBestValueBadge(valueAnalysis);
-                        return badge ? (
-                          <span className={`px-2 py-0.5 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
-                            <span>{badge.emoji}</span>
-                            <span>{badge.text}</span>
-                          </span>
-                        ) : null;
-                      })()}
+                {/* Sticky Header - Always Visible Across All Tabs */}
+                <div className="px-4 pt-12 pb-4 border-b border-gray-700/50">
+                  {/* Address and Badges Row */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-white text-lg leading-tight mb-2">
+                        {selectedProperty.address}
+                      </h3>
+                      {/* Status Badges - Always Visible */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 py-1 rounded-full bg-blue-500 text-white text-xs font-medium">Sold</span>
+                        {/* Days on Market Badge */}
+                        {selectedProperty.first_seen_date && (() => {
+                          const daysOnMarket = calculateDaysOnMarket(selectedProperty.first_seen_date);
+                          const badge = getDaysOnMarketBadge(daysOnMarket);
+                          return badge ? (
+                            <span className={`px-2 py-1 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
+                              <span>{badge.emoji}</span>
+                              <span>{badge.text}</span>
+                            </span>
+                          ) : null;
+                        })()}
+                        {/* Best Value Badge */}
+                        {(() => {
+                          const valueAnalysis = analyzePropertyValue(selectedProperty, properties);
+                          const badge = getBestValueBadge(valueAnalysis);
+                          return badge ? (
+                            <span className={`px-2 py-1 rounded-full text-white text-xs font-medium flex items-center gap-1 ${badge.color}`}>
+                              <span>{badge.emoji}</span>
+                              <span>{badge.text}</span>
+                            </span>
+                          ) : null;
+                        })()}
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Price Display */}
+                  <div className="mb-4">
+                    <div className="text-3xl font-bold text-white font-mono mb-1">
+                      {formatFullPrice(selectedProperty.soldPrice)}
+                    </div>
+                    <div className="px-3 py-1 rounded-full bg-blue-600 text-white text-sm font-medium inline-block">
+                      Sold {getSoldMonthYear(selectedProperty.soldDate)}
+                    </div>
+                  </div>
+
+                  {/* 3-Tab Navigation */}
+                  <div className="flex border-b border-gray-700">
+                    <button
+                      onClick={() => setActiveTab('overview')}
+                      className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                        activeTab === 'overview'
+                          ? 'border-b-2 border-blue-500 text-white bg-blue-900/20'
+                          : 'text-gray-400 hover:text-gray-300'
+                      }`}
+                      style={{ minHeight: '44px' }}
+                    >
+                      <Home className="w-4 h-4 mr-2" />
+                      Overview
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('location')}
+                      className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                        activeTab === 'location'
+                          ? 'border-b-2 border-blue-500 text-white bg-blue-900/20'
+                          : 'text-gray-400 hover:text-gray-300'
+                      }`}
+                      style={{ minHeight: '44px' }}
+                    >
+                      <MapPin className="w-4 h-4 mr-2" />
+                      Location
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('planning')}
+                      className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                        activeTab === 'planning'
+                          ? 'border-b-2 border-blue-500 text-white bg-blue-900/20'
+                          : 'text-gray-400 hover:text-gray-300'
+                      }`}
+                      style={{ minHeight: '44px' }}
+                    >
+                      <Building2 className="w-4 h-4 mr-2" />
+                      Planning
+                    </button>
                   </div>
                 </div>
 
                 {/* Tab Content */}
-                {activeTab === 'details' ? (
+                {activeTab === 'overview' ? (
                   <>
-
-
-            {/* Walkability Score - Prominent Display */}
-            {walkabilityScore && (
-              <div className="mb-6">
-                <WalkabilityScore
-                  score={walkabilityScore.score}
-                  rating={walkabilityScore.rating}
-                  breakdown={walkabilityScore.breakdown}
-                  className="mb-4"
-                />
-
-                {/* Nearest Transport Highlight */}
-                {walkabilityScore.nearestDartLuas && walkabilityScore.nearestDartLuas.distance <= 500 && (
-                  <div className="flex items-center gap-2 text-sm bg-green-900/20 border border-green-700/30 rounded-lg px-3 py-2 mb-4">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-green-300">{walkabilityScore.nearestDartLuas.type} station</span>
-                    <span className="text-green-100 font-medium">{walkabilityScore.nearestDartLuas.distance}m away</span>
-                  </div>
-                )}
-
-                {/* Detailed Breakdown */}
-                {amenities.length > 0 && (
-                  <WalkabilityBreakdown
-                    amenities={amenities}
-                    nearestAmenities={amenities
-                      .filter(a => a.isHeavyRail)
-                      .slice(0, 3)
-                      .map(a => ({
-                        name: a.name,
-                        type: a.type,
-                        distance: a.distance,
-                        walkingTime: a.walkingTime
-                      }))
-                    }
-                    className="mt-4"
-                  />
-                )}
-
-                {/* Walkability Legend */}
-                <WalkabilityLegend className="mt-4" />
-              </div>
-            )}
-
-            {/* Distance from City Centre */}
-            {selectedProperty.latitude && selectedProperty.longitude && (
-              <DistanceDisplay
-                latitude={selectedProperty.latitude}
-                longitude={selectedProperty.longitude}
-                className="mb-6"
-              />
-            )}
-
-            {/* Price with year badge */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="text-3xl font-bold text-white font-mono">
-                {formatFullPrice(selectedProperty.soldPrice)}
-              </div>
-              <div className="px-3 py-1 rounded-full bg-blue-600 text-white text-sm font-medium">
-                Sold {getSoldMonthYear(selectedProperty.soldDate)}
-              </div>
-            </div>
-
-            {/* Price analysis - moved up */}
-            <div className="space-y-2 mb-4">
-              {selectedProperty.askingPrice && selectedProperty.askingPrice > 0 && (
-                <>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 text-sm">Asking price</span>
-                    <span className="text-gray-300 font-mono">{formatFullPrice(selectedProperty.askingPrice)}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500 text-sm">Difference</span>
-                    <span className={`font-semibold text-lg ${
-                      selectedProperty.soldPrice > selectedProperty.askingPrice
-                        ? 'text-red-400'
-                        : selectedProperty.soldPrice < selectedProperty.askingPrice
-                        ? 'text-green-400'
-                        : 'text-gray-300'
-                    }`}>
-                      {selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : ''}
-                      {formatFullPrice(Math.abs(selectedProperty.soldPrice - selectedProperty.askingPrice))}
-                      {selectedProperty.askingPrice > 0 && (
-                        <span className="text-sm ml-1">
-                          ({selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : ''}
-                          {Math.round(((selectedProperty.soldPrice - selectedProperty.askingPrice) / selectedProperty.askingPrice) * 100)}%)
-                        </span>
-                      )}
-                    </span>
-                  </div>
-
-                  {selectedProperty.areaSqm && selectedProperty.areaSqm > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-500 text-sm">Price per m²</span>
-                      <span className="text-gray-300 font-mono">
-                        €{Math.round(selectedProperty.soldPrice / selectedProperty.areaSqm).toLocaleString()}
-                      </span>
+                    {/* Key Metrics Grid */}
+                    <div className="mb-6">
+                      <div className="grid grid-cols-4 gap-3">
+                        {selectedProperty.beds && (
+                          <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50 text-center">
+                            <Bed className="w-6 h-6 mx-auto mb-1 text-gray-300" />
+                            <div className="text-sm font-medium text-white">{selectedProperty.beds}</div>
+                            <div className="text-xs text-gray-400">bed</div>
+                          </div>
+                        )}
+                        {selectedProperty.baths && (
+                          <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50 text-center">
+                            <Bath className="w-6 h-6 mx-auto mb-1 text-gray-300" />
+                            <div className="text-sm font-medium text-white">{selectedProperty.baths}</div>
+                            <div className="text-xs text-gray-400">bath</div>
+                          </div>
+                        )}
+                        {selectedProperty.areaSqm && (
+                          <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50 text-center">
+                            <Ruler className="w-6 h-6 mx-auto mb-1 text-gray-300" />
+                            <div className="text-sm font-medium text-white">{selectedProperty.areaSqm}</div>
+                            <div className="text-xs text-gray-400">m²</div>
+                          </div>
+                        )}
+                        <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50 text-center">
+                          <Home className="w-6 h-6 mx-auto mb-1 text-gray-300" />
+                          <div className="text-sm font-medium text-white">{selectedProperty.propertyType || 'House'}</div>
+                          <div className="text-xs text-gray-400">type</div>
+                        </div>
+                      </div>
                     </div>
-                  )}
 
-                </>
-              )}
-            </div>
+                    {/* Price Analysis */}
+                    <div className="mb-6">
+                      <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                        {selectedProperty.askingPrice && selectedProperty.askingPrice > 0 && (
+                          <>
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-gray-400 text-sm">Asking price</span>
+                              <span className="text-gray-300 font-mono">{formatFullPrice(selectedProperty.askingPrice)}</span>
+                            </div>
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-gray-400 text-sm">Sold price</span>
+                              <span className="text-white font-mono font-semibold">{formatFullPrice(selectedProperty.soldPrice)}</span>
+                            </div>
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-gray-400 text-sm">Difference</span>
+                              <span className={`font-semibold ${
+                                selectedProperty.soldPrice > selectedProperty.askingPrice
+                                  ? 'text-red-400'
+                                  : selectedProperty.soldPrice < selectedProperty.askingPrice
+                                  ? 'text-green-400'
+                                  : 'text-gray-300'
+                              }`}>
+                                {selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : ''}
+                                {formatFullPrice(Math.abs(selectedProperty.soldPrice - selectedProperty.askingPrice))}
+                                {selectedProperty.askingPrice > 0 && (
+                                  <span className="text-sm ml-1">
+                                    ({selectedProperty.soldPrice > selectedProperty.askingPrice ? '+' : ''}
+                                    {Math.round(((selectedProperty.soldPrice - selectedProperty.askingPrice) / selectedProperty.askingPrice) * 100)}%)
+                                    {selectedProperty.soldPrice > selectedProperty.askingPrice ? ' 🔴' : ' 🟢'}
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                            {selectedProperty.areaSqm && selectedProperty.areaSqm > 0 && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-gray-400 text-sm">Price per m²</span>
+                                <span className="text-gray-300 font-mono">
+                                  €{Math.round(selectedProperty.soldPrice / selectedProperty.areaSqm).toLocaleString()}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
 
-            {/* Property details grid */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
-              {selectedProperty.beds && (
-                <div className="bg-gray-800 rounded-md px-2 py-1.5">
-                  <div className="text-gray-500 text-xs">Bedrooms</div>
-                  <div className="text-white font-semibold text-sm">{selectedProperty.beds}</div>
-                </div>
-              )}
-              {selectedProperty.baths && (
-                <div className="bg-gray-800 rounded-md px-2 py-1.5">
-                  <div className="text-gray-500 text-xs">Bathrooms</div>
-                  <div className="text-white font-semibold text-sm">{selectedProperty.baths}</div>
-                </div>
-              )}
-              {selectedProperty.propertyType && (
-                <div className="bg-gray-800 rounded-md px-2 py-1.5">
-                  <div className="text-gray-500 text-xs">Type</div>
-                  <div className="text-white font-semibold text-sm">{selectedProperty.propertyType}</div>
-                </div>
-              )}
-              {selectedProperty.areaSqm && (
-                <div className="bg-gray-800 rounded-md px-2 py-1.5">
-                  <div className="text-gray-500 text-xs">Floor Area</div>
-                  <div className="text-white font-semibold text-sm">{selectedProperty.areaSqm} m²</div>
-                </div>
-              )}
-            </div>
+                    {/* Primary Actions */}
+                    <div className="mb-6 space-y-2">
+                      <AddToCompareButton
+                        property={selectedProperty}
+                        type="sold"
+                        size="lg"
+                        className="w-full"
+                        onClick={() => {
+                          console.log('Compare button clicked for property:', selectedProperty?.address);
+                          isClosingRef.current = true;
+                          setSelectedProperty(null);
+                          setTimeout(() => {
+                            isClosingRef.current = false;
+                          }, 100);
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          console.log('Mortgage button clicked for property:', selectedProperty);
+                          console.log('Property address:', selectedProperty.address);
 
-            {/* Action Buttons */}
-            <div className="mb-6 space-y-3">
-              <AddToCompareButton
-                property={selectedProperty}
-                type="sold"
-                size="lg"
-                className="w-full"
-                onClick={() => {
-                  console.log('Compare button clicked for property:', selectedProperty?.address);
-                  isClosingRef.current = true;
-                  setSelectedProperty(null);
-                  setTimeout(() => {
-                    isClosingRef.current = false;
-                  }, 100);
-                }}
-              />
-              <button
-                onClick={() => {
-                  console.log('Mortgage button clicked for property:', selectedProperty);
-                  console.log('Property address:', selectedProperty.address);
+                          // Calculate mortgage parameters from property data
+                          const homeValue = selectedProperty.soldPrice || selectedProperty.askingPrice || 0;
 
-                  // Calculate mortgage parameters from property data
-                  const homeValue = selectedProperty.soldPrice || selectedProperty.askingPrice || 0;
+                          if (homeValue <= 0) {
+                            alert('Unable to calculate mortgage: Property price not available');
+                            return;
+                          }
 
-                  if (homeValue <= 0) {
-                    alert('Unable to calculate mortgage: Property price not available');
-                    return;
-                  }
+                          const downPayment = Math.max(homeValue * 0.1, 20000); // 10% down or €20k minimum
+                          const loanAmount = Math.max(homeValue - downPayment, 0);
 
-                  const downPayment = Math.max(homeValue * 0.1, 20000); // 10% down or €20k minimum
-                  const loanAmount = Math.max(homeValue - downPayment, 0);
+                          // Build URL with pre-filled parameters
+                          const params = new URLSearchParams({
+                            homeValue: homeValue.toString(),
+                            downPayment: downPayment.toString(),
+                            loanAmount: loanAmount.toString(),
+                            interestRate: '3.5', // Default rate
+                            loanTerm: '30', // Default term
+                            propertyType: selectedProperty.propertyType || 'House',
+                            address: encodeURIComponent(selectedProperty.address || ''),
+                          });
 
-                  // Build URL with pre-filled parameters
-                  const params = new URLSearchParams({
-                    homeValue: homeValue.toString(),
-                    downPayment: downPayment.toString(),
-                    loanAmount: loanAmount.toString(),
-                    interestRate: '3.5', // Default rate
-                    loanTerm: '30', // Default term
-                    propertyType: selectedProperty.propertyType || 'House',
-                    address: encodeURIComponent(selectedProperty.address || ''),
-                  });
+                          const url = `/mortgage-calc?${params.toString()}`;
+                          console.log('Navigating to mortgage calculator:', url);
 
-                  const url = `/mortgage-calc?${params.toString()}`;
-                  console.log('Navigating to mortgage calculator:', url);
+                          // Navigate to mortgage calculator with pre-filled data
+                          window.location.href = url;
+                        }}
+                        className="w-full px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl border border-green-500 hover:border-green-400"
+                        title="Calculate mortgage for this property"
+                      >
+                        <Calculator className="w-4 h-4" />
+                        Calculate Mortgage
+                      </button>
+                    </div>
 
-                  // Navigate to mortgage calculator with pre-filled data
-                  window.location.href = url;
-                }}
-                className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl border border-green-500 hover:border-green-400"
-                title="Calculate mortgage for this property"
-              >
-                <span>🏠</span>
-                Calculate Mortgage
-              </button>
-
-
-            </div>
-
-            {/* Nearby Amenities Section */}
-            <div className="mt-4 pt-4 border-t border-gray-700 mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium text-gray-300">Nearby Amenities</h4>
-                {showAmenities && amenities.length > 0 && (
-                  <span className="text-xs text-gray-500">
-                    {amenities.filter(a => categoryFilters[a.category]).length} found
-                  </span>
-                )}
-              </div>
-
-              <button
-                onClick={() => {
-                  const newShowAmenities = !showAmenities;
-                  setShowAmenities(newShowAmenities);
-
-                  // Mobile: Enable/disable full-screen amenities mode
-                  if (isMobile) {
-                    setIsMobileAmenitiesMode(newShowAmenities);
-                  }
-
-                  if (newShowAmenities) {
-                    // Track when amenities exploration starts - determine property type
-                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
-                    analytics.amenitiesExplored(propertyType);
-                  } else {
-                    // Track when amenities mode is exited
-                    const propertyType = selectedProperty ? 'sold' : selectedListing ? 'forSale' : 'rental';
-                    analytics.amenitiesExited(propertyType);
-                  }
-                }}
-                disabled={loadingAmenities}
-                className={`w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-3 ${
-                  showAmenities
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
-                }`}
-              >
-                {loadingAmenities ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Loading nearby amenities...</span>
-                  </>
-                ) : showAmenities ? (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    <span>Hide Amenities</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span>Explore Nearby</span>
-                  </>
-                )}
-              </button>
-
-              {amenitiesError && (
-                <p className="text-red-400 text-xs mt-2">{amenitiesError}</p>
-              )}
-
-              {/* Amenities Controls */}
-              {showAmenities && amenities.length > 0 && (
-                <div className="mt-4 space-y-4">
-                  {/* Category Filters */}
-                  <div>
-                    <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Categories</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {Object.entries(categoryFilters).map(([category, enabled]) => {
-                        const count = amenities.filter(a => a.category === category).length;
-                        return (
+                    {/* Location Preview */}
+                    <div className="mb-6">
+                      <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-300 uppercase tracking-wide">Location</span>
                           <button
-                            key={category}
-                            onClick={() => setCategoryFilters(prev => ({ ...prev, [category]: !enabled }))}
-                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-between ${
-                              enabled
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-600'
-                            }`}
+                            onClick={() => setActiveTab('location')}
+                            className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
                           >
-                            <span>{getCategoryDisplayName(category as any)}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded ${
-                              enabled ? 'bg-white/20' : 'bg-gray-600'
-                            }`}>
-                              {count}
-                            </span>
+                            View full details →
                           </button>
-                        );
-                      })}
+                        </div>
+                        {walkabilityScore && (
+                          <div className="mb-2">
+                            <span className="text-gray-400 text-sm">Walkability: </span>
+                            <span className="text-white font-semibold">{Math.max(0, Math.min(walkabilityScore.score, 10))}/10</span>
+                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                              walkabilityScore.rating === 'Excellent' ? 'bg-green-600 text-white' :
+                              walkabilityScore.rating === 'Good' ? 'bg-blue-600 text-white' :
+                              walkabilityScore.rating === 'Fair' ? 'bg-yellow-600 text-white' :
+                              'bg-red-600 text-white'
+                            }`}>
+                              {walkabilityScore.rating}
+                            </span>
+                          </div>
+                        )}
+                        {selectedProperty.latitude && selectedProperty.longitude && (
+                          <div>
+                            <span className="text-gray-400 text-sm">Distance: </span>
+                            <span className="text-white font-semibold">
+                              {(() => {
+                                const distance = calculateDistance(
+                                  selectedProperty.latitude,
+                                  selectedProperty.longitude,
+                                  -6.2603, // Dublin city center
+                                  53.3498
+                                );
+                                return `${(distance / 1000).toFixed(1)}km from city center`;
+                              })()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Additional Details (Collapsible) */}
+                    <CollapsibleSection
+                      title="Additional Details"
+                      defaultExpanded={expandedSections.additionalDetails}
+                      onToggle={(expanded) => setExpandedSections(prev => ({ ...prev, additionalDetails: expanded }))}
+                    >
+                      {/* Sale Timeline */}
+                      <div className="mb-4">
+                        <h5 className="text-sm font-medium text-gray-300 mb-2">Sale Timeline</h5>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">First seen:</span>
+                            <span className="text-gray-300">{selectedProperty.first_seen_date ? new Date(selectedProperty.first_seen_date).toLocaleDateString() : 'Unknown'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Sold date:</span>
+                            <span className="text-gray-300">{selectedProperty.soldDate ? new Date(selectedProperty.soldDate).toLocaleDateString() : 'Unknown'}</span>
+                          </div>
+                          {selectedProperty.first_seen_date && selectedProperty.soldDate && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Days on market:</span>
+                              <span className="text-gray-300">{calculateDaysOnMarket(selectedProperty.first_seen_date)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Market Insights */}
+                      <div>
+                        <h5 className="text-sm font-medium text-gray-300 mb-2">Market Insights</h5>
+                        <div className="text-sm text-gray-400">
+                          {(() => {
+                            const valueAnalysis = analyzePropertyValue(selectedProperty, properties);
+                            const badge = getBestValueBadge(valueAnalysis);
+                            if (badge) {
+                              return `This property sold ${badge.text.toLowerCase()} compared to similar properties in the area.`;
+                            }
+                            return 'Market analysis data is being processed.';
+                          })()}
+                        </div>
+                      </div>
+                    </CollapsibleSection>
+            </>
+                ) : activeTab === 'location' ? (
+                  // Location Tab - Dedicated Amenities Explorer
+                  <div className="space-y-4">
+                    {/* Walkability Score Section */}
+                    {walkabilityScore && (
+                      <div className="mb-6">
+                        <WalkabilityScore
+                          score={walkabilityScore.score}
+                          rating={walkabilityScore.rating}
+                          breakdown={walkabilityScore.breakdown}
+                          className="mb-4"
+                        />
+
+                        {/* Nearest Transport Highlight */}
+                        {walkabilityScore.nearestDartLuas && walkabilityScore.nearestDartLuas.distance <= 500 && (
+                          <div className="flex items-center gap-2 text-sm bg-green-900/20 border border-green-700/30 rounded-lg px-3 py-2 mb-4">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-green-300">{walkabilityScore.nearestDartLuas.type} station</span>
+                            <span className="text-green-100 font-medium">{walkabilityScore.nearestDartLuas.distance}m away</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Distance from City Centre */}
+                    {selectedProperty.latitude && selectedProperty.longitude && (
+                      <DistanceDisplay
+                        latitude={selectedProperty.latitude}
+                        longitude={selectedProperty.longitude}
+                        className="mb-6"
+                      />
+                    )}
+
+                    {/* Amenities Explorer */}
+                    <div className="space-y-4">
+                      {loadingAmenities ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="flex items-center gap-3 text-gray-400">
+                            <div className="w-5 h-5 border-2 border-gray-600 border-t-blue-500 rounded-full animate-spin"></div>
+                            <span className="text-sm">Loading nearby amenities...</span>
+                          </div>
+                        </div>
+                      ) : showAmenities && amenities.length > 0 && (
+                        <div className="space-y-4">
+                          {/* Category Filters */}
+                          <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Categories</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {Object.entries(categoryFilters).map(([category, enabled]) => {
+                                const count = amenities.filter(a => a.category === category).length;
+                                return (
+                                  <button
+                                    key={category}
+                                    onClick={() => setCategoryFilters(prev => ({ ...prev, [category]: !enabled }))}
+                                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all flex items-center justify-between ${
+                                      enabled
+                                        ? 'bg-blue-600 text-white shadow-md'
+                                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-600'
+                                    }`}
+                                  >
+                                    <span>{getCategoryDisplayName(category as any)}</span>
+                                    <span className={`text-xs px-2 py-0.5 rounded ${
+                                      enabled ? 'bg-white/20' : 'bg-gray-600'
+                                    }`}>
+                                      {count}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Amenities List */}
+                          <div>
+                            <label className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2 block">Nearby Amenities</label>
+                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                              {amenities.slice(0, 10).map((amenity, index) => (
+                                <div key={index} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                      {getCategoryIcon(amenity.category)}
+                                    </div>
+                                    <div>
+                                      <div className="text-white text-sm font-medium">{amenity.name}</div>
+                                      <div className="text-gray-400 text-xs">{amenity.category}</div>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="text-cyan-300 text-sm font-mono">{amenity.distance}m</div>
+                                    <div className="text-gray-400 text-xs">{amenity.walkingTime}</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {showAmenities && amenities.length === 0 && !loadingAmenities && (
+                        <div className="text-center py-8 text-gray-400">
+                          <div className="text-sm">No nearby amenities found</div>
+                        </div>
+                      )}
+
+                      {amenitiesError && (
+                        <div className="text-center py-4">
+                          <p className="text-red-400 text-sm">{amenitiesError}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                </div>
-              )}
-            </div>
-            </>
-                ) : (
-                  // Details Tab
+                ) : activeTab === 'planning' ? (
+                  // Planning Tab - Dedicated Planning View
                   <div className="space-y-4">
-                    <div className="text-gray-400 text-sm">Details view coming soon...</div>
+                    <PlanningCard
+                      latitude={selectedProperty.latitude || 0}
+                      longitude={selectedProperty.longitude || 0}
+                      address={selectedProperty.address}
+                    />
+                  </div>
+                ) : (
+                  // Fallback
+                  <div className="space-y-4">
+                    <div className="text-gray-400 text-sm">Tab content coming soon...</div>
                   </div>
                 )}
               </>
@@ -4648,8 +4824,9 @@ export default function MapComponent() {
             showAmenities ? 'top-16' : 'top-4'
           }`}>
             <div className="bg-blue-600/90 backdrop-blur-xl rounded-lg px-3 py-2 border border-blue-400 shadow-lg">
-              <div className="text-white text-sm font-medium">
-                🏗️ Viewing Planning Data
+              <div className="text-white text-sm font-medium flex items-center gap-2">
+                <Building2 className="w-4 h-4" />
+                Viewing Planning Data
               </div>
               <div className="text-blue-200 text-xs">
                 {selectedProperty?.address || selectedListing?.address || selectedRental?.address}
@@ -4754,7 +4931,14 @@ export default function MapComponent() {
                     ✕
                   </button>
                   <button
-                    onClick={() => setIsMobileAmenitiesMode(true)}
+                    onClick={() => {
+                      if (isMobile) {
+                        setIsMobileAmenitiesMode(true);
+                      } else {
+                        // On desktop, minimize closes the card
+                        setSelectedListing(null);
+                      }
+                    }}
                     className="px-2 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors border border-gray-700"
                     title="Minimize property card"
                   >
@@ -4810,9 +4994,9 @@ export default function MapComponent() {
                 {/* Mobile Tab Navigation */}
                 <div className="flex gap-1 mb-2 px-2 pt-12">
                 <button
-                  onClick={() => setActiveTab('details')}
+                  onClick={() => setActiveTab('overview')}
                   className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-                    activeTab === 'details'
+                    activeTab === 'overview'
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
                   }`}
@@ -4885,7 +5069,7 @@ export default function MapComponent() {
                 </div>
 
                 {/* Tab Content */}
-                {activeTab === 'details' ? (
+                {activeTab === 'overview' ? (
                   <>
 
             {/* Property Insights */}
@@ -4897,10 +5081,11 @@ export default function MapComponent() {
                     <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300"
-                        style={{ width: `${walkabilityScore.score * 10}%` }}
+                        style={{ width: `${Math.max(0, Math.min(walkabilityScore.score, 10)) * 10}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-semibold text-white min-w-[2rem]">{walkabilityScore.score}/10</span>
+                    <span className="text-sm font-semibold text-white min-w-[2rem]">{Math.max(0, Math.min(walkabilityScore.score, 10))}/10</span>
+                    <span className="text-xs text-gray-400 ml-1">Walkability</span>
                   </div>
                 </div>
 
@@ -5366,9 +5551,9 @@ export default function MapComponent() {
                 {/* Mobile Tab Navigation */}
                 <div className="flex gap-1 mb-2 px-2 pt-12">
                 <button
-                  onClick={() => setActiveTab('details')}
+                  onClick={() => setActiveTab('overview')}
                   className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-colors ${
-                    activeTab === 'details'
+                    activeTab === 'overview'
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600'
                   }`}
@@ -5426,7 +5611,7 @@ export default function MapComponent() {
                 </div>
 
                 {/* Tab Content */}
-                {activeTab === 'details' ? (
+                {activeTab === 'overview' ? (
                   <>
                     {/* Property Insights */}
                     {walkabilityScore && (
@@ -5437,10 +5622,11 @@ export default function MapComponent() {
                             <div className="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-300"
-                                style={{ width: `${walkabilityScore.score * 10}%` }}
+                                style={{ width: `${Math.max(0, Math.min(walkabilityScore.score, 10)) * 10}%` }}
                               ></div>
                             </div>
-                            <span className="text-sm font-semibold text-white min-w-[2rem]">{walkabilityScore.score}/10</span>
+                            <span className="text-sm font-semibold text-white min-w-[2rem]">{Math.max(0, Math.min(walkabilityScore.score, 10))}/10</span>
+                    <span className="text-xs text-gray-400 ml-1">Walkability</span>
                           </div>
                         </div>
 
@@ -5732,15 +5918,54 @@ export default function MapComponent() {
           />
         )}
 
-        {/* Comparison Bar - Desktop Only */}
-        <ComparisonBar
-          selectedProperty={selectedProperty || selectedListing || selectedRental}
-          onClearSelection={() => {
-            setSelectedProperty(null);
-            setSelectedListing(null);
-            setSelectedRental(null);
-          }}
-        />
+        {/* Floating Compare Button - Right Side */}
+        <div className={`fixed top-1/2 right-4 z-40 transform -translate-y-1/2 ${(selectedProperty || selectedListing || selectedRental) && isMobile ? 'hidden' : ''}`}>
+          <div className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow-lg transition-colors cursor-pointer"
+               onClick={() => {
+                 const count = comparedProperties.length;
+                 if (count > 1) {
+                   router.push('/tools/compare');
+                 } else if (count === 1) {
+                   alert('Add another property to compare. You need at least 2 properties.');
+                 } else {
+                   alert('Add properties to compare by clicking on them and using the "Compare Properties" button.');
+                 }
+               }}
+               title={comparedProperties.length > 1 ? `Compare ${comparedProperties.length} properties` : 'Add properties to compare'}>
+            <BarChart3 className="w-6 h-6" />
+            {comparedProperties.length > 0 && typeof window !== 'undefined' && (
+              <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                {comparedProperties.length}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Comparison Bar - Only show on mobile when card is minimized */}
+        {(selectedProperty || selectedListing || selectedRental) && isMobile && isMobileAmenitiesMode && (
+          <ComparisonBar
+            selectedProperty={selectedProperty || selectedListing || selectedRental}
+            onClearSelection={() => {
+              setSelectedProperty(null);
+              setSelectedListing(null);
+              setSelectedRental(null);
+            }}
+            isPropertyCardMinimized={true}
+          />
+        )}
+
+        {/* Comparison Bar - Desktop Only (when no property card is open) */}
+        {!(selectedProperty || selectedListing || selectedRental) && (
+          <ComparisonBar
+            selectedProperty={selectedProperty || selectedListing || selectedRental}
+            onClearSelection={() => {
+              setSelectedProperty(null);
+              setSelectedListing(null);
+              setSelectedRental(null);
+            }}
+            isPropertyCardMinimized={false}
+          />
+        )}
 
       </div>
     </div>

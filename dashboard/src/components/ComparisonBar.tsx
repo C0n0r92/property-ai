@@ -9,9 +9,10 @@ interface ComparisonBarProps {
   selectedProperty?: any; // Property that was clicked but not yet added to comparison
   inlineOnMobile?: boolean; // Whether to render inline on mobile instead of as overlay
   onClearSelection?: () => void; // Callback to clear property selection
+  isPropertyCardMinimized?: boolean; // Whether the property card is minimized
 }
 
-export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClearSelection }: ComparisonBarProps = {}) {
+export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClearSelection, isPropertyCardMinimized = false }: ComparisonBarProps = {}) {
   const router = useRouter();
   const { comparedProperties, count, maxProperties, removeFromComparison, clearComparison, addToComparison, isInComparison } = useComparison();
 
@@ -59,6 +60,11 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
     return null;
   }
 
+  // Only show when property card is minimized
+  if (!isPropertyCardMinimized) {
+    return null;
+  }
+
   // Check if selected property is already in comparison
   const isSelectedPropertyInComparison = selectedProperty ? isInComparison(selectedProperty.address) : false;
 
@@ -85,16 +91,16 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
     };
   };
 
-  // On mobile, position below navigation bar (h-16 = 64px)
+  // Position for minimized state - under/below the property card
   const hasPropertyOpen = !!selectedProperty;
-  const mobilePosition = 'sm:top-20'; // Position below 64px navigation bar
+  const mobilePosition = 'sm:bottom-20'; // Position above the minimized card (which is at bottom-4)
 
   if (isCollapsed) {
     return (
       <div className={`absolute z-60
                       lg:top-4 lg:right-4
                       md:top-4 md:right-4
-                      ${mobilePosition} sm:right-4`}>
+                      ${isPropertyCardMinimized ? 'sm:bottom-24 sm:left-4 sm:right-4' : `${mobilePosition} sm:right-4`}`}>
 
         <button
           onClick={count > 0 ? handleCompareClick : () => setIsCollapsed(false)}
@@ -114,7 +120,7 @@ export function ComparisonBar({ selectedProperty, inlineOnMobile = false, onClea
     <div className={`absolute z-60 bg-white border border-slate-200 rounded-lg shadow-xl overflow-y-auto
                     lg:top-4 lg:right-4 lg:w-80 lg:max-h-[calc(100vh-120px)]
                     md:top-4 md:right-4 md:w-72 md:max-h-[calc(100vh-120px)]
-                    ${hasPropertyOpen ? 'sm:top-20' : 'sm:top-4'} sm:left-4 sm:right-4 sm:w-auto sm:max-w-sm ${hasPropertyOpen ? 'sm:max-h-40' : 'sm:max-h-32'}`}>
+                    ${isPropertyCardMinimized ? 'sm:bottom-24 sm:left-4 sm:right-4 sm:w-auto sm:max-w-sm sm:max-h-32' : hasPropertyOpen ? 'sm:top-20' : 'sm:top-4 sm:left-4 sm:right-4 sm:w-auto sm:max-w-sm sm:max-h-32'}`}>
       <div className={`${hasPropertyOpen ? 'sm:p-2' : 'p-4'} md:p-4`}>
         {/* Header */}
         <div className={`flex items-center justify-between ${hasPropertyOpen ? 'sm:mb-1' : 'mb-3'}`}>
