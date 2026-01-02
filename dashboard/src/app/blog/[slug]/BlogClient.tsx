@@ -71,13 +71,10 @@ export default function BlogClient({ slug }: BlogClientProps) {
 
   // Start tracking when component mounts
   useEffect(() => {
-    const blogContext = {
-      title: article.title,
-      slug: slug,
-      excerpt: article.excerpt,
-    };
-
-    startBlogTracking(blogContext);
+    console.log('🚀 BlogClient useEffect triggered, starting blog alert tracking for slug:', slug);
+    console.log('🚀 Article exists:', !!article);
+    console.log('🚀 Article title:', article?.title);
+    startBlogTracking(slug);
 
     // Track user engagement events
     const handleScroll = () => trackEngagement();

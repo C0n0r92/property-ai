@@ -10,6 +10,7 @@ import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { MapLink } from '@/components/MapLink';
 import { getCategoryConfig } from '@/lib/blog-categories';
+import { BlogAlertTracker } from '@/components/BlogAlertTracker';
 import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChartNew, SizeEfficiencyChartNew, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChartNew, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2, SeasonalPerformanceChart, MonthlyTimingChart, TimingValueTradeoffChart, BestTypeByAreaChart, MortgageImpactChart, OverpaymentSavingsChartNew, MonthlyPaymentBreakdownChart, PropertyTypeSavingsChart, BiddingWarImpactChart, YieldByPostcodeChart, YieldByPriceBracketChart, BestValueAreasChart, YieldDistributionChartNew2, BedroomEfficiencyChart, PropertyTypeEfficiencyChart, SizeBracketEfficiencyChart, EfficiencyParadoxChart, OverAskingByPriceBracketChart, OverAskingByPropertyTypeChart, OverAskingByPostcodeChart, PremiumDistributionChartNew2, OptimalStrategyChart, D3PropertyTypesChart, D3MonthlyTrendsChart, SizeBandMortgageChart, OverpaymentSavingsChartNew as OverpaymentSavingsChartNew2, SizeBandOverAskingChart, BreakEvenAnalysisChart, YieldBySizeBandChart, GeographicPriceVariationsChart, PriceEfficiencyChart, OverAskingSuccessChart, PropertySizeVariationsChart, PricePredictabilityChart, RentalYieldMapChart, BuyerTypeScoresChart, CyclicalPerformanceChart, SeasonalIndexChart, PeakPerformanceChart, MarketTimingChart, PriceVolatilityChart, AutumnForecastChart, SizeEfficiencyChartNew2, OverAskingParadoxChart, ValueEfficiencyChart, QuarterlyTimingChart, InvestmentEfficiencyChart, PropertyTypeDistributionChart, BuyerProfileOptimizationChart, SalesVolumeChart, PriceStabilityChart, OverAskingStabilityChart, AnnualAppreciationChart, ConservativeStrategyChart, BuyerAdvantageChart, RentalVolumeChart, PremiumRentalsChart, ValueRentalsChart, YieldEfficiencyChart } from '@/components/BlogCharts';
 
 // MapLink component will be imported from a separate client component file
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!article) {
     notFound();
   }
+
 
   const baseUrl = 'https://irishpropertydata.com';
   const canonicalUrl = `${baseUrl}/blog/${slug}`;
@@ -8809,11 +8811,88 @@ ${require('fs').readFileSync(require('path').join(process.cwd(), '../blogs/blog4
 ${require('fs').readFileSync(require('path').join(process.cwd(), '../blogs/blog49_rental_market_hotspots.md'), 'utf8')}
     `,
   },
+  'compare-properties-complete-guide': {
+    title: 'Master Property Comparison: Complete Guide to Dublin\'s Most Powerful Search Tool',
+    excerpt: 'Compare up to 5 Dublin properties side-by-side across 20,985 listings. Analyze mortgage costs, walkability scores, planning applications, and investment metrics. Step-by-step walkthrough with screenshots included.',
+    category: 'Tool Guide',
+    date: '2025-12-31',
+    readTime: '6 min read',
+    tags: ['Compare Properties', 'Tool Guide', 'Property Analysis', 'Decision Making', 'Feature Walkthrough', 'User Guide'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-bidding-wars-analysis', 'mortgage-overpayment-savings-strategy', 'dublin-property-timing-value-tradeoff'],
+    content: `
+# Master Property Comparison: Complete Guide to Dublin's Most Powerful Search Tool
+
+## Executive Summary
+- Compare up to 5 properties simultaneously
+- Side-by-side analysis of 20+ key metrics
+- Mortgage calculator integration
+- Walkability and transport scores
+- Planning permission history
+- Investment yield calculations
+- Step-by-step feature walkthrough
+
+## Introduction
+The property comparison tool represents a fundamental advancement in how Dublin property buyers evaluate and compare available listings. By enabling simultaneous analysis of multiple properties across comprehensive data points, buyers can make informed decisions with unprecedented clarity and confidence.
+
+This guide provides a complete walkthrough of the comparison tool's capabilities, from basic property selection to advanced investment analysis.
+    `,
+  },
+  'asking_price_strategy': {
+    title: 'Dublin Asking Price Strategy: When to Bid, When to Walk Away',
+    excerpt: 'Data-driven analysis of Dublin asking prices vs final sale prices. Learn optimal bidding strategies, identify overpriced properties, and maximize your negotiation leverage with comprehensive market intelligence.',
+    category: 'Market Analysis',
+    date: '2025-12-31',
+    readTime: '8 min read',
+    tags: ['Asking Price', 'Bidding Strategy', 'Property Negotiation', 'Market Analysis', 'Dublin Property'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-bidding-wars-analysis', '250k_350k_bracket', 'dublin-property-timing-value-tradeoff'],
+    content: `
+# Dublin Asking Price Strategy: When to Bid, When to Walk Away
+
+## Executive Summary
+- Analysis of 32,859 Dublin property transactions
+- 47% of properties sell over asking price
+- Average over-asking premium: +€21,500
+- Strategic bidding framework
+- Risk assessment methodology
+
+## The Dublin Asking Price Reality
+Dublin's property market operates with systematic asking price inflation designed to test buyer resolve and extract maximum value from motivated purchasers. Understanding this dynamic is crucial for successful property acquisition.
+    `,
+  },
+  'dublin-bidding-wars-analysis': {
+    title: 'Dublin Bidding Wars: Competition Analysis & Winning Strategies',
+    excerpt: 'Comprehensive analysis of Dublin bidding wars across 32,859 transactions. Learn which properties spark competitive bidding, optimal bidding increments, and strategies to win in heated markets.',
+    category: 'Market Analysis',
+    date: '2025-12-31',
+    readTime: '7 min read',
+    tags: ['Bidding Wars', 'Competition Analysis', 'Bidding Strategy', 'Market Competition', 'Winning Strategies'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['asking_price_strategy', '250k_350k_bracket', 'dublin-property-timing-value-tradeoff'],
+    content: `
+# Dublin Bidding Wars: Competition Analysis & Winning Strategies
+
+## Executive Summary
+- Analysis of 32,859 Dublin property transactions
+- 47% of properties sell over asking price
+- Average bidding war premium: +€21,500
+- Strategic bidding framework
+- Competition analysis methodology
+
+## Understanding Dublin Bidding Dynamics
+Dublin's property market exhibits distinct competitive patterns where certain property types and locations consistently generate bidding wars, while others sell at or below asking price.
+    `,
+  },
 };
 
 export default async function ResearchArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = articles[slug as keyof typeof articles];
+
 
   if (!article) {
     notFound();
@@ -8822,6 +8901,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
   // Blog content rendering enabled
   return (
     <div>
+      <BlogAlertTracker slug={slug} />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
         {/* Hero Section with Article Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">

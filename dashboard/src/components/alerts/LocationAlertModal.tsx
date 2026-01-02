@@ -6,7 +6,6 @@ import { X, Bell, MapPin, Check, ChevronRight, Loader2 } from 'lucide-react';
 import { useAlertModal } from '@/contexts/AlertModalContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { AlertConfigForm } from './AlertConfigForm';
-import { BlogAlertPaymentForm } from './BlogAlertPaymentForm';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { analytics } from '@/lib/analytics';
 
@@ -15,17 +14,13 @@ export function LocationAlertModal() {
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  console.log('🎯 LocationAlertModal render - modalState:', modalState);
-  console.log('🎯 modalState.isOpen:', modalState.isOpen);
-  console.log('🎯 modalState.location:', modalState.location);
 
   // Handle ESC key and backdrop click
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        const contextName = modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name;
         analytics.alertModalDismissed(
-          contextName || 'unknown',
+          modalState.location?.name || 'unknown',
           modalState.step,
           'unknown'
         );
@@ -59,20 +54,19 @@ export function LocationAlertModal() {
 
   // Handle initial CTA click
   const handleGetAlertsClick = () => {
-    const nextStep = modalState.alertType === 'blog' ? 'payment' : 'property-types';
-    analytics.alertStepTransition(modalState.step, nextStep, modalState.location?.name || modalState.blog?.title || 'unknown');
+    analytics.alertStepTransition(modalState.step, 'property-types', modalState.location?.name || 'unknown');
 
     if (!user) {
       setShowLoginModal(true);
     } else {
-      setModalStep(nextStep);
+      setModalStep('property-types');
     }
   };
 
   // Handle login success
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    setModalStep(modalState.alertType === 'blog' ? 'payment' : 'property-types');
+    setModalStep('property-types');
   };
 
   // Handle successful alert creation
@@ -83,26 +77,21 @@ export function LocationAlertModal() {
 
   // Handle close button dismissal
   const handleCloseDismissal = () => {
-    const contextName = modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name;
     analytics.alertModalDismissed(
-      contextName || 'unknown',
+      modalState.location?.name || 'unknown',
       modalState.step,
       'unknown'
     );
     dismissAlertModal();
   };
 
-  // Don't render if modal is not open or no context (location or blog)
-  console.log('LocationAlertModal: modalState.isOpen:', modalState.isOpen, 'modalState.location:', !!modalState.location, 'modalState.blog:', !!modalState.blog);
-  const hasContext = (modalState.alertType === 'location' && modalState.location) || (modalState.alertType === 'blog' && modalState.blog);
-  if (!modalState.isOpen || !hasContext) {
-    console.log('LocationAlertModal: Not rendering modal');
+  // Don't render if modal is not open or not a location alert
+  if (!modalState.isOpen || modalState.alertType !== 'location' || !modalState.location) {
     return null;
   }
 
-  console.log('LocationAlertModal: Rendering modal for:', modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name);
 
-  const displayName = modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name;
+  const displayName = modalState.location?.name;
 
   return (
     <>
@@ -134,9 +123,7 @@ export function LocationAlertModal() {
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                     <Bell className="w-4 h-4 text-blue-600" />
                   </div>
-                  <span className="font-medium text-slate-900">
-                    {modalState.alertType === 'blog' ? 'Blog Alerts' : 'Property Alerts'}
-                  </span>
+                  <span className="font-medium text-slate-900">Property Alerts</span>
                 </div>
                 <button
                   onClick={handleCloseDismissal}
@@ -166,19 +153,12 @@ export function LocationAlertModal() {
                   />
                 )}
 
-                {modalState.step === 'payment' && modalState.alertType === 'blog' && modalState.blog && (
-                  <BlogAlertPaymentForm
-                    blog={modalState.blog}
-                    onSuccess={handleAlertCreated}
-                    onCancel={() => setModalStep('initial')}
-                  />
-                )}
 
                 {modalState.step === 'success' && (
                   <SuccessStep
                     alertType={modalState.alertType}
                     locationName={modalState.location?.name}
-                    blogTitle={modalState.blog?.title}
+                    blogTitle={undefined}
                     onClose={hideAlertModal}
                   />
                 )}
@@ -193,11 +173,9 @@ export function LocationAlertModal() {
         isOpen={showLoginModal}
         onClose={() => {
           setShowLoginModal(false);
-          // After login, proceed to appropriate step
+          // After login, proceed to property types configuration
           if (!user) {
-            // If login was successful, user should now be authenticated
-            // This will trigger the modal to go to appropriate step
-            setModalStep(modalState.alertType === 'blog' ? 'payment' : 'property-types');
+            setModalStep('property-types');
           }
         }}
       />
@@ -346,11 +324,11 @@ function SuccessStep({
       {/* Title */}
       <div>
         <h3 className="text-xl font-bold text-slate-900 mb-2">
-          Alert created successfully!
+          {isBlogAlert ? 'Premium Blog Alerts Activated!' : 'Alert created successfully!'}
         </h3>
         <p className="text-slate-600 text-sm leading-relaxed">
           {isBlogAlert
-            ? "You'll receive email notifications when we publish new research articles and market insights."
+            ? "🎉 Welcome to our premium research community! You'll be the first to know about critical Dublin property market shifts, exclusive analysis, and money-saving opportunities that could impact your next investment decision."
             : `You'll receive email notifications when new properties match your criteria in ${locationName}.`
           }
         </p>

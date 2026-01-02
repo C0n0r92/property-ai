@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { Bell, MapPin, Settings, Trash2, Plus, CheckCircle, AlertCircle, Clock, Bookmark, Calculator, Euro } from 'lucide-react';
+import { Bell, MapPin, Settings, Trash2, Plus, CheckCircle, AlertCircle, Clock, Bookmark, Calculator, Euro, BookOpen } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { SavedProperty } from '@/types/supabase';
 import { formatFullPrice } from '@/lib/format';
@@ -25,14 +25,26 @@ interface LocationAlert {
   max_price?: number;
 }
 
+interface BlogAlert {
+  id: string;
+  alert_type: 'general';
+  notification_frequency: 'immediate' | 'daily' | 'weekly';
+  status: 'active' | 'paused' | 'expired';
+  expires_at: string | null;
+  created_at: string;
+}
+
 export default function AlertsPage() {
   const { user } = useAuth();
   const [alerts, setAlerts] = useState<LocationAlert[]>([]);
+  const [blogAlerts, setBlogAlerts] = useState<BlogAlert[]>([]);
   const [savedProperties, setSavedProperties] = useState<SavedProperty[]>([]);
   const [activeTab, setActiveTab] = useState<'alerts' | 'properties'>('alerts');
   const [loading, setLoading] = useState(true);
+  const [blogLoading, setBlogLoading] = useState(true);
   const [propertiesLoading, setPropertiesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [blogError, setBlogError] = useState<string | null>(null);
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -56,9 +68,11 @@ export default function AlertsPage() {
   useEffect(() => {
     if (user) {
       fetchAlerts();
+      fetchBlogAlerts();
       fetchSavedProperties();
     } else {
       setLoading(false);
+      setBlogLoading(false);
       setPropertiesLoading(false);
     }
   }, [user]);
@@ -83,6 +97,24 @@ export default function AlertsPage() {
       setError('Failed to load your alerts');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchBlogAlerts = async () => {
+    if (!user) return;
+
+    try {
+      setBlogLoading(true);
+      const response = await fetch('/api/alerts/blog');
+      if (!response.ok) throw new Error('Failed to fetch blog alerts');
+
+      const data = await response.json();
+      setBlogAlerts(data.alerts || []);
+    } catch (err) {
+      console.error('Error fetching blog alerts:', err);
+      setBlogError('Failed to load your blog alerts');
+    } finally {
+      setBlogLoading(false);
     }
   };
 
@@ -193,25 +225,36 @@ export default function AlertsPage() {
     window.location.href = url;
   };
 
-  const toggleAlertStatus = async (alertId: string, currentStatus: string) => {
+  const toggleAlertStatus = async (alertId: string, currentStatus: string, isBlogAlert = false) => {
     const newStatus = currentStatus === 'active' ? 'paused' : 'active';
 
     try {
-      const response = await fetch(`/api/alerts/${alertId}`, {
+      const apiUrl = isBlogAlert ? `/api/alerts/blog/${alertId}` : `/api/alerts/${alertId}`;
+      const response = await fetch(apiUrl, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
 
-      if (!response.ok) throw new Error('Failed to update alert');
+      if (!response.ok) throw new Error(`Failed to update ${isBlogAlert ? 'blog ' : ''}alert`);
 
       // Update local state
-      setAlerts(alerts.map(alert =>
-        alert.id === alertId ? { ...alert, status: newStatus as any } : alert
-      ));
+      if (isBlogAlert) {
+        setBlogAlerts(blogAlerts.map(alert =>
+          alert.id === alertId ? { ...alert, status: newStatus as any } : alert
+        ));
+      } else {
+        setAlerts(alerts.map(alert =>
+          alert.id === alertId ? { ...alert, status: newStatus as any } : alert
+        ));
+      }
     } catch (err) {
-      console.error('Error updating alert:', err);
-      setError('Failed to update alert status');
+      console.error(`Error updating ${isBlogAlert ? 'blog ' : ''}alert:`, err);
+      if (isBlogAlert) {
+        setBlogError(`Failed to update blog alert status`);
+      } else {
+        setError('Failed to update alert status');
+      }
     }
   };
 
@@ -233,6 +276,48 @@ export default function AlertsPage() {
     }
   };
 
+  const toggleBlogAlertStatus = async (alertId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+
+    try {
+      const response = await fetch(`/api/alerts/blog/${alertId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update blog alert');
+
+      // Update local state
+      setBlogAlerts(blogAlerts.map(alert =>
+        alert.id === alertId ? { ...alert, status: newStatus as any } : alert
+      ));
+    } catch (err) {
+      console.error('Error updating blog alert:', err);
+      setBlogError('Failed to update blog alert');
+    }
+  };
+
+  const deleteBlogAlert = async (alertId: string) => {
+    if (!confirm('Are you sure you want to delete this blog alert?')) return;
+
+    try {
+      const response = await fetch(`/api/alerts/blog/${alertId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete blog alert');
+
+      // Update local state
+      setBlogAlerts(blogAlerts.filter(alert => alert.id !== alertId));
+    } catch (err) {
+      console.error('Error deleting blog alert:', err);
+      setBlogError('Failed to delete blog alert');
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IE', {
       year: 'numeric',
@@ -241,7 +326,15 @@ export default function AlertsPage() {
     });
   };
 
-  const getStatusIcon = (status: string, expiresAt: string) => {
+  const getStatusIcon = (status: string, expiresAt: string | null) => {
+    // For blog alerts with no expiration, only check status
+    if (expiresAt === null) {
+      if (status === 'active') return <CheckCircle className="w-4 h-4 text-green-500" />;
+      if (status === 'paused') return <Clock className="w-4 h-4 text-yellow-500" />;
+      return <AlertCircle className="w-4 h-4 text-red-500" />;
+    }
+
+    // For location alerts with expiration
     const isExpired = new Date(expiresAt) < new Date();
 
     if (isExpired) return <AlertCircle className="w-4 h-4 text-red-500" />;
@@ -250,7 +343,13 @@ export default function AlertsPage() {
     return <AlertCircle className="w-4 h-4 text-red-500" />;
   };
 
-  const getStatusText = (status: string, expiresAt: string) => {
+  const getStatusText = (status: string, expiresAt: string | null) => {
+    // For blog alerts with no expiration
+    if (expiresAt === null) {
+      return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    // For location alerts with expiration
     const isExpired = new Date(expiresAt) < new Date();
     if (isExpired) return 'Expired';
     return status.charAt(0).toUpperCase() + status.slice(1);
@@ -311,7 +410,7 @@ export default function AlertsPage() {
                   : 'text-gray-400 hover:text-white hover:bg-gray-800'
               }`}
             >
-              Property Alerts ({alerts.length})
+              Alerts ({alerts.length + blogAlerts.length})
             </button>
             <button
               onClick={() => setActiveTab('properties')}
@@ -360,25 +459,34 @@ export default function AlertsPage() {
             )}
 
             {/* No alerts */}
-            {!loading && alerts.length === 0 && (
+            {!loading && !blogLoading && alerts.length === 0 && blogAlerts.length === 0 && (
               <div className="text-center py-16">
                 <Bell className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-white mb-2">No alerts yet</h2>
                 <p className="text-gray-400 mb-6">
-                  Start searching for properties to get notified about new listings in your favorite areas.
+                  Start searching for properties or subscribe to blog alerts to get notified about new content.
                 </p>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors"
-                >
-                  Start Searching
-                </Link>
+                <div className="flex gap-3 justify-center">
+                  <Link
+                    href="/"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors"
+                  >
+                    Property Alerts
+                  </Link>
+                  <Link
+                    href="/blog"
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+                  >
+                    Blog Alerts
+                  </Link>
+                </div>
               </div>
             )}
 
             {/* Alerts list */}
-            {!loading && alerts.length > 0 && (
+            {!loading && !blogLoading && (alerts.length > 0 || blogAlerts.length > 0) && (
               <div className="space-y-4">
+                {/* Location Alerts */}
                 {alerts.map((alert) => (
                   <div key={alert.id} className="bg-gray-900/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-colors">
                     <div className="flex items-start justify-between">
@@ -466,6 +574,79 @@ export default function AlertsPage() {
                         </button>
                         <button
                           onClick={() => deleteAlert(alert.id)}
+                          className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                          title="Delete alert"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Blog Alerts */}
+                {blogAlerts.map((alert) => (
+                  <div key={alert.id} className="bg-gray-900/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        {/* Blog alert type and status */}
+                        <div className="flex items-center gap-3 mb-3">
+                          <BookOpen className="w-5 h-5 text-blue-400" />
+                          <h3 className="text-lg font-semibold text-white">
+                            Blog Alerts
+                          </h3>
+                          <div className="flex items-center gap-1">
+                            {getStatusIcon(alert.status, alert.expires_at)}
+                            <span className="text-sm text-gray-400">
+                              {getStatusText(alert.status, alert.expires_at)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Details */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                          <div>
+                            <span className="text-gray-500">Type:</span>
+                            <span className="ml-2 font-medium text-white capitalize">{alert.alert_type}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Frequency:</span>
+                            <span className="ml-2 font-medium text-white capitalize">{alert.notification_frequency}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Created:</span>
+                            <span className="ml-2 font-medium text-white">
+                              {new Date(alert.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Expires:</span>
+                            <span className="ml-2 font-medium text-white">
+                              {alert.expires_at ? new Date(alert.expires_at).toLocaleDateString() : 'Never'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-gray-300 text-sm mb-4">
+                          Get notified when we publish new research articles and market insights about Dublin property.
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 ml-4">
+                        <button
+                          onClick={() => toggleAlertStatus(alert.id, alert.status, true)}
+                          className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                            alert.status === 'active'
+                              ? 'bg-yellow-900/50 text-yellow-300 border border-yellow-700/50 hover:bg-yellow-800/50'
+                              : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50 hover:bg-emerald-800/50'
+                          }`}
+                        >
+                          {alert.status === 'active' ? 'Pause' : 'Resume'}
+                        </button>
+                        <button
+                          onClick={() => deleteBlogAlert(alert.id)}
                           className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
                           title="Delete alert"
                         >

@@ -8,6 +8,7 @@ import { AuthProvider } from './auth/AuthProvider';
 import { ComparisonProvider } from '@/contexts/ComparisonContext';
 import { AlertModalProvider } from '@/contexts/AlertModalContext';
 import { LocationAlertModal } from '@/components/alerts/LocationAlertModal';
+import { BlogAlertModal } from '@/components/alerts/BlogAlertModal';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -22,6 +23,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <GoogleAnalytics />
             <CookieConsent />
             <LocationAlertModal />
+            <BlogAlertModal />
           </AlertModalProvider>
         </ComparisonProvider>
       </PostHogProvider>

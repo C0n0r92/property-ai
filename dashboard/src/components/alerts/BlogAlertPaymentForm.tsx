@@ -22,19 +22,27 @@ export function BlogAlertPaymentForm({ blog, onSuccess, onCancel }: BlogAlertPay
     analytics.alertStepTransition(modalState.step, 'processing', blog.title);
 
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create Stripe checkout session
+      const response = await fetch('/api/alerts/blog-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      // Here you would integrate with your payment processor
-      // For now, we'll simulate a successful payment
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
 
-      analytics.alertStepTransition('processing', 'success', blog.title);
-      onSuccess();
+      const { url } = await response.json();
+
+      // Redirect to Stripe checkout
+      window.location.href = url;
     } catch (error) {
-      console.error('Payment failed:', error);
-      // Handle payment error
-    } finally {
+      console.error('Payment setup failed:', error);
       setIsProcessing(false);
+      // You might want to show an error message to the user here
     }
   };
 
