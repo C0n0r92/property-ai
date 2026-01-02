@@ -49,9 +49,9 @@ export function PlanningTrendsChart({ data, className = "", height = 300 }: Plan
               borderRadius: '8px',
               color: 'var(--foreground)'
             }}
-            formatter={(value: number, name: string) => {
-              if (name === 'Approval Rate') return [`${value}%`, name];
-              return [value, name];
+            formatter={(value: number | undefined, name: string | undefined) => {
+              if (name === 'Approval Rate') return [`${value || 0}%`, name || ''];
+              return [value || 0, name || ''];
             }}
           />
           <Legend />

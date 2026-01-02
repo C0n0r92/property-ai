@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { useEffect } from 'react';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { ReadingProgress } from '@/components/ReadingProgress';
 import { BlogVoteButton } from '@/components/BlogVoteButton';
 import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { articles } from '@/lib/blog-articles';
+import { useBlogAlertTracking } from '@/hooks/useBlogAlertTracking';
 
 interface BlogClientProps {
   slug: string;
@@ -63,6 +65,35 @@ export default function BlogClient({ slug }: BlogClientProps) {
 
   // Process markdown to HTML
   const htmlContent = processMarkdownToHtml(article.content);
+
+  // Blog alert tracking
+  const { startBlogTracking, stopBlogTracking, trackEngagement } = useBlogAlertTracking();
+
+  // Start tracking when component mounts
+  useEffect(() => {
+    const blogContext = {
+      title: article.title,
+      slug: slug,
+      excerpt: article.excerpt,
+    };
+
+    startBlogTracking(blogContext);
+
+    // Track user engagement events
+    const handleScroll = () => trackEngagement();
+    const handleClick = () => trackEngagement();
+
+    // Add event listeners
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('click', handleClick);
+
+    // Cleanup on unmount
+    return () => {
+      stopBlogTracking();
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('click', handleClick);
+    };
+  }, [slug, article.title, article.excerpt, startBlogTracking, stopBlogTracking, trackEngagement]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">

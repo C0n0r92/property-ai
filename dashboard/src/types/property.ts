@@ -237,6 +237,7 @@ export interface PlanningApplicationWithScore {
   confidence: 'high' | 'medium' | 'low';
   score: number;
   matchReasons: string[];
+  distance?: number; // Distance in meters from search property
 }
 
 export interface PlanningResponse {

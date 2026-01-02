@@ -35,12 +35,137 @@ interface WalkabilityData {
     leisure: Amenity[];
     services: Amenity[];
   };
+  areaComparison?: {
+    thisLocation: number;
+    areaAverage: number;
+    percentileRank: number;
+  };
 }
+
+// Advanced walkability scoring system with negative penalties
+const WALKABILITY_SCORING = {
+  // Base scores and penalties
+  baseScore: 5.0, // Start lower to allow for more differentiation
+
+  // Distance penalties (points deducted per amenity beyond these distances)
+  distancePenalties: {
+    transport: { good: 500, poor: 1000, penalty: 0.8 },
+    shopping: { good: 800, poor: 1500, penalty: 0.6 },
+    healthcare: { good: 1000, poor: 2000, penalty: 0.7 },
+    education: { good: 1200, poor: 2500, penalty: 0.5 },
+    leisure: { good: 1000, poor: 2000, penalty: 0.4 },
+    services: { good: 600, poor: 1200, penalty: 0.3 },
+  },
+
+  // Minimum amenity requirements (points deducted if not met)
+  minimumRequirements: {
+    transport: { count: 2, distance: 800, penalty: 1.5 },
+    shopping: { count: 1, distance: 1000, penalty: 1.2 },
+    healthcare: { count: 1, distance: 1500, penalty: 1.8 },
+    education: { count: 1, distance: 2000, penalty: 1.0 },
+    leisure: { count: 1, distance: 1500, penalty: 0.8 },
+    services: { count: 2, distance: 600, penalty: 0.6 },
+  },
+
+  // Quality bonuses
+  qualityBonuses: {
+    multipleTransport: 0.5, // Bonus for having multiple transport options
+    excellentAccess: 0.3,   // Bonus for amenities within 300m
+    goodCoverage: 0.2,      // Bonus for well-distributed amenities
+  }
+};
+
+// Area-specific baseline adjustments
+const AREA_BASELINES: Record<string, number> = {
+  'D1': 1.2, 'D2': 1.4, 'D3': 0.3, 'D4': 0.8, 'D5': -0.2,
+  'D6': 0.1, 'D6W': -0.3, 'D7': 0.0, 'D8': 0.6, 'D9': -0.1,
+  'D10': -0.8, 'D11': -0.5, 'D12': -0.3, 'D13': -0.4, 'D14': -0.2,
+  'D15': -0.6, 'D16': -0.7, 'D17': -1.0, 'D18': -0.9, 'D20': -0.5,
+  'D22': -1.2, 'D24': -1.4,
+};
 
 export function AmenitiesAnalysisContent({ latitude, longitude, address }: AmenitiesAnalysisContentProps) {
   const [walkabilityData, setWalkabilityData] = useState<WalkabilityData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Extract Dublin postcode from address
+  const extractDublinPostcode = (address: string): string | null => {
+    // Look for patterns like "Dublin 4", "D4", "Dublin 6W", etc.
+    const dublinMatch = address.match(/Dublin\s+(\d+[A-Z]*)/i) || address.match(/D(\d+[A-Z]*)/i);
+    if (dublinMatch) {
+      const code = dublinMatch[1].toUpperCase();
+      return code.startsWith('D') ? code : `D${code}`;
+    }
+    return null;
+  };
+
+  // Advanced walkability scoring algorithm
+  const calculateWalkabilityScore = (amenities: any, postcode: string | null): number => {
+    let score = WALKABILITY_SCORING.baseScore;
+
+    // Apply area baseline adjustment
+    if (postcode && AREA_BASELINES[postcode]) {
+      score += AREA_BASELINES[postcode];
+    }
+
+    // Check minimum requirements and apply penalties
+    Object.entries(WALKABILITY_SCORING.minimumRequirements).forEach(([category, req]) => {
+      const categoryAmenities = amenities[category] || [];
+      const nearbyCount = categoryAmenities.filter((a: any) => a.distance <= req.distance).length;
+
+      if (nearbyCount < req.count) {
+        score -= req.penalty * (req.count - nearbyCount);
+      }
+    });
+
+    // Score based on distance and quality
+    Object.entries(WALKABILITY_SCORING.distancePenalties).forEach(([category, config]) => {
+      const categoryAmenities = amenities[category] || [];
+
+      categoryAmenities.forEach((amenity: any) => {
+        if (amenity.distance <= config.good) {
+          // Excellent access - add points
+          score += 0.3;
+        } else if (amenity.distance <= config.poor) {
+          // Acceptable access - small bonus
+          score += 0.1;
+        } else {
+          // Poor access - penalty
+          score -= config.penalty;
+        }
+      });
+
+      // Bonus for multiple amenities in category
+      if (categoryAmenities.length >= 3) {
+        score += WALKABILITY_SCORING.qualityBonuses.multipleTransport;
+      }
+    });
+
+    // Check for excellent overall access (< 300m for key amenities)
+    const excellentAccess = ['transport', 'shopping', 'services'].every(category => {
+      const categoryAmenities = amenities[category] || [];
+      return categoryAmenities.some((a: any) => a.distance <= 300);
+    });
+
+    if (excellentAccess) {
+      score += WALKABILITY_SCORING.qualityBonuses.excellentAccess;
+    }
+
+    // Ensure score stays within reasonable bounds
+    return Math.max(1, Math.min(10, Math.round(score * 10) / 10));
+  };
+
+  // Extract Dublin postcode from address
+  const extractDublinPostcode = (address: string): string | null => {
+    // Look for patterns like "Dublin 4", "D4", "Dublin 6W", etc.
+    const dublinMatch = address.match(/Dublin\s+(\d+[A-Z]*)/i) || address.match(/D(\d+[A-Z]*)/i);
+    if (dublinMatch) {
+      const code = dublinMatch[1].toUpperCase();
+      return code.startsWith('D') ? code : `D${code}`;
+    }
+    return null;
+  };
   const [distanceFilter, setDistanceFilter] = useState<'500' | '1000' | '2000'>('1000');
 
   useEffect(() => {
@@ -52,10 +177,57 @@ export function AmenitiesAnalysisContent({ latitude, longitude, address }: Ameni
         // For now, we'll simulate the API call since the /api/map-data endpoint might need updates
         // In production, this would call: /api/map-data?lat=${latitude}&lng=${longitude}
 
+        const postcode = extractDublinPostcode(address);
+
+        // Mock amenities data for scoring
+        const mockAmenitiesData = {
+          transport: [
+            { name: 'Tara Street DART Station', category: 'Transport', distance: 450, walkingTime: 6 },
+            { name: 'O\'Connell Street Bus Stop', category: 'Transport', distance: 200, walkingTime: 3 },
+            { name: 'Abbey Street Luas Stop', category: 'Transport', distance: 350, walkingTime: 5 }
+          ],
+          shopping: [
+            { name: 'Tesco Express', category: 'Shopping', distance: 300, walkingTime: 4 },
+            { name: 'Jervis Centre', category: 'Shopping', distance: 600, walkingTime: 8 },
+            { name: 'Marks & Spencer', category: 'Shopping', distance: 800, walkingTime: 10 }
+          ],
+          education: [
+            { name: 'Dublin Institute of Technology', category: 'Education', distance: 1200, walkingTime: 15 },
+            { name: 'St. Andrew\'s Resource Centre', category: 'Education', distance: 500, walkingTime: 7 }
+          ],
+          healthcare: [
+            { name: 'St. James\'s Hospital', category: 'Healthcare', distance: 1500, walkingTime: 19 },
+            { name: 'Mater Misericordiae Hospital', category: 'Healthcare', distance: 1800, walkingTime: 23 },
+            { name: 'Tara Street Pharmacy', category: 'Healthcare', distance: 250, walkingTime: 3 }
+          ],
+          leisure: [
+            { name: 'The Spire', category: 'Leisure', distance: 400, walkingTime: 5 },
+            { name: 'Dublin Castle', category: 'Leisure', distance: 900, walkingTime: 12 },
+            { name: 'Phoenix Park', category: 'Leisure', distance: 2000, walkingTime: 25 }
+          ],
+          services: [
+            { name: 'Central Bank', category: 'Services', distance: 600, walkingTime: 8 },
+            { name: 'Dublin City Council', category: 'Services', distance: 800, walkingTime: 10 },
+            { name: 'An Post', category: 'Services', distance: 300, walkingTime: 4 }
+          ]
+        };
+
+        // Calculate dynamic walkability score using advanced algorithm
+        const dynamicScore = calculateWalkabilityScore(mockAmenitiesData, postcode);
+
+        // Calculate area comparison metrics using area baselines
+        const areaAverage = postcode ? (WALKABILITY_SCORING.baseScore + (AREA_BASELINES[postcode] || 0)) : WALKABILITY_SCORING.baseScore;
+        const allAreaScores = Object.values(AREA_BASELINES).map(baseline => WALKABILITY_SCORING.baseScore + baseline);
+        const percentileRank = Math.round((allAreaScores.filter(score => score <= dynamicScore).length / allAreaScores.length) * 100);
+
         // Mock data - replace with real API call
         const mockData: WalkabilityData = {
-          score: 7.5,
-          rating: 'Very Good',
+          score: Math.round(dynamicScore * 10) / 10, // Round to 1 decimal
+          rating: dynamicScore >= 8.0 ? 'Excellent' :
+                  dynamicScore >= 7.0 ? 'Very Good' :
+                  dynamicScore >= 6.0 ? 'Good' :
+                  dynamicScore >= 4.5 ? 'Fair' :
+                  dynamicScore >= 3.0 ? 'Poor' : 'Very Limited',
           breakdown: {
             transport: 8,
             shopping: 7,
@@ -94,6 +266,11 @@ export function AmenitiesAnalysisContent({ latitude, longitude, address }: Ameni
               { name: 'Dublin City Council', category: 'Services', distance: 800, walkingTime: 10 },
               { name: 'An Post', category: 'Services', distance: 300, walkingTime: 4 }
             ]
+          },
+          areaComparison: {
+            thisLocation: Math.round(dynamicScore * 10) / 10,
+            areaAverage: Math.round(areaAverage * 10) / 10,
+            percentileRank
           }
         };
 
@@ -197,7 +374,11 @@ export function AmenitiesAnalysisContent({ latitude, longitude, address }: Ameni
         {/* Radar Chart */}
         <div className="max-w-md mx-auto">
           <RadarChart
-            data={walkabilityData.breakdown}
+            data={Object.entries(walkabilityData.breakdown).map(([subject, score]) => ({
+              subject: subject.charAt(0).toUpperCase() + subject.slice(1),
+              score,
+              fullMark: 10
+            }))}
             height={250}
           />
         </div>
@@ -278,24 +459,32 @@ export function AmenitiesAnalysisContent({ latitude, longitude, address }: Ameni
       </div>
 
       {/* Comparison to Area Average */}
-      <div className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6">
-        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Area Comparison</h3>
+      <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Area Comparison</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-green-600 mb-1">{walkabilityData.score}</div>
-            <div className="text-sm text-[var(--foreground-secondary)]">This Location</div>
+          <div className="text-center p-4 bg-gray-700 rounded-lg">
+            <div className="text-2xl font-bold text-green-400 mb-1">{walkabilityData.areaComparison?.thisLocation || walkabilityData.score}</div>
+            <div className="text-sm text-gray-300">This Location</div>
           </div>
 
-          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600 mb-1">6.2</div>
-            <div className="text-sm text-[var(--foreground-secondary)]">Area Average</div>
+          <div className="text-center p-4 bg-gray-700 rounded-lg">
+            <div className="text-2xl font-bold text-blue-400 mb-1">{walkabilityData.areaComparison?.areaAverage || '6.8'}</div>
+            <div className="text-sm text-gray-300">Area Average</div>
           </div>
 
-          <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600 mb-1">68%</div>
-            <div className="text-sm text-[var(--foreground-secondary)]">Better Than Area</div>
+          <div className="text-center p-4 bg-gray-700 rounded-lg">
+            <div className="text-2xl font-bold text-purple-400 mb-1">{walkabilityData.areaComparison?.percentileRank || 68}%</div>
+            <div className="text-sm text-gray-300">Better Than Area</div>
           </div>
         </div>
+        {walkabilityData.areaComparison && (
+          <div className="mt-4 p-3 bg-gray-700 rounded-lg">
+            <p className="text-sm text-gray-300">
+              This location ranks in the <strong className="text-white">{walkabilityData.areaComparison.percentileRank}th percentile</strong> for walkability
+              across Dublin postcodes, {walkabilityData.areaComparison.percentileRank >= 50 ? 'above' : 'below'} the city average.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

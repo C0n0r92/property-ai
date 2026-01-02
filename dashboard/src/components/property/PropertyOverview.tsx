@@ -237,7 +237,7 @@ export function PropertyOverview({ coordinates, address, type, onTabChange }: Pr
 
       {/* Quick Access Cards */}
       <div className="grid lg:grid-cols-2 gap-6">
-        {propertyData.enrichment?.planning?.nearbyCount > 0 && (
+        {propertyData.enrichment?.planning?.nearbyCount && propertyData.enrichment.planning.nearbyCount > 0 && (
           <div
             className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 cursor-pointer hover:bg-[var(--surface-hover)] transition-colors"
             onClick={() => onTabChange('planning')}

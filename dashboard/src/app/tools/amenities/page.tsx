@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { AddressSearchBar } from '@/components/tools/AddressSearchBar';
 import { ResultsHeader } from '@/components/tools/ResultsHeader';
-import { AmenitiesAnalysisContent } from '@/components/tools/AmenitiesAnalysisContent';
-
 import { AmenitiesAnalysisContent } from '@/components/tools/AmenitiesAnalysisContent';
 
 export default function AmenitiesToolPage() {

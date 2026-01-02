@@ -6,6 +6,7 @@ import { X, Bell, MapPin, Check, ChevronRight, Loader2 } from 'lucide-react';
 import { useAlertModal } from '@/contexts/AlertModalContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { AlertConfigForm } from './AlertConfigForm';
+import { BlogAlertPaymentForm } from './BlogAlertPaymentForm';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { analytics } from '@/lib/analytics';
 
@@ -14,17 +15,19 @@ export function LocationAlertModal() {
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  console.log('LocationAlertModal render - modalState:', modalState);
-  console.log('modalState.isOpen:', modalState.isOpen);
+  console.log('🎯 LocationAlertModal render - modalState:', modalState);
+  console.log('🎯 modalState.isOpen:', modalState.isOpen);
+  console.log('🎯 modalState.location:', modalState.location);
 
   // Handle ESC key and backdrop click
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        const contextName = modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name;
         analytics.alertModalDismissed(
-          modalState.location?.name || 'unknown',
+          contextName || 'unknown',
           modalState.step,
-          'unknown' // source not available in context
+          'unknown'
         );
         dismissAlertModal();
       }
@@ -44,10 +47,11 @@ export function LocationAlertModal() {
   // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
+      const contextName = modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name;
       analytics.alertModalDismissed(
-        modalState.location?.name || 'unknown',
+        contextName || 'unknown',
         modalState.step,
-        'unknown' // source not available in context
+        'unknown'
       );
       dismissAlertModal();
     }
@@ -55,19 +59,20 @@ export function LocationAlertModal() {
 
   // Handle initial CTA click
   const handleGetAlertsClick = () => {
-    analytics.alertStepTransition(modalState.step, 'property-types', modalState.location?.name || 'unknown');
+    const nextStep = modalState.alertType === 'blog' ? 'payment' : 'property-types';
+    analytics.alertStepTransition(modalState.step, nextStep, modalState.location?.name || modalState.blog?.title || 'unknown');
 
     if (!user) {
       setShowLoginModal(true);
     } else {
-      setModalStep('property-types');
+      setModalStep(nextStep);
     }
   };
 
   // Handle login success
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    setModalStep('property-types');
+    setModalStep(modalState.alertType === 'blog' ? 'payment' : 'property-types');
   };
 
   // Handle successful alert creation
@@ -78,24 +83,26 @@ export function LocationAlertModal() {
 
   // Handle close button dismissal
   const handleCloseDismissal = () => {
+    const contextName = modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name;
     analytics.alertModalDismissed(
-      modalState.location?.name || 'unknown',
+      contextName || 'unknown',
       modalState.step,
-      'unknown' // source not available in context
+      'unknown'
     );
     dismissAlertModal();
   };
 
-  // Don't render if modal is not open or no location
-  console.log('LocationAlertModal: modalState.isOpen:', modalState.isOpen, 'modalState.location:', !!modalState.location);
-  if (!modalState.isOpen || !modalState.location) {
+  // Don't render if modal is not open or no context (location or blog)
+  console.log('LocationAlertModal: modalState.isOpen:', modalState.isOpen, 'modalState.location:', !!modalState.location, 'modalState.blog:', !!modalState.blog);
+  const hasContext = (modalState.alertType === 'location' && modalState.location) || (modalState.alertType === 'blog' && modalState.blog);
+  if (!modalState.isOpen || !hasContext) {
     console.log('LocationAlertModal: Not rendering modal');
     return null;
   }
 
-  console.log('LocationAlertModal: Rendering modal for location:', modalState.location.name);
+  console.log('LocationAlertModal: Rendering modal for:', modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name);
 
-  const locationName = modalState.location.name;
+  const displayName = modalState.alertType === 'blog' ? modalState.blog?.title : modalState.location?.name;
 
   return (
     <>
@@ -127,7 +134,9 @@ export function LocationAlertModal() {
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                     <Bell className="w-4 h-4 text-blue-600" />
                   </div>
-                  <span className="font-medium text-slate-900">Property Alerts</span>
+                  <span className="font-medium text-slate-900">
+                    {modalState.alertType === 'blog' ? 'Blog Alerts' : 'Property Alerts'}
+                  </span>
                 </div>
                 <button
                   onClick={handleCloseDismissal}
@@ -141,13 +150,15 @@ export function LocationAlertModal() {
               <div className="p-6">
                 {modalState.step === 'initial' && (
                   <InitialStep
-                    locationName={locationName}
+                    alertType={modalState.alertType}
+                    locationName={modalState.location?.name}
+                    blogTitle={modalState.blog?.title}
                     onGetAlerts={handleGetAlertsClick}
                     onDismiss={dismissAlertModal}
                   />
                 )}
 
-                {(modalState.step === 'property-types' || modalState.step === 'configure-alerts' || modalState.step === 'payment') && modalState.location && (
+                {(modalState.step === 'property-types' || modalState.step === 'configure-alerts') && modalState.location && (
                   <AlertConfigForm
                     location={modalState.location}
                     onSuccess={handleAlertCreated}
@@ -155,9 +166,19 @@ export function LocationAlertModal() {
                   />
                 )}
 
+                {modalState.step === 'payment' && modalState.alertType === 'blog' && modalState.blog && (
+                  <BlogAlertPaymentForm
+                    blog={modalState.blog}
+                    onSuccess={handleAlertCreated}
+                    onCancel={() => setModalStep('initial')}
+                  />
+                )}
+
                 {modalState.step === 'success' && (
                   <SuccessStep
-                    locationName={locationName}
+                    alertType={modalState.alertType}
+                    locationName={modalState.location?.name}
+                    blogTitle={modalState.blog?.title}
                     onClose={hideAlertModal}
                   />
                 )}
@@ -172,11 +193,11 @@ export function LocationAlertModal() {
         isOpen={showLoginModal}
         onClose={() => {
           setShowLoginModal(false);
-          // After login, proceed to configuration
+          // After login, proceed to appropriate step
           if (!user) {
             // If login was successful, user should now be authenticated
-            // This will trigger the modal to go to configuration step
-            setModalStep('property-types');
+            // This will trigger the modal to go to appropriate step
+            setModalStep(modalState.alertType === 'blog' ? 'payment' : 'property-types');
           }
         }}
       />
@@ -186,52 +207,99 @@ export function LocationAlertModal() {
 
 // Initial step component
 function InitialStep({
+  alertType,
   locationName,
+  blogTitle,
   onGetAlerts,
   onDismiss
 }: {
-  locationName: string;
+  alertType: 'location' | 'blog';
+  locationName?: string;
+  blogTitle?: string;
   onGetAlerts: () => void;
   onDismiss: () => void;
 }) {
+  const isBlogAlert = alertType === 'blog';
+
   return (
     <div className="text-center space-y-6">
       {/* Icon */}
       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-        <MapPin className="w-8 h-8 text-blue-600" />
+        {isBlogAlert ? (
+          <Bell className="w-8 h-8 text-blue-600" />
+        ) : (
+          <MapPin className="w-8 h-8 text-blue-600" />
+        )}
       </div>
 
       {/* Title */}
       <div>
         <h3 className="text-xl font-bold text-slate-900 mb-2">
-          Get alerts for {locationName}
+          {isBlogAlert ? `Get blog alerts` : `Get alerts for ${locationName}`}
         </h3>
         <p className="text-slate-600 text-sm leading-relaxed">
-          Be the first to know about new listings, price drops, and sales in your area.
+          {isBlogAlert
+            ? "Get notified when we publish new research articles and market insights."
+            : "Be the first to know about new listings, price drops, and sales in your area."
+          }
         </p>
       </div>
 
       {/* Features */}
       <div className="space-y-3 text-left">
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-            <Check className="w-3 h-3 text-green-600" />
-          </div>
-          <span className="text-sm text-slate-700">New property listings</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-            <Check className="w-3 h-3 text-green-600" />
-          </div>
-          <span className="text-sm text-slate-700">Price drops and changes</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-            <Check className="w-3 h-3 text-green-600" />
-          </div>
-          <span className="text-sm text-slate-700">Recent sales data</span>
-        </div>
+        {isBlogAlert ? (
+          <>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-green-600" />
+              </div>
+              <span className="text-sm text-slate-700">New research articles</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-green-600" />
+              </div>
+              <span className="text-sm text-slate-700">Market insights & analysis</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-green-600" />
+              </div>
+              <span className="text-sm text-slate-700">Property market trends</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-green-600" />
+              </div>
+              <span className="text-sm text-slate-700">New property listings</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-green-600" />
+              </div>
+              <span className="text-sm text-slate-700">Price drops and changes</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-green-600" />
+              </div>
+              <span className="text-sm text-slate-700">Recent sales data</span>
+            </div>
+          </>
+        )}
       </div>
+
+      {/* Pricing for blog alerts */}
+      {isBlogAlert && (
+        <div className="bg-blue-50 rounded-lg p-4">
+          <div className="flex items-center justify-center gap-2 text-blue-700">
+            <span className="text-sm font-medium">One-time payment: €3</span>
+          </div>
+        </div>
+      )}
 
       {/* CTA */}
       <div className="space-y-3">
@@ -239,7 +307,7 @@ function InitialStep({
           onClick={onGetAlerts}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
         >
-          Set up alerts
+          {isBlogAlert ? 'Set up alerts (€3)' : 'Set up alerts'}
           <ChevronRight className="w-4 h-4" />
         </button>
 
@@ -256,12 +324,18 @@ function InitialStep({
 
 // Success step component
 function SuccessStep({
+  alertType,
   locationName,
+  blogTitle,
   onClose
 }: {
-  locationName: string;
+  alertType: 'location' | 'blog';
+  locationName?: string;
+  blogTitle?: string;
   onClose: () => void;
 }) {
+  const isBlogAlert = alertType === 'blog';
+
   return (
     <div className="text-center space-y-6">
       {/* Icon */}
@@ -275,7 +349,10 @@ function SuccessStep({
           Alert created successfully!
         </h3>
         <p className="text-slate-600 text-sm leading-relaxed">
-          You'll receive email notifications when new properties match your criteria in {locationName}.
+          {isBlogAlert
+            ? "You'll receive email notifications when we publish new research articles and market insights."
+            : `You'll receive email notifications when new properties match your criteria in ${locationName}.`
+          }
         </p>
       </div>
 
@@ -286,9 +363,19 @@ function SuccessStep({
           <div className="text-sm">
             <p className="font-medium text-blue-900 mb-1">What happens next?</p>
             <ul className="text-blue-700 space-y-1">
-              <li>• Your alert is active for 12 months</li>
-              <li>• We'll email you when new properties match</li>
-              <li>• Manage your alerts anytime at /alerts</li>
+              {isBlogAlert ? (
+                <>
+                  <li>• You'll receive notifications for new articles</li>
+                  <li>• Get early access to market research</li>
+                  <li>• Manage your alerts anytime at /alerts</li>
+                </>
+              ) : (
+                <>
+                  <li>• Your alert is active for 12 months</li>
+                  <li>• We'll email you when new properties match</li>
+                  <li>• Manage your alerts anytime at /alerts</li>
+                </>
+              )}
             </ul>
           </div>
         </div>

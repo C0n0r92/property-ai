@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PropertyOverview } from '@/components/property/PropertyOverview';
 import { PlanningDetail } from '@/components/property/PlanningDetail';
 import { AmenitiesDetail } from '@/components/property/AmenitiesDetail';
+import { useSearchTracking } from '@/hooks/useSearchTracking';
 
 export default function PropertyPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { trackMapSearch } = useSearchTracking();
 
   // Read query params
   const lat = searchParams.get('lat');
@@ -16,6 +18,23 @@ export default function PropertyPage() {
   const type = searchParams.get('type') || 'sold';
   const address = searchParams.get('address') || '';
   const currentTab = searchParams.get('tab') || 'overview';
+
+  // Trigger alert when coordinates and address are available
+  useEffect(() => {
+    if (lat && lng && address) {
+      const locationContext = {
+        name: address,
+        coordinates: {
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+        },
+        postcode: undefined, // Could extract from address if needed
+      };
+
+      console.log('🏠 Triggering property page alert for:', address);
+      trackMapSearch(locationContext);
+    }
+  }, [lat, lng, address, trackMapSearch]);
 
   // Validate required params
   if (!lat || !lng) {

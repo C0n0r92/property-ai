@@ -146,7 +146,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased min-h-screen">
+      <body className="antialiased min-h-screen dark">
         <Providers>
           <Navigation />
           <main className="pb-16 md:pb-0">

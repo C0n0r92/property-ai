@@ -78,7 +78,9 @@ export function AddressSearchBar({
   };
 
   const handleSubmit = async (e: React.FormEvent | string) => {
-    e.preventDefault?.();
+    if (typeof e !== 'string' && e.preventDefault) {
+      e.preventDefault();
+    }
     const address = typeof e === 'string' ? e : query.trim();
 
     if (!address) return;
