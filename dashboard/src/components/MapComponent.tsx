@@ -29,88 +29,22 @@ import { Tooltip } from '@/components/mortgage/Tooltip';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { PlanningCard } from '@/components/PlanningCard';
 
-// Mapbox access token
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+// Extracted components and hooks
+import { MAPBOX_TOKEN, DUBLIN_AREAS, DataSourceSelection, MONTH_NAMES, QUARTER_MONTHS } from '@/lib/map-constants';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { PlanningSkeletonLoader } from '@/components/map/PlanningSkeletonLoader';
+import { ViewModeTips } from '@/components/map/ViewModeTips';
+import { FloatingCompareButton } from '@/components/map/FloatingCompareButton';
+import { useMapData } from '@/hooks/useMapData';
+import { useMapState } from '@/hooks/useMapState';
+import { useMapFilters } from '@/hooks/useMapFilters';
+import { useMapSearch } from '@/hooks/useMapSearch';
+import { useMapAmenities } from '@/hooks/useMapAmenities';
+import { useMapUI } from '@/hooks/useMapUI';
+import { useMapDataFilters } from '@/hooks/useMapDataFilters';
+
+// Set mapbox token
 mapboxgl.accessToken = MAPBOX_TOKEN;
-
-type DifferenceFilter = number | null;
-
-// Data source selection - allows any combination
-interface DataSourceSelection {
-  sold: boolean;
-  forSale: boolean;
-  rentals: boolean;
-  savedOnly: boolean;
-}
-
-// Month names for display
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const QUARTER_MONTHS: Record<number, number[]> = {
-  1: [0, 1, 2],   // Q1: Jan, Feb, Mar
-  2: [3, 4, 5],   // Q2: Apr, May, Jun
-  3: [6, 7, 8],   // Q3: Jul, Aug, Sep
-  4: [9, 10, 11], // Q4: Oct, Nov, Dec
-};
-
-// Common Dublin areas for quick access
-const DUBLIN_AREAS = [
-  { name: 'Dublin City Centre', coords: [-6.2603, 53.3498], zoom: 14 },
-  { name: 'Dublin 1', coords: [-6.2603, 53.3528], zoom: 14 },
-  { name: 'Dublin 2', coords: [-6.2550, 53.3380], zoom: 14 },
-  { name: 'Dublin 4', coords: [-6.2280, 53.3280], zoom: 14 },
-  { name: 'Dublin 6', coords: [-6.2650, 53.3200], zoom: 14 },
-  { name: 'Dublin 7', coords: [-6.2800, 53.3600], zoom: 14 },
-  { name: 'Dublin 8', coords: [-6.2900, 53.3380], zoom: 14 },
-  { name: 'Rathmines', coords: [-6.2650, 53.3220], zoom: 15 },
-  { name: 'Ranelagh', coords: [-6.2580, 53.3260], zoom: 15 },
-  { name: 'Drumcondra', coords: [-6.2550, 53.3700], zoom: 15 },
-  { name: 'Sandymount', coords: [-6.2180, 53.3320], zoom: 15 },
-  { name: 'Clontarf', coords: [-6.1900, 53.3650], zoom: 15 },
-  { name: 'Howth', coords: [-6.0650, 53.3870], zoom: 14 },
-  { name: 'Dun Laoghaire', coords: [-6.1350, 53.2940], zoom: 14 },
-  { name: 'Blackrock', coords: [-6.1780, 53.3020], zoom: 15 },
-  { name: 'Stillorgan', coords: [-6.2000, 53.2880], zoom: 15 },
-  { name: 'Dundrum', coords: [-6.2450, 53.2920], zoom: 15 },
-  { name: 'Tallaght', coords: [-6.3740, 53.2870], zoom: 14 },
-  { name: 'Blanchardstown', coords: [-6.3880, 53.3930], zoom: 14 },
-  { name: 'Swords', coords: [-6.2180, 53.4600], zoom: 14 },
-];
-
-// Mobile detection utility
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  return isMobile;
-};
-
-// Skeleton loader component for planning applications
-const PlanningSkeletonLoader = () => (
-  <div className="space-y-3">
-    {[1, 2, 3].map((i) => (
-      <div key={i} className="bg-gray-800 rounded-lg p-3 border border-gray-700 animate-pulse">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1 min-w-0">
-            <div className="h-4 bg-gray-600 rounded w-3/4 mb-1"></div>
-            <div className="h-3 bg-gray-600 rounded w-1/2"></div>
-          </div>
-          <div className="h-3 bg-gray-600 rounded w-16"></div>
-        </div>
-        <div className="h-3 bg-gray-600 rounded w-full mb-1"></div>
-        <div className="h-3 bg-gray-600 rounded w-2/3"></div>
-      </div>
-    ))}
-  </div>
-);
 
 export default function MapComponent() {
   const router = useRouter();
@@ -120,95 +54,178 @@ export default function MapComponent() {
   const { isInComparison, comparedProperties } = useComparison();
   const { trackMapSearch } = useSearchTracking();
   const isMobile = useIsMobile();
+
+  // Refs
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const spiderfyManager = useRef<SpiderfyManager | null>(null);
   const soldSnapshotRef = useRef<HTMLDivElement>(null);
   const listingSnapshotRef = useRef<HTMLDivElement>(null);
   const rentalSnapshotRef = useRef<HTMLDivElement>(null);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [rentals, setRentals] = useState<RentalListing[]>([]);
 
-  const [loading, setLoading] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0); // 0-100 percentage
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
-  const [selectedRental, setSelectedRental] = useState<RentalListing | null>(null);
-  const isClosingRef = useRef(false);
-  const isLoadingRef = useRef(false);
+  // Custom hooks for state management
+  const mapData = useMapData();
+  const mapState = useMapState();
+  const mapFilters = useMapFilters();
+  const mapSearch = useMapSearch();
+  const mapAmenities = useMapAmenities();
+  const mapUI = useMapUI();
 
+  // Extract state for easier access
+  const {
+    properties, setProperties,
+    listings, setListings,
+    rentals, setRentals,
+    loading, setLoading,
+    loadingProgress, setLoadingProgress,
+    selectedProperty, setSelectedProperty,
+    selectedListing, setSelectedListing,
+    selectedRental, setSelectedRental,
+    isClosingRef,
+    isLoadingRef,
+    clearSelections,
+  } = mapData;
 
-  const [mapReady, setMapReady] = useState(false);
-  const [mapError, setMapError] = useState<string | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(14); // Track zoom for legend display
-  const [viewMode, setViewMode] = useState<'clusters' | 'price' | 'difference'>('clusters');
-  const [differenceFilter, setDifferenceFilter] = useState<DifferenceFilter>(null);
+  const {
+    mapReady, setMapReady,
+    mapError, setMapError,
+    zoomLevel, setZoomLevel,
+    viewMode, setViewMode,
+    differenceFilter, setDifferenceFilter,
+  } = mapState;
 
-  // Area filter for filtering by Dublin postcode (D2, D7, etc.)
-  const [areaFilter, setAreaFilter] = useState<string | null>(null);
+  const {
+    areaFilter, setAreaFilter,
+    rentalAvailabilityFilter, setRentalAvailabilityFilter,
+    dataSources, setDataSources,
+    selectedYear, setSelectedYear,
+    selectedQuarter, setSelectedQuarter,
+    selectedMonth, setSelectedMonth,
+    recentFilter, setRecentFilter,
+    timeFilter, setTimeFilter,
+    bedsFilter, setBedsFilter,
+    propertyTypeFilter, setPropertyTypeFilter,
+    selectedPropertyTypes, setSelectedPropertyTypes,
+    selectedDistanceBands, setSelectedDistanceBands,
+    minPrice, setMinPrice,
+    maxPrice, setMaxPrice,
+    minArea, setMinArea,
+    maxArea, setMaxArea,
+    yieldFilter, setYieldFilter,
+    showAdvancedFilters, setShowAdvancedFilters,
+    priceReducedFilter, setPriceReducedFilter,
+    bestValueFilter, setBestValueFilter,
+    clearFilters,
+  } = mapFilters;
 
-  // Rental availability filter (active only vs include historical)
-  const [rentalAvailabilityFilter, setRentalAvailabilityFilter] = useState<'active' | 'all'>('active');
+  const {
+    searchQuery, setSearchQuery,
+    searchResults, setSearchResults,
+    showSearchResults, setShowSearchResults,
+    isSearching, setIsSearching,
+    searchedLocation, setSearchedLocation,
+    searchTimeout,
+    searchContainerRef,
+    clearSearch,
+  } = mapSearch;
 
+  const {
+    showAmenities, setShowAmenities,
+    amenities, setAmenities,
+    amenitiesCache, setAmenitiesCache,
+    walkabilityScore, setWalkabilityScore,
+    categoryFilters, setCategoryFilters,
+    selectedAmenity, setSelectedAmenity,
+    routeInfo, setRouteInfo,
+    travelMode, setTravelMode,
+  } = mapAmenities;
 
-  // Data source toggle: allows any combination of sold, forSale, rentals
-  const [dataSources, setDataSources] = useState<DataSourceSelection>({ sold: true, forSale: true, rentals: true, savedOnly: false });
-  
-  // Hierarchical time filter state (only for sold properties)
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [selectedQuarter, setSelectedQuarter] = useState<number | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [recentFilter, setRecentFilter] = useState<'6m' | '12m' | null>(null);
-  const [timeFilter, setTimeFilter] = useState<'today' | 'thisWeek' | 'thisMonth' | 'lastWeek' | 'lastMonth' | null>(null);
-  
+  const {
+    showFilters, setShowFilters,
+    activeTab, setActiveTab,
+    isMobileAmenitiesMode, setIsMobileAmenitiesMode,
+    expandedSections, setExpandedSections,
+    showFiltersTooltip, setShowFiltersTooltip,
+  } = mapUI;
+
+  // Data filtering hook
+  const {
+    availableYears,
+    filteredProperties,
+    filteredListings,
+    filteredRentals,
+  } = useMapDataFilters({
+    properties,
+    listings,
+    rentals,
+    areaFilter,
+    rentalAvailabilityFilter,
+    selectedYear,
+    selectedQuarter,
+    selectedMonth,
+    recentFilter,
+    differenceFilter,
+    bedsFilter,
+    propertyTypeFilter,
+    selectedPropertyTypes,
+    selectedDistanceBands,
+    minPrice,
+    maxPrice,
+    minArea,
+    maxArea,
+    yieldFilter,
+    dataSources,
+    user,
+    isSaved,
+  });
+
+  // Get active data based on selected data sources
+  const activeData = useMemo(() => {
+    const listingsData = filteredListings.map(l => ({
+      ...l,
+      // Normalize for map display
+      price: l.askingPrice,
+      soldPrice: 0, // Not applicable
+      soldDate: l.scrapedAt, // Use scrapedAt for listings
+      overUnderPercent: 0, // Not applicable
+      isListing: true,
+      isRental: false,
+    }));
+
+    const soldData = filteredProperties.map(p => ({
+      ...p,
+      price: p.soldPrice,
+      isListing: false,
+      isRental: false,
+    }));
+
+    const rentalsData = filteredRentals.map(r => ({
+      ...r,
+      // Normalize for map display
+      price: r.monthlyRent,
+      soldPrice: 0, // Not applicable
+      soldDate: r.scrapedAt, // Use scrapedAt for rentals
+      overUnderPercent: 0, // Not applicable
+      askingPrice: r.monthlyRent, // Use monthly rent as the "price"
+      pricePerSqm: r.areaSqm ? Math.round(r.monthlyRent / r.areaSqm) : 0,
+      isListing: false,
+      isRental: true,
+      isHistoricalRental: r.availabilityStatus === 'no_longer_available', // Flag for historical rentals
+    }));
+
+    // Combine based on selected sources
+    const result: typeof soldData = [];
+    if (dataSources.sold) result.push(...soldData);
+    if (dataSources.forSale) result.push(...listingsData);
+    if (dataSources.rentals) result.push(...rentalsData);
+
+    return result;
+  }, [dataSources, filteredListings, filteredProperties, filteredRentals]);
+
+  // Stats state (keeping these as local state for now)
   const [stats, setStats] = useState({ total: 0, avgPrice: 0, avgPricePerSqm: 0, overAsking: 0, underAsking: 0 });
   const [listingStats, setListingStats] = useState({ totalListings: 0, medianPrice: 0, avgPricePerSqm: 0 });
   const [rentalStats, setRentalStats] = useState<RentalStats>({ totalRentals: 0, medianRent: 0, avgRentPerSqm: 0, rentRange: { min: 0, max: 0 } });
-  
-  // Search state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Array<{ place_name: string; center: [number, number] }>>([]);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchedLocation, setSearchedLocation] = useState<{ name: string; coords: [number, number] } | null>(null);
-  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-
-  // Collapsible filter panel state - hidden by default on all devices
-  const [showFilters, setShowFilters] = useState(() => {
-    return false; // Default to false for all devices
-  });
-
-  // Amenities layer state
-  const [showAmenities, setShowAmenities] = useState(false);
-  const [amenities, setAmenities] = useState<Amenity[]>([]);
-  const [amenitiesCache, setAmenitiesCache] = useState<Map<string, Amenity[]>>(new Map());
-  const [walkabilityScore, setWalkabilityScore] = useState<WalkabilityScoreType | null>(null);
-
-  // Category filtering
-  const [categoryFilters, setCategoryFilters] = useState<AmenitiesFilter>({
-    public_transport: true,
-    education: true,
-    healthcare: true,
-    shopping: true,
-    leisure: true,
-    services: true,
-  });
-
-  // Route visualization
-  const [selectedAmenity, setSelectedAmenity] = useState<Amenity | null>(null);
-  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
-  const [travelMode, setTravelMode] = useState<'walking' | 'cycling' | 'driving'>('walking');
-
-  // Mobile-specific states
-  const [activeTab, setActiveTab] = useState<'overview' | 'location' | 'planning'>('overview');
-  const [isMobileAmenitiesMode, setIsMobileAmenitiesMode] = useState(false);
-
-  // Collapsible sections state (Overview tab only)
-  const [expandedSections, setExpandedSections] = useState({
-    additionalDetails: false,
-  });
 
   // Persist active tab
   useEffect(() => {
@@ -667,21 +684,6 @@ export default function MapComponent() {
   const [amenitiesError, setAmenitiesError] = useState<string | null>(null);
   
   // Filters are closed by default
-  
-  // New filter states
-  const [bedsFilter, setBedsFilter] = useState<number | null>(null);
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState<string | null>(null);
-  const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
-  const [selectedDistanceBands, setSelectedDistanceBands] = useState<string[]>([]);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [showFiltersTooltip, setShowFiltersTooltip] = useState(false);
-  const [minPrice, setMinPrice] = useState<number | null>(null);
-  const [maxPrice, setMaxPrice] = useState<number | null>(null);
-  const [minArea, setMinArea] = useState<number | null>(null);
-  const [maxArea, setMaxArea] = useState<number | null>(null);
-  const [yieldFilter, setYieldFilter] = useState<number | null>(null);
-  const [priceReducedFilter, setPriceReducedFilter] = useState<boolean>(false);
-  const [bestValueFilter, setBestValueFilter] = useState<boolean>(false);
 
   // Property sharing hooks
 
@@ -1327,386 +1329,7 @@ export default function MapComponent() {
     }
   }, [loading, loadingProgress]);
 
-  // Get available years from the data
-  const availableYears = useMemo(() => {
-    const years = new Set<number>();
 
-    // Include years from properties (sold dates)
-    properties.forEach(item => {
-      if (item.soldDate) {
-        years.add(new Date(item.soldDate).getFullYear());
-      }
-    });
-
-    // For now, we'll only use sold dates from properties
-    // Listings and rentals use scrapedAt which isn't meaningful for year filtering
-
-    return Array.from(years).sort((a, b) => b - a); // Most recent first
-  }, [properties]);
-
-  // Filter properties based on difference, time, and area filters
-  const filteredProperties = useMemo(() => {
-    let filtered = properties;
-
-    // Apply area filter first (by Dublin postcode)
-    if (areaFilter) {
-      filtered = filtered.filter(p => p.dublinPostcode === areaFilter);
-    }
-    
-    // Apply recent filter (takes priority)
-    if (recentFilter) {
-      const now = new Date();
-      filtered = filtered.filter(p => {
-        if (!p.soldDate) return false;
-        const soldDate = new Date(p.soldDate);
-        
-        if (recentFilter === '6m') {
-          const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-          return soldDate >= sixMonthsAgo;
-        } else if (recentFilter === '12m') {
-          const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-          return soldDate >= oneYearAgo;
-        }
-        return true;
-      });
-    }
-    // Apply hierarchical year/quarter/month filter
-    else if (selectedYear !== null) {
-      filtered = filtered.filter(p => {
-        if (!p.soldDate) return false;
-        const soldDate = new Date(p.soldDate);
-        const year = soldDate.getFullYear();
-        const month = soldDate.getMonth();
-        
-        // Year must match
-        if (year !== selectedYear) return false;
-        
-        // If quarter is selected, filter by quarter
-        if (selectedQuarter !== null) {
-          const quarterMonths = QUARTER_MONTHS[selectedQuarter];
-          if (!quarterMonths.includes(month)) return false;
-          
-          // If month is selected, filter by specific month
-          if (selectedMonth !== null && month !== selectedMonth) return false;
-        }
-        
-        return true;
-      });
-    }
-    
-    // Apply difference filter
-    if (differenceFilter !== null) {
-      filtered = filtered.filter(p => {
-        if (!p.askingPrice || p.askingPrice === 0) return false;
-        const percentDiff = ((p.soldPrice - p.askingPrice) / p.askingPrice) * 100;
-        return percentDiff >= differenceFilter;
-      });
-    }
-    
-    // Apply bedroom filter
-    if (bedsFilter !== null) {
-      filtered = filtered.filter(p => {
-        if (bedsFilter === 5) return (p.beds || 0) >= 5; // 5+ beds
-        return p.beds === bedsFilter;
-      });
-    }
-    
-    // Apply property type filter
-    // Property type filter (support both simple and enhanced)
-    if (selectedPropertyTypes.length > 0) {
-      filtered = filtered.filter(p =>
-        selectedPropertyTypes.some(type => p.propertyType?.toLowerCase().includes(type.toLowerCase()))
-      );
-    } else if (propertyTypeFilter !== null) {
-      filtered = filtered.filter(p =>
-        p.propertyType?.toLowerCase().includes(propertyTypeFilter.toLowerCase())
-      );
-    }
-
-    // Distance band filter
-    if (selectedDistanceBands.length > 0) {
-      filtered = filtered.filter(p => {
-        if (!p.latitude || !p.longitude) return false;
-        const distanceContext = getDistanceContext(p.latitude, p.longitude);
-        return selectedDistanceBands.includes(distanceContext.band);
-      });
-    }
-    
-    // Apply price range filter
-    if (minPrice !== null) {
-      filtered = filtered.filter(p => p.soldPrice >= minPrice);
-    }
-    if (maxPrice !== null) {
-      filtered = filtered.filter(p => p.soldPrice <= maxPrice);
-    }
-    
-    // Apply area filter
-    if (minArea !== null) {
-      filtered = filtered.filter(p => (p.areaSqm || 0) >= minArea);
-    }
-    if (maxArea !== null) {
-      filtered = filtered.filter(p => (p.areaSqm || 0) <= maxArea);
-    }
-    
-    // Apply yield filter
-    if (yieldFilter !== null) {
-      filtered = filtered.filter(p => {
-        const y = p.yieldEstimate?.grossYield;
-        return y !== undefined && y !== null && y >= yieldFilter;
-      });
-    }
-
-    // Apply saved only filter
-    if (dataSources.savedOnly && user?.tier === 'premium') {
-      filtered = filtered.filter(p => isSaved(p.address, 'listing'));
-    }
-
-    return filtered;
-  }, [properties, dataSources, user, differenceFilter, selectedYear, selectedQuarter, selectedMonth, recentFilter, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter]);
-
-  // Helper to clear time filters
-  const clearTimeFilters = () => {
-    setSelectedYear(null);
-    setSelectedQuarter(null);
-    setSelectedMonth(null);
-    setRecentFilter(null);
-    setTimeFilter(null);
-  };
-
-  // Filter listings based on time filters (using scrapedAt date)
-  const filteredListings = useMemo(() => {
-    let filtered = listings;
-
-    // Apply area filter first (by Dublin postcode)
-    if (areaFilter) {
-      filtered = filtered.filter(l => l.dublinPostcode === areaFilter);
-    }
-
-    // Apply recent filter
-    if (recentFilter) {
-      const now = new Date();
-      filtered = filtered.filter(l => {
-        if (!l.scrapedAt) return false;
-        const scrapedDate = new Date(l.scrapedAt);
-        
-        if (recentFilter === '6m') {
-          const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-          return scrapedDate >= sixMonthsAgo;
-        } else if (recentFilter === '12m') {
-          const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-          return scrapedDate >= oneYearAgo;
-        }
-        return true;
-      });
-    }
-    // Apply year/quarter/month filter
-    else if (selectedYear !== null) {
-      filtered = filtered.filter(l => {
-        if (!l.scrapedAt) return false;
-        const scrapedDate = new Date(l.scrapedAt);
-        const year = scrapedDate.getFullYear();
-        const month = scrapedDate.getMonth();
-        
-        if (year !== selectedYear) return false;
-        
-        if (selectedQuarter !== null) {
-          const quarterMonths = QUARTER_MONTHS[selectedQuarter];
-          if (!quarterMonths.includes(month)) return false;
-          
-          if (selectedMonth !== null && month !== selectedMonth) return false;
-        }
-        
-        return true;
-      });
-    }
-    
-    // Apply bedroom filter
-    if (bedsFilter !== null) {
-      filtered = filtered.filter(l => {
-        if (bedsFilter === 5) return (l.beds || 0) >= 5; // 5+ beds
-        return l.beds === bedsFilter;
-      });
-    }
-    
-    // Apply property type filter
-    // Property type filter (support both simple and enhanced)
-    if (selectedPropertyTypes.length > 0) {
-      filtered = filtered.filter(l =>
-        selectedPropertyTypes.some(type => l.propertyType?.toLowerCase().includes(type.toLowerCase()))
-      );
-    } else if (propertyTypeFilter !== null) {
-      filtered = filtered.filter(l =>
-        l.propertyType?.toLowerCase().includes(propertyTypeFilter.toLowerCase())
-      );
-    }
-
-    // Distance band filter
-    if (selectedDistanceBands.length > 0) {
-      filtered = filtered.filter(l => {
-        if (!l.latitude || !l.longitude) return false;
-        const distanceContext = getDistanceContext(l.latitude, l.longitude);
-        return selectedDistanceBands.includes(distanceContext.band);
-      });
-    }
-    
-    // Apply price range filter
-    if (minPrice !== null) {
-      filtered = filtered.filter(l => l.askingPrice >= minPrice);
-    }
-    if (maxPrice !== null) {
-      filtered = filtered.filter(l => l.askingPrice <= maxPrice);
-    }
-    
-    // Apply area filter
-    if (minArea !== null) {
-      filtered = filtered.filter(l => (l.areaSqm || 0) >= minArea);
-    }
-    if (maxArea !== null) {
-      filtered = filtered.filter(l => (l.areaSqm || 0) <= maxArea);
-    }
-    
-    // Apply yield filter
-    if (yieldFilter !== null) {
-      filtered = filtered.filter(l => {
-        const y = l.yieldEstimate?.grossYield;
-        return y !== undefined && y !== null && y >= yieldFilter;
-      });
-    }
-
-    // Price reduced filter
-    if (priceReducedFilter) {
-      filtered = filtered.filter(l => {
-        if (!l.priceHistory || l.priceHistory.length < 2) return false;
-        const priceAnalysis = analyzePriceHistory(l.priceHistory);
-        return priceAnalysis?.hasPriceDrop || false;
-      });
-    }
-
-    // Best value filter
-    if (bestValueFilter) {
-      filtered = filtered.filter(l => {
-        const valueAnalysis = analyzePropertyValue(l, listings);
-        return valueAnalysis?.isGoodValue || false;
-      });
-    }
-
-    // Apply saved only filter
-    if (dataSources.savedOnly && user?.tier === 'premium') {
-      filtered = filtered.filter(l => isSaved(l.address, 'listing'));
-    }
-
-    return filtered;
-  }, [listings, dataSources, user, recentFilter, selectedYear, selectedQuarter, selectedMonth, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, yieldFilter, areaFilter, priceReducedFilter, bestValueFilter, listings]);
-
-  // Filter rentals based on filters
-  const filteredRentals = useMemo(() => {
-    let filtered = rentals;
-
-    // Apply area filter first (by Dublin postcode)
-    if (areaFilter) {
-      filtered = filtered.filter(r => r.dublinPostcode === areaFilter);
-    }
-
-    // Apply bedroom filter
-    if (bedsFilter !== null) {
-      filtered = filtered.filter(r => {
-        if (bedsFilter === 5) return (r.beds || 0) >= 5; // 5+ beds
-        return r.beds === bedsFilter;
-      });
-    }
-    
-    // Apply property type filter (support both simple and enhanced)
-    if (selectedPropertyTypes.length > 0) {
-      filtered = filtered.filter(r =>
-        selectedPropertyTypes.some(type => r.propertyType?.toLowerCase().includes(type.toLowerCase()))
-      );
-    } else if (propertyTypeFilter !== null) {
-      filtered = filtered.filter(r =>
-        r.propertyType?.toLowerCase().includes(propertyTypeFilter.toLowerCase())
-      );
-    }
-
-    // Distance band filter
-    if (selectedDistanceBands.length > 0) {
-      filtered = filtered.filter(r => {
-        if (!r.latitude || !r.longitude) return false;
-        const distanceContext = getDistanceContext(r.latitude, r.longitude);
-        return selectedDistanceBands.includes(distanceContext.band);
-      });
-    }
-
-    // Apply price range filter (monthly rent)
-    if (minPrice !== null) {
-      filtered = filtered.filter(r => r.monthlyRent >= minPrice);
-    }
-    if (maxPrice !== null) {
-      filtered = filtered.filter(r => r.monthlyRent <= maxPrice);
-    }
-    
-    // Apply area filter
-    if (minArea !== null) {
-      filtered = filtered.filter(r => (r.areaSqm || 0) >= minArea);
-    }
-    if (maxArea !== null) {
-      filtered = filtered.filter(r => (r.areaSqm || 0) <= maxArea);
-    }
-
-    // Apply saved only filter
-    if (dataSources.savedOnly && user?.tier === 'premium') {
-      filtered = filtered.filter(r => isSaved(r.address, 'rental'));
-    }
-
-    // Apply rental availability filter
-    if (rentalAvailabilityFilter === 'active') {
-      filtered = filtered.filter(r => r.availabilityStatus === 'active');
-    }
-    // If 'all' is selected, include both active and historical rentals
-
-    return filtered;
-  }, [rentals, dataSources, user, bedsFilter, propertyTypeFilter, selectedPropertyTypes, selectedDistanceBands, minPrice, maxPrice, minArea, maxArea, areaFilter, rentalAvailabilityFilter]);
-
-  // Get active data based on selected data sources
-  const activeData = useMemo(() => {
-    const listingsData = filteredListings.map(l => ({
-      ...l,
-      // Normalize for map display
-      price: l.askingPrice,
-      soldPrice: 0, // Not applicable
-      soldDate: l.scrapedAt, // Use scrapedAt for listings
-      overUnderPercent: 0, // Not applicable
-      isListing: true,
-      isRental: false,
-    }));
-    
-    const soldData = filteredProperties.map(p => ({
-      ...p,
-      price: p.soldPrice,
-      isListing: false,
-      isRental: false,
-    }));
-    
-    const rentalsData = filteredRentals.map(r => ({
-      ...r,
-      // Normalize for map display
-      price: r.monthlyRent,
-      soldPrice: 0, // Not applicable
-      soldDate: r.scrapedAt, // Use scrapedAt for rentals
-      overUnderPercent: 0, // Not applicable
-      askingPrice: r.monthlyRent, // Use monthly rent as the "price"
-      pricePerSqm: r.areaSqm ? Math.round(r.monthlyRent / r.areaSqm) : 0,
-      isListing: false,
-      isRental: true,
-      isHistoricalRental: r.availabilityStatus === 'no_longer_available', // Flag for historical rentals
-    }));
-    
-    // Combine based on selected sources
-    const result: typeof soldData = [];
-    if (dataSources.sold) result.push(...soldData);
-    if (dataSources.forSale) result.push(...listingsData);
-    if (dataSources.rentals) result.push(...rentalsData);
-    
-    return result;
-  }, [dataSources, filteredListings, filteredProperties, filteredRentals]);
 
   // Count active filters for badge display
   const activeFilterCount = useMemo(() => {
@@ -6020,26 +5643,11 @@ export default function MapComponent() {
 
 
         
-        {/* View mode tips */}
-        <div className="absolute bottom-4 right-4 hidden md:block">
-          <div className="bg-gray-900/90 backdrop-blur-xl rounded-lg px-4 py-3 border border-gray-700 text-sm text-gray-400 max-w-xs">
-            {viewMode === 'clusters' && (dataSources.sold || dataSources.forSale || dataSources.rentals) && (
-              <p>💡 Click clusters to zoom in. Click {dataSources.sold ? 'properties' : dataSources.rentals ? 'rentals' : 'listings'} for details.</p>
-            )}
-            {viewMode === 'clusters' && activeSourceCount > 1 && (
-              <p>💡 <span className="text-white">White</span> = Sold, <span className="text-rose-400">Pink</span> = For Sale, <span className="text-purple-400">Purple</span> = Rental. Click for details.</p>
-            )}
-            {viewMode === 'price' && (dataSources.sold || dataSources.forSale) && (
-              <p>💡 Colors show {dataSources.sold ? 'sold' : 'asking'} price. Green = under €400k, Red = over €1M.</p>
-            )}
-            {viewMode === 'price' && dataSources.rentals && (
-              <p>💡 Colors show monthly rent. Green = under €1,500, Red = over €3,000.</p>
-            )}
-            {viewMode === 'difference' && dataSources.sold && (
-              <p>💡 Green = deals (sold under asking), Red = bidding wars (sold over asking).</p>
-            )}
-          </div>
-        </div>
+        <ViewModeTips
+          viewMode={viewMode}
+          dataSources={dataSources}
+          activeSourceCount={Object.values(dataSources).filter(Boolean).length}
+        />
         
         {/* Hidden PropertySnapshot components for image generation */}
         {selectedProperty && (
@@ -6061,28 +5669,13 @@ export default function MapComponent() {
           />
         )}
 
-        {/* Floating Compare Button - Right Side */}
-        <div className={`fixed top-1/2 right-4 z-40 transform -translate-y-1/2 ${(selectedProperty || selectedListing || selectedRental) && isMobile ? 'hidden' : ''}`}>
-          <div className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow-lg transition-colors cursor-pointer"
-               onClick={() => {
-                 const count = comparedProperties.length;
-                 if (count > 1) {
-                   router.push('/tools/compare');
-                 } else if (count === 1) {
-                   alert('Add another property to compare. You need at least 2 properties.');
-                 } else {
-                   alert('Add properties to compare by clicking on them and using the "Compare Properties" button.');
-                 }
-               }}
-               title={comparedProperties.length > 1 ? `Compare ${comparedProperties.length} properties` : 'Add properties to compare'}>
-            <BarChart3 className="w-6 h-6" />
-            {comparedProperties.length > 0 && typeof window !== 'undefined' && (
-              <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-                {comparedProperties.length}
-              </div>
-            )}
-          </div>
-        </div>
+        <FloatingCompareButton
+          comparedProperties={comparedProperties}
+          selectedProperty={selectedProperty}
+          selectedListing={selectedListing}
+          selectedRental={selectedRental}
+          isMobile={isMobile}
+        />
 
         {/* Comparison Bar - Only show on mobile when card is minimized */}
         {(selectedProperty || selectedListing || selectedRental) && isMobile && isMobileAmenitiesMode && (
