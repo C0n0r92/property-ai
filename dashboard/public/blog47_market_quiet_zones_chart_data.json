@@ -1,0 +1,705 @@
+{
+  "salesVolumeChart": [
+    {
+      "postcode": "D17",
+      "salesCount": 137,
+      "averagePrice": 350614,
+      "overAskingSuccess": 83.21167883211679,
+      "averageOverAsking": 7.192919708029194
+    },
+    {
+      "postcode": "D20",
+      "salesCount": 154,
+      "averagePrice": 461905,
+      "overAskingSuccess": 88.96103896103897,
+      "averageOverAsking": 11.057532467532475
+    },
+    {
+      "postcode": "D10",
+      "salesCount": 181,
+      "averagePrice": 332678,
+      "overAskingSuccess": 91.16022099447514,
+      "averageOverAsking": 14.705248618784525
+    },
+    {
+      "postcode": "D2",
+      "salesCount": 279,
+      "averagePrice": 537936,
+      "overAskingSuccess": 70.96774193548387,
+      "averageOverAsking": 5.064014336917562
+    },
+    {
+      "postcode": "D1",
+      "salesCount": 316,
+      "averagePrice": 407910,
+      "overAskingSuccess": 69.62025316455697,
+      "averageOverAsking": 4.876170886075944
+    },
+    {
+      "postcode": "D6W",
+      "salesCount": 373,
+      "averagePrice": 777778,
+      "overAskingSuccess": 83.6461126005362,
+      "averageOverAsking": 9.345978552278826
+    },
+    {
+      "postcode": "D22",
+      "salesCount": 416,
+      "averagePrice": 377931,
+      "overAskingSuccess": 89.90384615384616,
+      "averageOverAsking": 12.635961538461553
+    },
+    {
+      "postcode": "D11",
+      "salesCount": 566,
+      "averagePrice": 413366,
+      "overAskingSuccess": 90.2826855123675,
+      "averageOverAsking": 11.098462897526511
+    },
+    {
+      "postcode": "D5",
+      "salesCount": 646,
+      "averagePrice": 557071,
+      "overAskingSuccess": 89.00928792569658,
+      "averageOverAsking": 9.824458204334364
+    },
+    {
+      "postcode": "D12",
+      "salesCount": 649,
+      "averagePrice": 490559,
+      "overAskingSuccess": 90.13867488443759,
+      "averageOverAsking": 13.11292758089368
+    },
+    {
+      "postcode": "D6",
+      "salesCount": 675,
+      "averagePrice": 985022,
+      "overAskingSuccess": 73.92592592592592,
+      "averageOverAsking": 6.3161185185185245
+    },
+    {
+      "postcode": "D16",
+      "salesCount": 711,
+      "averagePrice": 651329,
+      "overAskingSuccess": 85.93530239099859,
+      "averageOverAsking": 6.919746835443037
+    },
+    {
+      "postcode": "D7",
+      "salesCount": 715,
+      "averagePrice": 497373,
+      "overAskingSuccess": 81.95804195804196,
+      "averageOverAsking": 8.553832167832162
+    },
+    {
+      "postcode": "D13",
+      "salesCount": 756,
+      "averagePrice": 593418,
+      "overAskingSuccess": 77.91005291005291,
+      "averageOverAsking": 6.248994708994707
+    },
+    {
+      "postcode": "D3",
+      "salesCount": 780,
+      "averagePrice": 629668,
+      "overAskingSuccess": 79.1025641025641,
+      "averageOverAsking": 6.797358974358968
+    }
+  ],
+  "priceStabilityChart": [
+    {
+      "postcode": "D24",
+      "priceChange": 14.430040166204982,
+      "q1Price": 372165,
+      "q2Price": 425869,
+      "salesCount": 891
+    },
+    {
+      "postcode": "D16",
+      "priceChange": 14.635027239373605,
+      "q1Price": 583476,
+      "q2Price": 668868,
+      "salesCount": 711
+    },
+    {
+      "postcode": "D9",
+      "priceChange": 4.39718530709737,
+      "q1Price": 514301,
+      "q2Price": 536916,
+      "salesCount": 866
+    },
+    {
+      "postcode": "D14",
+      "priceChange": 12.299853414486956,
+      "q1Price": 672695,
+      "q2Price": 755435,
+      "salesCount": 810
+    },
+    {
+      "postcode": "D7",
+      "priceChange": 18.115811472121273,
+      "q1Price": 444433,
+      "q2Price": 524946,
+      "salesCount": 715
+    },
+    {
+      "postcode": "D5",
+      "priceChange": 7.976419546509541,
+      "q1Price": 542313,
+      "q2Price": 585570,
+      "salesCount": 646
+    },
+    {
+      "postcode": "D15",
+      "priceChange": 16.754882334842552,
+      "q1Price": 397492,
+      "q2Price": 464091,
+      "salesCount": 1208
+    },
+    {
+      "postcode": "D22",
+      "priceChange": 13.113848543225155,
+      "q1Price": 355567,
+      "q2Price": 402195,
+      "salesCount": 416
+    },
+    {
+      "postcode": "D18",
+      "priceChange": 10.293339058645405,
+      "q1Price": 660169,
+      "q2Price": 728123,
+      "salesCount": 1115
+    },
+    {
+      "postcode": "D3",
+      "priceChange": 10.326662366463498,
+      "q1Price": 555073,
+      "q2Price": 612394,
+      "salesCount": 780
+    },
+    {
+      "postcode": "D4",
+      "priceChange": 16.54936550674569,
+      "q1Price": 827579,
+      "q2Price": 964539,
+      "salesCount": 878
+    },
+    {
+      "postcode": "D2",
+      "priceChange": 4.38535536914152,
+      "q1Price": 472138,
+      "q2Price": 492843,
+      "salesCount": 279
+    },
+    {
+      "postcode": "D8",
+      "priceChange": -6.803392929425269,
+      "q1Price": 473336,
+      "q2Price": 441133,
+      "salesCount": 847
+    },
+    {
+      "postcode": "D11",
+      "priceChange": 8.91170190936294,
+      "q1Price": 388503,
+      "q2Price": 423125,
+      "salesCount": 566
+    },
+    {
+      "postcode": "D6",
+      "priceChange": 10.086858896676993,
+      "q1Price": 996655,
+      "q2Price": 1097186,
+      "salesCount": 675
+    }
+  ],
+  "overAskingStabilityChart": [
+    {
+      "postcode": "D24",
+      "avgSuccessRate": 91.27520771241718,
+      "successRateStdDev": 2.627412247925898,
+      "avgPremium": 12.815073881937172,
+      "salesCount": 891
+    },
+    {
+      "postcode": "D16",
+      "avgSuccessRate": 84.89169209943773,
+      "successRateStdDev": 7.184696047805899,
+      "avgPremium": 9.22711912506949,
+      "salesCount": 711
+    },
+    {
+      "postcode": "D9",
+      "avgSuccessRate": 85.4241470895144,
+      "successRateStdDev": 3.792578175996535,
+      "avgPremium": 10.666184689879673,
+      "salesCount": 866
+    },
+    {
+      "postcode": "D14",
+      "avgSuccessRate": 84.3285360268236,
+      "successRateStdDev": 3.5345089582308713,
+      "avgPremium": 10.387600809848175,
+      "salesCount": 810
+    },
+    {
+      "postcode": "D7",
+      "avgSuccessRate": 80.90432840936283,
+      "successRateStdDev": 9.521174448739512,
+      "avgPremium": 12.258865291632683,
+      "salesCount": 715
+    },
+    {
+      "postcode": "D5",
+      "avgSuccessRate": 90.5689214963653,
+      "successRateStdDev": 3.2535122513903167,
+      "avgPremium": 12.140476699182502,
+      "salesCount": 646
+    },
+    {
+      "postcode": "D15",
+      "avgSuccessRate": 87.65445326635387,
+      "successRateStdDev": 3.1419120276219044,
+      "avgPremium": 9.494328812687348,
+      "salesCount": 1208
+    },
+    {
+      "postcode": "D22",
+      "avgSuccessRate": 86.7123065585253,
+      "successRateStdDev": 7.035993219120336,
+      "avgPremium": 14.080782594562748,
+      "salesCount": 416
+    },
+    {
+      "postcode": "D18",
+      "avgSuccessRate": 76.43140296639608,
+      "successRateStdDev": 3.637092076476811,
+      "avgPremium": 8.493752842895839,
+      "salesCount": 1115
+    },
+    {
+      "postcode": "D3",
+      "avgSuccessRate": 78.00291888852037,
+      "successRateStdDev": 5.847267062661941,
+      "avgPremium": 10.33693785492339,
+      "salesCount": 780
+    },
+    {
+      "postcode": "D4",
+      "avgSuccessRate": 75.54498390269079,
+      "successRateStdDev": 3.6773611505679478,
+      "avgPremium": 10.155805094278302,
+      "salesCount": 878
+    },
+    {
+      "postcode": "D2",
+      "avgSuccessRate": 70.38408861858825,
+      "successRateStdDev": 4.637197124712561,
+      "avgPremium": 8.662430587186334,
+      "salesCount": 279
+    },
+    {
+      "postcode": "D8",
+      "avgSuccessRate": 76.06071682419514,
+      "successRateStdDev": 3.2844352577942773,
+      "avgPremium": 10.952863845426345,
+      "salesCount": 847
+    },
+    {
+      "postcode": "D11",
+      "avgSuccessRate": 89.84357762359714,
+      "successRateStdDev": 4.616120151853199,
+      "avgPremium": 12.606171522062764,
+      "salesCount": 566
+    },
+    {
+      "postcode": "D6",
+      "avgSuccessRate": 72.58061409058337,
+      "successRateStdDev": 6.770888437412861,
+      "avgPremium": 11.9000013210026,
+      "salesCount": 675
+    }
+  ],
+  "quietZonesComparisonChart": [
+    {
+      "postcode": "D17",
+      "salesCount": 137,
+      "averagePrice": 350614,
+      "overAskingSuccess": 83.21167883211679,
+      "priceChange": 24.221111369448955,
+      "successRateStability": 7.606681446473501
+    },
+    {
+      "postcode": "D20",
+      "salesCount": 154,
+      "averagePrice": 461905,
+      "overAskingSuccess": 88.96103896103897,
+      "priceChange": 28.21562911474563,
+      "successRateStability": 7.700323672354555
+    },
+    {
+      "postcode": "D10",
+      "salesCount": 181,
+      "averagePrice": 332678,
+      "overAskingSuccess": 91.16022099447514,
+      "priceChange": 24.621836921197733,
+      "successRateStability": 8.122576454261377
+    },
+    {
+      "postcode": "D2",
+      "salesCount": 279,
+      "averagePrice": 537936,
+      "overAskingSuccess": 70.96774193548387,
+      "priceChange": 4.38535536914152,
+      "successRateStability": 4.637197124712561
+    },
+    {
+      "postcode": "D1",
+      "salesCount": 316,
+      "averagePrice": 407910,
+      "overAskingSuccess": 69.62025316455697,
+      "priceChange": 27.197354712056228,
+      "successRateStability": 6.038685712624339
+    },
+    {
+      "postcode": "D6W",
+      "salesCount": 373,
+      "averagePrice": 777778,
+      "overAskingSuccess": 83.6461126005362,
+      "priceChange": 20.96081025008208,
+      "successRateStability": 9.125249305099993
+    }
+  ],
+  "quarterlyPriceTrendsChart": [
+    {
+      "quarter": "2024-Q1",
+      "areas": [
+        {
+          "postcode": "D15",
+          "averagePrice": 397492,
+          "salesCount": 1208
+        },
+        {
+          "postcode": "D18",
+          "averagePrice": 660169,
+          "salesCount": 1115
+        },
+        {
+          "postcode": "D24",
+          "averagePrice": 372165,
+          "salesCount": 891
+        },
+        {
+          "postcode": "D4",
+          "averagePrice": 827579,
+          "salesCount": 878
+        },
+        {
+          "postcode": "D9",
+          "averagePrice": 514301,
+          "salesCount": 866
+        },
+        {
+          "postcode": "D8",
+          "averagePrice": 473336,
+          "salesCount": 847
+        },
+        {
+          "postcode": "D14",
+          "averagePrice": 672695,
+          "salesCount": 810
+        },
+        {
+          "postcode": "D3",
+          "averagePrice": 555073,
+          "salesCount": 780
+        },
+        {
+          "postcode": "D13",
+          "averagePrice": 570601,
+          "salesCount": 756
+        },
+        {
+          "postcode": "D7",
+          "averagePrice": 444433,
+          "salesCount": 715
+        }
+      ]
+    },
+    {
+      "quarter": "2024-Q2",
+      "areas": [
+        {
+          "postcode": "D15",
+          "averagePrice": 428481,
+          "salesCount": 1208
+        },
+        {
+          "postcode": "D18",
+          "averagePrice": 687551,
+          "salesCount": 1115
+        },
+        {
+          "postcode": "D24",
+          "averagePrice": 384956,
+          "salesCount": 891
+        },
+        {
+          "postcode": "D4",
+          "averagePrice": 856727,
+          "salesCount": 878
+        },
+        {
+          "postcode": "D9",
+          "averagePrice": 495761,
+          "salesCount": 866
+        },
+        {
+          "postcode": "D8",
+          "averagePrice": 429123,
+          "salesCount": 847
+        },
+        {
+          "postcode": "D14",
+          "averagePrice": 713732,
+          "salesCount": 810
+        },
+        {
+          "postcode": "D3",
+          "averagePrice": 560968,
+          "salesCount": 780
+        },
+        {
+          "postcode": "D13",
+          "averagePrice": 563364,
+          "salesCount": 756
+        },
+        {
+          "postcode": "D7",
+          "averagePrice": 475463,
+          "salesCount": 715
+        }
+      ]
+    },
+    {
+      "quarter": "2024-Q3",
+      "areas": [
+        {
+          "postcode": "D15",
+          "averagePrice": 456663,
+          "salesCount": 1208
+        },
+        {
+          "postcode": "D18",
+          "averagePrice": 735188,
+          "salesCount": 1115
+        },
+        {
+          "postcode": "D24",
+          "averagePrice": 403122,
+          "salesCount": 891
+        },
+        {
+          "postcode": "D4",
+          "averagePrice": 1051288,
+          "salesCount": 878
+        },
+        {
+          "postcode": "D9",
+          "averagePrice": 536026,
+          "salesCount": 866
+        },
+        {
+          "postcode": "D8",
+          "averagePrice": 456295,
+          "salesCount": 847
+        },
+        {
+          "postcode": "D14",
+          "averagePrice": 754104,
+          "salesCount": 810
+        },
+        {
+          "postcode": "D3",
+          "averagePrice": 632503,
+          "salesCount": 780
+        },
+        {
+          "postcode": "D13",
+          "averagePrice": 635210,
+          "salesCount": 756
+        },
+        {
+          "postcode": "D7",
+          "averagePrice": 531031,
+          "salesCount": 715
+        }
+      ]
+    },
+    {
+      "quarter": "2024-Q4",
+      "areas": [
+        {
+          "postcode": "D15",
+          "averagePrice": 470187,
+          "salesCount": 1208
+        },
+        {
+          "postcode": "D18",
+          "averagePrice": 685332,
+          "salesCount": 1115
+        },
+        {
+          "postcode": "D24",
+          "averagePrice": 395368,
+          "salesCount": 891
+        },
+        {
+          "postcode": "D4",
+          "averagePrice": 1014511,
+          "salesCount": 878
+        },
+        {
+          "postcode": "D9",
+          "averagePrice": 523577,
+          "salesCount": 866
+        },
+        {
+          "postcode": "D8",
+          "averagePrice": 449069,
+          "salesCount": 847
+        },
+        {
+          "postcode": "D14",
+          "averagePrice": 809761,
+          "salesCount": 810
+        },
+        {
+          "postcode": "D3",
+          "averagePrice": 621696,
+          "salesCount": 780
+        },
+        {
+          "postcode": "D13",
+          "averagePrice": 581854,
+          "salesCount": 756
+        },
+        {
+          "postcode": "D7",
+          "averagePrice": 478369,
+          "salesCount": 715
+        }
+      ]
+    },
+    {
+      "quarter": "2025-Q1",
+      "areas": [
+        {
+          "postcode": "D15",
+          "averagePrice": 501911,
+          "salesCount": 1208
+        },
+        {
+          "postcode": "D18",
+          "averagePrice": 722674,
+          "salesCount": 1115
+        },
+        {
+          "postcode": "D24",
+          "averagePrice": 387923,
+          "salesCount": 891
+        },
+        {
+          "postcode": "D4",
+          "averagePrice": 822491,
+          "salesCount": 878
+        },
+        {
+          "postcode": "D9",
+          "averagePrice": 556369,
+          "salesCount": 866
+        },
+        {
+          "postcode": "D8",
+          "averagePrice": 465653,
+          "salesCount": 847
+        },
+        {
+          "postcode": "D14",
+          "averagePrice": 807762,
+          "salesCount": 810
+        },
+        {
+          "postcode": "D3",
+          "averagePrice": 671484,
+          "salesCount": 780
+        },
+        {
+          "postcode": "D13",
+          "averagePrice": 633129,
+          "salesCount": 756
+        },
+        {
+          "postcode": "D7",
+          "averagePrice": 513383,
+          "salesCount": 715
+        }
+      ]
+    },
+    {
+      "quarter": "2025-Q2",
+      "areas": [
+        {
+          "postcode": "D15",
+          "averagePrice": 464091,
+          "salesCount": 1208
+        },
+        {
+          "postcode": "D18",
+          "averagePrice": 728123,
+          "salesCount": 1115
+        },
+        {
+          "postcode": "D24",
+          "averagePrice": 425869,
+          "salesCount": 891
+        },
+        {
+          "postcode": "D4",
+          "averagePrice": 964539,
+          "salesCount": 878
+        },
+        {
+          "postcode": "D9",
+          "averagePrice": 536916,
+          "salesCount": 866
+        },
+        {
+          "postcode": "D8",
+          "averagePrice": 441133,
+          "salesCount": 847
+        },
+        {
+          "postcode": "D14",
+          "averagePrice": 755435,
+          "salesCount": 810
+        },
+        {
+          "postcode": "D3",
+          "averagePrice": 612394,
+          "salesCount": 780
+        },
+        {
+          "postcode": "D13",
+          "averagePrice": 579201,
+          "salesCount": 756
+        },
+        {
+          "postcode": "D7",
+          "averagePrice": 524946,
+          "salesCount": 715
+        }
+      ]
+    }
+  ]
+}

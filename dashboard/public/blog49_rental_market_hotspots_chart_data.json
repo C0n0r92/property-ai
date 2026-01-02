@@ -1,0 +1,916 @@
+{
+  "rentalVolumeChart": [
+    {
+      "postcode": "D15",
+      "rentalCount": 1139,
+      "avgMonthlyRent": 2783,
+      "avgYield": 8.400403863037736,
+      "avgPrice": 441547,
+      "confidence": 100
+    },
+    {
+      "postcode": "D18",
+      "rentalCount": 1047,
+      "avgMonthlyRent": 3183,
+      "avgYield": 6.559780324737344,
+      "avgPrice": 684169,
+      "confidence": 68.29035339063992
+    },
+    {
+      "postcode": "D24",
+      "rentalCount": 877,
+      "avgMonthlyRent": 2705,
+      "avgYield": 8.437366020524507,
+      "avgPrice": 402731,
+      "confidence": 85.17673888255416
+    },
+    {
+      "postcode": "D4",
+      "rentalCount": 856,
+      "avgMonthlyRent": 5094,
+      "avgYield": 7.818609813084102,
+      "avgPrice": 912205,
+      "confidence": 80.37383177570094
+    },
+    {
+      "postcode": "D8",
+      "rentalCount": 793,
+      "avgMonthlyRent": 2562,
+      "avgYield": 7.508814627994952,
+      "avgPrice": 451716,
+      "confidence": 100
+    },
+    {
+      "postcode": "D14",
+      "rentalCount": 739,
+      "avgMonthlyRent": 3263,
+      "avgYield": 5.859864682002707,
+      "avgPrice": 733287,
+      "confidence": 27.46955345060893
+    },
+    {
+      "postcode": "D9",
+      "rentalCount": 706,
+      "avgMonthlyRent": 3051,
+      "avgYield": 8.08579320113315,
+      "avgPrice": 481203,
+      "confidence": 40.226628895184135
+    },
+    {
+      "postcode": "D7",
+      "rentalCount": 700,
+      "avgMonthlyRent": 2815,
+      "avgYield": 7.307228571428584,
+      "avgPrice": 492547,
+      "confidence": 55.42857142857143
+    },
+    {
+      "postcode": "D13",
+      "rentalCount": 692,
+      "avgMonthlyRent": 3270,
+      "avgYield": 7.712586705202312,
+      "avgPrice": 556863,
+      "confidence": 26.011560693641616
+    },
+    {
+      "postcode": "D16",
+      "rentalCount": 655,
+      "avgMonthlyRent": 2431,
+      "avgYield": 5.5534503816793865,
+      "avgPrice": 639019,
+      "confidence": 0
+    },
+    {
+      "postcode": "D6",
+      "rentalCount": 650,
+      "avgMonthlyRent": 3741,
+      "avgYield": 6.405723076923083,
+      "avgPrice": 953011,
+      "confidence": 43.69230769230769
+    },
+    {
+      "postcode": "D12",
+      "rentalCount": 621,
+      "avgMonthlyRent": 2966,
+      "avgYield": 7.709903381642517,
+      "avgPrice": 486755,
+      "confidence": 0
+    },
+    {
+      "postcode": "D3",
+      "rentalCount": 606,
+      "avgMonthlyRent": 2911,
+      "avgYield": 7.435396039603961,
+      "avgPrice": 508560,
+      "confidence": 100
+    },
+    {
+      "postcode": "D11",
+      "rentalCount": 554,
+      "avgMonthlyRent": 2539,
+      "avgYield": 8.10263537906137,
+      "avgPrice": 414346,
+      "confidence": 29.422382671480147
+    },
+    {
+      "postcode": "D5",
+      "rentalCount": 535,
+      "avgMonthlyRent": 2803,
+      "avgYield": 7.570280373831775,
+      "avgPrice": 528519,
+      "confidence": 0
+    }
+  ],
+  "premiumRentalsChart": [
+    {
+      "postcode": "D4",
+      "avgMonthlyRent": 5094,
+      "rentalCount": 856,
+      "avgYield": 7.818609813084102
+    },
+    {
+      "postcode": "D6",
+      "avgMonthlyRent": 3741,
+      "rentalCount": 650,
+      "avgYield": 6.405723076923083
+    },
+    {
+      "postcode": "D6W",
+      "avgMonthlyRent": 3431,
+      "rentalCount": 341,
+      "avgYield": 5.833636363636364
+    },
+    {
+      "postcode": "D13",
+      "avgMonthlyRent": 3270,
+      "rentalCount": 692,
+      "avgYield": 7.712586705202312
+    },
+    {
+      "postcode": "D14",
+      "avgMonthlyRent": 3263,
+      "rentalCount": 739,
+      "avgYield": 5.859864682002707
+    },
+    {
+      "postcode": "D18",
+      "avgMonthlyRent": 3183,
+      "rentalCount": 1047,
+      "avgYield": 6.559780324737344
+    },
+    {
+      "postcode": "D2",
+      "avgMonthlyRent": 3123,
+      "rentalCount": 268,
+      "avgYield": 8.390373134328359
+    },
+    {
+      "postcode": "D9",
+      "avgMonthlyRent": 3051,
+      "rentalCount": 706,
+      "avgYield": 8.08579320113315
+    },
+    {
+      "postcode": "D12",
+      "avgMonthlyRent": 2966,
+      "rentalCount": 621,
+      "avgYield": 7.709903381642517
+    },
+    {
+      "postcode": "D3",
+      "avgMonthlyRent": 2911,
+      "rentalCount": 606,
+      "avgYield": 7.435396039603961
+    }
+  ],
+  "valueRentalsChart": [
+    {
+      "postcode": "D1",
+      "avgYield": 9.16698961937717,
+      "avgMonthlyRent": 2490,
+      "rentalCount": 289
+    },
+    {
+      "postcode": "D22",
+      "avgYield": 8.832588555858313,
+      "avgMonthlyRent": 2577,
+      "rentalCount": 367
+    },
+    {
+      "postcode": "D24",
+      "avgYield": 8.437366020524507,
+      "avgMonthlyRent": 2705,
+      "rentalCount": 877
+    },
+    {
+      "postcode": "D15",
+      "avgYield": 8.400403863037736,
+      "avgMonthlyRent": 2783,
+      "rentalCount": 1139
+    },
+    {
+      "postcode": "D2",
+      "avgYield": 8.390373134328359,
+      "avgMonthlyRent": 3123,
+      "rentalCount": 268
+    },
+    {
+      "postcode": "D11",
+      "avgYield": 8.10263537906137,
+      "avgMonthlyRent": 2539,
+      "rentalCount": 554
+    },
+    {
+      "postcode": "D9",
+      "avgYield": 8.08579320113315,
+      "avgMonthlyRent": 3051,
+      "rentalCount": 706
+    },
+    {
+      "postcode": "D4",
+      "avgYield": 7.818609813084102,
+      "avgMonthlyRent": 5094,
+      "rentalCount": 856
+    },
+    {
+      "postcode": "D13",
+      "avgYield": 7.712586705202312,
+      "avgMonthlyRent": 3270,
+      "rentalCount": 692
+    },
+    {
+      "postcode": "D12",
+      "avgYield": 7.709903381642517,
+      "avgMonthlyRent": 2966,
+      "rentalCount": 621
+    }
+  ],
+  "rentPriceRatioChart": [
+    {
+      "postcode": "D22",
+      "rentToPriceRatio": 8.497134111001733,
+      "avgMonthlyRent": 2577,
+      "avgPrice": 363987,
+      "rentalCount": 367
+    },
+    {
+      "postcode": "D1",
+      "rentToPriceRatio": 8.163394578063512,
+      "avgMonthlyRent": 2490,
+      "avgPrice": 365996,
+      "rentalCount": 289
+    },
+    {
+      "postcode": "D24",
+      "rentToPriceRatio": 8.061068776984378,
+      "avgMonthlyRent": 2705,
+      "avgPrice": 402731,
+      "rentalCount": 877
+    },
+    {
+      "postcode": "D9",
+      "rentToPriceRatio": 7.607310282237838,
+      "avgMonthlyRent": 3051,
+      "avgPrice": 481203,
+      "rentalCount": 706
+    },
+    {
+      "postcode": "D15",
+      "rentToPriceRatio": 7.563411264692939,
+      "avgMonthlyRent": 2783,
+      "avgPrice": 441547,
+      "rentalCount": 1139
+    },
+    {
+      "postcode": "D11",
+      "rentToPriceRatio": 7.354008473120091,
+      "avgMonthlyRent": 2539,
+      "avgPrice": 414346,
+      "rentalCount": 554
+    },
+    {
+      "postcode": "D12",
+      "rentToPriceRatio": 7.311123002045537,
+      "avgMonthlyRent": 2966,
+      "avgPrice": 486755,
+      "rentalCount": 621
+    },
+    {
+      "postcode": "D2",
+      "rentToPriceRatio": 7.127204847096151,
+      "avgMonthlyRent": 3123,
+      "avgPrice": 525741,
+      "rentalCount": 268
+    },
+    {
+      "postcode": "D13",
+      "rentToPriceRatio": 7.046210390716648,
+      "avgMonthlyRent": 3270,
+      "avgPrice": 556863,
+      "rentalCount": 692
+    },
+    {
+      "postcode": "D3",
+      "rentToPriceRatio": 6.8680773264564055,
+      "avgMonthlyRent": 2911,
+      "avgPrice": 508560,
+      "rentalCount": 606
+    },
+    {
+      "postcode": "D7",
+      "rentToPriceRatio": 6.859010108700607,
+      "avgMonthlyRent": 2815,
+      "avgPrice": 492547,
+      "rentalCount": 700
+    },
+    {
+      "postcode": "D8",
+      "rentToPriceRatio": 6.8061574022193305,
+      "avgMonthlyRent": 2562,
+      "avgPrice": 451716,
+      "rentalCount": 793
+    },
+    {
+      "postcode": "D4",
+      "rentToPriceRatio": 6.700831226728711,
+      "avgMonthlyRent": 5094,
+      "avgPrice": 912205,
+      "rentalCount": 856
+    },
+    {
+      "postcode": "D20",
+      "rentToPriceRatio": 6.378118819480438,
+      "avgMonthlyRent": 2500,
+      "avgPrice": 470358,
+      "rentalCount": 89
+    },
+    {
+      "postcode": "D5",
+      "rentToPriceRatio": 6.3632554081334085,
+      "avgMonthlyRent": 2803,
+      "avgPrice": 528519,
+      "rentalCount": 535
+    }
+  ],
+  "yieldEfficiencyChart": [
+    {
+      "postcode": "D1",
+      "yieldEfficiency": 2.504667783083591,
+      "avgYield": 9.16698961937717,
+      "avgPrice": 365996,
+      "rentalCount": 289
+    },
+    {
+      "postcode": "D22",
+      "yieldEfficiency": 2.4266232905395406,
+      "avgYield": 8.832588555858313,
+      "avgPrice": 363987,
+      "rentalCount": 367
+    },
+    {
+      "postcode": "D24",
+      "yieldEfficiency": 2.0950360815764855,
+      "avgYield": 8.437366020524507,
+      "avgPrice": 402731,
+      "rentalCount": 877
+    },
+    {
+      "postcode": "D11",
+      "yieldEfficiency": 1.9555230657828457,
+      "avgYield": 8.10263537906137,
+      "avgPrice": 414346,
+      "rentalCount": 554
+    },
+    {
+      "postcode": "D15",
+      "yieldEfficiency": 1.9024927857888143,
+      "avgYield": 8.400403863037736,
+      "avgPrice": 441547,
+      "rentalCount": 1139
+    },
+    {
+      "postcode": "D9",
+      "yieldEfficiency": 1.680327842674452,
+      "avgYield": 8.08579320113315,
+      "avgPrice": 481203,
+      "rentalCount": 706
+    },
+    {
+      "postcode": "D8",
+      "yieldEfficiency": 1.6622859423939296,
+      "avgYield": 7.508814627994952,
+      "avgPrice": 451716,
+      "rentalCount": 793
+    },
+    {
+      "postcode": "D2",
+      "yieldEfficiency": 1.59591426869657,
+      "avgYield": 8.390373134328359,
+      "avgPrice": 525741,
+      "rentalCount": 268
+    },
+    {
+      "postcode": "D12",
+      "yieldEfficiency": 1.5839379688227384,
+      "avgYield": 7.709903381642517,
+      "avgPrice": 486755,
+      "rentalCount": 621
+    },
+    {
+      "postcode": "D7",
+      "yieldEfficiency": 1.4835592758422318,
+      "avgYield": 7.307228571428584,
+      "avgPrice": 492547,
+      "rentalCount": 700
+    },
+    {
+      "postcode": "D3",
+      "yieldEfficiency": 1.4620479766865089,
+      "avgYield": 7.435396039603961,
+      "avgPrice": 508560,
+      "rentalCount": 606
+    },
+    {
+      "postcode": "D5",
+      "yieldEfficiency": 1.43235603912902,
+      "avgYield": 7.570280373831775,
+      "avgPrice": 528519,
+      "rentalCount": 535
+    },
+    {
+      "postcode": "D20",
+      "yieldEfficiency": 1.39444310100506,
+      "avgYield": 6.558876404494381,
+      "avgPrice": 470358,
+      "rentalCount": 89
+    },
+    {
+      "postcode": "D13",
+      "yieldEfficiency": 1.385005270904302,
+      "avgYield": 7.712586705202312,
+      "avgPrice": 556863,
+      "rentalCount": 692
+    },
+    {
+      "postcode": "D18",
+      "yieldEfficiency": 0.958795050863641,
+      "avgYield": 6.559780324737344,
+      "avgPrice": 684169,
+      "rentalCount": 1047
+    }
+  ],
+  "investorProfilesChart": [
+    {
+      "profileName": "Cash Flow Investors",
+      "description": "Focus on maximizing rental income relative to investment",
+      "criteria": [
+        "high_yield",
+        "stable_rents",
+        "lower_price_points"
+      ],
+      "topAreas": [
+        {
+          "postcode": "D22",
+          "score": 36.18281198910082,
+          "avgYield": 8.832588555858313,
+          "avgMonthlyRent": 2577,
+          "rentalCount": 367
+        },
+        {
+          "postcode": "D12",
+          "score": 35.39693236714976,
+          "avgYield": 7.709903381642517,
+          "avgMonthlyRent": 2966,
+          "rentalCount": 621
+        },
+        {
+          "postcode": "D5",
+          "score": 35.29919626168224,
+          "avgYield": 7.570280373831775,
+          "avgMonthlyRent": 2803,
+          "rentalCount": 535
+        },
+        {
+          "postcode": "D20",
+          "score": 34.59121348314606,
+          "avgYield": 6.558876404494381,
+          "avgMonthlyRent": 2500,
+          "rentalCount": 89
+        },
+        {
+          "postcode": "D6W",
+          "score": 34.08354545454546,
+          "avgYield": 5.833636363636364,
+          "avgMonthlyRent": 3431,
+          "rentalCount": 341
+        }
+      ]
+    },
+    {
+      "profileName": "Capital Preservation Investors",
+      "description": "Focus on maintaining property value with stable rental income",
+      "criteria": [
+        "price_stability",
+        "location_premium",
+        "lower_rent_to_price"
+      ],
+      "topAreas": [
+        {
+          "postcode": "D8",
+          "score": 95.9163055586684,
+          "avgYield": 7.508814627994952,
+          "avgMonthlyRent": 2562,
+          "rentalCount": 793
+        },
+        {
+          "postcode": "D3",
+          "score": 95.87915360412616,
+          "avgYield": 7.435396039603961,
+          "avgMonthlyRent": 2911,
+          "rentalCount": 606
+        },
+        {
+          "postcode": "D2",
+          "score": 95.7236770917423,
+          "avgYield": 8.390373134328359,
+          "avgMonthlyRent": 3123,
+          "rentalCount": 268
+        },
+        {
+          "postcode": "D15",
+          "score": 95.46195324118423,
+          "avgYield": 8.400403863037736,
+          "avgMonthlyRent": 2783,
+          "rentalCount": 1139
+        },
+        {
+          "postcode": "D1",
+          "score": 91.22653072721033,
+          "avgYield": 9.16698961937717,
+          "avgMonthlyRent": 2490,
+          "rentalCount": 289
+        }
+      ]
+    },
+    {
+      "profileName": "Growth-Oriented Investors",
+      "description": "Balance rental income with potential for property value growth",
+      "criteria": [
+        "upward_price_trend",
+        "rental_demand",
+        "yield_efficiency"
+      ],
+      "topAreas": [
+        {
+          "postcode": "D15",
+          "score": null,
+          "avgYield": 8.400403863037736,
+          "avgMonthlyRent": 2783,
+          "rentalCount": 1139
+        },
+        {
+          "postcode": "D18",
+          "score": null,
+          "avgYield": 6.559780324737344,
+          "avgMonthlyRent": 3183,
+          "rentalCount": 1047
+        },
+        {
+          "postcode": "D24",
+          "score": null,
+          "avgYield": 8.437366020524507,
+          "avgMonthlyRent": 2705,
+          "rentalCount": 877
+        },
+        {
+          "postcode": "D4",
+          "score": null,
+          "avgYield": 7.818609813084102,
+          "avgMonthlyRent": 5094,
+          "rentalCount": 856
+        },
+        {
+          "postcode": "D8",
+          "score": null,
+          "avgYield": 7.508814627994952,
+          "avgMonthlyRent": 2562,
+          "rentalCount": 793
+        }
+      ]
+    }
+  ],
+  "marketMaturityChart": [
+    {
+      "postcode": "D15",
+      "maturityScore": 45.24652345684478,
+      "confidence": 100,
+      "rentalCount": 1139,
+      "avgYield": 8.400403863037736
+    },
+    {
+      "postcode": "D8",
+      "maturityScore": 44.15083317001502,
+      "confidence": 100,
+      "rentalCount": 793,
+      "avgYield": 7.508814627994952
+    },
+    {
+      "postcode": "D3",
+      "maturityScore": 43.6811893057773,
+      "confidence": 100,
+      "rentalCount": 606,
+      "avgYield": 7.435396039603961
+    },
+    {
+      "postcode": "D2",
+      "maturityScore": 43.158618363341674,
+      "confidence": 100,
+      "rentalCount": 268,
+      "avgYield": 8.390373134328359
+    },
+    {
+      "postcode": "D1",
+      "maturityScore": 39.56643807724769,
+      "confidence": 90.3114186851211,
+      "rentalCount": 289,
+      "avgYield": 9.16698961937717
+    },
+    {
+      "postcode": "D24",
+      "maturityScore": 38.70116331816728,
+      "confidence": 85.17673888255416,
+      "rentalCount": 877,
+      "avgYield": 8.437366020524507
+    },
+    {
+      "postcode": "D4",
+      "maturityScore": 36.54410631885094,
+      "confidence": 80.37383177570094,
+      "rentalCount": 856,
+      "avgYield": 7.818609813084102
+    },
+    {
+      "postcode": "D18",
+      "maturityScore": 31.790259128774913,
+      "confidence": 68.29035339063992,
+      "rentalCount": 1047,
+      "avgYield": 6.559780324737344
+    },
+    {
+      "postcode": "D7",
+      "maturityScore": 26.03917362095497,
+      "confidence": 55.42857142857143,
+      "rentalCount": 700,
+      "avgYield": 7.307228571428584
+    },
+    {
+      "postcode": "D6",
+      "maturityScore": 20.954532443947983,
+      "confidence": 43.69230769230769,
+      "rentalCount": 650,
+      "avgYield": 6.405723076923083
+    },
+    {
+      "postcode": "D9",
+      "maturityScore": 20.206328080609403,
+      "confidence": 40.226628895184135,
+      "rentalCount": 706,
+      "avgYield": 8.08579320113315
+    },
+    {
+      "postcode": "D11",
+      "maturityScore": 15.525842780690747,
+      "confidence": 29.422382671480147,
+      "rentalCount": 554,
+      "avgYield": 8.10263537906137
+    },
+    {
+      "postcode": "D14",
+      "maturityScore": 14.514710809579086,
+      "confidence": 27.46955345060893,
+      "rentalCount": 739,
+      "avgYield": 5.859864682002707
+    },
+    {
+      "postcode": "D13",
+      "maturityScore": 14.374827321651189,
+      "confidence": 26.011560693641616,
+      "rentalCount": 692,
+      "avgYield": 7.712586705202312
+    },
+    {
+      "postcode": "D12",
+      "maturityScore": 3.7994467186338223,
+      "confidence": 0,
+      "rentalCount": 621,
+      "avgYield": 7.709903381642517
+    }
+  ],
+  "quarterlyRentalTrendsChart": [
+    {
+      "postcode": "D15",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "avgMonthlyRent": 2751,
+          "avgYield": 9.056228070175441,
+          "rentalCount": 114
+        },
+        {
+          "quarter": "2024-Q2",
+          "avgMonthlyRent": 2738,
+          "avgYield": 8.735673758865248,
+          "rentalCount": 141
+        },
+        {
+          "quarter": "2024-Q3",
+          "avgMonthlyRent": 2775,
+          "avgYield": 8.208282208588958,
+          "rentalCount": 163
+        },
+        {
+          "quarter": "2024-Q4",
+          "avgMonthlyRent": 2742,
+          "avgYield": 8.065750000000001,
+          "rentalCount": 160
+        },
+        {
+          "quarter": "2025-Q1",
+          "avgMonthlyRent": 2813,
+          "avgYield": 7.842500000000003,
+          "rentalCount": 120
+        },
+        {
+          "quarter": "2025-Q2",
+          "avgMonthlyRent": 2750,
+          "avgYield": 7.992424242424246,
+          "rentalCount": 132
+        }
+      ]
+    },
+    {
+      "postcode": "D18",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "avgMonthlyRent": 3153,
+          "avgYield": 6.92861788617886,
+          "rentalCount": 123
+        },
+        {
+          "quarter": "2024-Q2",
+          "avgMonthlyRent": 3196,
+          "avgYield": 6.8365322580645165,
+          "rentalCount": 124
+        },
+        {
+          "quarter": "2024-Q3",
+          "avgMonthlyRent": 3157,
+          "avgYield": 6.532670807453415,
+          "rentalCount": 161
+        },
+        {
+          "quarter": "2024-Q4",
+          "avgMonthlyRent": 3174,
+          "avgYield": 6.7248780487804884,
+          "rentalCount": 164
+        },
+        {
+          "quarter": "2025-Q1",
+          "avgMonthlyRent": 3311,
+          "avgYield": 6.659652173913044,
+          "rentalCount": 115
+        },
+        {
+          "quarter": "2025-Q2",
+          "avgMonthlyRent": 3177,
+          "avgYield": 6.12991304347826,
+          "rentalCount": 115
+        }
+      ]
+    },
+    {
+      "postcode": "D24",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "avgMonthlyRent": 2719,
+          "avgYield": 9.0539175257732,
+          "rentalCount": 97
+        },
+        {
+          "quarter": "2024-Q2",
+          "avgMonthlyRent": 2767,
+          "avgYield": 8.72875,
+          "rentalCount": 104
+        },
+        {
+          "quarter": "2024-Q3",
+          "avgMonthlyRent": 2647,
+          "avgYield": 8.234960000000001,
+          "rentalCount": 125
+        },
+        {
+          "quarter": "2024-Q4",
+          "avgMonthlyRent": 2700,
+          "avgYield": 8.51636363636364,
+          "rentalCount": 132
+        },
+        {
+          "quarter": "2025-Q1",
+          "avgMonthlyRent": 2710,
+          "avgYield": 8.686373626373625,
+          "rentalCount": 91
+        },
+        {
+          "quarter": "2025-Q2",
+          "avgMonthlyRent": 2687,
+          "avgYield": 7.946288659793816,
+          "rentalCount": 97
+        }
+      ]
+    },
+    {
+      "postcode": "D4",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "avgMonthlyRent": 5088,
+          "avgYield": 8.063505154639172,
+          "rentalCount": 97
+        },
+        {
+          "quarter": "2024-Q2",
+          "avgMonthlyRent": 5054,
+          "avgYield": 7.84082474226804,
+          "rentalCount": 97
+        },
+        {
+          "quarter": "2024-Q3",
+          "avgMonthlyRent": 5229,
+          "avgYield": 7.560697674418604,
+          "rentalCount": 129
+        },
+        {
+          "quarter": "2024-Q4",
+          "avgMonthlyRent": 5136,
+          "avgYield": 9.382000000000001,
+          "rentalCount": 125
+        },
+        {
+          "quarter": "2025-Q1",
+          "avgMonthlyRent": 4748,
+          "avgYield": 7.558166666666668,
+          "rentalCount": 120
+        },
+        {
+          "quarter": "2025-Q2",
+          "avgMonthlyRent": 4874,
+          "avgYield": 7.127499999999999,
+          "rentalCount": 100
+        }
+      ]
+    },
+    {
+      "postcode": "D8",
+      "quarterlyData": [
+        {
+          "quarter": "2024-Q1",
+          "avgMonthlyRent": 2539,
+          "avgYield": 7.71215053763441,
+          "rentalCount": 93
+        },
+        {
+          "quarter": "2024-Q2",
+          "avgMonthlyRent": 2538,
+          "avgYield": 7.643084112149533,
+          "rentalCount": 107
+        },
+        {
+          "quarter": "2024-Q3",
+          "avgMonthlyRent": 2603,
+          "avgYield": 7.528958333333332,
+          "rentalCount": 96
+        },
+        {
+          "quarter": "2024-Q4",
+          "avgMonthlyRent": 2535,
+          "avgYield": 8.481848739495803,
+          "rentalCount": 119
+        },
+        {
+          "quarter": "2025-Q1",
+          "avgMonthlyRent": 2544,
+          "avgYield": 7.2225,
+          "rentalCount": 92
+        },
+        {
+          "quarter": "2025-Q2",
+          "avgMonthlyRent": 2510,
+          "avgYield": 7.493736263736261,
+          "rentalCount": 91
+        }
+      ]
+    }
+  ]
+}

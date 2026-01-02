@@ -1,0 +1,682 @@
+{
+  "annualAppreciationChart": [
+    {
+      "postcode": "D4",
+      "appreciation": -3.153317878691341,
+      "avgPrice2024": 950906,
+      "avgPrice2025": 920921,
+      "totalSales": 878
+    },
+    {
+      "postcode": "D24",
+      "appreciation": 7.290635214821724,
+      "avgPrice2024": 390317,
+      "avgPrice2025": 418774,
+      "totalSales": 891
+    },
+    {
+      "postcode": "D16",
+      "appreciation": 11.438230939401167,
+      "avgPrice2024": 616797,
+      "avgPrice2025": 687348,
+      "totalSales": 711
+    },
+    {
+      "postcode": "D9",
+      "appreciation": 5.971904895369093,
+      "avgPrice2024": 518096,
+      "avgPrice2025": 549036,
+      "totalSales": 866
+    },
+    {
+      "postcode": "D14",
+      "appreciation": 7.104934491853962,
+      "avgPrice2024": 744757,
+      "avgPrice2025": 797672,
+      "totalSales": 810
+    },
+    {
+      "postcode": "D7",
+      "appreciation": 5.798662404204186,
+      "avgPrice2024": 484102,
+      "avgPrice2025": 512174,
+      "totalSales": 715
+    },
+    {
+      "postcode": "D5",
+      "appreciation": 4.698401164596363,
+      "avgPrice2024": 543551,
+      "avgPrice2025": 569089,
+      "totalSales": 646
+    },
+    {
+      "postcode": "D15",
+      "appreciation": 13.546990639164951,
+      "avgPrice2024": 442019,
+      "avgPrice2025": 501899,
+      "totalSales": 1208
+    },
+    {
+      "postcode": "D22",
+      "appreciation": 8.550882130078095,
+      "avgPrice2024": 362149,
+      "avgPrice2025": 393116,
+      "totalSales": 416
+    },
+    {
+      "postcode": "D18",
+      "appreciation": 4.2995203705602165,
+      "avgPrice2024": 694500,
+      "avgPrice2025": 724360,
+      "totalSales": 1115
+    },
+    {
+      "postcode": "D3",
+      "appreciation": 12.460558484320385,
+      "avgPrice2024": 595425,
+      "avgPrice2025": 669618,
+      "totalSales": 780
+    },
+    {
+      "postcode": "D2",
+      "appreciation": 7.310941170970625,
+      "avgPrice2024": 520874,
+      "avgPrice2025": 558955,
+      "totalSales": 279
+    },
+    {
+      "postcode": "D8",
+      "appreciation": 9.109242661138676,
+      "avgPrice2024": 451266,
+      "avgPrice2025": 492373,
+      "totalSales": 847
+    },
+    {
+      "postcode": "D11",
+      "appreciation": 11.919678140231792,
+      "avgPrice2024": 391049,
+      "avgPrice2025": 437660,
+      "totalSales": 566
+    },
+    {
+      "postcode": "D6",
+      "appreciation": 8.850324737331288,
+      "avgPrice2024": 945952,
+      "avgPrice2025": 1029672,
+      "totalSales": 675
+    }
+  ],
+  "overAskingConservatismChart": [
+    {
+      "postcode": "D24",
+      "overAskingRate": 91.47025813692481,
+      "avgPremium": 13.107006134969346,
+      "avgOverAsking": 11.340033670033682,
+      "salesCount": 891
+    },
+    {
+      "postcode": "D16",
+      "overAskingRate": 85.93530239099859,
+      "avgPremium": 9.691456628477901,
+      "avgOverAsking": 6.919746835443037,
+      "salesCount": 711
+    },
+    {
+      "postcode": "D9",
+      "overAskingRate": 85.1039260969977,
+      "avgPremium": 10.791031207598381,
+      "avgOverAsking": 7.904191685912252,
+      "salesCount": 866
+    },
+    {
+      "postcode": "D14",
+      "overAskingRate": 83.4567901234568,
+      "avgPremium": 10.717573964497042,
+      "avgOverAsking": 6.270962962962967,
+      "salesCount": 810
+    },
+    {
+      "postcode": "D7",
+      "overAskingRate": 81.95804195804196,
+      "avgPremium": 12.048583617747433,
+      "avgOverAsking": 8.553832167832162,
+      "salesCount": 715
+    },
+    {
+      "postcode": "D5",
+      "overAskingRate": 89.00928792569658,
+      "avgPremium": 11.809391304347823,
+      "avgOverAsking": 9.824458204334364,
+      "salesCount": 646
+    },
+    {
+      "postcode": "D15",
+      "overAskingRate": 86.75496688741721,
+      "avgPremium": 9.639914122137418,
+      "avgOverAsking": 7.271283112582788,
+      "salesCount": 1208
+    },
+    {
+      "postcode": "D22",
+      "overAskingRate": 89.90384615384616,
+      "avgPremium": 14.577219251336912,
+      "avgOverAsking": 12.635961538461553,
+      "salesCount": 416
+    },
+    {
+      "postcode": "D18",
+      "overAskingRate": 77.9372197309417,
+      "avgPremium": 8.656731875719219,
+      "avgOverAsking": 5.09427802690583,
+      "salesCount": 1115
+    },
+    {
+      "postcode": "D3",
+      "overAskingRate": 79.1025641025641,
+      "avgPremium": 10.704473257698538,
+      "avgOverAsking": 6.797358974358968,
+      "salesCount": 780
+    },
+    {
+      "postcode": "D4",
+      "overAskingRate": 76.08200455580865,
+      "avgPremium": 10.491482035928152,
+      "avgOverAsking": 5.920671981776767,
+      "salesCount": 878
+    },
+    {
+      "postcode": "D2",
+      "overAskingRate": 70.96774193548387,
+      "avgPremium": 9.146666666666661,
+      "avgOverAsking": 5.064014336917562,
+      "salesCount": 279
+    },
+    {
+      "postcode": "D8",
+      "overAskingRate": 76.03305785123968,
+      "avgPremium": 11.489052795031046,
+      "avgOverAsking": 6.159149940968119,
+      "salesCount": 847
+    },
+    {
+      "postcode": "D11",
+      "overAskingRate": 90.2826855123675,
+      "avgPremium": 13.051741682974571,
+      "avgOverAsking": 11.098462897526511,
+      "salesCount": 566
+    },
+    {
+      "postcode": "D6",
+      "overAskingRate": 73.92592592592592,
+      "avgPremium": 12.025691382765544,
+      "avgOverAsking": 6.3161185185185245,
+      "salesCount": 675
+    }
+  ],
+  "conservativeStrategyChart": [
+    {
+      "postcode": "D24",
+      "conservativeScore": 40.96248438366296,
+      "appreciation": 7.290635214821724,
+      "overAskingRate": 91.47025813692481,
+      "avgPrice2025": 418774,
+      "salesCount": 891
+    },
+    {
+      "postcode": "D16",
+      "conservativeScore": 41.237059520040134,
+      "appreciation": 11.438230939401167,
+      "overAskingRate": 85.93530239099859,
+      "avgPrice2025": 687348,
+      "salesCount": 711
+    },
+    {
+      "postcode": "D9",
+      "conservativeScore": 37.62471337602053,
+      "appreciation": 5.971904895369093,
+      "overAskingRate": 85.1039260969977,
+      "avgPrice2025": 549036,
+      "salesCount": 866
+    },
+    {
+      "postcode": "D14",
+      "conservativeScore": 37.6456767444951,
+      "appreciation": 7.104934491853962,
+      "overAskingRate": 83.4567901234568,
+      "avgPrice2025": 797672,
+      "salesCount": 810
+    },
+    {
+      "postcode": "D7",
+      "conservativeScore": 36.2624142257393,
+      "appreciation": 5.798662404204186,
+      "overAskingRate": 81.95804195804196,
+      "avgPrice2025": 512174,
+      "salesCount": 715
+    },
+    {
+      "postcode": "D5",
+      "conservativeScore": 38.42275586903645,
+      "appreciation": 4.698401164596363,
+      "overAskingRate": 89.00928792569658,
+      "avgPrice2025": 569089,
+      "salesCount": 646
+    },
+    {
+      "postcode": "D15",
+      "conservativeScore": 42.83018113846586,
+      "appreciation": 13.546990639164951,
+      "overAskingRate": 86.75496688741721,
+      "avgPrice2025": 501899,
+      "salesCount": 1208
+    },
+    {
+      "postcode": "D22",
+      "conservativeScore": 41.092067739585325,
+      "appreciation": 8.550882130078095,
+      "overAskingRate": 89.90384615384616,
+      "avgPrice2025": 393116,
+      "salesCount": 416
+    },
+    {
+      "postcode": "D18",
+      "conservativeScore": 33.754600114712815,
+      "appreciation": 4.2995203705602165,
+      "overAskingRate": 77.9372197309417,
+      "avgPrice2025": 724360,
+      "salesCount": 1115
+    },
+    {
+      "postcode": "D3",
+      "conservativeScore": 39.11736073161787,
+      "appreciation": 12.460558484320385,
+      "overAskingRate": 79.1025641025641,
+      "avgPrice2025": 669618,
+      "salesCount": 780
+    },
+    {
+      "postcode": "D4",
+      "conservativeScore": 32.324792549538266,
+      "appreciation": -3.153317878691341,
+      "overAskingRate": 76.08200455580865,
+      "avgPrice2025": 920921,
+      "salesCount": 878
+    },
+    {
+      "postcode": "D2",
+      "conservativeScore": 32.77366147677593,
+      "appreciation": 7.310941170970625,
+      "overAskingRate": 70.96774193548387,
+      "avgPrice2025": 558955,
+      "salesCount": 279
+    },
+    {
+      "postcode": "D8",
+      "conservativeScore": 35.87876873717908,
+      "appreciation": 9.109242661138676,
+      "overAskingRate": 76.03305785123968,
+      "avgPrice2025": 492373,
+      "salesCount": 847
+    },
+    {
+      "postcode": "D11",
+      "conservativeScore": 43.264881089086074,
+      "appreciation": 11.919678140231792,
+      "overAskingRate": 90.2826855123675,
+      "avgPrice2025": 437660,
+      "salesCount": 566
+    },
+    {
+      "postcode": "D6",
+      "conservativeScore": 34.88056521276914,
+      "appreciation": 8.850324737331288,
+      "overAskingRate": 73.92592592592592,
+      "avgPrice2025": 1029672,
+      "salesCount": 675
+    }
+  ],
+  "buyerAdvantageChart": [
+    {
+      "postcode": "D18",
+      "overAskingRate": 77.9372197309417,
+      "avgPremium": 8.656731875719219,
+      "appreciation": 4.2995203705602165,
+      "salesCount": 1115
+    },
+    {
+      "postcode": "D3",
+      "overAskingRate": 79.1025641025641,
+      "avgPremium": 10.704473257698538,
+      "appreciation": 12.460558484320385,
+      "salesCount": 780
+    },
+    {
+      "postcode": "D4",
+      "overAskingRate": 76.08200455580865,
+      "avgPremium": 10.491482035928152,
+      "appreciation": -3.153317878691341,
+      "salesCount": 878
+    },
+    {
+      "postcode": "D2",
+      "overAskingRate": 70.96774193548387,
+      "avgPremium": 9.146666666666661,
+      "appreciation": 7.310941170970625,
+      "salesCount": 279
+    },
+    {
+      "postcode": "D8",
+      "overAskingRate": 76.03305785123968,
+      "avgPremium": 11.489052795031046,
+      "appreciation": 9.109242661138676,
+      "salesCount": 847
+    },
+    {
+      "postcode": "D6",
+      "overAskingRate": 73.92592592592592,
+      "avgPremium": 12.025691382765544,
+      "appreciation": 8.850324737331288,
+      "salesCount": 675
+    },
+    {
+      "postcode": "D1",
+      "overAskingRate": 69.62025316455697,
+      "avgPremium": 9.85440909090909,
+      "appreciation": 13.957954172528286,
+      "salesCount": 316
+    },
+    {
+      "postcode": "D13",
+      "overAskingRate": 77.91005291005291,
+      "avgPremium": 9.28415959252972,
+      "appreciation": 0.7781915983871728,
+      "salesCount": 756
+    }
+  ],
+  "sellerStrategyChart": [
+    {
+      "postcode": "D4",
+      "appreciation": -3.153317878691341,
+      "avgPrice2025": 920921,
+      "overAskingRate": 76.08200455580865,
+      "totalSales": 878
+    },
+    {
+      "postcode": "D24",
+      "appreciation": 7.290635214821724,
+      "avgPrice2025": 418774,
+      "overAskingRate": 91.47025813692481,
+      "totalSales": 891
+    },
+    {
+      "postcode": "D9",
+      "appreciation": 5.971904895369093,
+      "avgPrice2025": 549036,
+      "overAskingRate": 85.1039260969977,
+      "totalSales": 866
+    },
+    {
+      "postcode": "D14",
+      "appreciation": 7.104934491853962,
+      "avgPrice2025": 797672,
+      "overAskingRate": 83.4567901234568,
+      "totalSales": 810
+    },
+    {
+      "postcode": "D7",
+      "appreciation": 5.798662404204186,
+      "avgPrice2025": 512174,
+      "overAskingRate": 81.95804195804196,
+      "totalSales": 715
+    },
+    {
+      "postcode": "D5",
+      "appreciation": 4.698401164596363,
+      "avgPrice2025": 569089,
+      "overAskingRate": 89.00928792569658,
+      "totalSales": 646
+    },
+    {
+      "postcode": "D22",
+      "appreciation": 8.550882130078095,
+      "avgPrice2025": 393116,
+      "overAskingRate": 89.90384615384616,
+      "totalSales": 416
+    },
+    {
+      "postcode": "D18",
+      "appreciation": 4.2995203705602165,
+      "avgPrice2025": 724360,
+      "overAskingRate": 77.9372197309417,
+      "totalSales": 1115
+    },
+    {
+      "postcode": "D2",
+      "appreciation": 7.310941170970625,
+      "avgPrice2025": 558955,
+      "overAskingRate": 70.96774193548387,
+      "totalSales": 279
+    },
+    {
+      "postcode": "D8",
+      "appreciation": 9.109242661138676,
+      "avgPrice2025": 492373,
+      "overAskingRate": 76.03305785123968,
+      "totalSales": 847
+    }
+  ],
+  "quarterlyVolatilityChart": [
+    {
+      "postcode": "D24",
+      "volatility": 4.251551108448926,
+      "avgPrice": 394900,
+      "quartersAnalyzed": 6,
+      "salesCount": 891
+    },
+    {
+      "postcode": "D16",
+      "volatility": 4.996238385632396,
+      "avgPrice": 631524,
+      "quartersAnalyzed": 6,
+      "salesCount": 711
+    },
+    {
+      "postcode": "D9",
+      "volatility": 3.6249947542603014,
+      "avgPrice": 527158,
+      "quartersAnalyzed": 6,
+      "salesCount": 866
+    },
+    {
+      "postcode": "D14",
+      "volatility": 6.47055980519087,
+      "avgPrice": 752248,
+      "quartersAnalyzed": 6,
+      "salesCount": 810
+    },
+    {
+      "postcode": "D7",
+      "volatility": 6.2574350313353815,
+      "avgPrice": 494604,
+      "quartersAnalyzed": 6,
+      "salesCount": 715
+    },
+    {
+      "postcode": "D5",
+      "volatility": 4.474536595329829,
+      "avgPrice": 549408,
+      "quartersAnalyzed": 6,
+      "salesCount": 646
+    },
+    {
+      "postcode": "D15",
+      "volatility": 7.2671405993869245,
+      "avgPrice": 453137,
+      "quartersAnalyzed": 6,
+      "salesCount": 1208
+    },
+    {
+      "postcode": "D22",
+      "volatility": 4.611618157517515,
+      "avgPrice": 372576,
+      "quartersAnalyzed": 6,
+      "salesCount": 416
+    },
+    {
+      "postcode": "D18",
+      "volatility": 3.8683445533333867,
+      "avgPrice": 703173,
+      "quartersAnalyzed": 6,
+      "salesCount": 1115
+    },
+    {
+      "postcode": "D3",
+      "volatility": 6.651061846226221,
+      "avgPrice": 609020,
+      "quartersAnalyzed": 6,
+      "salesCount": 780
+    },
+    {
+      "postcode": "D4",
+      "volatility": 9.907287677003374,
+      "avgPrice": 922856,
+      "quartersAnalyzed": 6,
+      "salesCount": 878
+    },
+    {
+      "postcode": "D2",
+      "volatility": 9.288485974750147,
+      "avgPrice": 531006,
+      "quartersAnalyzed": 6,
+      "salesCount": 279
+    },
+    {
+      "postcode": "D8",
+      "volatility": 3.264601082270209,
+      "avgPrice": 452435,
+      "quartersAnalyzed": 6,
+      "salesCount": 847
+    },
+    {
+      "postcode": "D11",
+      "volatility": 5.394760109556368,
+      "avgPrice": 405825,
+      "quartersAnalyzed": 6,
+      "salesCount": 566
+    },
+    {
+      "postcode": "D6",
+      "volatility": 7.922193984796184,
+      "avgPrice": 966676,
+      "quartersAnalyzed": 6,
+      "salesCount": 675
+    }
+  ],
+  "riskAdjustedStrategyChart": [
+    {
+      "postcode": "D6W",
+      "riskAdjustedReturn": 21.810854617924544,
+      "appreciation": 18.243932012848415,
+      "overAskingVolatility": 0.836461126005362,
+      "conservativeScore": 44.40480424792353
+    },
+    {
+      "postcode": "D1",
+      "riskAdjustedReturn": 20.048697811449717,
+      "appreciation": 13.957954172528286,
+      "overAskingVolatility": 0.6962025316455697,
+      "conservativeScore": 36.22287376933976
+    },
+    {
+      "postcode": "D3",
+      "riskAdjustedReturn": 15.752407808379093,
+      "appreciation": 12.460558484320385,
+      "overAskingVolatility": 0.791025641025641,
+      "conservativeScore": 39.11736073161787
+    },
+    {
+      "postcode": "D15",
+      "riskAdjustedReturn": 15.61523348483899,
+      "appreciation": 13.546990639164951,
+      "overAskingVolatility": 0.8675496688741722,
+      "conservativeScore": 42.83018113846586
+    },
+    {
+      "postcode": "D17",
+      "riskAdjustedReturn": 14.487209776409605,
+      "appreciation": 12.055050470880985,
+      "overAskingVolatility": 0.8321167883211679,
+      "conservativeScore": 40.517701815375304
+    },
+    {
+      "postcode": "D20",
+      "riskAdjustedReturn": 13.806520958101295,
+      "appreciation": 12.282424488700503,
+      "overAskingVolatility": 0.8896103896103896,
+      "conservativeScore": 42.953870277635886
+    },
+    {
+      "postcode": "D16",
+      "riskAdjustedReturn": 13.310281829646858,
+      "appreciation": 11.438230939401167,
+      "overAskingVolatility": 0.8593530239099859,
+      "conservativeScore": 41.237059520040134
+    },
+    {
+      "postcode": "D11",
+      "riskAdjustedReturn": 13.202618057477874,
+      "appreciation": 11.919678140231792,
+      "overAskingVolatility": 0.902826855123675,
+      "conservativeScore": 43.264881089086074
+    },
+    {
+      "postcode": "D8",
+      "riskAdjustedReturn": 11.980634369541082,
+      "appreciation": 9.109242661138676,
+      "overAskingVolatility": 0.7603305785123968,
+      "conservativeScore": 35.87876873717908
+    },
+    {
+      "postcode": "D6",
+      "riskAdjustedReturn": 11.971882159716673,
+      "appreciation": 8.850324737331288,
+      "overAskingVolatility": 0.7392592592592593,
+      "conservativeScore": 34.88056521276914
+    },
+    {
+      "postcode": "D10",
+      "riskAdjustedReturn": 10.602406792437518,
+      "appreciation": 9.665177462719285,
+      "overAskingVolatility": 0.9116022099447514,
+      "conservativeScore": 42.263194875421625
+    },
+    {
+      "postcode": "D2",
+      "riskAdjustedReturn": 10.301780740913152,
+      "appreciation": 7.310941170970625,
+      "overAskingVolatility": 0.7096774193548387,
+      "conservativeScore": 32.77366147677593
+    },
+    {
+      "postcode": "D22",
+      "riskAdjustedReturn": 9.511141620621624,
+      "appreciation": 8.550882130078095,
+      "overAskingVolatility": 0.8990384615384617,
+      "conservativeScore": 41.092067739585325
+    },
+    {
+      "postcode": "D14",
+      "riskAdjustedReturn": 8.5133090804759,
+      "appreciation": 7.104934491853962,
+      "overAskingVolatility": 0.834567901234568,
+      "conservativeScore": 37.6456767444951
+    },
+    {
+      "postcode": "D12",
+      "riskAdjustedReturn": 8.023621576610614,
+      "appreciation": 7.232386166898627,
+      "overAskingVolatility": 0.901386748844376,
+      "conservativeScore": 40.39490165391422
+    }
+  ]
+}

@@ -238,7 +238,10 @@ function reviewBlogs() {
     '../blogs/blog19_d6w_area_deep_dive.md',
     '../blogs/blog20_d7_area_deep_dive.md',
     '../blogs/blog21_d2_area_deep_dive.md',
-    '../blogs/blog46_dublin_rental_market_analysis.md'
+    '../blogs/blog46_dublin_rental_market_analysis.md',
+    '../blogs/blog47_market_quiet_zones.md',
+    '../blogs/blog48_conservative_market_strategy.md',
+    '../blogs/blog49_rental_market_hotspots.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');

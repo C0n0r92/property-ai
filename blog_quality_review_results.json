@@ -1,9 +1,9 @@
 {
-  "reviewDate": "2026-01-02T14:59:38.217Z",
+  "reviewDate": "2026-01-02T17:12:27.481Z",
   "summary": {
-    "totalBlogs": 22,
+    "totalBlogs": 25,
     "passed": 7,
-    "averageScore": 77
+    "averageScore": 76
   },
   "detailedResults": [
     {
@@ -797,6 +797,120 @@
       },
       "passThreshold": true,
       "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog47_market_quiet_zones.md",
+      "overallScore": 63,
+      "totalScore": 63,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 14,
+          "maxScore": 25,
+          "percentage": 56
+        },
+        "clarity": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "actionability": {
+          "score": 7,
+          "maxScore": 20,
+          "percentage": 34
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 10,
+          "maxScore": 15,
+          "percentage": 67
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Add more specific metrics and data points to strengthen analysis",
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
+    },
+    {
+      "filename": "../blogs/blog48_conservative_market_strategy.md",
+      "overallScore": 67,
+      "totalScore": 67,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 14,
+          "maxScore": 25,
+          "percentage": 56
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 12,
+          "maxScore": 20,
+          "percentage": 62
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 10,
+          "maxScore": 15,
+          "percentage": 67
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Add more specific metrics and data points to strengthen analysis"
+      ]
+    },
+    {
+      "filename": "../blogs/blog49_rental_market_hotspots.md",
+      "overallScore": 64,
+      "totalScore": 64,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 14,
+          "maxScore": 25,
+          "percentage": 56
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 10,
+          "maxScore": 20,
+          "percentage": 50
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 5,
+          "maxScore": 15,
+          "percentage": 33
+        }
+      },
+      "passThreshold": false,
+      "recommendations": [
+        "Add more specific metrics and data points to strengthen analysis",
+        "Include more practical recommendations for buyers, sellers, and investors",
+        "Ensure formal tone and proper formatting throughout"
+      ]
     }
   ]
 }

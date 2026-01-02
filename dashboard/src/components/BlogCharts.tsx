@@ -4447,3 +4447,476 @@ export function BuyerProfileOptimizationChart() {
     </ChartWrapper>
   );
 }
+
+// Blog 47 Charts - Market Quiet Zones
+export function SalesVolumeChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog47_market_quiet_zones_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.salesVolumeChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Sales Count', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [value, name === 'salesCount' ? 'Sales Count' : name]}
+              />
+              <Bar dataKey="salesCount" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Areas with lowest sales activity represent Dublin's market quiet zones
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceStabilityChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog47_market_quiet_zones_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.priceStabilityChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Price Change (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
+              />
+              <Tooltip
+                formatter={(value) => [`${Number(value) > 0 ? '+' : ''}${Number(value).toFixed(1)}%`, 'Price Change']}
+              />
+              <Line type="monotone" dataKey="priceChange" stroke="#2563EB" strokeWidth={2} dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Areas with minimal price movement represent the most stable markets
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function OverAskingStabilityChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog47_market_quiet_zones_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.overAskingStabilityChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgSuccessRate') return [`${Number(value).toFixed(1)}%`, 'Success Rate'];
+                  return [value, name];
+                }}
+              />
+              <Bar dataKey="avgSuccessRate" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Over-asking success rates vary significantly across Dublin postcodes
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Blog 48 Charts - Conservative Market Strategy
+export function AnnualAppreciationChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog48_conservative_market_strategy_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.annualAppreciationChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Appreciation (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
+              />
+              <Tooltip
+                formatter={(value) => [`${Number(value) > 0 ? '+' : ''}${Number(value).toFixed(1)}%`, 'Annual Appreciation']}
+              />
+              <Line type="monotone" dataKey="appreciation" stroke="#2563EB" strokeWidth={2} dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Annual price appreciation varies significantly across Dublin postcodes
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function ConservativeStrategyChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog48_conservative_market_strategy_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.conservativeStrategyChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Conservative Score', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'conservativeScore') return [Number(value).toFixed(1), 'Conservative Score'];
+                  return [value, name];
+                }}
+              />
+              <Bar dataKey="conservativeScore" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Areas ranked by conservative investment strategy scores
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function BuyerAdvantageChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog48_conservative_market_strategy_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.buyerAdvantageChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Success (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'overAskingRate') return [`${Number(value).toFixed(1)}%`, 'Over-Asking Success'];
+                  return [value, name];
+                }}
+              />
+              <Bar dataKey="overAskingRate" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Areas where buyers have negotiating advantages due to lower over-asking success
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// Blog 49 Charts - Rental Market Hotspots
+export function RentalVolumeChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog49_rental_market_hotspots_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.rentalVolumeChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Rental Count', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [value, name === 'rentalCount' ? 'Rental Count' : name]}
+              />
+              <Bar dataKey="rentalCount" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Areas with the highest concentration of rental properties in Dublin
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PremiumRentalsChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog49_rental_market_hotspots_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.premiumRentalsChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Monthly Rent (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${value}`}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgMonthlyRent') return [`€${Number(value).toFixed(0)}`, 'Monthly Rent'];
+                  return [value, name];
+                }}
+              />
+              <Bar dataKey="avgMonthlyRent" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Dublin areas commanding the highest premium rental rates
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function ValueRentalsChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog49_rental_market_hotspots_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.valueRentalsChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Rental Yield (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `${value.toFixed(1)}%`}
+              />
+              <Tooltip
+                formatter={(value, name) => {
+                  if (name === 'avgYield') return [`${Number(value).toFixed(2)}%`, 'Rental Yield'];
+                  return [value, name];
+                }}
+              />
+              <Bar dataKey="avgYield" fill="#10B981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Areas offering the best rental yields and value for money
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function YieldEfficiencyChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog49_rental_market_hotspots_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.yieldEfficiencyChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="postcode"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Yield per €100k', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => value.toFixed(1)}
+              />
+              <Tooltip
+                formatter={(value) => [Number(value).toFixed(2), 'Yield per €100k']}
+              />
+              <Line type="monotone" dataKey="yieldEfficiency" stroke="#2563EB" strokeWidth={2} dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Most yield-efficient areas when investing €100,000 in property
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
