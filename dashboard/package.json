@@ -10,7 +10,9 @@
     "dev:setup": "nvm use 20 || echo 'Please install nvm and run: nvm use 20' && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "security-check": "node ../scripts/check-security.js",
+    "prebuild": "npm run security-check"
   },
   "dependencies": {
     "@stripe/stripe-js": "^8.5.3",

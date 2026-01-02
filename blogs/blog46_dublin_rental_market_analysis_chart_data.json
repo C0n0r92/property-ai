@@ -1,0 +1,178 @@
+{
+  "rentalCountByArea": [
+    {
+      "area": "D4",
+      "rentals": 104,
+      "avgRent": 3751
+    },
+    {
+      "area": "D6",
+      "rentals": 73,
+      "avgRent": 2932
+    },
+    {
+      "area": "D8",
+      "rentals": 70,
+      "avgRent": 2262
+    },
+    {
+      "area": "D7",
+      "rentals": 57,
+      "avgRent": 2261
+    },
+    {
+      "area": "D1",
+      "rentals": 57,
+      "avgRent": 2634
+    },
+    {
+      "area": "D15",
+      "rentals": 52,
+      "avgRent": 2571
+    },
+    {
+      "area": "D18",
+      "rentals": 52,
+      "avgRent": 2657
+    },
+    {
+      "area": "D2",
+      "rentals": 52,
+      "avgRent": 3166
+    },
+    {
+      "area": "D3",
+      "rentals": 49,
+      "avgRent": 2264
+    },
+    {
+      "area": "D9",
+      "rentals": 35,
+      "avgRent": 2277
+    }
+  ],
+  "expensiveRentalsByArea": [
+    {
+      "area": "D4",
+      "avgRent": 3751,
+      "medianRent": 3075,
+      "maxRent": 16300
+    },
+    {
+      "area": "D12",
+      "avgRent": 3224,
+      "medianRent": 2266,
+      "maxRent": 14000
+    },
+    {
+      "area": "D13",
+      "avgRent": 3178,
+      "medianRent": 2545,
+      "maxRent": 9950
+    },
+    {
+      "area": "D2",
+      "avgRent": 3166,
+      "medianRent": 2975,
+      "maxRent": 11696
+    },
+    {
+      "area": "D6W",
+      "avgRent": 3013,
+      "medianRent": 2782,
+      "maxRent": 6000
+    },
+    {
+      "area": "D6",
+      "avgRent": 2932,
+      "medianRent": 2090,
+      "maxRent": 12000
+    },
+    {
+      "area": "D16",
+      "avgRent": 2928,
+      "medianRent": 2757,
+      "maxRent": 6500
+    },
+    {
+      "area": "D5",
+      "avgRent": 2885,
+      "medianRent": 2638,
+      "maxRent": 6700
+    },
+    {
+      "area": "D14",
+      "avgRent": 2748,
+      "medianRent": 2700,
+      "maxRent": 6000
+    },
+    {
+      "area": "D18",
+      "avgRent": 2657,
+      "medianRent": 2500,
+      "maxRent": 5000
+    }
+  ],
+  "bestValueRentalsByArea": [
+    {
+      "area": "D24",
+      "rentPerBed": 1075,
+      "avgRent": 2171,
+      "rentals": 32
+    },
+    {
+      "area": "D20",
+      "rentPerBed": 1144,
+      "avgRent": 2444,
+      "rentals": 4
+    },
+    {
+      "area": "D11",
+      "rentPerBed": 1155,
+      "avgRent": 2379,
+      "rentals": 15
+    },
+    {
+      "area": "D15",
+      "rentPerBed": 1157,
+      "avgRent": 2571,
+      "rentals": 52
+    },
+    {
+      "area": "D22",
+      "rentPerBed": 1177,
+      "avgRent": 2352,
+      "rentals": 9
+    },
+    {
+      "area": "D09",
+      "rentPerBed": 1225,
+      "avgRent": 2450,
+      "rentals": 3
+    },
+    {
+      "area": "D16",
+      "rentPerBed": 1227,
+      "avgRent": 2928,
+      "rentals": 10
+    },
+    {
+      "area": "D5",
+      "rentPerBed": 1263,
+      "avgRent": 2885,
+      "rentals": 16
+    },
+    {
+      "area": "D6W",
+      "rentPerBed": 1324,
+      "avgRent": 3013,
+      "rentals": 10
+    },
+    {
+      "area": "D13",
+      "rentPerBed": 1345,
+      "avgRent": 3178,
+      "rentals": 24
+    }
+  ]
+}

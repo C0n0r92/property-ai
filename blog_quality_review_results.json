@@ -1,8 +1,8 @@
 {
-  "reviewDate": "2026-01-01T15:55:23.775Z",
+  "reviewDate": "2026-01-02T14:59:38.217Z",
   "summary": {
-    "totalBlogs": 21,
-    "passed": 6,
+    "totalBlogs": 22,
+    "passed": 7,
     "averageScore": 77
   },
   "detailedResults": [
@@ -761,6 +761,41 @@
         }
       },
       "passThreshold": false,
+      "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog46_dublin_rental_market_analysis.md",
+      "overallScore": 85,
+      "totalScore": 85,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 20,
+          "maxScore": 25,
+          "percentage": 80
+        },
+        "clarity": {
+          "score": 13,
+          "maxScore": 20,
+          "percentage": 65
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 70
+        },
+        "uniqueness": {
+          "score": 23,
+          "maxScore": 20,
+          "percentage": 115
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
       "recommendations": []
     }
   ]

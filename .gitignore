@@ -43,3 +43,16 @@ next-env.d.ts
 # Nominatim/OSM data (large files)
 nominatim-data/
 *.osm.pbf
+
+# Security: Prevent binary assets that could trigger alerts
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.webp
+*.bmp
+
+# Exception: Allow specific public assets
+!public/*.svg
+!public/*.png

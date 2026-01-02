@@ -694,6 +694,25 @@ async function getAreaStats(area: string | null) {
 
 async function getAmenitiesData(lat: number, lng: number) {
   try {
+    // Prevent localhost calls during build time to avoid security alerts
+    const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_BASE_URL;
+    if (isBuildTime) {
+      console.warn('Skipping amenities fetch during build time');
+      return {
+        score: 0,
+        rating: 'Unknown',
+        breakdown: {
+          transport: 0,
+          education: 0,
+          healthcare: 0,
+          shopping: 0,
+          leisure: 0,
+          services: 0
+        },
+        nearestDartLuas: null
+      };
+    }
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/amenities?lat=${lat}&lng=${lng}`,
       { cache: 'force-cache' }
@@ -725,6 +744,19 @@ async function getAmenitiesData(lat: number, lng: number) {
 
 async function getPlanningData(lat: number, lng: number, address: string, dublinPostcode?: string | null) {
   try {
+    // Prevent localhost calls during build time to avoid security alerts
+    const isBuildTime = process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_BASE_URL;
+    if (isBuildTime) {
+      console.warn('Skipping planning fetch during build time');
+      return {
+        highConfidence: [],
+        mediumConfidence: [],
+        lowConfidence: [],
+        totalApplications: 0,
+        portalUrl: null
+      };
+    }
+
     const params = new URLSearchParams({
       lat: lat.toString(),
       lng: lng.toString(),

@@ -237,7 +237,8 @@ function reviewBlogs() {
     '../blogs/blog18_property_valuation_increases.md',
     '../blogs/blog19_d6w_area_deep_dive.md',
     '../blogs/blog20_d7_area_deep_dive.md',
-    '../blogs/blog21_d2_area_deep_dive.md'
+    '../blogs/blog21_d2_area_deep_dive.md',
+    '../blogs/blog46_dublin_rental_market_analysis.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');

@@ -10,18 +10,6 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
-    id: 'map-features-complete-guide',
-    title: 'Navigate Dublin Properties: Complete Map Features Guide',
-    excerpt: 'Master Dublin\'s interactive property map with filters, alerts, walkability scores, and planning permission data. Step-by-step guide with screenshots.',
-    category: 'Tool Guide',
-    date: '2026-01-01',
-    readTime: '6 min read',
-    featured: true,
-    tags: ['Map Features', 'Tool Guide', 'Walkability', 'Planning Permission', 'Property Alerts', 'User Guide'],
-    author: 'Market Research Team',
-    views: 0,
-  },
-  {
     id: 'dublin-d3-area-analysis',
     title: 'Dublin D3: East Dublin\'s Emerging Property Market',
     excerpt: 'Dublin D3 emerges as East Dublin\'s most dynamic property market in 2024-2025, with 828 transactions averaging €618,071. The area achieves 84.8% over-asking success rates while maintaining competitive pricing relative to premium Dublin 4.',
@@ -78,18 +66,6 @@ const researchArticles = [
     readTime: '7 min read',
     featured: false,
     tags: ['Size Efficiency', 'Property Size', 'Efficiency Paradox', 'Value Analysis', 'Size Trade-offs'],
-    author: 'Market Research Team',
-    views: 0,
-  },
-  {
-    id: 'compare-properties-complete-guide',
-    title: 'Master Property Comparison: Complete Guide to Dublin\'s Most Powerful Search Tool',
-    excerpt: 'Compare up to 5 Dublin properties side-by-side across 20,985 listings. Analyze mortgage costs, walkability scores, planning applications, and investment metrics. Step-by-step walkthrough with screenshots included.',
-    category: 'Tool Guide',
-    date: '2025-12-31',
-    readTime: '12 min read',
-    featured: true,
-    tags: ['Compare Properties', 'Tool Guide', 'Property Analysis', 'Decision Making', 'Feature Walkthrough', 'User Guide'],
     author: 'Market Research Team',
     views: 0,
   },

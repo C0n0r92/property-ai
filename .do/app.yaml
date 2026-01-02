@@ -35,6 +35,9 @@ services:
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         scope: RUN_AND_BUILD_TIME
         value: your_supabase_anon_key_here
+      - key: NEXT_PUBLIC_BASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://irishpropertydata.com
     routes:
       - path: /
     health_check:
