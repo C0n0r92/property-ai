@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { PlanningResponse, PlanningApplicationWithScore, PlanningApplication } from '@/types/property';
 import { DistanceDisplay } from '@/components/distance/DistanceDisplay';
 import { MapPin, ArrowLeft, FileText, TrendingUp, AlertTriangle, CheckCircle, Clock, XCircle, Calendar, Building2, BarChart3, PieChart, ExternalLink, Filter, Search, Target } from 'lucide-react';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
 
-export default function PlanningPermissionsPage() {
+function PlanningContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -1075,5 +1075,17 @@ function ApplicationDetailsModal({ application, isOpen, onClose, formatDate, get
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PlanningPermissionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-600">Loading planning permissions...</div>
+      </div>
+    }>
+      <PlanningContent />
+    </Suspense>
   );
 }

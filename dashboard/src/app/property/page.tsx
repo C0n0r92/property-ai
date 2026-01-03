@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PropertyOverview } from '@/components/property/PropertyOverview';
 import { PlanningDetail } from '@/components/property/PlanningDetail';
 import { AmenitiesDetail } from '@/components/property/AmenitiesDetail';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
 
-export default function PropertyPage() {
+function PropertyContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { trackMapSearch } = useSearchTracking();
@@ -141,5 +141,17 @@ export default function PropertyPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PropertyPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-600">Loading property details...</div>
+      </div>
+    }>
+      <PropertyContent />
+    </Suspense>
   );
 }

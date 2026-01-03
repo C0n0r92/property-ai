@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { AddressSearchBar } from '@/components/tools/AddressSearchBar';
 import { ResultsHeader } from '@/components/tools/ResultsHeader';
 import { PlanningAnalysisContent } from '@/components/tools/PlanningAnalysisContent';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
 
-export default function PlanningToolPage() {
+function PlanningToolContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { trackMapSearch } = useSearchTracking();
@@ -156,5 +156,17 @@ export default function PlanningToolPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PlanningToolPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-600">Loading planning tool...</div>
+      </div>
+    }>
+      <PlanningToolContent />
+    </Suspense>
   );
 }

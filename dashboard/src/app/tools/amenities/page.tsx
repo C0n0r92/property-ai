@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,7 @@ import { AddressSearchBar } from '@/components/tools/AddressSearchBar';
 import { ResultsHeader } from '@/components/tools/ResultsHeader';
 import { AmenitiesAnalysisContent } from '@/components/tools/AmenitiesAnalysisContent';
 
-export default function AmenitiesToolPage() {
+function AmenitiesToolContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -142,5 +142,17 @@ export default function AmenitiesToolPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AmenitiesToolPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-600">Loading amenities tool...</div>
+      </div>
+    }>
+      <AmenitiesToolContent />
+    </Suspense>
   );
 }
