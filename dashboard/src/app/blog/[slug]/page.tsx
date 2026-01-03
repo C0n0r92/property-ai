@@ -8863,7 +8863,7 @@ This guide provides a complete walkthrough of the comparison tool's capabilities
 Dublin's property market operates with systematic asking price inflation designed to test buyer resolve and extract maximum value from motivated purchasers. Understanding this dynamic is crucial for successful property acquisition.
     `,
   },
-  'dublin-bidding-wars-analysis': {
+  'dublin-bidding-wars-strategy-analysis': {
     title: 'Dublin Bidding Wars: Competition Analysis & Winning Strategies',
     excerpt: 'Comprehensive analysis of Dublin bidding wars across 32,859 transactions. Learn which properties spark competitive bidding, optimal bidding increments, and strategies to win in heated markets.',
     category: 'Market Analysis',

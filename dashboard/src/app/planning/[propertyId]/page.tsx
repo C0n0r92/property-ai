@@ -258,7 +258,7 @@ export default function PlanningAnalysisPage() {
                 <div className="text-right">
                   {propertyInfo && (
                     <div className="text-2xl font-bold text-slate-900 mb-1">
-                      {formatFullPrice(propertyInfo.price)}
+                      {formatFullPrice(typeof propertyInfo.price === 'number' ? propertyInfo.price : undefined)}
                     </div>
                   )}
                   {daysOnMarket && daysOnMarket.badge && (

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { RadarChart } from '@/components/charts/RadarChart';
+import { extractDublinPostcode } from '@/lib/utils';
 
 interface AmenitiesDetailProps {
   coordinates: { lat: number; lng: number };
@@ -88,17 +89,6 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [distanceFilter, setDistanceFilter] = useState<'500' | '1000' | '2000'>('1000');
-
-  // Extract Dublin postcode from address
-  const extractDublinPostcode = (address: string): string | null => {
-    // Look for patterns like "Dublin 4", "D4", "Dublin 6W", etc.
-    const dublinMatch = address.match(/Dublin\s+(\d+[A-Z]*)/i) || address.match(/D(\d+[A-Z]*)/i);
-    if (dublinMatch) {
-      const code = dublinMatch[1].toUpperCase();
-      return code.startsWith('D') ? code : `D${code}`;
-    }
-    return null;
-  };
 
   // Advanced walkability scoring algorithm
   const calculateWalkabilityScore = (amenities: any, postcode: string | null): number => {
