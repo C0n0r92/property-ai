@@ -281,7 +281,7 @@ const chartData = {
   }))
 };
 
-fs.writeFileSync('blog49_rental_market_hotspots_chart_data.json', JSON.stringify(chartData, null, 2));
+fs.writeFileSync('../dashboard/public/blog49_rental_market_hotspots_chart_data.json', JSON.stringify(chartData, null, 2));
 console.log('\nChart data exported to blog49_rental_market_hotspots_chart_data.json');
 
 // Summary insights

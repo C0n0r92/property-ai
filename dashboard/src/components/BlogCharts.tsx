@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, ScatterChart, Scatter } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, ScatterChart, Scatter, PieChart, Pie, Cell } from 'recharts';
 
 interface ChartWrapperProps {
   children: React.ReactNode;
@@ -4915,6 +4915,274 @@ export function YieldEfficiencyChart() {
         </div>
         <p className="text-sm text-slate-600 text-center">
           Most yield-efficient areas when investing €100,000 in property
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// D5 Area Analysis Charts
+export function D5YearlyTrendsChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog50_d5_area_analysis_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.yearlyTrendChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="year" fontSize={12} />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${Number(value).toLocaleString()}`, 'Average Price']}
+              />
+              <Line
+                type="monotone"
+                dataKey="averagePrice"
+                stroke="#2563EB"
+                strokeWidth={4}
+                dot={{ fill: '#2563EB', strokeWidth: 2, r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D5 property price trends from 2021-2025 showing 22% growth
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function D5PropertyTypeChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog50_d5_area_analysis_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.propertyTypeChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="type"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${Number(value).toLocaleString()}`, 'Average Price']}
+              />
+              <Bar dataKey="averagePrice" fill="#DC2626" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D5 property types by average price - semi-detached leads at €607k
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+// COVID Recovery Charts
+export function CovidRecoveryChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog51_covid_price_changes_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.yearlyAveragePrices || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="year" fontSize={12} />
+              <YAxis
+                label={{ value: 'Average Price (€)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value) => [`€${Number(value).toLocaleString()}`, 'Average Property Price']}
+              />
+              <Bar dataKey="averagePrice" fill="#16A34A" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Dublin property prices during COVID recovery: €107k surge from 2021-2025
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function CovidPropertyTypeChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog51_covid_price_changes_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => {
+        // Transform the property type evolution data
+        const transformedData = chartData.propertyTypeEvolution?.[1]?.types?.map((type: any) => ({
+          type: type.type,
+          percentage: type.percentage ? parseFloat(type.percentage) : 0
+        })) || [];
+        setData(transformedData);
+      })
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="type" fontSize={12} />
+              <YAxis
+                label={{ value: 'Market Share %', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value) => [`${Number(value).toFixed(1)}%`, 'Market Share']}
+              />
+              <Bar dataKey="percentage" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Property type market share in 2025 during recovery period
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function CovidGrowthRatesChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog51_covid_price_changes_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.yearlyGrowthRates || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <XAxis dataKey="period" fontSize={12} />
+              <YAxis
+                label={{ value: 'Growth Rate %', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+                tickFormatter={(value) => `${value}%`}
+              />
+              <Tooltip
+                formatter={(value) => [`${Number(value)}%`, 'YoY Growth Rate']}
+              />
+              <Line
+                type="monotone"
+                dataKey="growthRate"
+                stroke="#16A34A"
+                strokeWidth={4}
+                dot={{ fill: '#16A34A', strokeWidth: 2, r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Year-over-year growth rates showing COVID recovery acceleration
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function D5PriceDistributionChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog50_d5_area_analysis_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.priceDistributionChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="w-full mb-4" style={{ height: '320px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ bracket, percentage }) => `${bracket}: ${percentage}%`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="count"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={['#DC2626', '#2563EB', '#16A34A', '#F59E0B', '#EF4444'][index % 5]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => [value, 'Properties']} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D5 price distribution - 54% of properties in €400k-600k range
         </p>
       </div>
     </ChartWrapper>

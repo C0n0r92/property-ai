@@ -1,0 +1,60 @@
+{
+  "functionalityOverview": {
+    "dataSource": "Dublin City Council ArcGIS Planning Applications Database",
+    "searchRadii": [
+      50,
+      100,
+      150
+    ],
+    "confidenceLevels": [
+      "High (85%+)",
+      "Medium (70-84%)",
+      "Low (50-69%)"
+    ],
+    "matchingCriteria": [
+      "Spatial proximity to property",
+      "House number matching",
+      "Street name similarity",
+      "Postcode verification"
+    ]
+  },
+  "userBenefits": [
+    "Real-time access to planning applications",
+    "Confidence scoring for relevance",
+    "Integration with property search",
+    "Development potential assessment"
+  ],
+  "technicalSpecs": {
+    "apiEndpoint": "/api/planning",
+    "cacheTTL": "24 hours",
+    "supportedParameters": [
+      "lat",
+      "lng",
+      "address",
+      "radius",
+      "status",
+      "year"
+    ],
+    "responseFormat": "GeoJSON features with confidence scores"
+  },
+  "usageExamples": [
+    {
+      "scenario": "Property Investment Due Diligence",
+      "steps": [
+        "Enter property address",
+        "Review high-confidence applications",
+        "Assess development impact",
+        "Cross-reference with property data"
+      ]
+    },
+    {
+      "scenario": "Development Opportunity Research",
+      "steps": [
+        "Search target area",
+        "Identify approval patterns",
+        "Evaluate construction timeline",
+        "Assess value appreciation potential"
+      ]
+    }
+  ]
+}

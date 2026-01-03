@@ -1,0 +1,254 @@
+{
+  "yearOverYearChart": [
+    {
+      "year": "2024",
+      "averagePrice": 531572
+    },
+    {
+      "year": "2025",
+      "averagePrice": 560088
+    }
+  ],
+  "propertyTypeChart": [
+    {
+      "type": "Detached",
+      "count": 30,
+      "averagePrice": 780567,
+      "percentage": "4.1"
+    },
+    {
+      "type": "End of Terrace",
+      "count": 105,
+      "averagePrice": 504011,
+      "percentage": "14.4"
+    },
+    {
+      "type": "Apartment",
+      "count": 53,
+      "averagePrice": 374742,
+      "percentage": "7.3"
+    },
+    {
+      "type": "Semi-D",
+      "count": 293,
+      "averagePrice": 607135,
+      "percentage": "40.1"
+    },
+    {
+      "type": "Terrace",
+      "count": 218,
+      "averagePrice": 492086,
+      "percentage": "29.8"
+    },
+    {
+      "type": "",
+      "count": 11,
+      "averagePrice": 491455,
+      "percentage": "1.5"
+    },
+    {
+      "type": "Bungalow",
+      "count": 15,
+      "averagePrice": 657533,
+      "percentage": "2.1"
+    },
+    {
+      "type": "Duplex",
+      "count": 5,
+      "averagePrice": 443200,
+      "percentage": "0.7"
+    },
+    {
+      "type": "Townhouse",
+      "count": 1,
+      "averagePrice": 537000,
+      "percentage": "0.1"
+    }
+  ],
+  "priceDistributionChart": [
+    {
+      "bracket": "€0-400k",
+      "count": 116,
+      "percentage": "15.9"
+    },
+    {
+      "bracket": "€400k-600k",
+      "count": 395,
+      "percentage": "54.0"
+    },
+    {
+      "bracket": "€600k-800k",
+      "count": 165,
+      "percentage": "22.6"
+    },
+    {
+      "bracket": "€800k-1M",
+      "count": 41,
+      "percentage": "5.6"
+    },
+    {
+      "bracket": "€1M+",
+      "count": 14,
+      "percentage": "1.9"
+    }
+  ],
+  "monthlyTrendChart": [
+    {
+      "month": "2024-01",
+      "averagePrice": 548143,
+      "transactionCount": 7
+    },
+    {
+      "month": "2024-02",
+      "averagePrice": 540540,
+      "transactionCount": 25
+    },
+    {
+      "month": "2024-03",
+      "averagePrice": 516185,
+      "transactionCount": 27
+    },
+    {
+      "month": "2024-04",
+      "averagePrice": 506172,
+      "transactionCount": 32
+    },
+    {
+      "month": "2024-05",
+      "averagePrice": 528146,
+      "transactionCount": 41
+    },
+    {
+      "month": "2024-06",
+      "averagePrice": 468595,
+      "transactionCount": 21
+    },
+    {
+      "month": "2024-07",
+      "averagePrice": 531964,
+      "transactionCount": 35
+    },
+    {
+      "month": "2024-08",
+      "averagePrice": 512317,
+      "transactionCount": 50
+    },
+    {
+      "month": "2024-09",
+      "averagePrice": 497429,
+      "transactionCount": 21
+    },
+    {
+      "month": "2024-10",
+      "averagePrice": 568986,
+      "transactionCount": 35
+    },
+    {
+      "month": "2024-11",
+      "averagePrice": 636239,
+      "transactionCount": 23
+    },
+    {
+      "month": "2024-12",
+      "averagePrice": 540152,
+      "transactionCount": 35
+    },
+    {
+      "month": "2025-01",
+      "averagePrice": 517327,
+      "transactionCount": 28
+    },
+    {
+      "month": "2025-02",
+      "averagePrice": 509656,
+      "transactionCount": 27
+    },
+    {
+      "month": "2025-03",
+      "averagePrice": 569233,
+      "transactionCount": 33
+    },
+    {
+      "month": "2025-04",
+      "averagePrice": 587600,
+      "transactionCount": 33
+    },
+    {
+      "month": "2025-05",
+      "averagePrice": 569190,
+      "transactionCount": 25
+    },
+    {
+      "month": "2025-06",
+      "averagePrice": 566509,
+      "transactionCount": 29
+    },
+    {
+      "month": "2025-07",
+      "averagePrice": 530594,
+      "transactionCount": 32
+    },
+    {
+      "month": "2025-08",
+      "averagePrice": 546535,
+      "transactionCount": 31
+    },
+    {
+      "month": "2025-09",
+      "averagePrice": 592574,
+      "transactionCount": 51
+    },
+    {
+      "month": "2025-10",
+      "averagePrice": 575868,
+      "transactionCount": 57
+    },
+    {
+      "month": "2025-11",
+      "averagePrice": 542630,
+      "transactionCount": 27
+    },
+    {
+      "month": "2025-12",
+      "averagePrice": 595833,
+      "transactionCount": 6
+    }
+  ],
+  "sizeEfficiencyChart": [
+    {
+      "sizeBracket": "0-49m²",
+      "averagePricePerSqm": 13355,
+      "propertyCount": 9
+    },
+    {
+      "sizeBracket": "50-99m²",
+      "averagePricePerSqm": 5774,
+      "propertyCount": 336
+    },
+    {
+      "sizeBracket": "100-149m²",
+      "averagePricePerSqm": 5187,
+      "propertyCount": 247
+    },
+    {
+      "sizeBracket": "150-199m²",
+      "averagePricePerSqm": 4818,
+      "propertyCount": 46
+    },
+    {
+      "sizeBracket": "200-249m²",
+      "averagePricePerSqm": 4090,
+      "propertyCount": 3
+    },
+    {
+      "sizeBracket": "250-299m²",
+      "averagePricePerSqm": 4751,
+      "propertyCount": 4
+    },
+    {
+      "sizeBracket": "350-399m²",
+      "averagePricePerSqm": 3164,
+      "propertyCount": 1
+    }
+  ]
+}

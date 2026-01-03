@@ -231,7 +231,7 @@ const chartData = {
   })
 };
 
-fs.writeFileSync('blog47_market_quiet_zones_chart_data.json', JSON.stringify(chartData, null, 2));
+fs.writeFileSync('../dashboard/public/blog47_market_quiet_zones_chart_data.json', JSON.stringify(chartData, null, 2));
 console.log('\nChart data exported to blog47_market_quiet_zones_chart_data.json');
 
 // Summary insights

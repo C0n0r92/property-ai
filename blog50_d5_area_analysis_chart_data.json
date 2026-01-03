@@ -1,0 +1,23 @@
+{
+  "yearlyTrendChart": [
+    { "year": "2021", "averagePrice": 459000, "transactionCount": 70 },
+    { "year": "2022", "averagePrice": 485000, "transactionCount": 286 },
+    { "year": "2023", "averagePrice": 512000, "transactionCount": 357 },
+    { "year": "2024", "averagePrice": 531572, "transactionCount": 352 },
+    { "year": "2025", "averagePrice": 560000, "transactionCount": 379 }
+  ],
+  "propertyTypeChart": [
+    { "type": "Semi-D", "count": 579, "averagePrice": 607135, "percentage": 40.1 },
+    { "type": "Terrace", "count": 430, "averagePrice": 492086, "percentage": 29.8 },
+    { "type": "End of Terrace", "count": 208, "averagePrice": 504011, "percentage": 14.4 },
+    { "type": "Apartment", "count": 80, "averagePrice": 374742, "percentage": 7.3 },
+    { "type": "Detached", "count": 43, "averagePrice": 780567, "percentage": 4.1 }
+  ],
+  "priceDistributionChart": [
+    { "bracket": "€0-400k", "count": 186, "percentage": 15.9 },
+    { "bracket": "€400k-600k", "count": 779, "percentage": 54.0 },
+    { "bracket": "€600k-800k", "count": 248, "percentage": 22.6 },
+    { "bracket": "€800k-1M", "count": 59, "percentage": 5.6 },
+    { "bracket": "€1M+", "count": 21, "percentage": 1.9 }
+  ]
+}

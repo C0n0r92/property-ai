@@ -11,7 +11,10 @@ import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { MapLink } from '@/components/MapLink';
 import { getCategoryConfig } from '@/lib/blog-categories';
 import { BlogAlertTracker } from '@/components/BlogAlertTracker';
-import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChartNew, SizeEfficiencyChartNew, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChartNew, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2, SeasonalPerformanceChart, MonthlyTimingChart, TimingValueTradeoffChart, BestTypeByAreaChart, MortgageImpactChart, OverpaymentSavingsChartNew, MonthlyPaymentBreakdownChart, PropertyTypeSavingsChart, BiddingWarImpactChart, YieldByPostcodeChart, YieldByPriceBracketChart, BestValueAreasChart, YieldDistributionChartNew2, BedroomEfficiencyChart, PropertyTypeEfficiencyChart, SizeBracketEfficiencyChart, EfficiencyParadoxChart, OverAskingByPriceBracketChart, OverAskingByPropertyTypeChart, OverAskingByPostcodeChart, PremiumDistributionChartNew2, OptimalStrategyChart, D3PropertyTypesChart, D3MonthlyTrendsChart, SizeBandMortgageChart, OverpaymentSavingsChartNew as OverpaymentSavingsChartNew2, SizeBandOverAskingChart, BreakEvenAnalysisChart, YieldBySizeBandChart, GeographicPriceVariationsChart, PriceEfficiencyChart, OverAskingSuccessChart, PropertySizeVariationsChart, PricePredictabilityChart, RentalYieldMapChart, BuyerTypeScoresChart, CyclicalPerformanceChart, SeasonalIndexChart, PeakPerformanceChart, MarketTimingChart, PriceVolatilityChart, AutumnForecastChart, SizeEfficiencyChartNew2, OverAskingParadoxChart, ValueEfficiencyChart, QuarterlyTimingChart, InvestmentEfficiencyChart, PropertyTypeDistributionChart, BuyerProfileOptimizationChart, SalesVolumeChart, PriceStabilityChart, OverAskingStabilityChart, AnnualAppreciationChart, ConservativeStrategyChart, BuyerAdvantageChart, RentalVolumeChart, PremiumRentalsChart, ValueRentalsChart, YieldEfficiencyChart } from '@/components/BlogCharts';
+import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChartNew, SizeEfficiencyChartNew, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChartNew, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2, SeasonalPerformanceChart, MonthlyTimingChart, TimingValueTradeoffChart, BestTypeByAreaChart, MortgageImpactChart, OverpaymentSavingsChartNew, MonthlyPaymentBreakdownChart, PropertyTypeSavingsChart, BiddingWarImpactChart, YieldByPostcodeChart, YieldByPriceBracketChart, BestValueAreasChart, YieldDistributionChartNew2, BedroomEfficiencyChart, PropertyTypeEfficiencyChart, SizeBracketEfficiencyChart, EfficiencyParadoxChart, OverAskingByPriceBracketChart, OverAskingByPropertyTypeChart, OverAskingByPostcodeChart, PremiumDistributionChartNew2, OptimalStrategyChart, D3PropertyTypesChart, D3MonthlyTrendsChart, SizeBandMortgageChart, OverpaymentSavingsChartNew as OverpaymentSavingsChartNew2, SizeBandOverAskingChart, BreakEvenAnalysisChart, YieldBySizeBandChart, GeographicPriceVariationsChart, PriceEfficiencyChart, OverAskingSuccessChart, PropertySizeVariationsChart, PricePredictabilityChart, RentalYieldMapChart, BuyerTypeScoresChart, CyclicalPerformanceChart, SeasonalIndexChart, PeakPerformanceChart, MarketTimingChart, PriceVolatilityChart, AutumnForecastChart, SizeEfficiencyChartNew2, OverAskingParadoxChart, ValueEfficiencyChart, QuarterlyTimingChart, InvestmentEfficiencyChart, PropertyTypeDistributionChart, BuyerProfileOptimizationChart, SalesVolumeChart, PriceStabilityChart, OverAskingStabilityChart, AnnualAppreciationChart, ConservativeStrategyChart, BuyerAdvantageChart, RentalVolumeChart, PremiumRentalsChart, ValueRentalsChart, YieldEfficiencyChart, D5YearlyTrendsChart, D5PropertyTypeChart, D5PriceDistributionChart, CovidRecoveryChart, CovidPropertyTypeChart, CovidGrowthRatesChart } from '@/components/BlogCharts';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 // MapLink component will be imported from a separate client component file
 
@@ -1527,10 +1530,105 @@ function splitContentWithCharts(content: string): ContentSegment[] {
           }
           currentHtml = [];
         }
-        // Add chart segment
         segments.push({
           type: 'chart',
           chartComponent: 'YieldEfficiencyChart'
+        });
+      } else if (trimmedLine === '<D5YearlyTrendsChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        segments.push({
+          type: 'chart',
+          chartComponent: 'D5YearlyTrendsChart'
+        });
+      } else if (trimmedLine === '<D5PropertyTypeChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        segments.push({
+          type: 'chart',
+          chartComponent: 'D5PropertyTypeChart'
+        });
+      } else if (trimmedLine === '<D5PriceDistributionChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        segments.push({
+          type: 'chart',
+          chartComponent: 'D5PriceDistributionChart'
+        });
+      } else if (trimmedLine === '<CovidRecoveryChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        segments.push({
+          type: 'chart',
+          chartComponent: 'CovidRecoveryChart'
+        });
+      } else if (trimmedLine === '<CovidPropertyTypeChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        segments.push({
+          type: 'chart',
+          chartComponent: 'CovidPropertyTypeChart'
+        });
+      } else if (trimmedLine === '<CovidGrowthRatesChart />') {
+        // Save current HTML segment if it has content
+        if (currentHtml.length > 0) {
+          const htmlContent = processMarkdownToHtml(currentHtml.join('\n'));
+          if (htmlContent.trim() !== '') {
+            segments.push({
+              type: 'html',
+              content: htmlContent
+            });
+          }
+          currentHtml = [];
+        }
+        segments.push({
+          type: 'chart',
+          chartComponent: 'CovidGrowthRatesChart'
         });
     } else {
       // Add to current HTML segment
@@ -1570,6 +1668,48 @@ export async function generateStaticParams() {
 
 // Article data - this will be moved to a data file later
 export const articles = {
+  'dublin-planning-permission-tool-guide': {
+    title: 'Dublin Planning Permission Tool: Uncovering Development Potential',
+    excerpt: 'Our planning permission search tool reveals Dublin\'s most active development areas, with 15,420 applications analyzed showing 78.5% approval rates and €85,000 average extension values. Extensions dominate at 29.3% of applications with 82.3% approval rates.',
+    category: 'Tool Guide',
+    date: '2026-01-03',
+    readTime: '6 min read',
+    tags: ['Planning Permission', 'Development Potential', 'Property Extensions', 'Planning Applications', 'Investment Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-rental-market-hotspots', 'dublin-conservative-market-strategy', 'dublin-market-quiet-zones'],
+    content: `
+${readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../../../../blog52_planning_permission.md'), 'utf8')}
+    `,
+  },
+  'dublin-property-prices-since-covid': {
+    title: 'Dublin Property Prices Since COVID: The €107k Recovery Surge',
+    excerpt: 'Dublin property prices have surged €107,000 (22%) since COVID, climbing from €488,242 in 2021 to €595,111 in 2025. Analysis of 32,850 transactions reveals accelerating growth with 7.6% and 6.3% annual increases in recent years.',
+    category: 'Market Analysis',
+    date: '2026-01-03',
+    readTime: '5 min read',
+    tags: ['COVID Recovery', 'Price Changes', 'Market Growth', 'Property Values', 'Dublin Market'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-market-quiet-zones', 'dublin-conservative-market-strategy', 'dublin-d3-area-analysis'],
+    content: `
+${readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../../../../blog51_covid_price_changes.md'), 'utf8')}
+    `,
+  },
+  'dublin-d5-area-analysis': {
+    title: 'D5 Dublin: The Hidden Gem of North Dublin Property Market',
+    excerpt: 'D5 emerges as Dublin\'s most competitively priced premium area, with 731 properties analyzed showing 5.4% year-over-year growth from €531,572 to €560,088 average prices. Semi-detached homes dominate at 40.1% with €607,135 averages.',
+    category: 'Area Analysis',
+    date: '2026-01-03',
+    readTime: '5 min read',
+    tags: ['D5', 'Area Analysis', 'North Dublin', 'Property Market', 'Competitive Pricing'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-d3-area-analysis', 'dublin-4-area-analysis-contrarian-decline', 'dublin-6-area-deep-dive-analysis'],
+    content: `
+${readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../../../../blog50_d5_area_analysis.md'), 'utf8')}
+    `,
+  },
   'dublin-d3-area-analysis': {
     title: 'Dublin D3: East Dublin\'s Emerging Property Market',
     excerpt: 'Dublin D3 emerges as East Dublin\'s most dynamic property market in 2024-2025, with 828 transactions averaging €618,071. The area achieves 84.8% over-asking success rates while maintaining competitive pricing relative to premium Dublin 4.',
@@ -9170,6 +9310,18 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                         return <ValueRentalsChart key={`chart-${index}`} />;
                       } else if (segment.chartComponent === 'YieldEfficiencyChart') {
                         return <YieldEfficiencyChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'D5YearlyTrendsChart') {
+                        return <D5YearlyTrendsChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'D5PropertyTypeChart') {
+                        return <D5PropertyTypeChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'D5PriceDistributionChart') {
+                        return <D5PriceDistributionChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'CovidRecoveryChart') {
+                        return <CovidRecoveryChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'CovidPropertyTypeChart') {
+                        return <CovidPropertyTypeChart key={`chart-${index}`} />;
+                      } else if (segment.chartComponent === 'CovidGrowthRatesChart') {
+                        return <CovidGrowthRatesChart key={`chart-${index}`} />;
                       }
                     }
                     return null;

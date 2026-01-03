@@ -281,7 +281,7 @@ const chartData = {
   }))
 };
 
-fs.writeFileSync('blog48_conservative_market_strategy_chart_data.json', JSON.stringify(chartData, null, 2));
+fs.writeFileSync('../dashboard/public/blog48_conservative_market_strategy_chart_data.json', JSON.stringify(chartData, null, 2));
 console.log('\nChart data exported to blog48_conservative_market_strategy_chart_data.json');
 
 // Summary insights

@@ -1,0 +1,358 @@
+{
+  "yearlyAveragePrices": [
+    {
+      "year": "2021",
+      "averagePrice": 488242,
+      "transactionCount": 1711
+    },
+    {
+      "year": "2022",
+      "averagePrice": 510545,
+      "transactionCount": 7085
+    },
+    {
+      "year": "2023",
+      "averagePrice": 520365,
+      "transactionCount": 8340
+    },
+    {
+      "year": "2024",
+      "averagePrice": 559655,
+      "transactionCount": 8217
+    },
+    {
+      "year": "2025",
+      "averagePrice": 595111,
+      "transactionCount": 7497
+    }
+  ],
+  "yearlyGrowthRates": [
+    {
+      "period": "2021-2022",
+      "growthRate": "4.6"
+    },
+    {
+      "period": "2022-2023",
+      "growthRate": "1.9"
+    },
+    {
+      "period": "2023-2024",
+      "growthRate": "7.6"
+    },
+    {
+      "period": "2024-2025",
+      "growthRate": "6.3"
+    }
+  ],
+  "propertyTypeEvolution": [
+    {
+      "year": "2021",
+      "types": [
+        {
+          "type": "Terrace",
+          "averagePrice": 466637,
+          "count": 453,
+          "percentage": "26.5"
+        },
+        {
+          "type": "Semi-D",
+          "averagePrice": 567849,
+          "count": 437,
+          "percentage": "25.5"
+        },
+        {
+          "type": "Apartment",
+          "averagePrice": 324690,
+          "count": 430,
+          "percentage": "25.1"
+        }
+      ]
+    },
+    {
+      "year": "2022",
+      "types": [
+        {
+          "type": "Apartment",
+          "averagePrice": 340013,
+          "count": 2003,
+          "percentage": "28.3"
+        },
+        {
+          "type": "Terrace",
+          "averagePrice": 489893,
+          "count": 1847,
+          "percentage": "26.1"
+        },
+        {
+          "type": "Semi-D",
+          "averagePrice": 597644,
+          "count": 1803,
+          "percentage": "25.4"
+        }
+      ]
+    },
+    {
+      "year": "2023",
+      "types": [
+        {
+          "type": "Apartment",
+          "averagePrice": 350336,
+          "count": 2279,
+          "percentage": "27.3"
+        },
+        {
+          "type": "Semi-D",
+          "averagePrice": 619157,
+          "count": 2226,
+          "percentage": "26.7"
+        },
+        {
+          "type": "Terrace",
+          "averagePrice": 498656,
+          "count": 2116,
+          "percentage": "25.4"
+        }
+      ]
+    },
+    {
+      "year": "2024",
+      "types": [
+        {
+          "type": "Apartment",
+          "averagePrice": 375210,
+          "count": 2352,
+          "percentage": "28.6"
+        },
+        {
+          "type": "Semi-D",
+          "averagePrice": 666452,
+          "count": 2148,
+          "percentage": "26.1"
+        },
+        {
+          "type": "Terrace",
+          "averagePrice": 540750,
+          "count": 2070,
+          "percentage": "25.2"
+        }
+      ]
+    },
+    {
+      "year": "2025",
+      "types": [
+        {
+          "type": "Apartment",
+          "averagePrice": 405931,
+          "count": 1981,
+          "percentage": "26.4"
+        },
+        {
+          "type": "Semi-D",
+          "averagePrice": 704060,
+          "count": 1962,
+          "percentage": "26.2"
+        },
+        {
+          "type": "Terrace",
+          "averagePrice": 580670,
+          "count": 1747,
+          "percentage": "23.3"
+        }
+      ]
+    }
+  ],
+  "priceBracketEvolution": [
+    {
+      "year": "2021",
+      "brackets": [
+        {
+          "bracket": "€0-300k",
+          "count": 373,
+          "percentage": "21.8"
+        },
+        {
+          "bracket": "€300k-500k",
+          "count": 805,
+          "percentage": "47.0"
+        },
+        {
+          "bracket": "€500k-700k",
+          "count": 288,
+          "percentage": "16.8"
+        },
+        {
+          "bracket": "€700k-1M",
+          "count": 158,
+          "percentage": "9.2"
+        },
+        {
+          "bracket": "€1M+",
+          "count": 87,
+          "percentage": "5.1"
+        }
+      ]
+    },
+    {
+      "year": "2022",
+      "brackets": [
+        {
+          "bracket": "€0-300k",
+          "count": 1361,
+          "percentage": "19.2"
+        },
+        {
+          "bracket": "€300k-500k",
+          "count": 3289,
+          "percentage": "46.4"
+        },
+        {
+          "bracket": "€500k-700k",
+          "count": 1308,
+          "percentage": "18.5"
+        },
+        {
+          "bracket": "€700k-1M",
+          "count": 709,
+          "percentage": "10.0"
+        },
+        {
+          "bracket": "€1M+",
+          "count": 418,
+          "percentage": "5.9"
+        }
+      ]
+    },
+    {
+      "year": "2023",
+      "brackets": [
+        {
+          "bracket": "€0-300k",
+          "count": 1407,
+          "percentage": "16.9"
+        },
+        {
+          "bracket": "€300k-500k",
+          "count": 3981,
+          "percentage": "47.7"
+        },
+        {
+          "bracket": "€500k-700k",
+          "count": 1608,
+          "percentage": "19.3"
+        },
+        {
+          "bracket": "€700k-1M",
+          "count": 832,
+          "percentage": "10.0"
+        },
+        {
+          "bracket": "€1M+",
+          "count": 512,
+          "percentage": "6.1"
+        }
+      ]
+    },
+    {
+      "year": "2024",
+      "brackets": [
+        {
+          "bracket": "€0-300k",
+          "count": 966,
+          "percentage": "11.8"
+        },
+        {
+          "bracket": "€300k-500k",
+          "count": 3789,
+          "percentage": "46.1"
+        },
+        {
+          "bracket": "€500k-700k",
+          "count": 1828,
+          "percentage": "22.2"
+        },
+        {
+          "bracket": "€700k-1M",
+          "count": 1041,
+          "percentage": "12.7"
+        },
+        {
+          "bracket": "€1M+",
+          "count": 593,
+          "percentage": "7.2"
+        }
+      ]
+    },
+    {
+      "year": "2025",
+      "brackets": [
+        {
+          "bracket": "€0-300k",
+          "count": 548,
+          "percentage": "7.3"
+        },
+        {
+          "bracket": "€300k-500k",
+          "count": 3213,
+          "percentage": "42.9"
+        },
+        {
+          "bracket": "€500k-700k",
+          "count": 2024,
+          "percentage": "27.0"
+        },
+        {
+          "bracket": "€700k-1M",
+          "count": 1066,
+          "percentage": "14.2"
+        },
+        {
+          "bracket": "€1M+",
+          "count": 646,
+          "percentage": "8.6"
+        }
+      ]
+    }
+  ],
+  "areaGrowthRates": [
+    {
+      "area": "D3",
+      "growthRate": "34.2"
+    },
+    {
+      "area": "D15",
+      "growthRate": "29.3"
+    },
+    {
+      "area": "D8",
+      "growthRate": "29.2"
+    },
+    {
+      "area": "D12",
+      "growthRate": "28.3"
+    },
+    {
+      "area": "D20",
+      "growthRate": "28.2"
+    },
+    {
+      "area": "D1",
+      "growthRate": "27.8"
+    },
+    {
+      "area": "D24",
+      "growthRate": "27.4"
+    },
+    {
+      "area": "D17",
+      "growthRate": "27.4"
+    },
+    {
+      "area": "D14",
+      "growthRate": "25.4"
+    },
+    {
+      "area": "D16",
+      "growthRate": "24.8"
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "yieldByPostcodeChart": [
+    {
+      "postcode": "D11",
+      "averageYield": 9.400360824742268,
+      "averagePrice": 311485,
+      "sampleSize": 194
+    },
+    {
+      "postcode": "D1",
+      "averageYield": 9.173443708609279,
+      "averagePrice": 341594,
+      "sampleSize": 302
+    },
+    {
+      "postcode": "D2",
+      "averageYield": 8.397321428571425,
+      "averagePrice": 522472,
+      "sampleSize": 280
+    },
+    {
+      "postcode": "D15",
+      "averageYield": 8.363750815394663,
+      "averagePrice": 439376,
+      "sampleSize": 1533
+    },
+    {
+      "postcode": "D9",
+      "averageYield": 8.20745222929937,
+      "averagePrice": 367743,
+      "sampleSize": 314
+    },
+    {
+      "postcode": "D24",
+      "averageYield": 7.962011695906426,
+      "averagePrice": 376242,
+      "sampleSize": 855
+    },
+    {
+      "postcode": "D3",
+      "averageYield": 7.52411764705883,
+      "averagePrice": 502214,
+      "sampleSize": 646
+    },
+    {
+      "postcode": "D8",
+      "averageYield": 7.506797153024906,
+      "averagePrice": 451485,
+      "sampleSize": 843
+    },
+    {
+      "postcode": "D13",
+      "averageYield": 7.500575916230369,
+      "averagePrice": 414840,
+      "sampleSize": 191
+    },
+    {
+      "postcode": "D7",
+      "averageYield": 7.403047404063213,
+      "averagePrice": 410906,
+      "sampleSize": 443
+    }
+  ],
+  "yieldByPriceBracketChart": [
+    {
+      "bracket": "€0-300k",
+      "averageYield": 11.13840776699027,
+      "yieldPerMillion": 43.06144157894807,
+      "sampleSize": 1030
+    },
+    {
+      "bracket": "€300k-500k",
+      "averageYield": 7.973509887005658,
+      "yieldPerMillion": 20.33748798932669,
+      "sampleSize": 4248
+    },
+    {
+      "bracket": "€500k-700k",
+      "averageYield": 6.40063314711359,
+      "yieldPerMillion": 11.133888685334382,
+      "sampleSize": 1611
+    },
+    {
+      "bracket": "€700k-1M",
+      "averageYield": 5.213920000000001,
+      "yieldPerMillion": 6.489885109919592,
+      "sampleSize": 500
+    },
+    {
+      "bracket": "€1M+",
+      "averageYield": 3.5755801104972393,
+      "yieldPerMillion": 2.6670550115475273,
+      "sampleSize": 181
+    }
+  ],
+  "bestValueAreasChart": [
+    {
+      "postcode": "D11",
+      "averageYield": 9.400360824742268,
+      "averagePrice": 311485,
+      "sampleSize": 194
+    },
+    {
+      "postcode": "D1",
+      "averageYield": 9.173443708609279,
+      "averagePrice": 341594,
+      "sampleSize": 302
+    },
+    {
+      "postcode": "D2",
+      "averageYield": 8.397321428571425,
+      "averagePrice": 522472,
+      "sampleSize": 280
+    },
+    {
+      "postcode": "D15",
+      "averageYield": 8.363750815394663,
+      "averagePrice": 439376,
+      "sampleSize": 1533
+    },
+    {
+      "postcode": "D9",
+      "averageYield": 8.20745222929937,
+      "averagePrice": 367743,
+      "sampleSize": 314
+    }
+  ],
+  "yieldDistributionChart": [
+    {
+      "range": "1.5-32.6%",
+      "count": 7562,
+      "percentage": "99.9"
+    },
+    {
+      "range": "32.6-63.7%",
+      "count": 2,
+      "percentage": "0.0"
+    },
+    {
+      "range": "63.7-94.9%",
+      "count": 0,
+      "percentage": "0.0"
+    },
+    {
+      "range": "94.9-126.0%",
+      "count": 2,
+      "percentage": "0.0"
+    },
+    {
+      "range": "126.0-157.1%",
+      "count": 0,
+      "percentage": "0.0"
+    },
+    {
+      "range": "157.1-188.3%",
+      "count": 1,
+      "percentage": "0.0"
+    },
+    {
+      "range": "188.3-219.4%",
+      "count": 2,
+      "percentage": "0.0"
+    },
+    {
+      "range": "219.4-250.6%",
+      "count": 0,
+      "percentage": "0.0"
+    },
+    {
+      "range": "250.6-281.7%",
+      "count": 0,
+      "percentage": "0.0"
+    },
+    {
+      "range": "281.7-312.8%",
+      "count": 0,
+      "percentage": "0.0"
+    }
+  ]
+}

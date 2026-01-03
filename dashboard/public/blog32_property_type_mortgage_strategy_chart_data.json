@@ -1,0 +1,106 @@
+{
+  "propertyTypeSavingsChart": [
+    {
+      "propertyType": "Apartment",
+      "averagePrice": 393838,
+      "interestSaved": 33859,
+      "timeSaved": 4.666666666666667,
+      "sampleSize": 5565
+    },
+    {
+      "propertyType": "Semi-D",
+      "averagePrice": 688016,
+      "interestSaved": 36721,
+      "timeSaved": 2.8333333333333335,
+      "sampleSize": 5853
+    },
+    {
+      "propertyType": "Terrace",
+      "averagePrice": 570193,
+      "interestSaved": 35880,
+      "timeSaved": 3.3333333333333335,
+      "sampleSize": 4682
+    },
+    {
+      "propertyType": "Detached",
+      "averagePrice": 1128367,
+      "interestSaved": 38427,
+      "timeSaved": 1.75,
+      "sampleSize": 1678
+    },
+    {
+      "propertyType": "End of Terrace",
+      "averagePrice": 537327,
+      "interestSaved": 35590,
+      "timeSaved": 3.5833333333333335,
+      "sampleSize": 1839
+    },
+    {
+      "propertyType": "Duplex",
+      "averagePrice": 431591,
+      "interestSaved": 34407,
+      "timeSaved": 4.25,
+      "sampleSize": 490
+    }
+  ],
+  "biddingWarImpactChart": [
+    {
+      "propertyType": "Apartment",
+      "overAskingRate": 80.39532794249776,
+      "averagePremium": 10.140918641037075,
+      "sampleSize": 5565
+    },
+    {
+      "propertyType": "Semi-D",
+      "overAskingRate": 83.90568939005638,
+      "averagePremium": 10.344121360211755,
+      "sampleSize": 5853
+    },
+    {
+      "propertyType": "Terrace",
+      "overAskingRate": 83.23366082870568,
+      "averagePremium": 11.794026173979981,
+      "sampleSize": 4682
+    },
+    {
+      "propertyType": "Detached",
+      "overAskingRate": 63.5280095351609,
+      "averagePremium": 10.248142589118215,
+      "sampleSize": 1678
+    },
+    {
+      "propertyType": "End of Terrace",
+      "overAskingRate": 84.44806960304513,
+      "averagePremium": 12.49050225370253,
+      "sampleSize": 1839
+    },
+    {
+      "propertyType": "Duplex",
+      "overAskingRate": 86.73469387755102,
+      "averagePremium": 10.68950588235294,
+      "sampleSize": 490
+    }
+  ],
+  "savingsBreakdownChart": [
+    {
+      "scenario": "€400K Apartment",
+      "interestSaved": 33954,
+      "timeSaved": 4.583333333333333
+    },
+    {
+      "scenario": "€550K Terrace",
+      "interestSaved": 35705,
+      "timeSaved": 3.5
+    },
+    {
+      "scenario": "€750K Semi-D",
+      "interestSaved": 37069,
+      "timeSaved": 2.6666666666666665
+    },
+    {
+      "scenario": "€950K Detached",
+      "interestSaved": 37909,
+      "timeSaved": 2.0833333333333335
+    }
+  ]
+}
