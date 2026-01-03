@@ -6,6 +6,9 @@ import { useComparison } from '@/contexts/ComparisonContext';
 import { PropertyComparisonTable } from '@/components/PropertyComparisonTable';
 import { ComparisonInsights } from '@/components/ComparisonInsights';
 import { ShareButton } from '@/components/ShareButton';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { LoginModal } from '@/components/auth/LoginModal';
+import { analytics } from '@/lib/analytics';
 import Link from 'next/link';
 
 type ExpandedSections = {
@@ -56,16 +59,21 @@ function SectionControls({ expandedSections, onToggle }: {
 
 function ComparePageContent() {
   const router = useRouter();
+  const { user } = useAuth();
   const { comparedProperties, count, clearComparison } = useComparison();
   const [enrichedData, setEnrichedData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Handle hydration
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Check if user needs to login to access comparison (2+ properties)
+  const needsLogin = count >= 2 && !user;
 
   // Section expansion state
   const [expandedSections, setExpandedSections] = useState<ExpandedSections>({
@@ -118,6 +126,68 @@ function ComparePageContent() {
 
     fetchEnrichedData();
   }, [comparedProperties]);
+
+  // Show login gate for users with 2+ properties who aren't logged in
+  if (mounted && needsLogin) {
+    return (
+      <>
+        <div className="min-h-screen bg-slate-50">
+          <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-8">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h1 className="text-3xl font-bold mb-4">Sign in to Compare Properties</h1>
+              <p className="text-slate-600 mb-6 max-w-2xl mx-auto">
+                Create a free account to unlock the full comparison tool. Compare up to 5 properties
+                side-by-side with market intelligence, mortgage calculations, and more.
+              </p>
+              <div className="space-y-4">
+                <button
+                  onClick={() => {
+                    analytics.registrationStarted('save_prompt');
+                    setShowLoginModal(true);
+                  }}
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+                >
+                  Sign In / Create Account
+                </button>
+                <p className="text-sm text-slate-500">
+                  You have {count} properties ready to compare
+                </p>
+              </div>
+
+              {/* Benefits */}
+              <div className="mt-8 pt-8 border-t border-slate-200">
+                <h3 className="text-sm font-semibold text-slate-700 mb-4">Free account includes:</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    Compare 5 properties
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    3 free location alerts
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    Save properties
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    Viewing history
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      </>
+    );
+  }
 
   // Show empty state only after hydration and when no properties
   if (mounted && count === 0 && !loading) {

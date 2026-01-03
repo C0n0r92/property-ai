@@ -42,6 +42,7 @@ import { useMapSearch } from '@/hooks/useMapSearch';
 import { useMapAmenities } from '@/hooks/useMapAmenities';
 import { useMapUI } from '@/hooks/useMapUI';
 import { useMapDataFilters } from '@/hooks/useMapDataFilters';
+import { useAlertModal } from '@/contexts/AlertModalContext';
 
 // Set mapbox token
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -75,6 +76,34 @@ export default function MapComponent() {
   const mapSearch = useMapSearch();
   const mapAmenities = useMapAmenities();
   const mapUI = useMapUI();
+  const { showAlertModal, canShowModal } = useAlertModal();
+
+  // High-intent modal trigger for filter interactions
+  useEffect(() => {
+    // Track when users apply meaningful filters (price, beds, area)
+    const hasActiveFilters = mapFilters.minPrice || mapFilters.maxPrice ||
+                           mapFilters.bedsFilter || mapFilters.minArea ||
+                           mapFilters.maxArea || mapFilters.priceReducedFilter;
+
+    if (hasActiveFilters && mapSearch.searchedLocation) {
+      const locationContext = {
+        name: mapSearch.searchedLocation.name,
+        coordinates: {
+          lat: mapSearch.searchedLocation.coords[1],
+          lng: mapSearch.searchedLocation.coords[0]
+        },
+      };
+
+      // Trigger modal for engaged users
+      if (canShowModal(locationContext)) {
+        showAlertModal(locationContext);
+      }
+    }
+  }, [
+    mapFilters.minPrice, mapFilters.maxPrice, mapFilters.bedsFilter,
+    mapFilters.minArea, mapFilters.maxArea, mapFilters.priceReducedFilter,
+    mapSearch.searchedLocation
+  ]);
 
   // Extract state for easier access
   const {

@@ -308,5 +308,40 @@ export const analytics = {
       value: amount
     });
   },
+
+  // Registration Analytics
+  registrationStarted: (method: 'modal' | 'direct' | 'save_prompt') => {
+    trackEvent({
+      action: 'registration_started',
+      category: 'conversion',
+      label: method
+    });
+  },
+
+  registrationCompleted: (method: 'google' | 'email', source?: string) => {
+    trackEvent({
+      action: 'registration_completed',
+      category: 'conversion',
+      label: `${method}${source ? `:${source}` : ''}`
+    });
+  },
+
+  // Alert Creation Analytics
+  freeAlertCreated: (alertId: string, location: string, type: 'location' | 'blog') => {
+    trackEvent({
+      action: 'free_alert_created',
+      category: 'engagement',
+      label: `${type}:${location}`
+    });
+  },
+
+  paidAlertCreated: (alertId: string, location: string, amount: number, type: 'location' | 'blog') => {
+    trackEvent({
+      action: 'paid_alert_created',
+      category: 'revenue',
+      label: `${type}:${location}`,
+      value: amount
+    });
+  },
 };
 

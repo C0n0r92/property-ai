@@ -8,10 +8,12 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { AddressSearchBar } from '@/components/tools/AddressSearchBar';
 import { ResultsHeader } from '@/components/tools/ResultsHeader';
 import { AmenitiesAnalysisContent } from '@/components/tools/AmenitiesAnalysisContent';
+import { useSearchTracking } from '@/hooks/useSearchTracking';
 
 function AmenitiesToolContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { trackMapSearch } = useSearchTracking();
 
   // Check if we have coordinates (results mode) or not (search mode)
   const lat = searchParams.get('lat');
@@ -23,6 +25,14 @@ function AmenitiesToolContent() {
   const handleLocationFound = (newLat: number, newLng: number, newAddress: string) => {
     // Navigate to results mode
     router.push(`/tools/amenities?lat=${newLat}&lng=${newLng}&address=${encodeURIComponent(newAddress)}`);
+  };
+
+  const handleLocationTracked = (lat: number, lng: number, address: string) => {
+    // Track search for alert modal
+    trackMapSearch({
+      name: address,
+      coordinates: { lat, lng },
+    });
   };
 
   const handleNewSearch = () => {
@@ -81,6 +91,7 @@ function AmenitiesToolContent() {
         <div className="mb-12">
           <AddressSearchBar
             onLocationFound={handleLocationFound}
+            onLocationTracked={handleLocationTracked}
             placeholder="Enter a Dublin address to analyze nearby amenities..."
             className="max-w-2xl mx-auto"
           />

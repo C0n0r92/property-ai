@@ -1,10 +1,21 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 // Location data from search
 export interface LocationContext {
   name: string;
   coordinates: { lat: number; lng: number };
   postcode?: string;
+  defaultAlertConfig?: {
+    monitor_sale?: boolean;
+    monitor_rental?: boolean;
+    monitor_sold?: boolean;
+    sale_alert_on_new?: boolean;
+    sale_alert_on_price_drops?: boolean;
+    rental_alert_on_new?: boolean;
+    sold_alert_on_over_asking?: boolean;
+    sold_alert_on_under_asking?: boolean;
+    sold_price_threshold_percent?: number;
+  };
 }
 
 // Blog data for blog alerts
@@ -25,6 +36,7 @@ interface AlertModalState {
   location: LocationContext | null;
   blog: BlogContext | null;
   isDismissed: boolean;
+  defaultAlertConfig?: LocationContext['defaultAlertConfig'];
 }
 
 interface AlertModalContextType {
@@ -37,6 +49,7 @@ interface AlertModalContextType {
   hideAlertModal: () => void;
   dismissAlertModal: () => void;
   setModalStep: (step: AlertModalState['step']) => void;
+  persistModalForAuth: () => void;
   resetModal: () => void;
 
   // Utilities
@@ -51,15 +64,52 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
   const BLOG_DISMISSAL_STORAGE_KEY = 'blog-alert-modal-dismissed';
   const SESSION_STORAGE_KEY = 'alert-modal-shown-session';
 
-  // Initialize modal state
-  const [modalState, setModalState] = useState<AlertModalState>({
-    isOpen: false,
-    step: 'initial',
-    alertType: 'location',
-    location: null,
-    blog: null,
-    isDismissed: false,
-  });
+  // Track last searched location for exit-intent (separate from modal state)
+  const lastSearchedLocationRef = useRef<LocationContext | null>(null);
+
+  // Initialize modal state - check for persisted state from authentication redirect
+  const getInitialModalState = (): AlertModalState => {
+    if (typeof window === 'undefined') {
+      return {
+        isOpen: false,
+        step: 'initial',
+        alertType: 'location',
+        location: null,
+        blog: null,
+        isDismissed: false,
+      };
+    }
+
+    try {
+      const persistedState = sessionStorage.getItem('alert-modal-auth-redirect');
+      if (persistedState) {
+        const parsedState = JSON.parse(persistedState);
+        sessionStorage.removeItem('alert-modal-auth-redirect'); // Clean up
+
+        // Only restore if user was in the middle of alert setup
+        if (parsedState.step !== 'initial' && parsedState.step !== 'success') {
+          console.log('Restoring alert modal state after authentication:', parsedState);
+          return {
+            ...parsedState,
+            isOpen: true, // Reopen the modal
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring modal state:', error);
+    }
+
+    return {
+      isOpen: false,
+      step: 'initial',
+      alertType: 'location',
+      location: null,
+      blog: null,
+      isDismissed: false,
+    };
+  };
+
+  const [modalState, setModalState] = useState<AlertModalState>(getInitialModalState());
 
   // Check if modal was dismissed in last 7 days for a specific location
   const wasRecentlyDismissedForLocation = (locationName: string): boolean => {
@@ -117,18 +167,13 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
   };
 
   const showAlertModal = (location: LocationContext) => {
-    console.log('🚨 ALERT MODAL: showAlertModal called with location:', location);
-    console.log('🚨 ALERT MODAL: canShowModal result:', canShowModal(location));
-    console.log('🚨 ALERT MODAL: modalState.isOpen:', modalState.isOpen);
-    console.log('🚨 ALERT MODAL: wasRecentlyDismissed:', wasRecentlyDismissedForLocation(location.name));
-    console.log('🚨 ALERT MODAL: wasShownInSession:', wasShownInSession(location.name));
+    // Always store the last searched location for exit-intent
+    lastSearchedLocationRef.current = location;
 
     if (!canShowModal(location)) {
-      console.log('Modal cannot be shown, returning early');
       return;
     }
 
-    console.log('🚨 ALERT MODAL: Setting modal state to open for location:', location.name);
     setModalState({
       isOpen: true,
       step: 'initial',
@@ -136,23 +181,17 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
       location,
       blog: null,
       isDismissed: false,
+      defaultAlertConfig: location.defaultAlertConfig,
     });
 
     markAsShownInSession(location.name);
-    console.log('🚨 ALERT MODAL: Modal state updated to open');
   };
 
   const showBlogAlertModal = (blog: BlogContext) => {
-    console.log('🚨 BLOG ALERT MODAL: showBlogAlertModal called with blog:', blog);
-    console.log('🚨 BLOG ALERT MODAL: canShowBlogModal result:', canShowBlogModal(blog.slug));
-    console.log('🚨 BLOG ALERT MODAL: modalState.isOpen:', modalState.isOpen);
-
     if (!canShowBlogModal(blog.slug)) {
-      console.log('Blog modal cannot be shown, returning early');
       return;
     }
 
-    console.log('🚨 BLOG ALERT MODAL: Setting modal state to open for blog:', blog.title);
     setModalState({
       isOpen: true,
       step: 'initial',
@@ -161,12 +200,9 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
       blog,
       isDismissed: false,
     });
-
-    console.log('🚨 BLOG ALERT MODAL: Modal state updated to open');
   };
 
   const hideAlertModal = () => {
-    console.log('🚨 ALERT MODAL: hideAlertModal called');
     setModalState(prev => ({
       ...prev,
       isOpen: false,
@@ -202,6 +238,17 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const persistModalForAuth = () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      sessionStorage.setItem('alert-modal-auth-redirect', JSON.stringify(modalState));
+      console.log('Persisted modal state for authentication redirect:', modalState);
+    } catch (error) {
+      console.error('Error persisting modal state:', error);
+    }
+  };
+
   const resetModal = () => {
     setModalState({
       isOpen: false,
@@ -214,60 +261,60 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
   };
 
   const canShowModal = (location: LocationContext): boolean => {
-    console.log('🔍 canShowModal called for location:', location.name);
-
-    // Check localStorage for dismissal data
-    const dismissalKey = `${LOCATION_DISMISSAL_STORAGE_KEY}_${location.name}`;
-    const dismissalData = localStorage.getItem(dismissalKey);
-    console.log('🔍 Dismissal data in localStorage:', dismissalData);
-
     // Don't show if recently dismissed for this specific location
-    const recentlyDismissed = wasRecentlyDismissedForLocation(location.name);
-    console.log('🔍 Recently dismissed for location:', recentlyDismissed);
-    if (recentlyDismissed) {
-      console.log('❌ Modal blocked: recently dismissed');
+    if (wasRecentlyDismissedForLocation(location.name)) {
       return false;
     }
 
-    // Check sessionStorage for shown locations
-    const sessionKey = SESSION_STORAGE_KEY;
-    const sessionData = sessionStorage.getItem(sessionKey);
-    console.log('🔍 Session data in sessionStorage:', sessionData);
-
     // Don't show if already shown in this session for this location
-    const shownInSession = wasShownInSession(location.name);
-    console.log('🔍 Already shown in session for location:', shownInSession);
-    if (shownInSession) {
-      console.log('❌ Modal blocked: already shown in session');
+    if (wasShownInSession(location.name)) {
       return false;
     }
 
     // Don't show if modal is already open
-    console.log('🔍 Modal already open:', modalState.isOpen);
     if (modalState.isOpen) {
-      console.log('❌ Modal blocked: modal already open');
       return false;
     }
 
-    console.log('✅ Modal can be shown for location:', location.name);
     return true;
   };
 
   const canShowBlogModal = (blogSlug: string): boolean => {
-    console.log('🔍 canShowBlogModal called for blog:', blogSlug);
-
     // Don't show if recently dismissed for this specific blog
-    const recentlyDismissed = wasRecentlyDismissedForBlog(blogSlug);
-    console.log('Blog recently dismissed:', recentlyDismissed);
-    if (recentlyDismissed) return false;
+    if (wasRecentlyDismissedForBlog(blogSlug)) return false;
 
     // Don't show if modal is already open
-    console.log('Modal already open:', modalState.isOpen);
     if (modalState.isOpen) return false;
 
-    console.log('✅ Blog modal can be shown');
     return true;
   };
+
+  // Exit-intent detection for desktop users
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Only run on desktop (non-touch devices)
+    const isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
+    if (isMobile) return;
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      // Detect when mouse leaves the viewport from the top
+      if (e.clientY <= 0 && !modalState.isOpen && !modalState.isDismissed) {
+        // Use last searched location from ref (works even if modal wasn't triggered by timer)
+        const locationToUse = lastSearchedLocationRef.current;
+        if (locationToUse && canShowModal(locationToUse)) {
+          console.log('Exit-intent triggered for:', locationToUse.name);
+          showAlertModal(locationToUse);
+        }
+      }
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [modalState.isOpen, modalState.isDismissed, canShowModal, showAlertModal]);
 
   const value: AlertModalContextType = {
     modalState,
@@ -276,6 +323,7 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
     hideAlertModal,
     dismissAlertModal,
     setModalStep,
+    persistModalForAuth,
     resetModal,
     canShowModal,
     canShowBlogModal,

@@ -5,6 +5,7 @@ import { geocodeAddress } from '@/lib/geocoding';
 
 interface AddressSearchBarProps {
   onLocationFound: (lat: number, lng: number, address: string) => void;
+  onLocationTracked?: (lat: number, lng: number, address: string) => void;
   placeholder?: string;
   className?: string;
 }
@@ -18,6 +19,7 @@ interface RecentSearch {
 
 export function AddressSearchBar({
   onLocationFound,
+  onLocationTracked,
   placeholder = "Enter a Dublin address...",
   className = ""
 }: AddressSearchBarProps) {
@@ -105,10 +107,30 @@ export function AddressSearchBar({
     }
   };
 
-  const handleSuggestionClick = (address: string) => {
+  const handleSuggestionClick = async (address: string) => {
     setQuery(address);
     setShowSuggestions(false);
-    handleSubmit(address);
+
+    try {
+      const result = await geocodeAddress(address);
+
+      if (result) {
+        addRecentSearch(address, result.latitude, result.longitude);
+
+        // Call tracking callback if provided
+        if (onLocationTracked) {
+          onLocationTracked(result.latitude, result.longitude, address);
+        }
+
+        onLocationFound(result.latitude, result.longitude, address);
+      } else {
+        setError('Address not found. Please try a more specific address.');
+      }
+    } catch (err) {
+      setError('Failed to search address. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

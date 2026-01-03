@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/saved-properties
- * Save a new property (requires premium tier)
+ * Save a new property
+ * Free users: 5 property limit
+ * Premium users: Unlimited
  */
 export async function POST(request: NextRequest) {
   try {
@@ -67,12 +69,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user has premium tier
+    const supabase = await createClient();
+
+    // Check save limit for free users (5 properties max)
+    const FREE_SAVE_LIMIT = 5;
     if (user.tier !== 'premium') {
-      return NextResponse.json(
-        { error: 'Premium subscription required', requiresUpgrade: true },
-        { status: 403 }
-      );
+      const { count, error: countError } = await supabase
+        .from('saved_properties')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (countError) {
+        console.error('Error counting saved properties:', countError);
+      } else if (count !== null && count >= FREE_SAVE_LIMIT) {
+        return NextResponse.json(
+          { 
+            error: `Free accounts can save up to ${FREE_SAVE_LIMIT} properties. Upgrade to premium for unlimited saves.`,
+            requiresUpgrade: true,
+            currentCount: count,
+            limit: FREE_SAVE_LIMIT
+          },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await request.json();
@@ -91,8 +110,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('saved_properties')

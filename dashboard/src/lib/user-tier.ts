@@ -17,7 +17,7 @@ export async function upgradeToPremium(
     const supabase = await createClient();
     
     const { error } = await supabase
-      .from('users')
+      .from('profiles')
       .update({
         tier: 'premium',
         stripe_customer_id: stripeData.customerId,
@@ -50,13 +50,13 @@ export async function downgradeToFree(userId: string): Promise<boolean> {
     
     // Get subscription ID before downgrading
     const { data: user } = await supabase
-      .from('users')
+      .from('profiles')
       .select('stripe_subscription_id')
       .eq('id', userId)
       .single();
 
     const { error } = await supabase
-      .from('users')
+      .from('profiles')
       .update({
         tier: 'free',
         subscription_status: 'cancelled',
@@ -92,7 +92,7 @@ export async function syncStripeSubscription(
     const supabase = await createClient();
     
     const { error } = await supabase
-      .from('users')
+      .from('profiles')
       .update({
         subscription_status: status,
       })
@@ -121,7 +121,7 @@ export async function getUserByEmail(email: string): Promise<string | null> {
     const supabase = await createClient();
     
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id')
       .eq('email', email)
       .single();
@@ -146,7 +146,7 @@ export async function getUserByStripeCustomerId(customerId: string): Promise<str
     const supabase = await createClient();
     
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id')
       .eq('stripe_customer_id', customerId)
       .single();

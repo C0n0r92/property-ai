@@ -39,7 +39,7 @@ export function useSearchTracking() {
     // Store the search event
     lastSearchRef.current = searchEvent;
 
-    console.log('Starting 8-second timer for location:', searchEvent.location.name);
+    console.log('Starting 4-second timer for location:', searchEvent.location.name);
 
     // Start 4-second timer (reduced for testing)
     timerRef.current = setTimeout(() => {
@@ -55,7 +55,7 @@ export function useSearchTracking() {
       } else {
         console.log('Modal cannot be shown anymore');
       }
-    }, 8000); // 8 second wait for property pages
+    }, 4000); // 4 second wait for property pages
   }, [showAlertModal, canShowModal, clearTimer]);
 
   // Track search on homepage

@@ -9,7 +9,7 @@ import { LoginModal } from '@/components/auth/LoginModal';
 import { analytics } from '@/lib/analytics';
 
 export function BlogAlertModal() {
-  const { modalState, hideAlertModal } = useAlertModal();
+  const { modalState, hideAlertModal, persistModalForAuth } = useAlertModal();
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -70,6 +70,8 @@ export function BlogAlertModal() {
   // Handle payment
   const handlePayment = async () => {
     if (!user) {
+      // Persist modal state before authentication redirect
+      persistModalForAuth();
       setShowLoginModal(true);
       return;
     }

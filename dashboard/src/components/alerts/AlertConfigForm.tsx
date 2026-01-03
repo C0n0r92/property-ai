@@ -59,27 +59,40 @@ const PROPERTY_TYPE_OPTIONS = [
 
 
 export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFormProps) {
-  const [step, setStep] = useState<'property-types' | 'configure-alerts' | 'payment'>('property-types');
+  const [step, setStep] = useState<'tier-selection' | 'configure-alerts' | 'payment'>('tier-selection');
+  const [selectedTier, setSelectedTier] = useState<'free' | 'premium'>('free');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [config, setConfig] = useState<AlertConfig>({
-    location_name: location.name,
-    location_coordinates: location.coordinates,
-    radius_km: 2 as number,
-    // Property types to monitor
-    monitor_sold: false,
-    monitor_sale: false,
-    monitor_rental: false,
-    // Sale defaults
-    sale_alert_on_new: true,
-    sale_alert_on_price_drops: true,
-    // Rental defaults
-    rental_alert_on_new: true,
-    // Sold defaults
-    sold_price_threshold_percent: 5,
-    sold_alert_on_under_asking: true,
-    sold_alert_on_over_asking: false,
+  const [config, setConfig] = useState<AlertConfig>(() => {
+    const defaultConfig = {
+      location_name: location.name,
+      location_coordinates: location.coordinates,
+      radius_km: 5 as number,
+      // Property types to monitor - default to all types for comprehensive coverage
+      monitor_sold: true,  // Include sold properties for market intelligence
+      monitor_sale: true,  // Default to true so free tier config panel has content
+      monitor_rental: true,  // Include rentals by default for more options
+      // Sale defaults
+      sale_alert_on_new: true,
+      sale_alert_on_price_drops: true,
+      // Rental defaults
+      rental_alert_on_new: true,
+      // Sold defaults
+      sold_price_threshold_percent: 5,
+      sold_alert_on_under_asking: true,
+      sold_alert_on_over_asking: false,
+    };
+
+    // Merge in default alert config if provided
+    if (location.defaultAlertConfig) {
+      return {
+        ...defaultConfig,
+        ...location.defaultAlertConfig,
+      };
+    }
+
+    return defaultConfig;
   });
 
   const updateConfig = (updates: Partial<AlertConfig>) => {
@@ -94,48 +107,88 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
     setError(null);
 
     try {
-      // Track configuration before payment
-      const propertyType = config.monitor_sale ? 'for_sale' :
-                          config.monitor_rental ? 'for_rent' : 'sold';
+      if (selectedTier === 'free') {
+        // Free alert creation
+        const propertyType = 'for_sale'; // Default to sale for free alerts
 
-      analytics.alertConfigurationUpdated({
-        radius_km: config.radius_km,
-        propertyType,
-        min_bedrooms: config.monitor_sale ? config.sale_min_bedrooms :
-                     config.monitor_rental ? config.rental_min_bedrooms :
-                     config.sold_min_bedrooms,
-        max_bedrooms: config.monitor_sale ? config.sale_max_bedrooms :
-                     config.monitor_rental ? config.rental_max_bedrooms :
-                     config.sold_max_bedrooms,
-        min_price: config.monitor_sale ? config.sale_min_price :
-                  config.monitor_rental ? config.rental_min_price : undefined,
-        max_price: config.monitor_sale ? config.sale_max_price :
-                  config.monitor_rental ? config.rental_max_price : undefined,
-        price_threshold_percent: config.sold_price_threshold_percent,
-      });
+        analytics.alertConfigurationUpdated({
+          radius_km: config.radius_km,
+          propertyType,
+          min_bedrooms: undefined,
+          max_bedrooms: undefined,
+          min_price: undefined,
+          max_price: undefined,
+          price_threshold_percent: 5,
+        });
 
-      analytics.alertPaymentStarted(99, config.location_name, propertyType);
+        // Create free alert directly
+        const response = await fetch('/api/alerts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location_name: config.location_name,
+            location_coordinates: config.location_coordinates,
+            radius_km: config.radius_km,
+            monitor_sale: true,  // Free tier monitors sales
+            monitor_rental: false,
+            monitor_sold: false,
+            is_free_tier: true,  // Explicit free tier flag
+          }),
+        });
 
-      // Create Stripe checkout session
-      const response = await fetch('/api/alerts/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          alertConfig: config,
-        }),
-      });
+        const data = await response.json();
 
-      const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create free alert');
+        }
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
+        // Success - call onSuccess
+        onSuccess();
+
+      } else {
+        // Premium alert - go through Stripe
+        const propertyType = config.monitor_sale ? 'for_sale' :
+                            config.monitor_rental ? 'for_rent' : 'sold';
+
+        analytics.alertConfigurationUpdated({
+          radius_km: config.radius_km,
+          propertyType,
+          min_bedrooms: config.monitor_sale ? config.sale_min_bedrooms :
+                       config.monitor_rental ? config.rental_min_bedrooms :
+                       config.sold_min_bedrooms,
+          max_bedrooms: config.monitor_sale ? config.sale_max_bedrooms :
+                       config.monitor_rental ? config.rental_max_bedrooms :
+                       config.sold_max_bedrooms,
+          min_price: config.monitor_sale ? config.sale_min_price :
+                    config.monitor_rental ? config.rental_min_price : undefined,
+          max_price: config.monitor_sale ? config.sale_max_price :
+                    config.monitor_rental ? config.rental_max_price : undefined,
+          price_threshold_percent: config.sold_price_threshold_percent,
+        });
+
+        analytics.alertPaymentStarted(99, config.location_name, propertyType);
+
+        // Create Stripe checkout session
+        const response = await fetch('/api/alerts/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            alertConfig: config,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create checkout session');
+        }
+
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
       }
 
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
-
     } catch (err) {
-      console.error('Alert checkout error:', err);
+      console.error('Alert creation error:', err);
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setIsSubmitting(false);
@@ -148,73 +201,109 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
       {/* Progress indicator */}
       <div className="flex items-center gap-2 mb-6">
         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-          ['property-types', 'configure-alerts', 'payment'].includes(step) ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'
+          ['tier-selection', 'configure-alerts', 'payment'].includes(step) ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'
         }`}>
           1
         </div>
         <div className={`flex-1 h-0.5 ${
-          ['configure-alerts', 'payment'].includes(step) ? 'bg-blue-200' : 'bg-slate-200'
+          (selectedTier === 'free' && step === 'payment') || (selectedTier === 'premium' && ['configure-alerts', 'payment'].includes(step)) ? 'bg-blue-200' : 'bg-slate-200'
         }`} />
         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+          (selectedTier === 'free' && step === 'payment') ? 'bg-blue-600 text-white' :
           step === 'configure-alerts' ? 'bg-blue-600 text-white' :
           step === 'payment' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
         }`}>
-          2
+          {selectedTier === 'free' ? '2' : '2'}
         </div>
-        <div className={`flex-1 h-0.5 ${
-          step === 'payment' ? 'bg-blue-200' : 'bg-slate-200'
-        }`} />
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-          step === 'payment' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'
-        }`}>
-          3
-        </div>
+        {selectedTier === 'premium' && (
+          <>
+            <div className={`flex-1 h-0.5 ${
+              step === 'payment' ? 'bg-blue-200' : 'bg-slate-200'
+            }`} />
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+              step === 'payment' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'
+            }`}>
+              3
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Step 1: Property Types */}
-      {step === 'property-types' && (
+      {/* Step 1: Tier Selection */}
+      {step === 'tier-selection' && (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          {/* Property Types */}
+          {/* Tier Selection */}
           <div className="space-y-4">
-            <div className="space-y-3">
-              {PROPERTY_TYPE_OPTIONS.map((option) => {
-                const isSelected = option.value === 'sale' ? config.monitor_sale :
-                                 option.value === 'rental' ? config.monitor_rental :
-                                 config.monitor_sold;
-                return (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      const propertyTypeMap = {
-                        sale: 'for_sale',
-                        rental: 'for_rent',
-                        sold: 'sold'
-                      } as const;
-                      analytics.alertPropertyTypeSelected(
-                        propertyTypeMap[option.value as keyof typeof propertyTypeMap],
-                        location.name
-                      );
-                      updateConfig({
-                        monitor_sale: option.value === 'sale',
-                        monitor_rental: option.value === 'rental',
-                        monitor_sold: option.value === 'sold',
-                      });
-                    }}
-                    className={`w-full p-4 rounded-lg border text-left transition-colors ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-50 text-blue-900'
-                        : 'border-slate-200 hover:border-slate-300 text-slate-900'
-                    }`}
-                  >
-                    <div className="font-medium text-sm">{option.label}</div>
-                  </button>
-                );
-              })}
-            </div>
+            <button
+              onClick={() => {
+                setSelectedTier('free');
+                // For free tier, ensure comprehensive property monitoring
+                // If default config specifies property types, keep them; otherwise default to all types
+                const hasDefaultConfig = location.defaultAlertConfig &&
+                  (location.defaultAlertConfig.monitor_sale || location.defaultAlertConfig.monitor_rental || location.defaultAlertConfig.monitor_sold);
+                if (!hasDefaultConfig) {
+                  updateConfig({ monitor_sale: true, monitor_rental: true, monitor_sold: true });
+                }
+              }}
+              className={`w-full p-4 rounded-lg border text-left transition-all ${
+                selectedTier === 'free'
+                  ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                  : 'border-green-200 bg-green-50 hover:bg-green-100'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    selectedTier === 'free' ? 'bg-green-500' : 'bg-green-100'
+                  }`}>
+                    <span className={`text-sm font-bold ${
+                      selectedTier === 'free' ? 'text-white' : 'text-green-700'
+                    }`}>✓</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-green-900">Free Alert</h4>
+                    <p className="text-sm text-green-700">1 location alert with weekly digest</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-green-900">Free</div>
+                  <div className="text-xs text-green-600">12 months</div>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedTier('premium')}
+              className={`w-full p-4 rounded-lg border text-left transition-all ${
+                selectedTier === 'premium'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                  : 'border-blue-200 bg-blue-50 hover:bg-blue-100'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    selectedTier === 'premium' ? 'bg-blue-500' : 'bg-blue-100'
+                  }`}>
+                    <span className={`text-sm font-bold ${
+                      selectedTier === 'premium' ? 'text-white' : 'text-blue-700'
+                    }`}>∞</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-blue-900">Premium Upgrade</h4>
+                    <p className="text-sm text-blue-700">Unlimited alerts with instant notifications</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-blue-900">€0.99</div>
+                  <div className="text-xs text-blue-600">one-time</div>
+                </div>
+              </div>
+            </button>
           </div>
 
           {/* Radius */}
@@ -247,11 +336,17 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
             </button>
             <button
               onClick={() => {
-                analytics.alertStepTransition('property-types', 'configure-alerts', location.name);
-                setStep('configure-alerts');
+                if (selectedTier === 'free') {
+                  // Skip configuration for free alerts - go straight to payment
+                  analytics.alertStepTransition('tier-selection', 'payment', location.name);
+                  setStep('payment');
+                } else {
+                  // Premium alerts need configuration
+                  analytics.alertStepTransition('tier-selection', 'configure-alerts', location.name);
+                  setStep('configure-alerts');
+                }
               }}
-              disabled={!config.monitor_sale && !config.monitor_rental && !config.monitor_sold}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               Continue
               <ChevronRight className="w-4 h-4" />
@@ -488,7 +583,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
 
           <div className="flex gap-3 pt-4">
             <button
-              onClick={() => setStep('property-types')}
+              onClick={() => setStep('tier-selection')}
               className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-900 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -515,8 +610,15 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
           className="space-y-6"
         >
           <div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Complete your setup</h3>
-            <p className="text-sm text-slate-600">One-time payment for 12 months of alerts</p>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
+              {selectedTier === 'free' ? 'Create Your Free Alert' : 'Complete your setup'}
+            </h3>
+            <p className="text-sm text-slate-600">
+              {selectedTier === 'free'
+                ? 'Get notified about new property listings and price drops in your area'
+                : 'One-time payment for 12 months of alerts'
+              }
+            </p>
           </div>
 
           {/* Summary */}
@@ -542,18 +644,49 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
           </div>
 
           {/* Pricing */}
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium text-slate-900">Property Alerts</div>
-                <div className="text-sm text-slate-600">12 months of notifications</div>
+          {selectedTier === 'free' ? (
+            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-green-900">Free Alert Setup</div>
+                  <div className="text-sm text-green-700">1 location alert with weekly digest</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xl font-bold text-green-900">Free</div>
+                  <div className="text-xs text-green-600">12 months</div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-xl font-bold text-blue-600">€0.99</div>
-                <div className="text-xs text-slate-500">one-time</div>
+              <div className="mt-3 pt-3 border-t border-green-200">
+                <div className="flex items-center gap-2 text-green-700">
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs text-white">✓</span>
+                  </div>
+                  <span className="text-sm">Instant setup • No payment required</span>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-slate-900">Premium Property Alerts</div>
+                  <div className="text-sm text-slate-600">12 months of unlimited notifications</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xl font-bold text-blue-600">€0.99</div>
+                  <div className="text-xs text-slate-500">one-time</div>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-blue-200">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs text-white">✓</span>
+                  </div>
+                  <span className="text-sm">Includes 3 free alerts + unlimited premium alerts</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Error */}
           {error && (
@@ -564,7 +697,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
 
           <div className="flex gap-3 pt-4">
             <button
-              onClick={() => setStep('configure-alerts')}
+              onClick={() => setStep(selectedTier === 'free' ? 'tier-selection' : 'configure-alerts')}
               className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-900 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -579,6 +712,11 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Processing...
+                </>
+              ) : selectedTier === 'free' ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Create Free Alert
                 </>
               ) : (
                 <>

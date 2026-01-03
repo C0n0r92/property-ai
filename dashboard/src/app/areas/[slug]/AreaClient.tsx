@@ -8,6 +8,8 @@ import { slugToArea, areaToSlug } from '@/lib/areas';
 import { AreaStructuredData } from '@/components/AreaStructuredData';
 import { ShareButton } from '@/components/ShareButton';
 import { analytics } from '@/lib/analytics';
+import { useSearchTracking } from '@/hooks/useSearchTracking';
+import { useAlertModal } from '@/contexts/AlertModalContext';
 
 interface AreaData {
   area: string;
@@ -46,6 +48,8 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
   const [data, setData] = useState<any>(initialData);
   const [loading, setLoading] = useState(false);
   const areaName = slugToArea(slug) || 'Unknown Area';
+  const { trackMapSearch } = useSearchTracking();
+  const { showAlertModal } = useAlertModal();
 
   useEffect(() => {
     async function fetchData() {
@@ -62,6 +66,44 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
 
     fetchData();
   }, [slug]);
+
+  // Track analytics and trigger alerts
+  useEffect(() => {
+    analytics.track('area_page_view', {
+      area: areaName,
+      slug,
+      totalSales: data.stats?.totalSales || 0,
+      medianPrice: data.stats?.medianPrice || 0,
+    });
+
+    // Trigger alert modal for area
+    if (data.recentSales && data.recentSales.length > 0) {
+      // Calculate center coordinates from recent sales
+      const validSales = data.recentSales.filter((sale: any) => sale.latitude && sale.longitude);
+      if (validSales.length > 0) {
+        const avgLat = validSales.reduce((sum: number, sale: any) => sum + sale.latitude, 0) / validSales.length;
+        const avgLng = validSales.reduce((sum: number, sale: any) => sum + sale.longitude, 0) / validSales.length;
+
+        console.log('🏠 Triggering area page alert for:', areaName, 'coordinates:', { lat: avgLat, lng: avgLng });
+
+        trackMapSearch({
+          name: areaName,
+          coordinates: { lat: avgLat, lng: avgLng },
+          defaultAlertConfig: {
+            monitor_sale: true,
+            monitor_rental: true,
+            monitor_sold: true,
+            sale_alert_on_new: true,
+            sale_alert_on_price_drops: true,
+            rental_alert_on_new: true,
+            sold_alert_on_over_asking: true,
+            sold_alert_on_under_asking: true,
+            sold_price_threshold_percent: 5
+          }
+        });
+      }
+    }
+  }, [areaName, slug, data.stats, data.recentSales, trackMapSearch]);
 
   if (loading) {
     return (
@@ -110,6 +152,38 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
           Average price analysis based on {data.stats.totalSales.toLocaleString()} property sales
         </p>
         <div className="flex justify-end gap-3">
+          <button
+            onClick={() => {
+              // Calculate center coordinates for alert modal
+              const validSales = data.recentSales.filter((sale: any) => sale.latitude && sale.longitude);
+              if (validSales.length > 0) {
+                const avgLat = validSales.reduce((sum: number, sale: any) => sum + sale.latitude, 0) / validSales.length;
+                const avgLng = validSales.reduce((sum: number, sale: any) => sum + sale.longitude, 0) / validSales.length;
+
+                showAlertModal({
+                  name: areaName,
+                  coordinates: { lat: avgLat, lng: avgLng },
+                  defaultAlertConfig: {
+                    monitor_sale: true,
+                    monitor_rental: true,
+                    monitor_sold: true,
+                    sale_alert_on_new: true,
+                    sale_alert_on_price_drops: true,
+                    rental_alert_on_new: true,
+                    sold_alert_on_over_asking: true,
+                    sold_alert_on_under_asking: true,
+                    sold_price_threshold_percent: 5
+                  }
+                });
+              }
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.868 12.683A17.925 17.925 0 0112 21c7.962 0 12.21-8.031 8.09-14.32a10.077 10.077 0 00-3.042-3.032c-.917-.5-1.29-.878-2.249-.878s-1.332.378-2.249.878a10.077 10.077 0 00-3.042 3.032C4.79 7.75.542 15.781 8.504 15.781h3.064l2.5-2.5-2.5-2.5H8.504z" />
+            </svg>
+            Set Up Alerts
+          </button>
           <a
             href={`/map?area=${slug}`}
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

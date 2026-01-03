@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     if (data.user) {
       // Check if this is a new user (email signup confirmation)
       const { data: existingUser } = await supabase
-        .from('users')
+        .from('profiles')
         .select('id')
         .eq('id', data.user.id)
         .single();

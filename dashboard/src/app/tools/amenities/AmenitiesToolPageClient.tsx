@@ -41,6 +41,14 @@ export default function AmenitiesToolPageClient() {
     router.push(`/tools/amenities?lat=${newLat}&lng=${newLng}&address=${encodeURIComponent(newAddress)}`);
   };
 
+  const handleLocationTracked = (lat: number, lng: number, address: string) => {
+    // Track search for alert modal
+    trackMapSearch({
+      name: address,
+      coordinates: { lat, lng },
+    });
+  };
+
   const handleNewSearch = () => {
     // Navigate back to search mode
     router.push('/tools/amenities');
@@ -97,6 +105,7 @@ export default function AmenitiesToolPageClient() {
         <div className="mb-12">
           <AddressSearchBar
             onLocationFound={handleLocationFound}
+            onLocationTracked={handleLocationTracked}
             placeholder="Enter a Dublin address to analyze nearby amenities..."
             className="max-w-2xl mx-auto"
           />

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { areaToSlug } from '@/lib/areas';
 import { formatFullPrice } from '@/lib/format';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
+import { NewsletterSignup } from '@/components/NewsletterSignup';
 
 interface FeaturedArea {
   name: string;
@@ -380,8 +381,8 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <div className="text-sm font-semibold text-slate-900 mb-1">Free Forever</div>
-                <div className="text-xs text-slate-600 text-center">No subscriptions, no limits</div>
+                <div className="text-sm font-semibold text-slate-900 mb-1">Free Property Data</div>
+                <div className="text-xs text-slate-600 text-center">Premium alerts from €0.99/year</div>
               </div>
 
               <div className="flex flex-col items-center p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20">
@@ -476,6 +477,99 @@ export default function Home() {
               </p>
               <Link href="/blog" className="inline-flex items-center gap-2 text-purple-600 font-semibold hover:text-purple-700 transition-colors group-hover:translate-x-1 transform transition-transform">
                 Read Market Research
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Market Intelligence
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Get Weekly Dublin Property Market Updates</h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Join thousands of property professionals who stay ahead of Dublin's market with weekly insights, trends, and opportunities.
+            </p>
+          </div>
+          <NewsletterSignup />
+        </div>
+      </section>
+
+      {/* Account Benefits */}
+      <section className="py-16 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              Free Account Benefits
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Join Thousands of Property Professionals</h2>
+            <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+              Create a free account and unlock powerful property tools that save time and money
+            </p>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="flex flex-col items-center p-4 bg-slate-50 rounded-lg">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">Save Properties</h3>
+                <p className="text-sm text-slate-600 text-center">Bookmark up to 5 properties and track price changes</p>
+              </div>
+
+              <div className="flex flex-col items-center p-4 bg-slate-50 rounded-lg">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">Free Alert</h3>
+                <p className="text-sm text-slate-600 text-center">Get 1 location alert with weekly property updates</p>
+              </div>
+
+              <div className="flex flex-col items-center p-4 bg-slate-50 rounded-lg">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">Compare Tools</h3>
+                <p className="text-sm text-slate-600 text-center">Side-by-side comparison of up to 5 properties</p>
+              </div>
+
+              <div className="flex flex-col items-center p-4 bg-slate-50 rounded-lg">
+                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
+                  <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">View History</h3>
+                <p className="text-sm text-slate-600 text-center">Track your property viewing history and preferences</p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <p className="text-slate-600 mb-4">Ready to get started?</p>
+              <Link
+                href="/map"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                Explore Properties
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

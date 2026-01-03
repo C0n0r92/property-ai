@@ -77,6 +77,9 @@ ALTER TABLE location_alerts ADD COLUMN IF NOT EXISTS monitor_sale BOOLEAN DEFAUL
 ALTER TABLE location_alerts ADD COLUMN IF NOT EXISTS monitor_rental BOOLEAN DEFAULT false;
 
 ALTER TABLE location_alerts ADD COLUMN IF NOT EXISTS sale_min_bedrooms INTEGER;
+
+-- Add free tier tracking column
+ALTER TABLE location_alerts ADD COLUMN IF NOT EXISTS is_free_tier BOOLEAN DEFAULT false;
 ALTER TABLE location_alerts ADD COLUMN IF NOT EXISTS sale_max_bedrooms INTEGER;
 ALTER TABLE location_alerts ADD COLUMN IF NOT EXISTS sale_min_price INTEGER;
 ALTER TABLE location_alerts ADD COLUMN IF NOT EXISTS sale_max_price INTEGER;

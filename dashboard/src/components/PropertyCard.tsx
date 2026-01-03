@@ -4,8 +4,13 @@ import React, { useState } from 'react';
 import { formatFullPrice } from '@/lib/format';
 import { useRouter } from 'next/navigation';
 import { useComparison } from '@/contexts/ComparisonContext';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { useSavedProperties } from '@/hooks/useSavedProperties';
+import { LoginModal } from '@/components/auth/LoginModal';
+import { UpgradeModal } from '@/components/UpgradeModal';
 import { Property, Listing, RentalListing } from '@/types/property';
-import { MapPin, Bed, Bath, Ruler, Building2, TrendingUp, Calculator, Eye, FileText, CheckCircle, X, Plus } from 'lucide-react';
+import { MapPin, Bed, Bath, Ruler, Building2, TrendingUp, Calculator, Eye, FileText, CheckCircle, X, Plus, Bookmark } from 'lucide-react';
+import { analytics } from '@/lib/analytics';
 
 interface PropertyCardProps {
   property?: Property;
@@ -16,8 +21,12 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property, listing, rental, onClose }: PropertyCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
   const { addToComparison, isInComparison, comparedProperties, count, maxProperties, removeFromComparison, clearComparison } = useComparison();
   const [activeTab, setActiveTab] = useState<'details' | 'compare'>('details');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Determine which property type we're dealing with
   const data = property || listing || rental;
@@ -112,9 +121,36 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
     router.push(`/planning?lat=${lat}&lng=${lng}&address=${encodeURIComponent(address)}`);
   };
 
+  // Handle save property with login gate and upgrade prompt
+  const handleSaveProperty = async () => {
+    if (!user) {
+      analytics.registrationStarted('save_prompt');
+      setShowLoginModal(true);
+      return;
+    }
+
+    const propType = isSold ? 'sold' : isForSale ? 'listing' : 'rental';
+    const alreadySaved = isSaved(address, propType as 'listing' | 'rental' | 'sold');
+
+    if (alreadySaved) {
+      await unsaveProperty(address, propType as 'listing' | 'rental' | 'sold');
+    } else {
+      const result = await saveProperty(address, propType as 'listing' | 'rental' | 'sold', data);
+      
+      // Show upgrade modal if save limit reached
+      if (result.requiresUpgrade) {
+        setShowUpgradeModal(true);
+      }
+    }
+  };
+
+  // Check if current property is saved
+  const propTypeForSave = isSold ? 'sold' : isForSale ? 'listing' : 'rental';
+  const isPropertySaved = isSaved(address, propTypeForSave as 'listing' | 'rental' | 'sold');
+
   return (
     <div className={`bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border ${statusConfig.borderColor} z-50 transition-all duration-300 ${isAlreadyInComparison ? 'ring-2 ring-green-500/50' : ''}`}>
-      {/* Header with close button */}
+      {/* Header with save and close buttons */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
         <div className={`px-3 py-1 rounded-full text-white text-sm font-medium ${statusConfig.color} flex items-center gap-2`}>
           <Building2 className="w-4 h-4" />
@@ -123,15 +159,29 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
             <span className="ml-1 text-green-300 text-xs">✓</span>
           )}
         </div>
-        {onClose && (
+        <div className="flex items-center gap-2">
+          {/* Save button */}
           <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
-            title="Close property card"
+            onClick={handleSaveProperty}
+            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+              isPropertySaved
+                ? 'bg-red-600 hover:bg-red-700 text-white'
+                : 'bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white'
+            }`}
+            title={isPropertySaved ? 'Remove from saved' : 'Save property'}
           >
-            ×
+            <Bookmark className={`w-4 h-4 ${isPropertySaved ? 'fill-current' : ''}`} />
           </button>
-        )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+              title="Close property card"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main content */}
@@ -335,6 +385,20 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
           )}
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        trigger="save_limit"
+        limit={5}
+      />
     </div>
   );
 }

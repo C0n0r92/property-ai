@@ -9,10 +9,47 @@ import { AlertConfigForm } from './AlertConfigForm';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { analytics } from '@/lib/analytics';
 
+interface LocationStats {
+  avgPrice: string;
+  newListings: number;
+  priceChange: number;
+}
+
 export function LocationAlertModal() {
-  const { modalState, hideAlertModal, dismissAlertModal, setModalStep } = useAlertModal();
+  const { modalState, hideAlertModal, dismissAlertModal, setModalStep, persistModalForAuth } = useAlertModal();
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // Debug logging
+  console.log('🎯 LocationAlertModal render - isOpen:', modalState.isOpen, 'user:', !!user, 'location:', modalState.location?.name);
+  const [locationStats, setLocationStats] = useState<LocationStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  // Fetch real location stats when modal opens
+  useEffect(() => {
+    if (modalState.isOpen && modalState.location && modalState.alertType === 'location') {
+      setStatsLoading(true);
+      const { lat, lng } = modalState.location.coordinates;
+      
+      fetch(`/api/stats/location?lat=${lat}&lng=${lng}&radius=3`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.error) {
+            setLocationStats({
+              avgPrice: data.avgPrice || '€450K',
+              newListings: data.newListings || 0,
+              priceChange: data.priceChange || 0,
+            });
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch location stats:', err);
+        })
+        .finally(() => {
+          setStatsLoading(false);
+        });
+    }
+  }, [modalState.isOpen, modalState.location, modalState.alertType]);
 
 
   // Handle ESC key and backdrop click
@@ -57,6 +94,8 @@ export function LocationAlertModal() {
     analytics.alertStepTransition(modalState.step, 'property-types', modalState.location?.name || 'unknown');
 
     if (!user) {
+      // Persist modal state before authentication redirect
+      persistModalForAuth();
       setShowLoginModal(true);
     } else {
       setModalStep('property-types');
@@ -140,8 +179,11 @@ export function LocationAlertModal() {
                     alertType={modalState.alertType}
                     locationName={modalState.location?.name}
                     blogTitle={modalState.blog?.title}
+                    locationStats={locationStats}
+                    statsLoading={statsLoading}
                     onGetAlerts={handleGetAlertsClick}
                     onDismiss={dismissAlertModal}
+                    isSignedOut={!user}
                   />
                 )}
 
@@ -188,83 +230,148 @@ function InitialStep({
   alertType,
   locationName,
   blogTitle,
+  locationStats,
+  statsLoading,
   onGetAlerts,
-  onDismiss
+  onDismiss,
+  isSignedOut
 }: {
   alertType: 'location' | 'blog';
   locationName?: string;
   blogTitle?: string;
+  locationStats?: LocationStats | null;
+  statsLoading?: boolean;
   onGetAlerts: () => void;
   onDismiss: () => void;
+  isSignedOut?: boolean;
 }) {
   const isBlogAlert = alertType === 'blog';
 
   return (
-    <div className="text-center space-y-6">
+    <div className="text-center space-y-5">
       {/* Icon */}
-      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
         {isBlogAlert ? (
-          <Bell className="w-8 h-8 text-blue-600" />
+          <Bell className="w-8 h-8 text-white" />
         ) : (
-          <MapPin className="w-8 h-8 text-blue-600" />
+          <MapPin className="w-8 h-8 text-white" />
         )}
       </div>
 
-      {/* Title */}
+      {/* Title with Urgency */}
       <div>
         <h3 className="text-xl font-bold text-slate-900 mb-2">
-          {isBlogAlert ? `Get blog alerts` : `Get alerts for ${locationName}`}
+          {isBlogAlert
+            ? `Never miss critical market insights`
+            : `Don't miss the next price drop in ${locationName}`}
         </h3>
         <p className="text-slate-600 text-sm leading-relaxed">
           {isBlogAlert
-            ? "Get notified when we publish new research articles and market insights."
-            : "Be the first to know about new listings, price drops, and sales in your area."
+            ? "Get exclusive research and analysis that could save you thousands on your next property investment."
+            : isSignedOut
+              ? "Create a free account to get instant notifications about new listings and price changes in your area."
+              : "Properties in Dublin sell fast. Be the first to know about new listings, price changes, and market moves."
           }
         </p>
       </div>
 
+      {/* Social Proof */}
+      <div className="bg-slate-50 rounded-lg px-4 py-3">
+        <div className="flex items-center justify-center gap-2 text-slate-700">
+          <div className="flex -space-x-2">
+            <div className="w-6 h-6 bg-blue-500 rounded-full border-2 border-white"></div>
+            <div className="w-6 h-6 bg-emerald-500 rounded-full border-2 border-white"></div>
+            <div className="w-6 h-6 bg-purple-500 rounded-full border-2 border-white"></div>
+          </div>
+          <span className="text-sm font-medium">
+            {isBlogAlert 
+              ? "Join 500+ property investors" 
+              : "500+ property hunters tracking Dublin"}
+          </span>
+        </div>
+      </div>
+
+      {/* Dynamic Area Stats (for location alerts only) */}
+      {!isBlogAlert && (
+        <div className="bg-blue-50 rounded-lg px-4 py-3">
+          <div className="text-center">
+            <div className="text-sm text-blue-800 font-medium mb-1">
+              {locationName} Market Snapshot
+            </div>
+            {statsLoading ? (
+              <div className="flex items-center justify-center py-2">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-4 text-xs">
+                <div>
+                  <div className="text-blue-900 font-semibold">
+                    {locationStats?.avgPrice || '€450K'}
+                  </div>
+                  <div className="text-blue-700">Avg Price</div>
+                </div>
+                <div>
+                  <div className="text-blue-900 font-semibold">
+                    {locationStats?.newListings || 0}
+                  </div>
+                  <div className="text-blue-700">New This Week</div>
+                </div>
+                <div>
+                  <div className="text-blue-900 font-semibold">
+                    {locationStats?.priceChange !== undefined 
+                      ? `${locationStats.priceChange >= 0 ? '+' : ''}${locationStats.priceChange}%`
+                      : '+0%'}
+                  </div>
+                  <div className="text-blue-700">YoY Change</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Features */}
-      <div className="space-y-3 text-left">
+      <div className="space-y-2.5 text-left">
         {isBlogAlert ? (
           <>
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Check className="w-3 h-3 text-green-600" />
               </div>
-              <span className="text-sm text-slate-700">New research articles</span>
+              <span className="text-sm text-slate-700">Early access to market research</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Check className="w-3 h-3 text-green-600" />
               </div>
-              <span className="text-sm text-slate-700">Market insights & analysis</span>
+              <span className="text-sm text-slate-700">Investment opportunity alerts</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Check className="w-3 h-3 text-green-600" />
               </div>
-              <span className="text-sm text-slate-700">Property market trends</span>
+              <span className="text-sm text-slate-700">Data-driven pricing insights</span>
             </div>
           </>
         ) : (
           <>
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Check className="w-3 h-3 text-green-600" />
               </div>
-              <span className="text-sm text-slate-700">New property listings</span>
+              <span className="text-sm text-slate-700">Instant alerts for new listings</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Check className="w-3 h-3 text-green-600" />
               </div>
-              <span className="text-sm text-slate-700">Price drops and changes</span>
+              <span className="text-sm text-slate-700">Price drop notifications</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Check className="w-3 h-3 text-green-600" />
               </div>
-              <span className="text-sm text-slate-700">Recent sales data</span>
+              <span className="text-sm text-slate-700">Sold price intelligence</span>
             </div>
           </>
         )}
@@ -280,20 +387,33 @@ function InitialStep({
       )}
 
       {/* CTA */}
-      <div className="space-y-3">
+      <div className="space-y-3 pt-1">
         <button
           onClick={onGetAlerts}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
         >
-          {isBlogAlert ? 'Set up alerts (€3)' : 'Set up alerts'}
+          {isBlogAlert
+            ? 'Get Premium Alerts (€3)'
+            : isSignedOut
+              ? 'Sign Up for Free Alerts'
+              : 'Set Up Free Alert'
+          }
           <ChevronRight className="w-4 h-4" />
         </button>
 
+        <p className="text-xs text-slate-400">
+          {isBlogAlert
+            ? "One-time payment, lifetime access"
+            : isSignedOut
+              ? "Create free account • Instant alerts"
+              : "Free account • 1 location alert included"}
+        </p>
+
         <button
           onClick={onDismiss}
-          className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+          className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
         >
-          Not interested
+          Maybe later
         </button>
       </div>
     </div>

@@ -12,6 +12,9 @@ import { useComparison } from '@/contexts/ComparisonContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
+import { LoginModal } from '@/components/auth/LoginModal';
+import { AlertBottomBar } from '@/components/alerts/AlertBottomBar';
+import { analytics } from '@/lib/analytics';
 import { Bookmark, Calculator, MapPin, Bed, Bath, Ruler, Building2, ArrowLeft, TrendingUp, FileText, Eye, CheckCircle } from 'lucide-react';
 
 export default function PropertyDetailsPage() {
@@ -25,6 +28,7 @@ export default function PropertyDetailsPage() {
   const [property, setProperty] = useState<Property | Listing | RentalListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const propertyType = params.type as string;
   const propertyId = decodeURIComponent(params.id as string);
@@ -100,8 +104,53 @@ export default function PropertyDetailsPage() {
           postcode: ('dublinPostcode' in mockProperty && mockProperty.dublinPostcode) ? mockProperty.dublinPostcode : undefined,
         };
 
-        console.log('🏠 Triggering property details page alert for:', mockProperty.address);
-        trackMapSearch(locationContext);
+        console.log('🏠 Triggering property details page alert for:', mockProperty.address, 'type:', propertyType);
+
+        // Determine suggested alert configuration based on property type (but allow user to change)
+        let defaultAlertConfig = {};
+        if (propertyType === 'rental') {
+          defaultAlertConfig = {
+            monitor_rental: true,
+            monitor_sale: true,  // Also suggest sale alerts as they're often interested in buying too
+            monitor_sold: true,  // Include sold data for market intelligence
+            rental_alert_on_new: true,
+            sale_alert_on_new: true,
+            sale_alert_on_price_drops: true,
+            sold_alert_on_over_asking: true,
+            sold_alert_on_under_asking: true,
+            sold_price_threshold_percent: 5
+          };
+        } else if (propertyType === 'sold') {
+          defaultAlertConfig = {
+            monitor_sold: true,
+            monitor_sale: true,  // Also suggest current sale listings
+            monitor_rental: true, // Include rentals for complete market view
+            sold_alert_on_over_asking: true,
+            sold_alert_on_under_asking: true,
+            sold_price_threshold_percent: 5,
+            sale_alert_on_new: true,
+            sale_alert_on_price_drops: true,
+            rental_alert_on_new: true
+          };
+        } else {
+          // Default for sale/listing properties - suggest all types for comprehensive coverage
+          defaultAlertConfig = {
+            monitor_sale: true,
+            monitor_rental: true,  // Many buyers also consider rentals
+            monitor_sold: true,    // Include sold data for market intelligence
+            sale_alert_on_new: true,
+            sale_alert_on_price_drops: true,
+            rental_alert_on_new: true,
+            sold_alert_on_over_asking: true,
+            sold_alert_on_under_asking: true,
+            sold_price_threshold_percent: 5
+          };
+        }
+
+        trackMapSearch({
+          ...locationContext,
+          defaultAlertConfig
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load property details');
       } finally {
@@ -362,7 +411,7 @@ export default function PropertyDetailsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 ml-4">
-                  {user && user.tier === 'premium' && (
+                  {user ? (
                     <button
                       onClick={async () => {
                         const alreadySaved = isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold');
@@ -385,6 +434,17 @@ export default function PropertyDetailsPage() {
                       title={isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold') ? 'Remove from saved' : 'Save property'}
                     >
                       <Bookmark className={`w-5 h-5 ${isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold') ? 'fill-current' : ''}`} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        analytics.registrationStarted('save_prompt');
+                        setShowLoginModal(true);
+                      }}
+                      className="p-3 rounded-lg border bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-600 transition-colors"
+                      title="Sign in to save properties"
+                    >
+                      <Bookmark className="w-5 h-5" />
                     </button>
                   )}
 
@@ -806,6 +866,22 @@ export default function PropertyDetailsPage() {
           </div>
         </div>
       </div>
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
+
+      {/* Bottom Alert Bar - Only show if user isn't logged in and property data is loaded */}
+      {!user && property && (
+        <AlertBottomBar
+          locationName={property.address || 'this area'}
+          coordinates={{
+            lat: property.latitude || 53.3498,
+            lng: property.longitude || -6.2603
+          }}
+        />
+      )}
     </div>
   );
 }
