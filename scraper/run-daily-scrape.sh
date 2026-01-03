@@ -8,7 +8,7 @@ echo "======================================="
 
 # Load environment variables
 if [ -f .env ]; then
-    export $(cat .env | xargs)
+    export $(grep -v '^#' .env | xargs)
 else
     echo "ERROR: .env file not found!"
     exit 1

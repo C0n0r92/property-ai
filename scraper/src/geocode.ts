@@ -1,7 +1,12 @@
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
 /**
  * Shared geocoding utility using Nominatim or LocationIQ
  * Used by all scrapers for address-to-coordinates conversion
- * 
+ *
  * Supports both:
  * - Local Nominatim (Docker): NOMINATIM_URL=http://localhost:8080/search
  * - LocationIQ Cloud API: LOCATIONIQ_API_KEY=your_key_here
