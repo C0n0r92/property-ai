@@ -115,30 +115,30 @@ function processMarkdownToHtml(content: string): string {
         // Convert table to HTML
         if (tableRows.length > 0) {
           processedLines.push('<div class="my-6 overflow-x-auto">');
-          processedLines.push('<table class="w-full bg-white border border-slate-200 rounded-lg shadow-sm text-sm">');
+          processedLines.push('<table class="w-full bg-slate-800 border border-slate-700 rounded-lg shadow-sm text-sm">');
 
           tableRows.forEach((row, rowIndex) => {
             if (rowIndex === 0) {
               // Header row
-              processedLines.push('<thead class="bg-slate-50">');
+              processedLines.push('<thead class="bg-slate-700">');
               processedLines.push('<tr>');
               row.forEach(cell => {
                 let processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 processedCell = processedCell.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg shadow-sm my-2" />');
-                processedCell = processedCell.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-700 underline" target="_blank" rel="noopener noreferrer">$1</a>');
-                processedLines.push(`<th class="px-4 py-3 text-left font-semibold text-slate-900 border-b border-slate-200 first:rounded-tl-lg last:rounded-tr-lg">${processedCell}</th>`);
+                processedCell = processedCell.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-400 hover:text-blue-300 underline" target="_blank" rel="noopener noreferrer">$1</a>');
+                processedLines.push(`<th class="px-4 py-3 text-left font-semibold text-white border-b border-slate-600 first:rounded-tl-lg last:rounded-tr-lg">${processedCell}</th>`);
               });
               processedLines.push('</tr>');
               processedLines.push('</thead>');
               processedLines.push('<tbody>');
             } else {
               // Data rows
-              processedLines.push('<tr class="hover:bg-slate-50 transition-colors">');
+              processedLines.push('<tr class="hover:bg-slate-700/50 transition-colors">');
               row.forEach(cell => {
                 let processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 processedCell = processedCell.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg shadow-sm my-2" />');
-                processedCell = processedCell.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-700 underline" target="_blank" rel="noopener noreferrer">$1</a>');
-                processedLines.push(`<td class="px-4 py-3 text-slate-700 border-b border-slate-100">${processedCell}</td>`);
+                processedCell = processedCell.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-400 hover:text-blue-300 underline" target="_blank" rel="noopener noreferrer">$1</a>');
+                processedLines.push(`<td class="px-4 py-3 text-slate-300 border-b border-slate-600">${processedCell}</td>`);
               });
               processedLines.push('</tr>');
             }
@@ -161,7 +161,7 @@ function processMarkdownToHtml(content: string): string {
         // Start or continue a list
         if (!inList) {
           listType = isBulletList ? 'ul' : 'ol';
-          processedLines.push(`<${listType} class="list-disc list-inside text-slate-700 leading-relaxed mb-4 text-lg space-y-2">`);
+          processedLines.push(`<${listType} class="list-disc list-inside text-slate-300 leading-relaxed mb-4 text-lg space-y-2">`);
           inList = true;
         }
 
@@ -183,19 +183,19 @@ function processMarkdownToHtml(content: string): string {
         if (processedLine.startsWith('# ')) {
           const text = processedLine.substring(2);
           const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          processedLines.push(`<h1 id="${id}" class="text-3xl font-bold text-slate-900 mt-12 mb-6 scroll-mt-24">${text}</h1>`);
+          processedLines.push(`<h1 id="${id}" class="text-3xl font-bold text-white mt-12 mb-6 scroll-mt-24">${text}</h1>`);
         } else if (processedLine.startsWith('## ')) {
           const text = processedLine.substring(3);
           const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          processedLines.push(`<h2 id="${id}" class="text-2xl font-semibold text-slate-900 mt-10 mb-4 scroll-mt-24">${text}</h2>`);
+          processedLines.push(`<h2 id="${id}" class="text-2xl font-semibold text-white mt-10 mb-4 scroll-mt-24">${text}</h2>`);
         } else if (processedLine.startsWith('### ')) {
           const text = processedLine.substring(4);
           const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          processedLines.push(`<h3 id="${id}" class="text-xl font-semibold text-slate-900 mt-8 mb-3 scroll-mt-24">${text}</h3>`);
+          processedLines.push(`<h3 id="${id}" class="text-xl font-semibold text-white mt-8 mb-3 scroll-mt-24">${text}</h3>`);
         } else if (trimmedLine === '') {
           processedLines.push('<br/>');
         } else {
-          processedLines.push(`<p class="text-slate-700 leading-relaxed mb-4 text-lg">${processedLine}</p>`);
+          processedLines.push(`<p class="text-slate-300 leading-relaxed mb-4 text-lg">${processedLine}</p>`);
         }
       }
     }
@@ -209,26 +209,26 @@ function processMarkdownToHtml(content: string): string {
   // Close any open table
   if (inTable && tableRows.length > 0) {
     processedLines.push('<div class="my-6 overflow-x-auto">');
-    processedLines.push('<table class="w-full bg-white border border-slate-200 rounded-lg shadow-sm text-sm">');
+    processedLines.push('<table class="w-full bg-slate-800 border border-slate-700 rounded-lg shadow-sm text-sm">');
 
     tableRows.forEach((row, rowIndex) => {
       if (rowIndex === 0) {
         // Header row
-        processedLines.push('<thead class="bg-slate-50">');
+        processedLines.push('<thead class="bg-slate-700">');
         processedLines.push('<tr>');
         row.forEach(cell => {
           const processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-          processedLines.push(`<th class="px-4 py-3 text-left font-semibold text-slate-900 border-b border-slate-200 first:rounded-tl-lg last:rounded-tr-lg">${processedCell}</th>`);
+          processedLines.push(`<th class="px-4 py-3 text-left font-semibold text-white border-b border-slate-600 first:rounded-tl-lg last:rounded-tr-lg">${processedCell}</th>`);
         });
         processedLines.push('</tr>');
         processedLines.push('</thead>');
         processedLines.push('<tbody>');
       } else {
         // Data rows
-        processedLines.push('<tr class="hover:bg-slate-50 transition-colors">');
+        processedLines.push('<tr class="hover:bg-slate-700/50 transition-colors">');
         row.forEach(cell => {
           const processedCell = cell.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-          processedLines.push(`<td class="px-4 py-3 text-slate-700 border-b border-slate-100">${processedCell}</td>`);
+          processedLines.push(`<td class="px-4 py-3 text-slate-300 border-b border-slate-600">${processedCell}</td>`);
         });
         processedLines.push('</tr>');
       }
@@ -9042,7 +9042,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
   return (
     <div>
       <BlogAlertTracker slug={slug} />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <div className="min-h-screen bg-slate-900">
         {/* Hero Section with Article Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
           <div className="absolute inset-0 opacity-10">
@@ -9094,12 +9094,12 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
               <div className="mb-6">
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {article.tags && article.tags.map && article.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="px-2 py-0.5 sm:px-3 sm:py-1 bg-slate-100 text-slate-700 rounded-full text-xs sm:text-sm font-medium">
+                    <span key={tag} className="px-2 py-0.5 sm:px-3 sm:py-1 bg-slate-700 text-slate-200 rounded-full text-xs sm:text-sm font-medium border border-slate-600">
                       {tag}
                     </span>
                   ))}
                   {article.tags && article.tags.length > 3 && (
-                    <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-slate-200 text-slate-600 rounded-full text-xs sm:text-sm font-medium">
+                    <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-slate-600 text-slate-400 rounded-full text-xs sm:text-sm font-medium border border-slate-500">
                       +{article.tags.length - 3} more
                     </span>
                   )}
@@ -9107,7 +9107,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
               </div>
 
               {/* Vote Actions and Share */}
-              <div className="mb-6 flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              <div className="mb-6 flex items-center justify-between p-4 bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700">
                 <BlogVoteButton articleSlug={slug} />
                 <BlogShareButton 
                   title={article.title}
@@ -9117,8 +9117,8 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                 />
               </div>
 
-              <article className="bg-white rounded-3xl shadow-lg border border-slate-200 p-8 lg:p-12">
-                <div className="prose prose-lg prose-slate max-w-none text-slate-900">
+              <article className="bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-700 p-8 lg:p-12">
+                <div className="prose prose-lg prose-invert max-w-none">
                   {splitContentWithCharts(article.content).map((segment, index) => {
                     if (segment.type === 'html' && segment.content && segment.content.trim() !== '') {
                       return (
@@ -9346,7 +9346,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
 
               {/* Related Articles */}
               <section className="mt-16">
-                <h2 className="text-3xl font-bold text-slate-900 mb-8">Related Research</h2>
+                <h2 className="text-3xl font-bold text-white mb-8">Related Research</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {article.relatedArticles.map(relatedSlug => {
                     const relatedArticle = articles[relatedSlug as keyof typeof articles];
@@ -9356,19 +9356,19 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                       <Link
                         key={relatedSlug}
                         href={`/blog/${relatedSlug}`}
-                        className="group bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+                        className="group bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 overflow-hidden hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
                       >
                         <div className="p-6">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full text-slate-700 text-xs font-medium">
+                            <div className="inline-flex items-center gap-1 px-2 py-1 bg-slate-700 rounded-full text-slate-200 text-xs font-medium border border-slate-600">
                               {relatedArticle.category}
                             </div>
-                            <span className="text-slate-500 text-xs">{relatedArticle.date}</span>
+                            <span className="text-slate-400 text-xs">{relatedArticle.date}</span>
                           </div>
-                          <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                          <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
                             {relatedArticle.title}
                           </h3>
-                          <p className="text-slate-600 text-sm leading-relaxed line-clamp-2">
+                          <p className="text-slate-400 text-sm leading-relaxed line-clamp-2">
                             {relatedArticle.excerpt}
                           </p>
                         </div>
@@ -9398,27 +9398,27 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                 <TableOfContents content={article.content} />
 
                 {/* Article Stats */}
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Article Statistics</h3>
+                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Article Statistics</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 text-sm">Views</span>
-                      <span className="font-semibold text-slate-900">{article.views.toLocaleString()}</span>
+                      <span className="text-slate-400 text-sm">Views</span>
+                      <span className="font-semibold text-white">{article.views.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 text-sm">Read Time</span>
-                      <span className="font-semibold text-slate-900">{article.readTime}</span>
+                      <span className="text-slate-400 text-sm">Read Time</span>
+                      <span className="font-semibold text-white">{article.readTime}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600 text-sm">Category</span>
-                      <span className="font-semibold text-slate-900">{article.category}</span>
+                      <span className="text-slate-400 text-sm">Category</span>
+                      <span className="font-semibold text-white">{article.category}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Share Options */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Share This Article</h3>
+                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Share This Article</h3>
                   <BlogShareButton
                     title={article.title}
                     url={`/blog/${slug}`}
