@@ -214,6 +214,16 @@ function generatePropertyId(address: string, soldDate: string, soldPrice: number
 }
 
 /**
+ * Generate normalized address key for cross-referencing sold properties with listings
+ */
+function generateAddressKey(address: string): string {
+  return address
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .substring(0, 60);
+}
+
+/**
  * Deduplicate listings by sourceUrl, keeping most recent with price history
  */
 function deduplicateListingsRentals<T extends Listing | Rental>(
@@ -669,7 +679,7 @@ async function consolidate() {
 
   console.log('\n📂 Loading listings...');
   const allListingsRaw = loadAllFromDir<Listing>(DIRS.listings, 'listings'); // All dated files for price tracking
-  const allListings = deduplicateListingsRentals(allListingsRaw, 'listings'); // Deduplicate with price history
+  let allListings = deduplicateListingsRentals(allListingsRaw, 'listings'); // Deduplicate with price history
 
   console.log('\n📂 Loading rentals...');
   const allRentalsRaw = loadAllFromDir<Rental>(DIRS.rentals, 'rentals'); // All dated files for price tracking
@@ -680,6 +690,15 @@ async function consolidate() {
   console.log(`  Input: ${allProperties.length.toLocaleString()} total records`);
   const properties = deduplicateProperties(allProperties);
   console.log(`  Output: ${properties.length.toLocaleString()} unique properties`);
+
+  // Cross-reference with sold properties to remove already-sold listings
+  console.log('\n🔍 Cross-referencing listings with sold properties...');
+  const soldAddressKeys = new Set(properties.map(p => generateAddressKey(p.address)));
+  const originalListingsCount = allListings.length;
+  allListings = allListings.filter(listing => !soldAddressKeys.has(generateAddressKey(listing.address)));
+  const removedListingsCount = originalListingsCount - allListings.length;
+  console.log(`  Removed ${removedListingsCount.toLocaleString()} listings that were already sold`);
+  console.log(`  Remaining active listings: ${allListings.length.toLocaleString()}`);
   
   // Add Dublin postcode to all records
   console.log('\n📍 Extracting Dublin postcodes...');
