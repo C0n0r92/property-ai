@@ -100,8 +100,8 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
       try {
         console.log('🏠 Fetching amenities for coordinates:', coordinates);
 
-        // Fetch amenities via our API endpoint
-        const apiResponse = await fetch(`/api/amenities?lat=${coordinates.lat}&lng=${coordinates.lng}&radius=3000`);
+        // Fetch amenities via our API endpoint (use 2000m radius to support all filter options)
+        const apiResponse = await fetch(`/api/amenities?lat=${coordinates.lat}&lng=${coordinates.lng}&radius=2000`);
 
         if (!apiResponse.ok) {
           throw new Error(`API returned ${apiResponse.status}: ${apiResponse.statusText}`);
@@ -115,14 +115,6 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
 
         const amenities = apiData.amenities;
         console.log('📊 Received', amenities.length, 'amenities from API');
-        console.log('🏷️ Sample amenities:', amenities.slice(0, 5).map((a: any) => ({
-          name: a.name,
-          type: a.type,
-          category: a.category,
-          distance: Math.round(a.distance)
-        })));
-
-        console.log('📊 Fetched', amenities.length, 'amenities from OpenStreetMap');
 
         // If no amenities found, provide fallback data
         if (amenities.length === 0) {
@@ -302,6 +294,7 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
     return 'text-red-600';
   };
 
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -410,15 +403,10 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
             <div key={category} className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-[var(--foreground)] capitalize">
-                  {category} ({amenities.length})
+                  {category}
                 </h4>
-                <div className="flex items-center gap-2">
-                  <div className={`text-sm font-medium ${getRatingColor(walkabilityData.breakdown?.[category as keyof typeof walkabilityData.breakdown] || 0)}`}>
-                    {walkabilityData.breakdown?.[category as keyof typeof walkabilityData.breakdown] || 0}/10
-                  </div>
-                  <div className="text-xs text-[var(--foreground-muted)]">
-                    Avg: {amenities.length > 0 ? Math.round(amenities.reduce((sum, a) => sum + a.distance, 0) / amenities.length) : 0}m
-                  </div>
+                <div className="text-xs text-[var(--foreground-muted)]">
+                  {amenities.length} found • Avg: {amenities.length > 0 ? Math.round(amenities.reduce((sum, a) => sum + a.distance, 0) / amenities.length) : 0}m
                 </div>
               </div>
 

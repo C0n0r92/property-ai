@@ -377,8 +377,11 @@ export function calculateWalkabilityScore(amenities: Amenity[]): WalkabilityScor
     };
   }
 
+  // Normalize total score to 1-10 scale (max possible is 11 points)
+  const normalizedScore = Math.min(10, Math.max(1, Math.round((totalScore / 11) * 10)));
+
   return {
-    score: Math.round(totalScore),
+    score: normalizedScore,
     rating,
     breakdown,
     nearestDartLuas,
