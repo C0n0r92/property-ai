@@ -1,0 +1,248 @@
+{
+  "analysis": {
+    "totalProperties": 21099,
+    "priceRanges": {
+      "Over 1M": 1939,
+      "350k-500k": 7014,
+      "750k-1M": 2300,
+      "500k-750k": 5877,
+      "250k-350k": 3373,
+      "Under 250k": 596
+    },
+    "propertyTypes": {
+      "Detached": 1680,
+      "Semi-D": 5855,
+      "Terrace": 4683,
+      "Townhouse": 122,
+      "End of Terrace": 1839,
+      "Apartment": 5565,
+      "": 375,
+      "Bungalow": 462,
+      "Duplex": 490,
+      "Site": 27,
+      "terrace": 1
+    },
+    "areas": {
+      "D4": 928,
+      "D3": 829,
+      "D24": 1041,
+      "D16": 746,
+      "D9": 942,
+      "D14": 841,
+      "D7": 827,
+      "D5": 731,
+      "D15": 1623,
+      "D8": 912,
+      "D22": 493,
+      "D18": 1156,
+      "D2": 291,
+      "D11": 687,
+      "D6": 695,
+      "D12": 859,
+      "D10": 213,
+      "D1": 366,
+      "D13": 804,
+      "D6W": 405,
+      "D17": 158,
+      "D20": 167,
+      "D07": 3,
+      "D23": 1
+    },
+    "bedrooms": {
+      "1": 1444,
+      "2": 6195,
+      "3": 8099,
+      "4": 3542,
+      "5": 929
+    },
+    "priceTrends": {},
+    "overUnderAnalysis": {
+      "Under": 2636,
+      "Exact": 1362,
+      "Over": 17101
+    },
+    "sizeAnalysis": {
+      "120-160sqm": {
+        "count": 3087,
+        "avgPricePerSqm": 5593
+      },
+      "80-120sqm": {
+        "count": 7345,
+        "avgPricePerSqm": 5466
+      },
+      "Over 160sqm": {
+        "count": 2184,
+        "avgPricePerSqm": 5988
+      },
+      "50-80sqm": {
+        "count": 5358,
+        "avgPricePerSqm": 6027
+      },
+      "Under 50sqm": {
+        "count": 1033,
+        "avgPricePerSqm": 7650
+      }
+    }
+  },
+  "typePerformance": {
+    "Detached": {
+      "over": 1066,
+      "under": 461,
+      "exact": 0,
+      "total": 1527,
+      "overRate": "69.8"
+    },
+    "Semi-D": {
+      "over": 4911,
+      "under": 634,
+      "exact": 0,
+      "total": 5545,
+      "overRate": "88.6"
+    },
+    "Terrace": {
+      "over": 3897,
+      "under": 528,
+      "exact": 0,
+      "total": 4425,
+      "overRate": "88.1"
+    },
+    "Townhouse": {
+      "over": 93,
+      "under": 18,
+      "exact": 0,
+      "total": 111,
+      "overRate": "83.8"
+    },
+    "End of Terrace": {
+      "over": 1553,
+      "under": 183,
+      "exact": 0,
+      "total": 1736,
+      "overRate": "89.5"
+    },
+    "Apartment": {
+      "over": 4474,
+      "under": 649,
+      "exact": 0,
+      "total": 5123,
+      "overRate": "87.3"
+    },
+    "Duplex": {
+      "over": 425,
+      "under": 38,
+      "exact": 0,
+      "total": 463,
+      "overRate": "91.8"
+    },
+    "Bungalow": {
+      "over": 345,
+      "under": 83,
+      "exact": 0,
+      "total": 428,
+      "overRate": "80.6"
+    },
+    "Site": {
+      "over": 17,
+      "under": 7,
+      "exact": 0,
+      "total": 24,
+      "overRate": "70.8"
+    },
+    "terrace": {
+      "over": 1,
+      "under": 0,
+      "exact": 0,
+      "total": 1,
+      "overRate": "100.0"
+    }
+  },
+  "sortedAreas": [
+    [
+      "D15",
+      1623
+    ],
+    [
+      "D18",
+      1156
+    ],
+    [
+      "D24",
+      1041
+    ],
+    [
+      "D9",
+      942
+    ],
+    [
+      "D4",
+      928
+    ],
+    [
+      "D8",
+      912
+    ],
+    [
+      "D12",
+      859
+    ],
+    [
+      "D14",
+      841
+    ],
+    [
+      "D3",
+      829
+    ],
+    [
+      "D7",
+      827
+    ]
+  ],
+  "sortedTypes": [
+    [
+      "Semi-D",
+      5855
+    ],
+    [
+      "Apartment",
+      5565
+    ],
+    [
+      "Terrace",
+      4683
+    ],
+    [
+      "End of Terrace",
+      1839
+    ],
+    [
+      "Detached",
+      1680
+    ],
+    [
+      "Duplex",
+      490
+    ],
+    [
+      "Bungalow",
+      462
+    ],
+    [
+      "",
+      375
+    ],
+    [
+      "Townhouse",
+      122
+    ],
+    [
+      "Site",
+      27
+    ],
+    [
+      "terrace",
+      1
+    ]
+  ],
+  "overAskingPercent": 81.1
+}

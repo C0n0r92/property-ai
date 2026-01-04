@@ -157,7 +157,7 @@ export function AmenitiesAnalysisContent({ latitude, longitude, address }: Ameni
     return Math.max(1, Math.min(10, Math.round(score * 10) / 10));
   };
 
-  const [distanceFilter, setDistanceFilter] = useState<'500' | '1000' | '2000'>('1000');
+  const [distanceFilter, setDistanceFilter] = useState<'500' | '1000' | '2000'>('500');
 
   useEffect(() => {
     const fetchAmenitiesData = async () => {

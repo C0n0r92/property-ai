@@ -132,7 +132,21 @@ function calculateAreaStats(properties: Property[]) {
   const avgOverUnderEuro = withAskingPrice.length > 0
     ? Math.round(withAskingPrice.reduce((sum, p) => sum + (p.soldPrice - p.askingPrice), 0) / withAskingPrice.length)
     : 0;
+
+  // Calculate property type averages for better comparisons
+  const propertyTypeStats = calculatePropertyTypeAverages(validProperties);
   
+  // Calculate average days on market
+  const withFirstSeen = properties.filter(p => p.first_seen_date);
+  const avgDaysOnMarket = withFirstSeen.length > 0
+    ? Math.round(withFirstSeen.reduce((sum, p) => {
+        const soldDate = new Date(p.soldDate);
+        const firstSeenDate = new Date(p.first_seen_date!);
+        const days = Math.ceil((soldDate.getTime() - firstSeenDate.getTime()) / (1000 * 60 * 60 * 24));
+        return sum + days;
+      }, 0) / withFirstSeen.length)
+    : 0;
+
   // Calculate 6-month change
   const now = new Date();
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
@@ -141,12 +155,18 @@ function calculateAreaStats(properties: Property[]) {
     const d = new Date(p.soldDate);
     return d < sixMonthsAgo && d >= new Date(sixMonthsAgo.getFullYear(), sixMonthsAgo.getMonth() - 6, 1);
   });
-  
+
   let change6m = 0;
   if (recent.length > 3 && older.length > 3) {
     const recentMedian = recent.map(p => p.soldPrice).sort((a, b) => a - b)[Math.floor(recent.length / 2)];
     const olderMedian = older.map(p => p.soldPrice).sort((a, b) => a - b)[Math.floor(older.length / 2)];
-    change6m = Math.round(((recentMedian - olderMedian) / olderMedian) * 1000) / 10;
+
+    // Only calculate if older median is reasonable (> €10,000)
+    if (olderMedian > 10000) {
+      const rawChange = ((recentMedian - olderMedian) / olderMedian) * 100;
+      // Bound the change to reasonable limits (-50% to +100%)
+      change6m = Math.max(-50, Math.min(100, Math.round(rawChange * 10) / 10));
+    }
   }
   
   return {
@@ -158,8 +178,10 @@ function calculateAreaStats(properties: Property[]) {
     avgOverUnderPercent,
     avgOverUnderEuro,
     change6m,
+    avgDaysOnMarket,
     minPrice: prices[0],
     maxPrice: prices[prices.length - 1],
+    propertyTypeStats,
   };
 }
 
@@ -260,6 +282,38 @@ function calculateBedroomBreakdown(properties: Property[]) {
       };
     })
     .sort((a, b) => a.bedrooms - b.bedrooms);
+}
+
+/**
+ * Calculate average prices by property type for better market positioning
+ */
+function calculatePropertyTypeAverages(properties: Property[]) {
+  const typeMap = new Map<string, number[]>();
+
+  properties.forEach(p => {
+    const type = p.propertyType || 'Unknown';
+    if (!typeMap.has(type)) {
+      typeMap.set(type, []);
+    }
+    typeMap.get(type)!.push(p.soldPrice);
+  });
+
+  const result: Record<string, { avgPrice: number; count: number; medianPrice: number }> = {};
+
+  typeMap.forEach((prices, type) => {
+    if (prices.length >= 3) { // Only include types with sufficient data
+      const sortedPrices = prices.sort((a, b) => a - b);
+      const median = sortedPrices[Math.floor(sortedPrices.length / 2)];
+      const avg = Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length);
+      result[type] = {
+        avgPrice: avg,
+        medianPrice: median,
+        count: prices.length
+      };
+    }
+  });
+
+  return result;
 }
 
 /**

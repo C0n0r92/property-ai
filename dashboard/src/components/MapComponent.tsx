@@ -48,10 +48,9 @@ import { useAlertModal } from '@/contexts/AlertModalContext';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 interface MapComponentProps {
-  initialNewOnly?: boolean;
 }
 
-export default function MapComponent({ initialNewOnly = false }: MapComponentProps) {
+export default function MapComponent({}: MapComponentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -82,12 +81,6 @@ export default function MapComponent({ initialNewOnly = false }: MapComponentPro
   const mapUI = useMapUI();
   const { showAlertModal, canShowModal } = useAlertModal();
 
-  // Initialize newOnly filter from URL param
-  useEffect(() => {
-    if (initialNewOnly) {
-      mapFilters.setNewOnly(true);
-    }
-  }, [initialNewOnly]);
 
   // High-intent modal trigger for filter interactions
   useEffect(() => {
@@ -222,7 +215,6 @@ export default function MapComponent({ initialNewOnly = false }: MapComponentPro
     dataSources,
     user,
     isSaved,
-    newOnly: mapFilters.newOnly,
   });
 
   // Get active data based on selected data sources
@@ -3295,25 +3287,6 @@ export default function MapComponent({ initialNewOnly = false }: MapComponentPro
               </select>
             )}
 
-            {/* New This Week Toggle */}
-            <div className="flex items-center gap-2 ml-4 pl-4 border-l border-gray-600">
-              <button
-                onClick={() => mapFilters.setNewOnly(!mapFilters.newOnly)}
-                className={`flex items-center gap-2 px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
-                  mapFilters.newOnly
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600'
-                }`}
-                title="Show only properties added in the last 3 days"
-              >
-                <span>New This Week</span>
-                {mapFilters.newOnly && (
-                  <span className="text-xs opacity-90">
-                    ({filteredListings.length})
-                  </span>
-                )}
-              </button>
-            </div>
 
             {user?.tier === 'premium' && (
               <button

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useState, useRef, useEffect } from 'react';
 import { RecentlyViewedMobile } from '@/components/RecentlyViewedMobile';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 
 interface NavItem {
   href: string;
@@ -19,6 +20,7 @@ export function BottomNav() {
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const [isRecentlyViewedOpen, setIsRecentlyViewedOpen] = useState(false);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
+  const { recentlyViewed } = useRecentlyViewed();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -64,6 +66,15 @@ export function BottomNav() {
       ),
     },
     {
+      href: '/recent',
+      label: 'Recent',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
       href: '/blog',
       label: 'Blog',
       icon: (
@@ -96,6 +107,7 @@ export function BottomNav() {
     if (href === '/blog' && pathname.startsWith('/blog')) return true;
     if (href === '/alerts' && pathname.startsWith('/alerts')) return true;
     if (href === '/login' && pathname.startsWith('/login')) return true;
+    // Recent is never "active" as it's a modal trigger
     return false;
   };
 
@@ -105,6 +117,31 @@ export function BottomNav() {
         <div className="flex items-center justify-around px-2 py-2">
           {visibleItems.map((item) => {
             const active = isActive(item.href);
+
+            // Special handling for Recent button
+            if (item.href === '/recent') {
+              return (
+                <button
+                  key={item.href}
+                  onClick={() => setIsRecentlyViewedOpen(true)}
+                  className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-all duration-200 min-h-[56px] flex-1 relative ${
+                    'text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]'
+                  }`}
+                >
+                  <div className="mb-1 relative">
+                    {item.icon}
+                    {recentlyViewed.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                        {recentlyViewed.length > 9 ? '9+' : recentlyViewed.length}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs font-medium leading-tight text-center">
+                    {item.label}
+                  </span>
+                </button>
+              );
+            }
 
             // Special handling for Tools dropdown
             if (item.href === '/tools/compare') {
@@ -163,22 +200,6 @@ export function BottomNav() {
                           <div className="text-xs text-gray-500">Calculate payments & affordability</div>
                         </div>
                       </Link>
-
-                      <button
-                        className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors w-full text-left"
-                        onClick={() => {
-                          setIsToolsDropdownOpen(false);
-                          setIsRecentlyViewedOpen(true);
-                        }}
-                      >
-                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                          <span className="text-orange-600">🕒</span>
-                        </div>
-                        <div>
-                          <div className="font-medium">Recently Viewed</div>
-                          <div className="text-xs text-gray-500">Quick access to properties</div>
-                        </div>
-                      </button>
 
                       <div className="border-t border-gray-100 my-1"></div>
 

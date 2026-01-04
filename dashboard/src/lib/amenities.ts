@@ -166,21 +166,33 @@ export function parseOverpassResponse(data: any, propertyLat: number, propertyLn
     return [];
   }
 
-  console.log('Processing', data.elements.length, 'elements from Overpass');
+  console.log('🎯 Processing', data.elements.length, 'elements from Overpass');
 
   const amenities: Amenity[] = [];
 
   for (const element of data.elements) {
-    if (element.type !== 'node' || !element.tags) continue;
+    if (!element.tags) continue;
 
-    const lat = element.lat;
-    const lng = element.lon;
+    let lat: number, lng: number;
+
+    if (element.type === 'node') {
+      lat = element.lat;
+      lng = element.lon;
+    } else if (element.type === 'way' && element.center) {
+      // Use center of way if available
+      lat = element.center.lat;
+      lng = element.center.lon;
+    } else {
+      // Skip elements we can't get coordinates for
+      continue;
+    }
     const distance = calculateDistance(propertyLat, propertyLng, lat, lng);
     const walkingTime = estimateWalkingTime(distance);
 
     // Determine amenity type from tags
     let amenityType: AmenityType | null = null;
     let name = element.tags.name || generateAmenityName(element.tags);
+
 
     // Check various OSM tags
     if (element.tags.amenity) {
@@ -220,19 +232,19 @@ export function parseOverpassResponse(data: any, propertyLat: number, propertyLn
       }
     }
 
-    console.log('Processing element:', {
-      tags: element.tags,
-      amenityType: amenityType,
-      generatedName: name,
-      hasIcon: amenityType ? !!AMENITY_ICONS[amenityType] : false,
-      finalIcon: amenityType && AMENITY_ICONS[amenityType] ? AMENITY_ICONS[amenityType].icon : 'unknown'
-    });
+    // Debug: log what we're processing
+    if (element.tags.amenity === 'bank' || element.tags.amenity === 'pharmacy' || element.tags.amenity === 'restaurant') {
+      console.log('🔍 Processing key amenity:', {
+        id: element.id,
+        amenity: element.tags.amenity,
+        name: element.tags.name,
+        distance: Math.round(distance),
+        amenityType: amenityType,
+        hasIcon: amenityType ? !!AMENITY_ICONS[amenityType] : false
+      });
+    }
 
     if (!amenityType || !AMENITY_ICONS[amenityType]) {
-      console.log('⚠️ Skipping element - no valid amenityType or icon mapping:', {
-        amenityType,
-        availableTypes: Object.keys(AMENITY_ICONS).slice(0, 10)
-      });
       continue;
     }
 

@@ -328,7 +328,7 @@ function InitialStep({
                     <div className="text-blue-900 font-semibold">
                       {locationStats?.newListings || 0}
                     </div>
-                    <div className="text-blue-700">New This Week</div>
+                    <div className="text-blue-700">Active Listings</div>
                   </div>
                   <div>
                     <div className="text-blue-900 font-semibold">

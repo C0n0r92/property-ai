@@ -398,7 +398,7 @@ export default function Home() {
             {newListings.length > 0 && (
               <div className="mb-16">
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold text-white mb-2">Fresh Listings This Week</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Fresh Listings This Week</h2>
                   <p className="text-slate-400 text-sm">New properties just added to our database</p>
                 </div>
 
@@ -416,7 +416,15 @@ export default function Home() {
                           </div>
 
                           {/* Property Map Image */}
-                          <div className="h-48 bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
+                          <div
+                            className="h-48 bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                            onClick={() => {
+                              // Navigate to map page with property focused
+                              const propertyId = encodeURIComponent(listing.address);
+                              const propertyType = 'listing'; // for-sale properties are called 'listing' in the map
+                              router.push(`/map?focus=${propertyId}&type=${propertyType}`);
+                            }}
+                          >
                             {listing.latitude && listing.longitude ? (
                               <>
                                 {/* Loading skeleton */}
@@ -457,6 +465,12 @@ export default function Home() {
                                     }
                                   }}
                                 />
+                                {/* Click overlay hint */}
+                                <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                                  <div className="bg-white/90 text-slate-700 px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+                                    View on Map
+                                  </div>
+                                </div>
                               </>
                             ) : (
                               <div className="absolute inset-0 flex items-center justify-center">
@@ -503,10 +517,10 @@ export default function Home() {
                 {/* View All Link */}
                 <div className="text-center mt-6">
                   <Link
-                    href="/map?newOnly=true"
+                    href="/map"
                     className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 transition-colors text-sm font-medium"
                   >
-                    View All New Listings
+                    View All Listings
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>

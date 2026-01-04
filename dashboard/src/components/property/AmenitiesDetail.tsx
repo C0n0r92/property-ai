@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RadarChart } from '@/components/charts/RadarChart';
 import { extractDublinPostcode } from '@/lib/utils';
+import { calculateWalkabilityScore, getCategoryDisplayName } from '@/lib/amenities';
 
 interface AmenitiesDetailProps {
   coordinates: { lat: number; lng: number };
@@ -88,63 +89,8 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
   const [walkabilityData, setWalkabilityData] = useState<WalkabilityData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [distanceFilter, setDistanceFilter] = useState<'500' | '1000' | '2000'>('1000');
+  const [distanceFilter, setDistanceFilter] = useState<'500' | '1000' | '2000'>('500');
 
-  // Advanced walkability scoring algorithm
-  const calculateWalkabilityScore = (amenities: any, postcode: string | null): number => {
-    let score = WALKABILITY_SCORING.baseScore;
-
-    // Apply area baseline adjustment
-    if (postcode && AREA_BASELINES[postcode]) {
-      score += AREA_BASELINES[postcode];
-    }
-
-    // Check minimum requirements and apply penalties
-    Object.entries(WALKABILITY_SCORING.minimumRequirements).forEach(([category, req]) => {
-      const categoryAmenities = amenities[category] || [];
-      const nearbyCount = categoryAmenities.filter((a: any) => a.distance <= req.distance).length;
-
-      if (nearbyCount < req.count) {
-        score -= req.penalty * (req.count - nearbyCount);
-      }
-    });
-
-    // Score based on distance and quality
-    Object.entries(WALKABILITY_SCORING.distancePenalties).forEach(([category, config]) => {
-      const categoryAmenities = amenities[category] || [];
-
-      categoryAmenities.forEach((amenity: any) => {
-        if (amenity.distance <= config.good) {
-          // Excellent access - add points
-          score += 0.3;
-        } else if (amenity.distance <= config.poor) {
-          // Acceptable access - small bonus
-          score += 0.1;
-        } else {
-          // Poor access - penalty
-          score -= config.penalty;
-        }
-      });
-
-      // Bonus for multiple amenities in category
-      if (categoryAmenities.length >= 3) {
-        score += WALKABILITY_SCORING.qualityBonuses.multipleTransport;
-      }
-    });
-
-    // Check for excellent overall access (< 300m for key amenities)
-    const excellentAccess = ['transport', 'shopping', 'services'].every(category => {
-      const categoryAmenities = amenities[category] || [];
-      return categoryAmenities.some((a: any) => a.distance <= 300);
-    });
-
-    if (excellentAccess) {
-      score += WALKABILITY_SCORING.qualityBonuses.excellentAccess;
-    }
-
-    // Ensure score stays within reasonable bounds
-    return Math.max(1, Math.min(10, Math.round(score * 10) / 10));
-  };
 
   useEffect(() => {
     const fetchAmenitiesData = async () => {
@@ -152,104 +98,161 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
       setError(null);
 
       try {
-        const postcode = extractDublinPostcode(address);
+        console.log('🏠 Fetching amenities for coordinates:', coordinates);
 
-        // Mock amenities data for scoring - varies based on location
-        // In production, this would come from the actual API based on coordinates
-        const mockAmenitiesData = {
-          transport: [
-            { name: 'Tara Street DART Station', category: 'Transport', distance: Math.random() * 800 + 200, walkingTime: 6 },
-            { name: 'O\'Connell Street Bus Stop', category: 'Transport', distance: Math.random() * 600 + 100, walkingTime: 3 },
-            { name: 'Abbey Street Luas Stop', category: 'Transport', distance: Math.random() * 700 + 150, walkingTime: 5 }
-          ],
-          shopping: [
-            { name: 'Tesco Express', category: 'Shopping', distance: Math.random() * 1000 + 200, walkingTime: 4 },
-            { name: 'Jervis Centre', category: 'Shopping', distance: Math.random() * 800 + 400, walkingTime: 8 }
-          ],
-          education: [
-            { name: 'Dublin Institute of Technology', category: 'Education', distance: Math.random() * 2000 + 800, walkingTime: 15 },
-            { name: 'St. Andrew\'s Resource Centre', category: 'Education', distance: Math.random() * 1500 + 300, walkingTime: 7 }
-          ],
-          healthcare: [
-            { name: 'St. James\'s Hospital', category: 'Healthcare', distance: Math.random() * 2500 + 1000, walkingTime: 19 },
-            { name: 'Tara Street Pharmacy', category: 'Healthcare', distance: Math.random() * 800 + 100, walkingTime: 3 }
-          ],
-          leisure: [
-            { name: 'The Spire', category: 'Leisure', distance: Math.random() * 1200 + 200, walkingTime: 5 },
-            { name: 'Dublin Castle', category: 'Leisure', distance: Math.random() * 1500 + 500, walkingTime: 12 }
-          ],
-          services: [
-            { name: 'Central Bank', category: 'Services', distance: Math.random() * 1000 + 300, walkingTime: 8 },
-            { name: 'Dublin City Council', category: 'Services', distance: Math.random() * 1200 + 400, walkingTime: 10 },
-            { name: 'An Post', category: 'Services', distance: Math.random() * 600 + 100, walkingTime: 4 }
-          ]
+        // Fetch amenities via our API endpoint
+        const apiResponse = await fetch(`/api/amenities?lat=${coordinates.lat}&lng=${coordinates.lng}&radius=3000`);
+
+        if (!apiResponse.ok) {
+          throw new Error(`API returned ${apiResponse.status}: ${apiResponse.statusText}`);
+        }
+
+        const apiData = await apiResponse.json();
+
+        if (!apiData.amenities) {
+          throw new Error('No amenities data in API response');
+        }
+
+        const amenities = apiData.amenities;
+        console.log('📊 Received', amenities.length, 'amenities from API');
+        console.log('🏷️ Sample amenities:', amenities.slice(0, 5).map((a: any) => ({
+          name: a.name,
+          type: a.type,
+          category: a.category,
+          distance: Math.round(a.distance)
+        })));
+
+        console.log('📊 Fetched', amenities.length, 'amenities from OpenStreetMap');
+
+        // If no amenities found, provide fallback data
+        if (amenities.length === 0) {
+          console.warn('⚠️ No amenities found for this location, using fallback data');
+          const fallbackData: WalkabilityData = {
+            score: 1,
+            rating: 'Low',
+            breakdown: {
+              transport: 0,
+              shopping: 0,
+              education: 0,
+              healthcare: 0,
+              leisure: 0,
+              services: 0
+            },
+            nearbyAmenities: {
+              transport: [],
+              shopping: [],
+              education: [],
+              healthcare: [],
+              leisure: [],
+              services: []
+            },
+            areaComparison: {
+              thisLocation: 1,
+              areaAverage: 6.8,
+              percentileRank: 10
+            }
+          };
+          setWalkabilityData(fallbackData);
+          return;
+        }
+
+        // Calculate walkability score using the real amenities data
+        const walkability = calculateWalkabilityScore(amenities);
+
+        // Group amenities by category for display (keep all, let UI filter by distance)
+        const groupedAmenities = {
+          transport: amenities.filter((a: any) => a.category === 'public_transport'),
+          shopping: amenities.filter((a: any) => a.category === 'shopping'),
+          education: amenities.filter((a: any) => a.category === 'education'),
+          healthcare: amenities.filter((a: any) => a.category === 'healthcare'),
+          leisure: amenities.filter((a: any) => a.category === 'leisure'),
+          services: amenities.filter((a: any) => a.category === 'services'),
         };
 
-        // Calculate dynamic walkability score using advanced algorithm
-        const dynamicScore = calculateWalkabilityScore(mockAmenitiesData, postcode);
+        // Ensure we have valid walkability data
+        if (!walkability || !walkability.breakdown) {
+          console.warn('⚠️ Walkability calculation failed, using fallback');
+          const fallbackData: WalkabilityData = {
+            score: 1,
+            rating: 'Low',
+            breakdown: {
+              transport: 0,
+              shopping: 0,
+              education: 0,
+              healthcare: 0,
+              leisure: 0,
+              services: 0
+            },
+            nearbyAmenities: {
+              transport: [],
+              shopping: [],
+              education: [],
+              healthcare: [],
+              leisure: [],
+              services: []
+            },
+            areaComparison: {
+              thisLocation: 1,
+              areaAverage: 6.8,
+              percentileRank: 10
+            }
+          };
+          setWalkabilityData(fallbackData);
+          return;
+        }
 
-        // Calculate area comparison metrics using area baselines
-        const areaAverage = postcode ? (WALKABILITY_SCORING.baseScore + (AREA_BASELINES[postcode] || 0)) : WALKABILITY_SCORING.baseScore;
-        const allAreaScores = Object.values(AREA_BASELINES).map(baseline => WALKABILITY_SCORING.baseScore + baseline);
-        const percentileRank = Math.round((allAreaScores.filter(score => score <= dynamicScore).length / allAreaScores.length) * 100);
-
-        const mockData: WalkabilityData = {
-          score: Math.round(dynamicScore * 10) / 10, // Round to 1 decimal
-          rating: dynamicScore >= 8.0 ? 'Excellent' :
-                  dynamicScore >= 7.0 ? 'Very Good' :
-                  dynamicScore >= 6.0 ? 'Good' :
-                  dynamicScore >= 4.5 ? 'Fair' :
-                  dynamicScore >= 3.0 ? 'Poor' : 'Very Limited',
-          breakdown: {
-            transport: 8,
-            shopping: 7,
-            education: 6,
-            healthcare: 8,
-            leisure: 7,
-            services: 9
-          },
+        const realData: WalkabilityData = {
+          score: walkability.score || 0,
+          rating: walkability.rating || 'Low',
+          breakdown: walkability.breakdown,
           nearbyAmenities: {
-            transport: [
-              { name: 'Tara Street DART Station', category: 'Transport', distance: 450, walkingTime: 6 },
-              { name: 'O\'Connell Street Bus Stop', category: 'Transport', distance: 200, walkingTime: 3 },
-              { name: 'Abbey Street Luas Stop', category: 'Transport', distance: 350, walkingTime: 5 }
-            ],
-            shopping: [
-              { name: 'Tesco Express', category: 'Shopping', distance: 300, walkingTime: 4 },
-              { name: 'Jervis Centre', category: 'Shopping', distance: 600, walkingTime: 8 },
-              { name: 'Marks & Spencer', category: 'Shopping', distance: 800, walkingTime: 10 }
-            ],
-            education: [
-              { name: 'Dublin Institute of Technology', category: 'Education', distance: 1200, walkingTime: 15 },
-              { name: 'St. Andrew\'s Resource Centre', category: 'Education', distance: 500, walkingTime: 7 }
-            ],
-            healthcare: [
-              { name: 'St. James\'s Hospital', category: 'Healthcare', distance: 1500, walkingTime: 19 },
-              { name: 'Mater Misericordiae Hospital', category: 'Healthcare', distance: 1800, walkingTime: 23 },
-              { name: 'Tara Street Pharmacy', category: 'Healthcare', distance: 250, walkingTime: 3 }
-            ],
-            leisure: [
-              { name: 'The Spire', category: 'Leisure', distance: 400, walkingTime: 5 },
-              { name: 'Dublin Castle', category: 'Leisure', distance: 900, walkingTime: 12 },
-              { name: 'Phoenix Park', category: 'Leisure', distance: 2000, walkingTime: 25 }
-            ],
-            services: [
-              { name: 'Central Bank', category: 'Services', distance: 600, walkingTime: 8 },
-              { name: 'Dublin City Council', category: 'Services', distance: 800, walkingTime: 10 },
-              { name: 'An Post', category: 'Services', distance: 300, walkingTime: 4 }
-            ]
+            transport: groupedAmenities.transport.map((a: any) => ({
+              name: a.name,
+              category: getCategoryDisplayName(a.category),
+              distance: a.distance,
+              walkingTime: a.walkingTime
+            })),
+            shopping: groupedAmenities.shopping.map((a: any) => ({
+              name: a.name,
+              category: getCategoryDisplayName(a.category),
+              distance: a.distance,
+              walkingTime: a.walkingTime
+            })),
+            education: groupedAmenities.education.map((a: any) => ({
+              name: a.name,
+              category: getCategoryDisplayName(a.category),
+              distance: a.distance,
+              walkingTime: a.walkingTime
+            })),
+            healthcare: groupedAmenities.healthcare.map((a: any) => ({
+              name: a.name,
+              category: getCategoryDisplayName(a.category),
+              distance: a.distance,
+              walkingTime: a.walkingTime
+            })),
+            leisure: groupedAmenities.leisure.map((a: any) => ({
+              name: a.name,
+              category: getCategoryDisplayName(a.category),
+              distance: a.distance,
+              walkingTime: a.walkingTime
+            })),
+            services: groupedAmenities.services.map((a: any) => ({
+              name: a.name,
+              category: getCategoryDisplayName(a.category),
+              distance: a.distance,
+              walkingTime: a.walkingTime
+            })),
           },
           areaComparison: {
-            thisLocation: Math.round(dynamicScore * 10) / 10,
-            areaAverage: Math.round(areaAverage * 10) / 10,
-            percentileRank
+            thisLocation: walkability.score,
+            areaAverage: 6.8, // This could be calculated from area data
+            percentileRank: 68 // This could be calculated from area data
           }
         };
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setWalkabilityData(mockData);
+        setWalkabilityData(realData);
       } catch (err) {
+        console.error('❌ Failed to fetch amenities:', err);
         setError(err instanceof Error ? err.message : 'Failed to load amenities data');
       } finally {
         setLoading(false);
@@ -257,13 +260,15 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
     };
 
     fetchAmenitiesData();
-  }, [coordinates, address]);
+  }, [coordinates]);
 
   // Filter amenities by distance
   const filteredAmenities = useMemo(() => {
     if (!walkabilityData?.nearbyAmenities) return null;
 
     const maxDistance = parseInt(distanceFilter);
+    console.log('🎯 Filtering amenities by distance:', maxDistance, 'current filter:', distanceFilter);
+
     const filtered: typeof walkabilityData.nearbyAmenities = {
       transport: walkabilityData.nearbyAmenities.transport.filter(a => a.distance <= maxDistance),
       shopping: walkabilityData.nearbyAmenities.shopping.filter(a => a.distance <= maxDistance),
@@ -272,6 +277,15 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
       leisure: walkabilityData.nearbyAmenities.leisure.filter(a => a.distance <= maxDistance),
       services: walkabilityData.nearbyAmenities.services.filter(a => a.distance <= maxDistance)
     };
+
+    console.log('📊 Filtered counts:', {
+      transport: filtered.transport.length,
+      shopping: filtered.shopping.length,
+      education: filtered.education.length,
+      healthcare: filtered.healthcare.length,
+      leisure: filtered.leisure.length,
+      services: filtered.services.length
+    });
 
     return filtered;
   }, [walkabilityData, distanceFilter]);
@@ -353,11 +367,11 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
         {/* Radar Chart */}
         <div className="max-w-md mx-auto">
           <RadarChart
-            data={Object.entries(walkabilityData.breakdown).map(([subject, score]) => ({
+            data={walkabilityData.breakdown ? Object.entries(walkabilityData.breakdown).map(([subject, score]) => ({
               subject: subject.charAt(0).toUpperCase() + subject.slice(1),
               score,
               fullMark: 10
-            }))}
+            })) : []}
             height={250}
           />
         </div>
@@ -399,8 +413,8 @@ export function AmenitiesDetail({ coordinates, address }: AmenitiesDetailProps) 
                   {category} ({amenities.length})
                 </h4>
                 <div className="flex items-center gap-2">
-                  <div className={`text-sm font-medium ${getRatingColor(walkabilityData.breakdown[category as keyof typeof walkabilityData.breakdown])}`}>
-                    {walkabilityData.breakdown[category as keyof typeof walkabilityData.breakdown]}/10
+                  <div className={`text-sm font-medium ${getRatingColor(walkabilityData.breakdown?.[category as keyof typeof walkabilityData.breakdown] || 0)}`}>
+                    {walkabilityData.breakdown?.[category as keyof typeof walkabilityData.breakdown] || 0}/10
                   </div>
                   <div className="text-xs text-[var(--foreground-muted)]">
                     Avg: {amenities.length > 0 ? Math.round(amenities.reduce((sum, a) => sum + a.distance, 0) / amenities.length) : 0}m

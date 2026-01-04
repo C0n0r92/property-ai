@@ -23,7 +23,6 @@ interface UseMapDataFiltersProps {
   minArea: number | null;
   maxArea: number | null;
   yieldFilter: number | null;
-  newOnly: boolean;
   dataSources: { sold: boolean; forSale: boolean; rentals: boolean; savedOnly: boolean };
   user: any;
   isSaved: (address: string, type: string) => boolean;
@@ -50,7 +49,6 @@ export const useMapDataFilters = ({
   minArea,
   maxArea,
   yieldFilter,
-  newOnly,
   dataSources,
   user,
   isSaved,
@@ -219,17 +217,8 @@ export const useMapDataFilters = ({
       );
     }
 
-    // Apply new-only filter (last 3 days)
-    if (newOnly) {
-      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-      filtered = filtered.filter(l => {
-        const scrapedDate = new Date(l.scrapedAt);
-        return scrapedDate > threeDaysAgo;
-      });
-    }
-
     return filtered;
-  }, [listings, areaFilter, bedsFilter, propertyTypeFilter, selectedPropertyTypes, newOnly]);
+  }, [listings, areaFilter, bedsFilter, propertyTypeFilter, selectedPropertyTypes]);
 
   // Filter rentals based on area, availability, and property type filters
   const filteredRentals = useMemo(() => {

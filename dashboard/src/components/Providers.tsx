@@ -7,6 +7,7 @@ import PostHogProvider, { PostHogPageview } from './PostHogProvider';
 import { AuthProvider } from './auth/AuthProvider';
 import { ComparisonProvider } from '@/contexts/ComparisonContext';
 import { AlertModalProvider } from '@/contexts/AlertModalContext';
+import { RecentlyViewedProvider } from '@/hooks/useRecentlyViewed';
 import { LocationAlertModal } from '@/components/alerts/LocationAlertModal';
 import { BlogAlertModal } from '@/components/alerts/BlogAlertModal';
 
@@ -16,14 +17,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <PostHogProvider>
         <ComparisonProvider>
           <AlertModalProvider>
-            {children}
-            <Suspense fallback={null}>
-              <PostHogPageview />
-            </Suspense>
-            <GoogleAnalytics />
-            <CookieConsent />
-            <LocationAlertModal />
-            <BlogAlertModal />
+            <RecentlyViewedProvider>
+              {children}
+              <Suspense fallback={null}>
+                <PostHogPageview />
+              </Suspense>
+              <GoogleAnalytics />
+              <CookieConsent />
+              <LocationAlertModal />
+              <BlogAlertModal />
+            </RecentlyViewedProvider>
           </AlertModalProvider>
         </ComparisonProvider>
       </PostHogProvider>
