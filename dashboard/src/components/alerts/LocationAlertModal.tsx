@@ -13,6 +13,7 @@ interface LocationStats {
   avgPrice: string;
   newListings: number;
   priceChange: number;
+  eircode: string | null;
 }
 
 export function LocationAlertModal() {
@@ -39,6 +40,7 @@ export function LocationAlertModal() {
               avgPrice: data.avgPrice || '€450K',
               newListings: data.newListings || 0,
               priceChange: data.priceChange || 0,
+              eircode: data.eircode || null,
             });
           }
         })
@@ -141,7 +143,7 @@ export function LocationAlertModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/40 backdrop-blur-sm"
             onClick={handleBackdropClick}
           >
             <motion.div
@@ -154,10 +156,10 @@ export function LocationAlertModal() {
                 stiffness: 300,
                 duration: 0.4
               }}
-              className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
+              className="w-full max-w-md mx-4 sm:mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-slate-100">
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                     <Bell className="w-4 h-4 text-blue-600" />
@@ -166,14 +168,15 @@ export function LocationAlertModal() {
                 </div>
                 <button
                   onClick={handleCloseDismissal}
-                  className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors"
+                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors touch-manipulation"
+                  aria-label="Close"
                 >
-                  <X className="w-4 h-4 text-slate-400" />
+                  <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {modalState.step === 'initial' && (
                   <InitialStep
                     alertType={modalState.alertType}
@@ -295,7 +298,7 @@ function InitialStep({
       {!isBlogAlert && (
         <div className="bg-blue-50 rounded-lg px-4 py-3">
           <div className="text-center">
-            <div className="text-sm text-blue-800 font-medium mb-1">
+            <div className="text-sm text-blue-800 font-medium mb-2">
               {locationName} Market Snapshot
             </div>
             {statsLoading ? (
@@ -303,26 +306,38 @@ function InitialStep({
                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-4 text-xs">
-                <div>
-                  <div className="text-blue-900 font-semibold">
-                    {locationStats?.avgPrice || '€450K'}
+              <div className="space-y-3">
+                {/* Eircode display */}
+                {locationStats?.eircode && (
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                      <span>Eircode: {locationStats.eircode}</span>
+                    </div>
                   </div>
-                  <div className="text-blue-700">Avg Price</div>
-                </div>
-                <div>
-                  <div className="text-blue-900 font-semibold">
-                    {locationStats?.newListings || 0}
+                )}
+
+                {/* Stats grid */}
+                <div className="grid grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <div className="text-blue-900 font-semibold">
+                      {locationStats?.avgPrice || '€450K'}
+                    </div>
+                    <div className="text-blue-700">Avg Price</div>
                   </div>
-                  <div className="text-blue-700">New This Week</div>
-                </div>
-                <div>
-                  <div className="text-blue-900 font-semibold">
-                    {locationStats?.priceChange !== undefined 
-                      ? `${locationStats.priceChange >= 0 ? '+' : ''}${locationStats.priceChange}%`
-                      : '+0%'}
+                  <div>
+                    <div className="text-blue-900 font-semibold">
+                      {locationStats?.newListings || 0}
+                    </div>
+                    <div className="text-blue-700">New This Week</div>
                   </div>
-                  <div className="text-blue-700">YoY Change</div>
+                  <div>
+                    <div className="text-blue-900 font-semibold">
+                      {locationStats?.priceChange !== undefined
+                        ? `${locationStats.priceChange >= 0 ? '+' : ''}${locationStats.priceChange}%`
+                        : '+0%'}
+                    </div>
+                    <div className="text-blue-700">YoY Change</div>
+                  </div>
                 </div>
               </div>
             )}
@@ -411,7 +426,7 @@ function InitialStep({
 
         <button
           onClick={onDismiss}
-          className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
+          className="w-full sm:w-auto text-sm text-slate-400 hover:text-slate-600 transition-colors py-2 px-4 rounded-lg hover:bg-slate-50 touch-manipulation"
         >
           Maybe later
         </button>

@@ -82,6 +82,17 @@ export async function GET(request: NextRequest) {
       return true; // Count all if no date
     }).length;
 
+    // Find most common Eircode in the area
+    const eircodeCounts: Record<string, number> = {};
+    [...nearbyProperties, ...nearbyListings].forEach(item => {
+      if (item.eircode) {
+        eircodeCounts[item.eircode] = (eircodeCounts[item.eircode] || 0) + 1;
+      }
+    });
+
+    const mostCommonEircode = Object.entries(eircodeCounts)
+      .sort(([,a], [,b]) => b - a)[0]?.[0] || null;
+
     // Format median price
     const formatPrice = (price: number) => {
       if (price >= 1000000) {
@@ -98,6 +109,7 @@ export async function GET(request: NextRequest) {
       totalSold: nearbyProperties.length,
       totalListings: nearbyListings.length,
       radiusKm,
+      eircode: mostCommonEircode,
     });
   } catch (error) {
     console.error('Location stats error:', error);

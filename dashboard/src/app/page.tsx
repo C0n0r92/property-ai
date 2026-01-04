@@ -7,6 +7,7 @@ import { areaToSlug } from '@/lib/areas';
 import { formatFullPrice } from '@/lib/format';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
+import { SearchSuggestions } from '@/components/SearchSuggestions';
 
 interface FeaturedArea {
   name: string;
@@ -23,6 +24,40 @@ interface MarketStats {
   pctOverAsking: number;
   priceChange: number;
 }
+
+// Blog articles for search suggestions
+const blogArticles = [
+  {
+    title: 'Dublin Planning Permission Tool: Uncovering Development Potential',
+    excerpt: 'Our planning permission search tool reveals Dublin\'s most active development areas',
+    tags: ['Planning Permission', 'Development Potential', 'Property Extensions'],
+    category: 'Tool Guide'
+  },
+  {
+    title: 'Dublin Property Prices Since COVID: The €107k Recovery Surge',
+    excerpt: 'Dublin property prices have surged €107,000 (22%) since COVID',
+    tags: ['COVID Recovery', 'Price Changes', 'Market Growth'],
+    category: 'Market Analysis'
+  },
+  {
+    title: 'D5 Dublin: The Hidden Gem of North Dublin Property Market',
+    excerpt: 'D5 emerges as Dublin\'s most competitively priced premium area',
+    tags: ['D5', 'Area Analysis', 'North Dublin'],
+    category: 'Area Analysis'
+  },
+  {
+    title: 'Dublin\'s Hidden Market Quiet Zones',
+    excerpt: 'Where property prices stay stable despite market volatility',
+    tags: ['Market Stability', 'Quiet Zones', 'Price Stability'],
+    category: 'Market Analysis'
+  },
+  {
+    title: 'Dublin Conservative Market Strategy',
+    excerpt: 'How to navigate Dublin\'s property market during uncertain times',
+    tags: ['Market Strategy', 'Risk Management', 'Conservative Investing'],
+    category: 'Investment Strategy'
+  }
+];
 
 export default function Home() {
   const router = useRouter();
@@ -164,6 +199,26 @@ export default function Home() {
     router.push(`/map?search=${encodeURIComponent(locationName)}`);
   };
 
+  const handleSuggestionClick = (suggestion: string) => {
+    // Check if it's a blog article title
+    const blogArticle = blogArticles.find(article =>
+      article.title.toLowerCase().includes(suggestion.toLowerCase()) ||
+      article.tags.some(tag => tag.toLowerCase().includes(suggestion.toLowerCase())) ||
+      article.category.toLowerCase().includes(suggestion.toLowerCase())
+    );
+
+    if (blogArticle) {
+      // Navigate to blog page with search
+      router.push(`/blog?search=${encodeURIComponent(suggestion)}`);
+    } else {
+      // Navigate to map for location search
+      router.push(`/map?search=${encodeURIComponent(suggestion)}`);
+    }
+
+    setSearchQuery(suggestion);
+    setShowSearchResults(false);
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -235,22 +290,34 @@ export default function Home() {
 
               {/* Search Results Dropdown */}
               {showSearchResults && (
-                <div className="absolute z-10 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-2 space-y-2">
+                  {/* Blog Suggestions */}
+                  <SearchSuggestions
+                    query={searchQuery}
+                    articles={blogArticles}
+                    onSuggestionClick={handleSuggestionClick}
+                    isVisible={searchQuery.length > 1}
+                  />
+
                   {searchResults.length > 0 ? (
-                    // Show search results when typing
-                    searchResults.map((result, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleAreaSelect(result)}
-                        className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
-                      >
-                        <div className="font-medium text-slate-900">{result.place_name.split(',')[0]}</div>
-                        <div className="text-sm text-slate-500">{result.place_name}</div>
-                      </button>
-                    ))
+                    <div className="bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                      <div className="px-4 py-2 border-b border-slate-100">
+                        <div className="text-sm font-medium text-slate-700">Locations</div>
+                      </div>
+                      {searchResults.map((result, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleAreaSelect(result)}
+                          className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"
+                        >
+                          <div className="font-medium text-slate-900">{result.place_name.split(',')[0]}</div>
+                          <div className="text-sm text-slate-500">{result.place_name}</div>
+                        </button>
+                      ))}
+                    </div>
                   ) : searchQuery.trim() === '' ? (
                     // Show popular areas when search is empty and focused
-                    <>
+                    <div className="bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
                       <div className="px-4 py-2 border-b border-slate-100">
                         <div className="text-sm font-medium text-slate-700">Popular Areas</div>
                       </div>
@@ -274,13 +341,20 @@ export default function Home() {
                           <div className="text-sm text-slate-500">{area.description}</div>
                         </button>
                       ))}
-                    </>
+                    </div>
                   ) : !isSearching ? (
                     // Show no results when search has text but no matches
-                    <div className="px-4 py-3">
-                      <div className="text-sm text-slate-500">No locations found</div>
+                    <div className="bg-white border border-slate-200 rounded-xl shadow-xl px-4 py-8 text-center text-slate-500">
+                      <div className="text-sm">No locations found</div>
+                      <div className="text-xs mt-1">Try searching for a Dublin area or address</div>
                     </div>
-                  ) : null}
+                  ) : (
+                    // Show loading state
+                    <div className="bg-white border border-slate-200 rounded-xl shadow-xl px-4 py-8 text-center text-slate-500">
+                      <div className="w-4 h-4 border border-slate-300 border-t-slate-600 rounded-full animate-spin mx-auto mb-2"></div>
+                      <div className="text-sm">Searching...</div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
