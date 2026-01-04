@@ -86,6 +86,7 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
       }
     } catch (error) {
       console.error('Checkout error:', error);
+      analytics.paymentError('checkout_api', amount, selectedPlan);
       alert(error instanceof Error ? error.message : 'Failed to start checkout. Please try again.');
       setLoading(false);
     }
@@ -284,12 +285,26 @@ export default function InsightsPage() {
   // Check if user has premium tier
   const hasPaid = user?.tier === 'premium';
 
+  // Track page view
+  useEffect(() => {
+    analytics.pageViewed('insights');
+  }, []);
+
   useEffect(() => {
     // Only fetch data if user has premium tier
     if (hasPaid) {
       fetch('/api/stats')
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Stats API returned ${res.status}`);
+          }
+          return res.json();
+        })
         .then(setData)
+        .catch(error => {
+          console.error('Error fetching stats:', error);
+          analytics.apiError('/api/stats', error instanceof Error ? error.message : 'Failed to fetch stats');
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);

@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { AuthButtons } from "@/components/auth/AuthButtons";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { RecentlyViewedDropdown } from "@/components/RecentlyViewedDropdown";
 
 export function Navigation() {
   const { user } = useAuth();
@@ -191,6 +192,7 @@ export function Navigation() {
               >
                 Blog
               </Link>
+              <RecentlyViewedDropdown />
               {user && (
                 <Link
                   href="/alerts"

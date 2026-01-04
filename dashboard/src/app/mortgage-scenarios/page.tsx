@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { MortgageScenario } from '@/types/mortgage';
 import { formatCurrency, formatMonthsAsYears } from '@/lib/mortgage/formatters';
+import { analytics } from '@/lib/analytics';
 import { Calculator, TrendingUp, Trash2, ExternalLink, Calendar, Euro } from 'lucide-react';
 
 export default function MortgageScenariosPage() {
@@ -20,6 +21,13 @@ export default function MortgageScenariosPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
+
+  // Track page view
+  useEffect(() => {
+    if (user) {
+      analytics.pageViewed('mortgage_scenarios');
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -38,19 +46,20 @@ export default function MortgageScenariosPage() {
       setScenarios(data.scenarios || data || []);
     } catch (err) {
       console.error('Error fetching scenarios:', err);
+      analytics.apiError('/api/mortgage/scenarios', err instanceof Error ? err.message : 'Failed to fetch scenarios');
       setError('Failed to load mortgage scenarios');
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteScenario = async (scenarioId: string) => {
+  const deleteScenario = async (scenario: MortgageScenario) => {
     if (!confirm('Are you sure you want to delete this mortgage scenario?')) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/mortgage/scenarios/${scenarioId}`, {
+      const response = await fetch(`/api/mortgage/scenarios/${scenario.id}`, {
         method: 'DELETE'
       });
 
@@ -58,15 +67,22 @@ export default function MortgageScenariosPage() {
         throw new Error('Failed to delete scenario');
       }
 
+      // Track scenario deletion
+      analytics.mortgageScenarioDeleted(scenario.id, scenario.inputs.loanAmount);
+
       // Remove from local state
-      setScenarios(prev => prev.filter(s => s.id !== scenarioId));
+      setScenarios(prev => prev.filter(s => s.id !== scenario.id));
     } catch (err) {
       console.error('Error deleting scenario:', err);
+      analytics.apiError(`/api/mortgage/scenarios/${scenario.id}`, err instanceof Error ? err.message : 'Failed to delete scenario');
       alert('Failed to delete mortgage scenario');
     }
   };
 
   const loadScenario = (scenario: MortgageScenario) => {
+    // Track scenario viewing/editing
+    analytics.mortgageScenarioViewed(scenario.id, scenario.inputs.loanAmount);
+
     // Build URL with scenario data
     const params = new URLSearchParams({
       homeValue: scenario.inputs.homeValue.toString(),
@@ -200,7 +216,7 @@ export default function MortgageScenariosPage() {
                       <ExternalLink className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => deleteScenario(scenario.id)}
+                      onClick={() => deleteScenario(scenario)}
                       className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors"
                       title="Delete scenario"
                     >

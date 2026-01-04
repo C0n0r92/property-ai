@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatFullPrice } from '@/lib/format';
 import { useRouter } from 'next/navigation';
 import { useComparison } from '@/contexts/ComparisonContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { UpgradeModal } from '@/components/UpgradeModal';
+import { ComparisonSuggestionsModal } from '@/components/ComparisonSuggestionsModal';
 import { Property, Listing, RentalListing } from '@/types/property';
 import { MapPin, Bed, Bath, Ruler, Building2, TrendingUp, Calculator, Eye, FileText, CheckCircle, X, Plus, Bookmark } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
@@ -23,10 +25,12 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   const router = useRouter();
   const { user } = useAuth();
   const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
+  const { addRecentlyViewed } = useRecentlyViewed();
   const { addToComparison, isInComparison, comparedProperties, count, maxProperties, removeFromComparison, clearComparison } = useComparison();
   const [activeTab, setActiveTab] = useState<'details' | 'compare'>('details');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showComparisonSuggestions, setShowComparisonSuggestions] = useState(false);
 
   // Determine which property type we're dealing with
   const data = property || listing || rental;
@@ -70,6 +74,25 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   // Check if property is already in comparison
   const isAlreadyInComparison = isInComparison(data?.address || '');
 
+  // Track property view for recently viewed feature
+  useEffect(() => {
+    if (data?.address && price > 0) {
+      const propertyType = isSold ? 'sold' : isForSale ? 'listing' : 'rental';
+      addRecentlyViewed({
+        address: data.address,
+        propertyType: propertyType as 'sold' | 'listing' | 'rental',
+        price: price,
+      });
+    }
+  }, [data?.address, price, isSold, isForSale, addRecentlyViewed]);
+
+  // Check if property is new (scraped within last 3 days)
+  const isNewProperty = data?.scrapedAt ? (() => {
+    const scrapedDate = new Date(data.scrapedAt);
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    return scrapedDate > threeDaysAgo;
+  })() : false;
+
   // Handle adding this property to comparison
   const handleAddToComparison = () => {
     if (isAlreadyInComparison) return;
@@ -81,6 +104,11 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
     } else if (isRental && rental) {
       addToComparison(rental, 'rental');
     }
+  };
+
+  // Handle adding any property to comparison (for suggestions modal)
+  const handleAddAnyToComparison = (prop: Property | Listing | RentalListing, type: 'sold' | 'listing' | 'rental') => {
+    addToComparison(prop, type);
   };
 
   // CTA button handlers
@@ -152,11 +180,18 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
     <div className={`bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border ${statusConfig.borderColor} z-50 transition-all duration-300 ${isAlreadyInComparison ? 'ring-2 ring-green-500/50' : ''}`}>
       {/* Header with save and close buttons */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
-        <div className={`px-3 py-1 rounded-full text-white text-sm font-medium ${statusConfig.color} flex items-center gap-2`}>
-          <Building2 className="w-4 h-4" />
-          {statusConfig.label}
-          {isAlreadyInComparison && (
-            <span className="ml-1 text-green-300 text-xs">✓</span>
+        <div className="flex items-center gap-2">
+          <div className={`px-3 py-1 rounded-full text-white text-sm font-medium ${statusConfig.color} flex items-center gap-2`}>
+            <Building2 className="w-4 h-4" />
+            {statusConfig.label}
+            {isAlreadyInComparison && (
+              <span className="ml-1 text-green-300 text-xs">✓</span>
+            )}
+          </div>
+          {isNewProperty && (
+            <div className="px-2 py-1 rounded-full bg-emerald-500 text-white text-xs font-semibold shadow-md">
+              NEW
+            </div>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -332,6 +367,17 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
                 </div>
               )}
 
+              {/* Compare Similar Button */}
+              <button
+                onClick={() => setShowComparisonSuggestions(true)}
+                className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Compare Similar Properties
+              </button>
+
               {/* Compared Properties List */}
               {comparedProperties.length > 0 && (
                 <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -398,6 +444,15 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
         onClose={() => setShowUpgradeModal(false)}
         trigger="save_limit"
         limit={5}
+      />
+
+      {/* Comparison Suggestions Modal */}
+      <ComparisonSuggestionsModal
+        isOpen={showComparisonSuggestions}
+        onClose={() => setShowComparisonSuggestions(false)}
+        currentProperty={data}
+        onAddToComparison={handleAddAnyToComparison}
+        onCompare={() => router.push('/tools/compare')}
       />
     </div>
   );

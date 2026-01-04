@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { areaToSlug } from '@/lib/areas';
 import { formatFullPrice } from '@/lib/format';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
+import { PropertyCard } from '@/components/PropertyCard';
 import { SearchSuggestions } from '@/components/SearchSuggestions';
 
 interface FeaturedArea {
@@ -69,6 +70,7 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState<Array<{ place_name: string; center: [number, number] }>>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [newListings, setNewListings] = useState<any[]>([]);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
 
@@ -110,6 +112,29 @@ export default function Home() {
         console.error('Failed to load homepage data:', err);
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  // Load new listings (added in last 3 days)
+  useEffect(() => {
+    const loadNewListings = async () => {
+      try {
+        const response = await fetch('/api/listings?limit=50&sortBy=scrapedAt&sortOrder=desc&hasCoordinates=true');
+        if (response.ok) {
+          const data = await response.json();
+          // Filter to only listings from last 3 days
+          const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+          const recentListings = data.listings.filter((listing: any) => {
+            const scrapedDate = new Date(listing.scrapedAt);
+            return scrapedDate > threeDaysAgo;
+          });
+          setNewListings(recentListings.slice(0, 12)); // Show up to 12
+        }
+      } catch (error) {
+        console.error('Failed to load new listings:', error);
+      }
+    };
+
+    loadNewListings();
   }, []);
 
   // Search functionality - same as map component
@@ -368,6 +393,127 @@ export default function Home() {
                 Search takes you to our interactive property map
               </p>
             </div>
+
+            {/* New Listings Feed */}
+            {newListings.length > 0 && (
+              <div className="mb-16">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-white mb-2">Fresh Listings This Week</h2>
+                  <p className="text-slate-400 text-sm">New properties just added to our database</p>
+                </div>
+
+                {/* Horizontal scroll on mobile, grid on desktop */}
+                <div className="overflow-x-auto sm:overflow-x-visible">
+                  <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-4 sm:pb-0 min-w-max sm:min-w-0">
+                    {newListings.map((listing, index) => (
+                      <div key={listing.id || index} className="flex-shrink-0 w-80 sm:w-auto">
+                        <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow relative">
+                          {/* NEW Badge */}
+                          <div className="absolute top-3 left-3 z-10">
+                            <div className="bg-emerald-500 text-white px-2 py-1 rounded-full text-xs font-semibold shadow-md">
+                              NEW
+                            </div>
+                          </div>
+
+                          {/* Property Map Image */}
+                          <div className="h-48 bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden">
+                            {listing.latitude && listing.longitude ? (
+                              <>
+                                {/* Loading skeleton */}
+                                <div className="absolute inset-0 bg-slate-200 animate-pulse flex items-center justify-center">
+                                  <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V7m0 0L9 4" />
+                                  </svg>
+                                </div>
+                                <img
+                                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-l-home+3b82f6(${listing.longitude},${listing.latitude})/${listing.longitude},${listing.latitude},15/400x300@2x?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
+                                  alt={`Map view of ${listing.address.split(',')[0]}`}
+                                  className="w-full h-full object-cover opacity-0 transition-opacity duration-300"
+                                  loading="lazy"
+                                  onLoad={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.classList.add('opacity-100');
+                                    // Hide skeleton
+                                    const skeleton = target.parentElement?.querySelector('.animate-pulse');
+                                    if (skeleton) skeleton.classList.add('hidden');
+                                  }}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    // Hide skeleton and show fallback
+                                    const skeleton = target.parentElement?.querySelector('.animate-pulse');
+                                    if (skeleton) skeleton.classList.add('hidden');
+
+                                    const parent = target.parentElement;
+                                    if (parent && !parent.querySelector('.fallback-icon')) {
+                                      const fallback = document.createElement('div');
+                                      fallback.className = 'fallback-icon absolute inset-0 flex items-center justify-center';
+                                      fallback.innerHTML = `
+                                        <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                      `;
+                                      parent.appendChild(fallback);
+                                    }
+                                  }}
+                                />
+                              </>
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Property Details */}
+                          <div className="p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="font-bold text-lg text-slate-900">
+                                {formatFullPrice(listing.askingPrice)}
+                              </div>
+                              <div className="text-sm text-slate-500">
+                                {listing.beds} bed{listing.beds !== 1 ? 's' : ''}
+                              </div>
+                            </div>
+
+                            <div className="text-slate-700 text-sm mb-3 line-clamp-2">
+                              {listing.address.split(',')[0]}
+                            </div>
+
+                            <div className="flex items-center justify-between text-sm text-slate-600">
+                              <span>{listing.propertyType}</span>
+                              <span>{listing.areaSqm}m²</span>
+                            </div>
+
+                            <Link
+                              href={`/property/forSale/${encodeURIComponent(listing.address)}`}
+                              className="mt-3 w-full bg-slate-900 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors inline-block text-center"
+                            >
+                              View Details
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* View All Link */}
+                <div className="text-center mt-6">
+                  <Link
+                    href="/map?newOnly=true"
+                    className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 transition-colors text-sm font-medium"
+                  >
+                    View All New Listings
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {/* CTA Buttons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">

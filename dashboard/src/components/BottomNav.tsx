@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useState, useRef, useEffect } from 'react';
+import { RecentlyViewedMobile } from '@/components/RecentlyViewedMobile';
 
 interface NavItem {
   href: string;
@@ -16,6 +17,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
+  const [isRecentlyViewedOpen, setIsRecentlyViewedOpen] = useState(false);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -162,6 +164,22 @@ export function BottomNav() {
                         </div>
                       </Link>
 
+                      <button
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors w-full text-left"
+                        onClick={() => {
+                          setIsToolsDropdownOpen(false);
+                          setIsRecentlyViewedOpen(true);
+                        }}
+                      >
+                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                          <span className="text-orange-600">🕒</span>
+                        </div>
+                        <div>
+                          <div className="font-medium">Recently Viewed</div>
+                          <div className="text-xs text-gray-500">Quick access to properties</div>
+                        </div>
+                      </button>
+
                       <div className="border-t border-gray-100 my-1"></div>
 
                       <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-400">
@@ -200,6 +218,12 @@ export function BottomNav() {
           })}
         </div>
       </nav>
+
+      {/* Recently Viewed Mobile Panel */}
+      <RecentlyViewedMobile
+        isOpen={isRecentlyViewedOpen}
+        onClose={() => setIsRecentlyViewedOpen(false)}
+      />
     </>
   );
 }

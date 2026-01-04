@@ -326,6 +326,159 @@ export const analytics = {
     });
   },
 
+  // Mortgage Calculator Analytics
+  mortgageCalculatorPageViewed: () => {
+    trackEvent({ action: 'mortgage_calculator_page_viewed', category: 'engagement' });
+  },
+
+  mortgageCalculationPerformed: (loanAmount: number, interestRate: number, termYears: number) => {
+    trackEvent({
+      action: 'mortgage_calculation_performed',
+      category: 'engagement',
+      label: `${loanAmount}:${interestRate}:${termYears}`,
+      value: loanAmount
+    });
+  },
+
+  mortgageScenarioSaved: (scenarioName: string, loanAmount: number) => {
+    trackEvent({
+      action: 'mortgage_scenario_saved',
+      category: 'engagement',
+      label: scenarioName,
+      value: loanAmount
+    });
+  },
+
+  mortgageCalculatorShared: (platform?: string) => {
+    trackEvent({
+      action: 'mortgage_calculator_shared',
+      category: 'engagement',
+      label: platform || 'unknown'
+    });
+  },
+
+  mortgageRateExplorerUsed: (loanAmount: number, currentRate: number) => {
+    trackEvent({
+      action: 'mortgage_rate_explorer_used',
+      category: 'engagement',
+      label: `${loanAmount}:${currentRate}`,
+      value: loanAmount
+    });
+  },
+
+  mortgagePayoffTimelineViewed: (loanAmount: number, termYears: number) => {
+    trackEvent({
+      action: 'mortgage_payoff_timeline_viewed',
+      category: 'engagement',
+      label: `${loanAmount}:${termYears}`,
+      value: loanAmount
+    });
+  },
+
+  // Comparison Tool Analytics
+  comparisonToolPageViewed: () => {
+    trackEvent({ action: 'comparison_tool_page_viewed', category: 'engagement' });
+  },
+
+  comparisonPropertiesAdded: (propertyCount: number, propertyTypes: string[]) => {
+    trackEvent({
+      action: 'comparison_properties_added',
+      category: 'engagement',
+      label: propertyTypes.join(','),
+      value: propertyCount
+    });
+  },
+
+  comparisonSectionToggled: (sectionName: string, isExpanded: boolean) => {
+    trackEvent({
+      action: 'comparison_section_toggled',
+      category: 'engagement',
+      label: `${sectionName}:${isExpanded ? 'expanded' : 'collapsed'}`
+    });
+  },
+
+  comparisonShared: (platform?: string) => {
+    trackEvent({
+      action: 'comparison_shared',
+      category: 'engagement',
+      label: platform || 'unknown'
+    });
+  },
+
+  comparisonCleared: (propertyCount: number) => {
+    trackEvent({
+      action: 'comparison_cleared',
+      category: 'engagement',
+      value: propertyCount
+    });
+  },
+
+  // Mortgage Scenarios Analytics
+  mortgageScenariosPageViewed: () => {
+    trackEvent({ action: 'mortgage_scenarios_page_viewed', category: 'engagement' });
+  },
+
+  mortgageScenarioViewed: (scenarioId: string, loanAmount: number) => {
+    trackEvent({
+      action: 'mortgage_scenario_viewed',
+      category: 'engagement',
+      label: scenarioId,
+      value: loanAmount
+    });
+  },
+
+  mortgageScenarioDeleted: (scenarioId: string, loanAmount: number) => {
+    trackEvent({
+      action: 'mortgage_scenario_deleted',
+      category: 'engagement',
+      label: scenarioId,
+      value: loanAmount
+    });
+  },
+
+  mortgageScenarioEdited: (scenarioId: string, loanAmount: number) => {
+    trackEvent({
+      action: 'mortgage_scenario_edited',
+      category: 'engagement',
+      label: scenarioId,
+      value: loanAmount
+    });
+  },
+
+  // Error Tracking Analytics
+  apiError: (endpoint: string, errorMessage: string, statusCode?: number) => {
+    trackEvent({
+      action: 'api_error',
+      category: 'error',
+      label: `${endpoint}:${errorMessage}${statusCode ? `:${statusCode}` : ''}`
+    });
+  },
+
+  formSubmissionError: (formName: string, errorMessage: string, field?: string) => {
+    trackEvent({
+      action: 'form_submission_error',
+      category: 'error',
+      label: `${formName}:${field || 'general'}:${errorMessage}`
+    });
+  },
+
+  userFacingError: (errorType: string, errorMessage: string, context?: string) => {
+    trackEvent({
+      action: 'user_facing_error',
+      category: 'error',
+      label: `${errorType}:${context || 'general'}:${errorMessage}`
+    });
+  },
+
+  paymentError: (errorType: string, amount?: number, context?: string) => {
+    trackEvent({
+      action: 'payment_error',
+      category: 'error',
+      label: `${errorType}:${context || 'general'}`,
+      value: amount
+    });
+  },
+
   // Alert Creation Analytics
   freeAlertCreated: (alertId: string, location: string, type: 'location' | 'blog') => {
     trackEvent({

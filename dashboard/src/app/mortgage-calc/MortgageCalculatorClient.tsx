@@ -15,6 +15,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { MortgageInputs, MortgageCalculationResponse, MortgageScenario, DEFAULT_MORTGAGE_INPUTS } from '@/types/mortgage';
+import { analytics } from '@/lib/analytics';
 import { calculateMortgage } from '@/lib/mortgage-calculator';
 import { LOAN_TERMS, PAYMENT_FREQUENCIES, DEBOUNCE_DELAYS } from '@/lib/mortgage/constants';
 import { formatCurrency, formatMonthsAsYears } from '@/lib/mortgage/formatters';
@@ -74,6 +75,11 @@ export default function MortgageCalculatorClient() {
     setSuccessMessage(message);
     setTimeout(() => setSuccessMessage(null), 4000); // Auto-hide after 4 seconds
   };
+
+  // Track page view
+  useEffect(() => {
+    analytics.mortgageCalculatorPageViewed();
+  }, []);
 
   // Pre-fill form from URL parameters (from property cards)
   useEffect(() => {
@@ -136,8 +142,16 @@ export default function MortgageCalculatorClient() {
         const result = calculateMortgage(debouncedInputs);
         setCalculation(result);
         setErrors({}); // Clear errors on successful calculation
+
+        // Track successful calculation
+        analytics.mortgageCalculationPerformed(
+          debouncedInputs.loanAmount,
+          debouncedInputs.interestRate,
+          debouncedInputs.loanTerm
+        );
       } catch (error) {
         console.error('Calculation error:', error);
+        analytics.userFacingError('mortgage_calculation', error instanceof Error ? error.message : 'Unknown calculation error');
         setErrors({ calculation: 'Failed to calculate mortgage. Please check your inputs.' });
       } finally {
         setIsCalculating(false);
@@ -207,11 +221,15 @@ export default function MortgageCalculatorClient() {
       if (response.ok) {
         await loadScenarios(); // Refresh scenarios
         showSuccess('Mortgage scenario saved successfully!');
+
+        // Track scenario save
+        analytics.mortgageScenarioSaved(scenarioName, inputs.loanAmount);
       } else {
         throw new Error('Failed to save scenario');
       }
     } catch (error) {
       console.error('Error saving scenario:', error);
+      analytics.apiError('/api/mortgage/scenarios', error instanceof Error ? error.message : 'Failed to save scenario');
       alert('Failed to save mortgage scenario. Please try again.');
     } finally {
       setIsSaving(false);
@@ -223,6 +241,9 @@ export default function MortgageCalculatorClient() {
   };
 
   const shareCalculation = () => {
+    // Track sharing event
+    analytics.mortgageCalculatorShared(typeof navigator.share === 'function' ? 'native' : 'copy');
+
     // Build shareable URL with current calculation data
     const params = new URLSearchParams({
       homeValue: inputs.homeValue.toString(),

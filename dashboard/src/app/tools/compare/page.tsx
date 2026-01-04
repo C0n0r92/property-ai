@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useComparison } from '@/contexts/ComparisonContext';
 import { PropertyComparisonTable } from '@/components/PropertyComparisonTable';
 import { ComparisonInsights } from '@/components/ComparisonInsights';
-import { ShareButton } from '@/components/ShareButton';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { analytics } from '@/lib/analytics';
@@ -72,6 +71,11 @@ function ComparePageContent() {
     setMounted(true);
   }, []);
 
+  // Track page view
+  useEffect(() => {
+    analytics.pageViewed('comparison_tool');
+  }, []);
+
   // Check if user needs to login to access comparison (2+ properties)
   const needsLogin = count >= 2 && !user;
 
@@ -86,10 +90,14 @@ function ComparePageContent() {
   });
 
   const toggleSection = (section: keyof typeof expandedSections) => {
+    const newState = !expandedSections[section];
     setExpandedSections(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: newState
     }));
+
+    // Track section toggle
+    analytics.comparisonSectionToggled(section, newState);
   };
 
   // Fetch enriched comparison data when properties change
@@ -292,7 +300,10 @@ function ComparePageContent() {
                 Share
               </button>
               <button
-                onClick={clearComparison}
+                onClick={() => {
+                  analytics.comparisonCleared(count);
+                  clearComparison();
+                }}
                 className="text-sm text-red-400 hover:text-red-300 px-3 py-1.5 rounded border border-red-800 hover:bg-red-900/20"
               >
                 Clear All

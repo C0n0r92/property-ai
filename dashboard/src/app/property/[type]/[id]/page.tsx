@@ -12,6 +12,7 @@ import { useComparison } from '@/contexts/ComparisonContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { AlertBottomBar } from '@/components/alerts/AlertBottomBar';
 import { analytics } from '@/lib/analytics';
@@ -24,6 +25,7 @@ export default function PropertyDetailsPage() {
   const { user } = useAuth();
   const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
   const { trackMapSearch } = useSearchTracking();
+  const { addRecentlyViewed } = useRecentlyViewed();
 
   const [property, setProperty] = useState<Property | Listing | RentalListing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,6 +95,27 @@ export default function PropertyDetailsPage() {
         }
 
         setProperty(mockProperty);
+
+        // Track this property as recently viewed
+        const price = ('soldPrice' in mockProperty && mockProperty.soldPrice)
+          ? mockProperty.soldPrice
+          : ('askingPrice' in mockProperty && mockProperty.askingPrice)
+            ? mockProperty.askingPrice
+            : ('monthlyRent' in mockProperty && mockProperty.monthlyRent)
+              ? mockProperty.monthlyRent
+              : 0;
+
+        console.log('📊 Tracking recently viewed property:', {
+          address: mockProperty.address,
+          propertyType: propertyType === 'sold' ? 'sold' : propertyType === 'forSale' ? 'listing' : 'rental',
+          price: price,
+        });
+
+        addRecentlyViewed({
+          address: mockProperty.address,
+          propertyType: propertyType === 'sold' ? 'sold' : propertyType === 'forSale' ? 'listing' : 'rental',
+          price: price,
+        });
 
         // Trigger alert immediately when property data is loaded
         const locationContext = {

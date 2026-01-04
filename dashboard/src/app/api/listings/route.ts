@@ -81,6 +81,12 @@ export async function GET(request: NextRequest) {
       }
     });
   }
+
+  // Filter by coordinates availability (for homepage display)
+  const hasCoordinates = searchParams.get('hasCoordinates');
+  if (hasCoordinates === 'true') {
+    listings = listings.filter(l => l.latitude && l.longitude);
+  }
   
   // Sort
   listings.sort((a, b) => {

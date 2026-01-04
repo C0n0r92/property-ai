@@ -44,6 +44,7 @@ export const useMapFilters = () => {
   // Special filter toggles
   const [priceReducedFilter, setPriceReducedFilter] = useState<boolean>(false);
   const [bestValueFilter, setBestValueFilter] = useState<boolean>(false);
+  const [newOnly, setNewOnly] = useState<boolean>(false);
 
   // Function to clear all filters
   const clearFilters = () => {
@@ -109,6 +110,8 @@ export const useMapFilters = () => {
     setPriceReducedFilter,
     bestValueFilter,
     setBestValueFilter,
+    newOnly,
+    setNewOnly,
     clearFilters,
   };
 };

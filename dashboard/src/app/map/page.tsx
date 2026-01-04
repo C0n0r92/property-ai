@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 // Lazy load the map component to improve initial page load performance
@@ -16,6 +17,13 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   )
 });
 
+function MapPageContent() {
+  const searchParams = useSearchParams();
+  const initialNewOnly = searchParams.get('newOnly') === 'true';
+
+  return <MapComponent initialNewOnly={initialNewOnly} />;
+}
+
 export default function MapPage() {
   return (
     <Suspense fallback={
@@ -26,7 +34,7 @@ export default function MapPage() {
         </div>
       </div>
     }>
-      <MapComponent />
+      <MapPageContent />
     </Suspense>
   );
 }
