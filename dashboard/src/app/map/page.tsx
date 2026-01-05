@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 
 // Dynamic import for the client component
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
-  ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-screen bg-slate-100">
       <div className="text-center">
