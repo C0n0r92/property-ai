@@ -1486,6 +1486,15 @@ export default function MapComponent({}: MapComponentProps) {
 
         map.current.on('error', (e) => {
           console.error('Mapbox error:', e);
+          console.error('Error details:', e.error);
+          console.error('Error message:', e.error?.message);
+
+          // Don't show error dialog for expected layer query errors
+          const errorMessage = e.error?.message || '';
+          if (errorMessage.includes('does not exist in the map\'s style and cannot be queried for features')) {
+            return; // Ignore these expected errors
+          }
+
           setMapError('Map failed to load. This may be due to network issues or an invalid access token.');
         });
 
@@ -1539,7 +1548,38 @@ export default function MapComponent({}: MapComponentProps) {
 
   // Setup map layers based on view mode and data source
   useEffect(() => {
-    if (!mapReady || !map.current || activeData.length === 0) return;
+    if (!mapReady || !map.current) return;
+
+    // If no data, remove existing layers and switch to clusters view mode
+    if (activeData.length === 0) {
+      const layersToRemove = ['clusters', 'cluster-count', 'unclustered-point', 'properties-points', 'selected-property-point', 'selected-property-star', 'planning-radius-fill', 'planning-radius-outline', 'planning-center-marker'];
+      layersToRemove.forEach(layer => {
+        try {
+          if (map.current?.getLayer(layer)) {
+            map.current.removeLayer(layer);
+          }
+        } catch (error) {
+          // Layer might not exist, continue silently
+        }
+      });
+
+      const sourcesToRemove = ['properties', 'properties-clustered', 'planning-radius', 'planning-center'];
+      sourcesToRemove.forEach(source => {
+        try {
+          if (map.current?.getSource(source)) {
+            map.current.removeSource(source);
+          }
+        } catch (error) {
+          // Source might not exist, continue silently
+        }
+      });
+
+      // Switch to clusters mode when no data to avoid view mode inconsistencies
+      if (viewMode !== 'clusters') {
+        setViewMode('clusters');
+      }
+      return;
+    }
 
     // Helper function to setup layers - may need to retry if style not loaded
     const setupLayers = () => {
@@ -1553,48 +1593,49 @@ export default function MapComponent({}: MapComponentProps) {
     };
     
     const doSetupLayers = () => {
-    const geojson: GeoJSON.FeatureCollection = {
-      type: 'FeatureCollection',
-      features: activeData.map(item => {
-        const isListing = item.isListing;
-        const isRental = item.isRental;
-        const soldPrice = (isListing || isRental) ? 0 : item.soldPrice;
-        const askingPrice = item.askingPrice || 0;
-        const priceDiff = (isListing || isRental) ? 0 : (askingPrice ? soldPrice - askingPrice : 0);
-        const priceDiffPercent = (isListing || isRental) ? 0 : (askingPrice ? Math.round((priceDiff / askingPrice) * 100) : 0);
-        
-        return {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [item.longitude!, item.latitude!],
-          },
-          properties: {
-            id: item.address,
-            sourceUrl: item.sourceUrl,
-            address: item.address,
-            soldPrice: soldPrice,
-            askingPrice: askingPrice,
-            price: soldPrice || askingPrice, // Unified price field
-            pricePerSqm: item.pricePerSqm || 0,
-            priceDiff,
-            priceDiffPercent,
-            beds: item.beds,
-            baths: item.baths,
-            propertyType: item.propertyType,
-            soldDate: (isListing || isRental) ? '' : item.soldDate,
-            berRating: (isListing || isRental) ? (item as any).berRating : null,
-            isListing: isListing,
-            isRental: isRental,
-            // Rental-specific properties
-            monthlyRent: isRental ? (item as any).monthlyRent : null,
-            furnishing: isRental ? (item as any).furnishing : null,
-            dublinPostcode: isRental ? (item as any).dublinPostcode : null,
-            rentPerSqm: isRental ? (item as any).rentPerSqm : null,
-            rentPerBed: isRental ? (item as any).rentPerBed : null,
-            // Comparison status
-            isInComparison: isInComparison(item.address),
-          },
+
+      const geojson: GeoJSON.FeatureCollection = {
+        type: 'FeatureCollection',
+        features: activeData.map(item => {
+          const isListing = item.isListing;
+          const isRental = item.isRental;
+          const soldPrice = (isListing || isRental) ? 0 : item.soldPrice;
+          const askingPrice = item.askingPrice || 0;
+          const priceDiff = (isListing || isRental) ? 0 : (askingPrice ? soldPrice - askingPrice : 0);
+          const priceDiffPercent = (isListing || isRental) ? 0 : (askingPrice ? Math.round((priceDiff / askingPrice) * 100) : 0);
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [item.longitude!, item.latitude!],
+            },
+            properties: {
+              id: item.address,
+              sourceUrl: item.sourceUrl,
+              address: item.address,
+              soldPrice: soldPrice,
+              askingPrice: askingPrice,
+              price: soldPrice || askingPrice, // Unified price field
+              pricePerSqm: item.pricePerSqm || 0,
+              priceDiff,
+              priceDiffPercent,
+              beds: item.beds,
+              baths: item.baths,
+              propertyType: item.propertyType,
+              soldDate: (isListing || isRental) ? '' : item.soldDate,
+              berRating: (isListing || isRental) ? (item as any).berRating : null,
+              isListing: isListing,
+              isRental: isRental,
+              // Rental-specific properties
+              monthlyRent: isRental ? (item as any).monthlyRent : null,
+              furnishing: isRental ? (item as any).furnishing : null,
+              dublinPostcode: isRental ? (item as any).dublinPostcode : null,
+              rentPerSqm: isRental ? (item as any).rentPerSqm : null,
+              rentPerBed: isRental ? (item as any).rentPerBed : null,
+              // Comparison status
+              isInComparison: isInComparison(item.address),
+            },
         };
       }),
     };
@@ -1774,8 +1815,16 @@ export default function MapComponent({}: MapComponentProps) {
 
       // Click on cluster to zoom
       map.current.on('click', 'clusters', (e) => {
-        const features = map.current?.queryRenderedFeatures(e.point, { layers: ['clusters'] });
-        if (!features?.length) return;
+        if (!map.current?.getLayer('clusters')) return;
+
+        let features;
+        try {
+          features = map.current?.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+          if (!features?.length) return;
+        } catch (error) {
+          console.warn('Failed to query cluster features:', error);
+          return;
+        }
         const clusterId = features[0].properties?.cluster_id;
         const source = map.current?.getSource('properties-clustered') as mapboxgl.GeoJSONSource;
         source.getClusterExpansionZoom(clusterId, (err, zoom) => {
@@ -1809,9 +1858,17 @@ export default function MapComponent({}: MapComponentProps) {
         }
 
         // Query ALL features at this pixel location
-        const allFeatures = map.current?.queryRenderedFeatures(e.point, {
-          layers: ['unclustered-point']
-        });
+        if (!map.current?.getLayer('unclustered-point')) return;
+
+        let allFeatures;
+        try {
+          allFeatures = map.current?.queryRenderedFeatures(e.point, {
+            layers: ['unclustered-point']
+          });
+        } catch (error) {
+          console.warn('Failed to query unclustered features:', error);
+          return;
+        }
 
         // Find features with identical coordinates (within small tolerance)
         const tolerance = 0.000001;
@@ -1881,11 +1938,22 @@ export default function MapComponent({}: MapComponentProps) {
         }
         
         // SECOND: Check if click was on clusters or unclustered points - if so, let those handlers deal with it
-        const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
-          layers: ['clusters', 'unclustered-point']
-        });
-        if (clickedFeatures && clickedFeatures.length > 0) {
-          return; // Let the layer-specific handlers handle this
+        // Only query layers that actually exist to prevent Mapbox errors
+        const layersToCheck = ['clusters', 'unclustered-point'];
+        const existingLayers = layersToCheck.filter(layer => map.current?.getLayer(layer));
+
+        if (existingLayers.length > 0) {
+          try {
+            const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
+              layers: existingLayers
+            });
+            if (clickedFeatures && clickedFeatures.length > 0) {
+              return; // Let the layer-specific handlers handle this
+            }
+          } catch (error) {
+            // Layer query failed, continue with collapse logic
+            console.warn('Failed to query rendered features:', error);
+          }
         }
         
         // Only collapse if clicking on empty map area
@@ -2004,9 +2072,15 @@ export default function MapComponent({}: MapComponentProps) {
         }
         
         // Query ALL features at this pixel location
-        const allFeatures = map.current?.queryRenderedFeatures(e.point, {
-          layers: [layerId]
-        });
+        let allFeatures;
+        try {
+          allFeatures = map.current?.queryRenderedFeatures(e.point, {
+            layers: [layerId]
+          });
+        } catch (error) {
+          console.warn('Failed to query features for layer', layerId, ':', error);
+          return;
+        }
         
         // Find features with identical coordinates
         const tolerance = 0.000001;
@@ -2077,9 +2151,15 @@ export default function MapComponent({}: MapComponentProps) {
         }
         
         // SECOND: Check if click was on the layer - if so, let the layer-specific handler deal with it
-        const clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
-          layers: [layerId]
-        });
+        let clickedFeatures;
+        try {
+          clickedFeatures = map.current?.queryRenderedFeatures(e.point, {
+            layers: [layerId]
+          });
+        } catch (error) {
+          console.warn('Failed to query features for layer', layerId, ':', error);
+          return;
+        }
         if (clickedFeatures && clickedFeatures.length > 0) {
           return; // Let the layer-specific handler handle this
         }
