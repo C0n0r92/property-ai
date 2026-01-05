@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     description: 'Explore Dublin\'s property market with our interactive map. View 43,000+ sold properties, current listings, and rental data.',
     images: [
       {
-        url: '/map/opengraph-image',
+        url: '/opengraph-image',
         width: 1200,
         height: 630,
         alt: 'Dublin Property Map - Interactive Property Search & Price Data',
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Dublin Property Map | Interactive Property Search & Price Data',
     description: 'Explore Dublin\'s property market with our interactive map. View 43,000+ sold properties, current listings, and rental data.',
-    images: ['/map/opengraph-image'],
+    images: ['/opengraph-image'],
   },
   alternates: {
     canonical: '/map',

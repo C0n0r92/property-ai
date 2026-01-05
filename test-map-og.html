@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Map Page Open Graph</title>
+
+    <!-- Open Graph Meta Tags (what your map page should output) -->
+    <meta property="og:title" content="Dublin Property Map | Interactive Property Search & Price Data">
+    <meta property="og:description" content="Explore Dublin's property market with our interactive map. View 43,000+ sold properties, current listings, and rental data.">
+    <meta property="og:image" content="https://irishpropertydata.com/opengraph-image">
+    <meta property="og:url" content="https://irishpropertydata.com/map">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Irish Property Data">
+    <meta property="og:locale" content="en_IE">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dublin Property Map | Interactive Property Search & Price Data">
+    <meta name="twitter:description" content="Explore Dublin's property market with our interactive map. View 43,000+ sold properties, current listings, and rental data.">
+    <meta name="twitter:image" content="https://irishpropertydata.com/opengraph-image">
+
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 20px 0; }
+        .meta-tag { background: #f3f4f6; padding: 8px; margin: 5px 0; border-radius: 4px; font-family: monospace; font-size: 12px; }
+        .success { color: #10b981; font-weight: bold; }
+        .image-preview { width: 300px; height: 157px; background: #e5e7eb; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #6b7280; margin: 10px 0; border: 1px solid #d1d5db; }
+    </style>
+</head>
+<body>
+    <h1>🗺️ Map Page Open Graph Test</h1>
+
+    <div class="test-section">
+        <h2>📱 What Facebook/Twitter Should Show:</h2>
+
+        <div class="image-preview">
+            [Your site's main Open Graph image will appear here]
+        </div>
+
+        <h3>Title:</h3>
+        <div class="meta-tag success">Dublin Property Map | Interactive Property Search & Price Data</div>
+
+        <h3>Description:</h3>
+        <div class="meta-tag">Explore Dublin's property market with our interactive map. View 43,000+ sold properties, current listings, and rental data. Get accurate price insights and market intelligence.</div>
+
+        <h3>Image URL:</h3>
+        <div class="meta-tag">https://irishpropertydata.com/opengraph-image</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Test Your Implementation:</h2>
+
+        <h3>1. Online Open Graph Testers:</h3>
+        <ul>
+            <li><a href="https://opengraph.xyz/" target="_blank">Open Graph Tester</a> - Paste your URL</li>
+            <li><a href="https://www.opengraphcheck.com/" target="_blank">Open Graph Check</a> - Free online tool</li>
+            <li><a href="https://opengraph.dev/" target="_blank">Open Graph Dev</a> - Developer tool</li>
+        </ul>
+
+        <h3>2. Facebook Sharing Debugger:</h3>
+        <ul>
+            <li><a href="https://developers.facebook.com/tools/debug/" target="_blank">Facebook Sharing Debugger</a></li>
+            <li>Paste: <code>https://irishpropertydata.com/map</code></li>
+            <li>Click "Debug" to see preview</li>
+        </ul>
+
+        <h3>3. Browser Extensions:</h3>
+        <ul>
+            <li>Install "Open Graph Preview" extension for Chrome/Firefox</li>
+            <li>Visit your deployed map page to see the preview</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ Verification Checklist:</h2>
+        <ul>
+            <li>☐ Deploy the code changes</li>
+            <li>☐ Visit <code>https://irishpropertydata.com/map</code></li>
+            <li>☐ Check page source for og: meta tags</li>
+            <li>☐ Test with Facebook Sharing Debugger</li>
+            <li>☐ Share link on Facebook to see preview</li>
+            <li>☐ Test Twitter/X sharing</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🐛 Troubleshooting:</h2>
+        <ul>
+            <li><strong>No image?</strong> Check if <code>/opengraph-image</code> loads</li>
+            <li><strong>Wrong title?</strong> Verify metadata in page source</li>
+            <li><strong>Facebook cached?</strong> Use Sharing Debugger to refresh</li>
+            <li><strong>Still not working?</strong> Wait 24-48 hours for full propagation</li>
+        </ul>
+    </div>
+</body>
+</html>
