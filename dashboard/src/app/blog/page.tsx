@@ -10,6 +10,30 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'dublin-street-type-momentum',
+    title: 'Dublin Street Type Momentum: Why Cul-de-Sacs Outperform Main Roads by 12.8 Percentage Points',
+    excerpt: 'Dublin street positioning creates dramatic performance gaps, with cul-de-sacs growing 11.9% annually while main roads decline by 0.9%. Analysis of 29,102 properties reveals €249K price differences and 12.8 percentage point momentum advantages favoring family-focused street types.',
+    category: 'Market Analysis',
+    date: '2026-01-05',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Street Types', 'Market Momentum', 'Property Performance', 'Investment Strategy', 'Location Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-corner-house-discount',
+    title: 'Dublin Corner House Discount: Why End-of-Terrace Properties Cost 12.4% Less',
+    excerpt: 'Dublin corner houses sell for 12.4% less than equivalent mid-terrace homes, representing €74,411 in potential savings. Analysis of 17,530 properties reveals systematic pricing disadvantages for end-of-terrace positions across all property types and sizes.',
+    category: 'Market Analysis',
+    date: '2026-01-05',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['Corner Houses', 'Property Pricing', 'Location Premium', 'Value Analysis', 'Terrace Properties'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-planning-permission-tool-guide',
     title: 'Dublin Planning Permission Tool: Uncovering Development Potential',
     excerpt: 'Our planning permission search tool reveals Dublin\'s most active development areas, with 15,420 applications analyzed showing 78.5% approval rates and €85,000 average extension values. Extensions dominate at 29.3% of applications with 82.3% approval rates.',
@@ -834,7 +858,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 54 },
+          { label: 'Articles', value: 56 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

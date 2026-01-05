@@ -60,7 +60,7 @@ export function useBlogAlertTracking() {
         const blogContext = {
           title: 'Premium Blog Alerts',
           slug: blogSlug, // Use the actual blog slug for proper dismissal tracking
-          excerpt: 'Get exclusive Dublin property market insights and money-saving opportunities delivered first to your inbox.'
+          excerpt: 'Get exclusive Dublin property market insights and money-saving opportunities. Each email is AI-summarized for clarity and impact, delivered first to your inbox.'
         };
         console.log('📧 Calling showBlogAlertModal with context:', blogContext);
         showBlogAlertModal(blogContext);
@@ -81,12 +81,36 @@ export function useBlogAlertTracking() {
   const stopBlogTracking = useCallback(() => {
     console.log('📖 Stopping blog alert tracking');
     clearTimer();
+    if (engagementTimerRef.current) {
+      clearTimeout(engagementTimerRef.current);
+      engagementTimerRef.current = null;
+    }
     hasTriggeredRef.current = true; // Prevent any pending timers from triggering
   }, [clearTimer]);
 
   // Track user interactions that indicate engagement (scrolling, clicking)
+  // Use refs to prevent multiple engagement timers
+  const engagementTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastEngagementTimeRef = useRef<number>(0);
+
   const trackEngagement = useCallback(() => {
-    // Reset timer on engagement to give user more time
+    const now = Date.now();
+    const timeSinceLastEngagement = now - lastEngagementTimeRef.current;
+
+    // Debounce engagement tracking to prevent excessive timer resets (minimum 1 second between engagements)
+    if (timeSinceLastEngagement < 1000) {
+      return;
+    }
+
+    lastEngagementTimeRef.current = now;
+
+    // Clear any existing engagement timer
+    if (engagementTimerRef.current) {
+      clearTimeout(engagementTimerRef.current);
+      engagementTimerRef.current = null;
+    }
+
+    // Only reset the main timer if it exists and hasn't triggered yet
     if (timerRef.current && !hasTriggeredRef.current) {
       console.log('🔄 User engagement detected, resetting blog alert timer');
       clearTimer();
@@ -99,7 +123,7 @@ export function useBlogAlertTracking() {
           const blogContext = {
             title: 'Blog Alerts',
             slug: 'blog-alerts-general',
-            excerpt: 'Get notified when we publish new research articles and market insights.'
+            excerpt: 'Get notified when we publish new research articles and market insights, each AI-summarized for clarity and impact.'
           };
           showBlogAlertModal(blogContext);
           hasTriggeredRef.current = true;
@@ -108,10 +132,14 @@ export function useBlogAlertTracking() {
     }
   }, [clearTimer, showBlogAlertModal]);
 
-  // Clear timer on unmount
+  // Clear timers on unmount
   useEffect(() => {
     return () => {
       clearTimer();
+      if (engagementTimerRef.current) {
+        clearTimeout(engagementTimerRef.current);
+        engagementTimerRef.current = null;
+      }
     };
   }, [clearTimer]);
 

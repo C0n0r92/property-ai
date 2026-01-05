@@ -5262,10 +5262,10 @@ export function PriceProgressionChart() {
               <YAxis
                 label={{ value: "Average Price (€)", angle: -90, position: "insideLeft" }}
                 fontSize={12}
-                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}K`}
+                tickFormatter={(value) => \`€\${(value / 1000).toFixed(0)}K\`}
               />
               <Tooltip
-                formatter={(value) => value ? [`€${Math.round(Number(value)).toLocaleString()}`, "Price"] : ['€0', "Price"]}
+                formatter={(value) => [\`€\${Math.round(value).toLocaleString()}\`, "Price"]}
               />
               <Line type="monotone" dataKey="year2021" stroke="#8884d8" name="2021" strokeWidth={1} />
               <Line type="monotone" dataKey="year2022" stroke="#82ca9d" name="2022" strokeWidth={1} />
@@ -5303,7 +5303,7 @@ export function StreetTypeInvestmentEfficiencyChart() {
               <XAxis
                 dataKey="startingPrice"
                 name="Starting Price"
-                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}K`}
+                tickFormatter={(value) => \`€\${(value / 1000).toFixed(0)}K\`}
                 fontSize={12}
               />
               <YAxis
@@ -5314,8 +5314,8 @@ export function StreetTypeInvestmentEfficiencyChart() {
               />
               <Tooltip
                 formatter={(value, name) => {
-                  if (name === "Starting Price") return value ? [`€${Math.round(Number(value)).toLocaleString()}`, name] : ['€0', name];
-                  return value ? [Number(value) + "%", name] : ['0%', name];
+                  if (name === "Starting Price") return [\`€\${Math.round(value).toLocaleString()}\`, name];
+                  return [value + "%", name];
                 }}
               />
               <Scatter dataKey="annualGrowth" fill="#2563EB" />
@@ -5350,10 +5350,10 @@ export function CornerDiscountOverviewChart() {
               <YAxis
                 label={{ value: "Average Price (€)", angle: -90, position: "insideLeft" }}
                 fontSize={12}
-                tickFormatter={(value) => `€${(value / 1000).toFixed(0)}K`}
+                tickFormatter={(value) => \`€\${(value / 1000).toFixed(0)}K\`}
               />
               <Tooltip
-                formatter={(value) => value ? [`€${Math.round(Number(value)).toLocaleString()}`, "Average Price"] : ['€0', "Average Price"]}
+                formatter={(value) => [\`€\${Math.round(value).toLocaleString()}\`, "Average Price"]}
               />
               <Bar dataKey="averagePrice" fill="#DC2626" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -5482,5 +5482,3 @@ export function CornerDiscountByAreaChart() {
     </ChartWrapper>
   );
 }
-// Street Type Momentum Charts
-

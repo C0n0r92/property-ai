@@ -1,0 +1,349 @@
+{
+  "sqmEfficiencyByArea": [
+    {
+      "area": "D17",
+      "sqmPrice": 4252,
+      "avgPrice": 350614,
+      "overAskingRate": 0.8321167883211679,
+      "count": 137
+    },
+    {
+      "area": "D24",
+      "sqmPrice": 4298,
+      "avgPrice": 403955,
+      "overAskingRate": 0.9147025813692481,
+      "count": 891
+    },
+    {
+      "area": "D22",
+      "sqmPrice": 4385,
+      "avgPrice": 377931,
+      "overAskingRate": 0.8990384615384616,
+      "count": 416
+    },
+    {
+      "area": "D10",
+      "sqmPrice": 4408,
+      "avgPrice": 332678,
+      "overAskingRate": 0.9116022099447514,
+      "count": 181
+    },
+    {
+      "area": "D11",
+      "sqmPrice": 4453,
+      "avgPrice": 413366,
+      "overAskingRate": 0.9028268551236749,
+      "count": 566
+    },
+    {
+      "area": "D15",
+      "sqmPrice": 4701,
+      "avgPrice": 471215,
+      "overAskingRate": 0.8675496688741722,
+      "count": 1208
+    },
+    {
+      "area": "D20",
+      "sqmPrice": 4938,
+      "avgPrice": 461905,
+      "overAskingRate": 0.8896103896103896,
+      "count": 154
+    },
+    {
+      "area": "D13",
+      "sqmPrice": 5309,
+      "avgPrice": 593418,
+      "overAskingRate": 0.7791005291005291,
+      "count": 756
+    },
+    {
+      "area": "D9",
+      "sqmPrice": 5473,
+      "avgPrice": 532423,
+      "overAskingRate": 0.851039260969977,
+      "count": 866
+    },
+    {
+      "area": "D12",
+      "sqmPrice": 5565,
+      "avgPrice": 490559,
+      "overAskingRate": 0.901386748844376,
+      "count": 649
+    }
+  ],
+  "propertyTypeEfficiency": [
+    {
+      "type": "terrace",
+      "sqmPrice": 2787,
+      "avgPrice": 432000,
+      "avgArea": 155,
+      "count": 1
+    },
+    {
+      "type": "Site",
+      "sqmPrice": 4320,
+      "avgPrice": 901000,
+      "avgArea": 211,
+      "count": 2
+    },
+    {
+      "type": "Duplex",
+      "sqmPrice": 4524,
+      "avgPrice": 429552,
+      "avgArea": 98,
+      "count": 282
+    },
+    {
+      "type": "End of Terrace",
+      "sqmPrice": 5590,
+      "avgPrice": 540085,
+      "avgArea": 100,
+      "count": 1257
+    },
+    {
+      "type": "Semi-D",
+      "sqmPrice": 5740,
+      "avgPrice": 701068,
+      "avgArea": 131,
+      "count": 3694
+    },
+    {
+      "type": "Terrace",
+      "sqmPrice": 5890,
+      "avgPrice": 572141,
+      "avgArea": 102,
+      "count": 3409
+    },
+    {
+      "type": "Townhouse",
+      "sqmPrice": 5967,
+      "avgPrice": 577645,
+      "avgArea": 228,
+      "count": 85
+    },
+    {
+      "type": "Apartment",
+      "sqmPrice": 5984,
+      "avgPrice": 395029,
+      "avgArea": 72,
+      "count": 3890
+    },
+    {
+      "type": "Detached",
+      "sqmPrice": 6077,
+      "avgPrice": 1157134,
+      "avgArea": 191,
+      "count": 919
+    },
+    {
+      "type": "",
+      "sqmPrice": 6360,
+      "avgPrice": 678882,
+      "avgArea": 110,
+      "count": 176
+    },
+    {
+      "type": "Bungalow",
+      "sqmPrice": 6520,
+      "avgPrice": 611380,
+      "avgArea": 98,
+      "count": 262
+    }
+  ],
+  "sizeEfficiencyCurve": [
+    {
+      "sizeRange": "0-49 sqm",
+      "sqmPrice": 7557,
+      "avgPrice": 304054,
+      "count": 876
+    },
+    {
+      "sizeRange": "50-99 sqm",
+      "sqmPrice": 5820,
+      "avgPrice": 440032,
+      "count": 7537
+    },
+    {
+      "sizeRange": "100-149 sqm",
+      "sqmPrice": 5483,
+      "avgPrice": 655955,
+      "count": 3853
+    },
+    {
+      "sizeRange": "150-199 sqm",
+      "sqmPrice": 5806,
+      "avgPrice": 983718,
+      "count": 1035
+    },
+    {
+      "sizeRange": "200-249 sqm",
+      "sqmPrice": 6086,
+      "avgPrice": 1333140,
+      "count": 378
+    },
+    {
+      "sizeRange": "250-299 sqm",
+      "sqmPrice": 6557,
+      "avgPrice": 1792601,
+      "count": 137
+    },
+    {
+      "sizeRange": "300-349 sqm",
+      "sqmPrice": 7028,
+      "avgPrice": 2271547,
+      "count": 62
+    },
+    {
+      "sizeRange": "350-399 sqm",
+      "sqmPrice": 7154,
+      "avgPrice": 2682555,
+      "count": 23
+    },
+    {
+      "sizeRange": "400-449 sqm",
+      "sqmPrice": 6888,
+      "avgPrice": 2936818,
+      "count": 22
+    },
+    {
+      "sizeRange": "450-499 sqm",
+      "sqmPrice": 5835,
+      "avgPrice": 2751875,
+      "count": 16
+    }
+  ],
+  "efficiencyPerformanceCorrelation": [
+    {
+      "area": "D17",
+      "sqmEfficiency": 4252,
+      "marketStrength": 83.21167883211679,
+      "premium": 968.0964912280697
+    },
+    {
+      "area": "D24",
+      "sqmEfficiency": 4298,
+      "marketStrength": 91.47025813692481,
+      "premium": 1310.7006134969347
+    },
+    {
+      "area": "D22",
+      "sqmEfficiency": 4385,
+      "marketStrength": 89.90384615384616,
+      "premium": 1457.7219251336912
+    },
+    {
+      "area": "D10",
+      "sqmEfficiency": 4408,
+      "marketStrength": 91.16022099447514,
+      "premium": 1685.2909090909086
+    },
+    {
+      "area": "D11",
+      "sqmEfficiency": 4453,
+      "marketStrength": 90.2826855123675,
+      "premium": 1305.174168297457
+    },
+    {
+      "area": "D15",
+      "sqmEfficiency": 4701,
+      "marketStrength": 86.75496688741721,
+      "premium": 963.9914122137418
+    },
+    {
+      "area": "D20",
+      "sqmEfficiency": 4938,
+      "marketStrength": 88.96103896103897,
+      "premium": 1342.0218978102198
+    },
+    {
+      "area": "D13",
+      "sqmEfficiency": 5309,
+      "marketStrength": 77.91005291005291,
+      "premium": 928.415959252972
+    },
+    {
+      "area": "D9",
+      "sqmEfficiency": 5473,
+      "marketStrength": 85.1039260969977,
+      "premium": 1079.1031207598382
+    },
+    {
+      "area": "D12",
+      "sqmEfficiency": 5565,
+      "marketStrength": 90.13867488443759,
+      "premium": 1569.6991452991458
+    },
+    {
+      "area": "D5",
+      "sqmEfficiency": 5569,
+      "marketStrength": 89.00928792569658,
+      "premium": 1180.9391304347823
+    },
+    {
+      "area": "D18",
+      "sqmEfficiency": 5792,
+      "marketStrength": 77.9372197309417,
+      "premium": 865.6731875719219
+    },
+    {
+      "area": "D1",
+      "sqmEfficiency": 5918,
+      "marketStrength": 69.62025316455697,
+      "premium": 985.440909090909
+    },
+    {
+      "area": "D16",
+      "sqmEfficiency": 5920,
+      "marketStrength": 85.93530239099859,
+      "premium": 969.1456628477902
+    },
+    {
+      "area": "D7",
+      "sqmEfficiency": 6186,
+      "marketStrength": 81.95804195804196,
+      "premium": 1204.8583617747433
+    },
+    {
+      "area": "D3",
+      "sqmEfficiency": 6214,
+      "marketStrength": 79.00128040973111,
+      "premium": 1070.4473257698537
+    },
+    {
+      "area": "D8",
+      "sqmEfficiency": 6408,
+      "marketStrength": 76.03305785123968,
+      "premium": 1148.9052795031046
+    },
+    {
+      "area": "D14",
+      "sqmEfficiency": 6682,
+      "marketStrength": 83.4567901234568,
+      "premium": 1071.7573964497042
+    },
+    {
+      "area": "D6W",
+      "sqmEfficiency": 6693,
+      "marketStrength": 83.6461126005362,
+      "premium": 1246.0576923076928
+    },
+    {
+      "area": "D2",
+      "sqmEfficiency": 7279,
+      "marketStrength": 70.96774193548387,
+      "premium": 914.6666666666661
+    },
+    {
+      "area": "D6",
+      "sqmEfficiency": 8072,
+      "marketStrength": 73.92592592592592,
+      "premium": 1202.5691382765544
+    },
+    {
+      "area": "D4",
+      "sqmEfficiency": 8154,
+      "marketStrength": 75.82292849035187,
+      "premium": 1049.1482035928152
+    }
+  ]
+}

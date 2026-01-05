@@ -9,7 +9,7 @@ import { LoginModal } from '@/components/auth/LoginModal';
 import { analytics } from '@/lib/analytics';
 
 export function BlogAlertModal() {
-  const { modalState, hideAlertModal, persistModalForAuth } = useAlertModal();
+  const { modalState, hideAlertModal, dismissAlertModal, persistModalForAuth } = useAlertModal();
   const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -155,7 +155,7 @@ export function BlogAlertModal() {
                       modalState.step,
                       'unknown'
                     );
-                    hideAlertModal();
+                    dismissAlertModal();
                   }}
                   className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors"
                 >
@@ -182,7 +182,7 @@ export function BlogAlertModal() {
                         modalState.step,
                         'unknown'
                       );
-                      hideAlertModal();
+                      dismissAlertModal();
                     }}
                   />
                 ) : (
@@ -201,7 +201,7 @@ export function BlogAlertModal() {
                         modalState.step,
                         'unknown'
                       );
-                      hideAlertModal();
+                      dismissAlertModal();
                     }}
                     isProcessing={isProcessing}
                   />
@@ -276,7 +276,7 @@ function ConfigStep({
         </div>
         <h3 className="text-lg font-bold text-slate-900 mb-2">Get Exclusive Market Insights First!</h3>
         <p className="text-slate-600 text-sm">
-          Join our premium blog alert service and never miss critical Dublin property market updates, exclusive analysis, and money-saving opportunities delivered directly to your inbox.
+          Join our premium blog alert service and never miss critical Dublin property market updates, exclusive analysis, and money-saving opportunities. Each email is intelligently summarized by AI for maximum clarity and impact, delivered directly to your inbox.
         </p>
       </div>
 
@@ -396,7 +396,7 @@ function PaymentStep({
         </div>
         <h3 className="text-lg font-bold text-slate-900 mb-2">Unlock Premium Market Intelligence</h3>
         <p className="text-slate-600 text-sm">
-          Join thousands of smart investors who get exclusive Dublin property insights delivered first. Your €3 investment gives lifetime access to market-changing opportunities.
+          Join thousands of smart investors who get exclusive Dublin property insights delivered first. Each update is AI-summarized for clarity and impact. Your €3 investment gives lifetime access to market-changing opportunities.
         </p>
       </div>
 

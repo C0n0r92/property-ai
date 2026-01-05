@@ -1,8 +1,8 @@
 {
-  "reviewDate": "2026-01-03T09:36:14.096Z",
+  "reviewDate": "2026-01-05T11:15:48.444Z",
   "summary": {
-    "totalBlogs": 25,
-    "passed": 7,
+    "totalBlogs": 26,
+    "passed": 8,
     "averageScore": 76
   },
   "detailedResults": [
@@ -911,6 +911,41 @@
         "Include more practical recommendations for buyers, sellers, and investors",
         "Ensure formal tone and proper formatting throughout"
       ]
+    },
+    {
+      "filename": "../blog53_square_meter_efficiency.md",
+      "overallScore": 81,
+      "totalScore": 81,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 18,
+          "maxScore": 25,
+          "percentage": 72
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "uniqueness": {
+          "score": 19,
+          "maxScore": 20,
+          "percentage": 95
+        },
+        "professionalism": {
+          "score": 13,
+          "maxScore": 15,
+          "percentage": 87
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
     }
   ]
 }

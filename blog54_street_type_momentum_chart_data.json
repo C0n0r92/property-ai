@@ -1,0 +1,178 @@
+{
+  "StreetTypeGrowthChart": [
+    {
+      "streetType": "Way",
+      "annualGrowth": 11.9,
+      "totalGrowth": 47.8,
+      "avgPrice": 487118,
+      "properties": 358
+    },
+    {
+      "streetType": "Crescent",
+      "annualGrowth": 7.4,
+      "totalGrowth": 29.8,
+      "avgPrice": 555758,
+      "properties": 677
+    },
+    {
+      "streetType": "Street",
+      "annualGrowth": 6.6,
+      "totalGrowth": 26.6,
+      "avgPrice": 439997,
+      "properties": 245
+    },
+    {
+      "streetType": "Avenue",
+      "annualGrowth": 6.2,
+      "totalGrowth": 24.6,
+      "avgPrice": 712857,
+      "properties": 549
+    },
+    {
+      "streetType": "Other",
+      "annualGrowth": 6.2,
+      "totalGrowth": 24.7,
+      "avgPrice": 605584,
+      "properties": 23646
+    },
+    {
+      "streetType": "Close",
+      "annualGrowth": 5.3,
+      "totalGrowth": 21,
+      "avgPrice": 511113,
+      "properties": 491
+    },
+    {
+      "streetType": "Grove",
+      "annualGrowth": 3.7,
+      "totalGrowth": 14.9,
+      "avgPrice": 609968,
+      "properties": 789
+    },
+    {
+      "streetType": "Lane",
+      "annualGrowth": 2,
+      "totalGrowth": 7.8,
+      "avgPrice": 686412,
+      "properties": 461
+    },
+    {
+      "streetType": "Drive",
+      "annualGrowth": 1.3,
+      "totalGrowth": 5.1,
+      "avgPrice": 676052,
+      "properties": 267
+    },
+    {
+      "streetType": "Road",
+      "annualGrowth": -0.9,
+      "totalGrowth": -3.6,
+      "avgPrice": 723519,
+      "properties": 1619
+    }
+  ],
+  "PriceProgressionChart": [
+    {
+      "streetType": "Way",
+      "year2021": 329588,
+      "year2022": 372552,
+      "year2023": 450243,
+      "year2024": 450551,
+      "year2025": 487118
+    },
+    {
+      "streetType": "Crescent",
+      "year2021": 428250,
+      "year2022": 444837,
+      "year2023": 450335,
+      "year2024": 525280,
+      "year2025": 555758
+    },
+    {
+      "streetType": "Street",
+      "year2021": 347667,
+      "year2022": 422879,
+      "year2023": 477287,
+      "year2024": 506456,
+      "year2025": 439997
+    },
+    {
+      "streetType": "Avenue",
+      "year2021": 572027,
+      "year2022": 592822,
+      "year2023": 606740,
+      "year2024": 640289,
+      "year2025": 712857
+    },
+    {
+      "streetType": "Other",
+      "year2021": 485723,
+      "year2022": 525311,
+      "year2023": 529391,
+      "year2024": 567478,
+      "year2025": 605584
+    }
+  ],
+  "InvestmentEfficiencyChart": [
+    {
+      "streetType": "Way",
+      "annualGrowth": 11.9,
+      "startingPrice": 329588,
+      "efficiency": 0.04
+    },
+    {
+      "streetType": "Crescent",
+      "annualGrowth": 7.4,
+      "startingPrice": 428250,
+      "efficiency": 0.02
+    },
+    {
+      "streetType": "Street",
+      "annualGrowth": 6.6,
+      "startingPrice": 347667,
+      "efficiency": 0.02
+    },
+    {
+      "streetType": "Avenue",
+      "annualGrowth": 6.2,
+      "startingPrice": 572027,
+      "efficiency": 0.01
+    },
+    {
+      "streetType": "Other",
+      "annualGrowth": 6.2,
+      "startingPrice": 485723,
+      "efficiency": 0.01
+    },
+    {
+      "streetType": "Close",
+      "annualGrowth": 5.3,
+      "startingPrice": 422263,
+      "efficiency": 0.01
+    },
+    {
+      "streetType": "Grove",
+      "annualGrowth": 3.7,
+      "startingPrice": 530847,
+      "efficiency": 0.01
+    },
+    {
+      "streetType": "Lane",
+      "annualGrowth": 2,
+      "startingPrice": 636518,
+      "efficiency": 0
+    },
+    {
+      "streetType": "Drive",
+      "annualGrowth": 1.3,
+      "startingPrice": 643434,
+      "efficiency": 0
+    },
+    {
+      "streetType": "Road",
+      "annualGrowth": -0.9,
+      "startingPrice": 750692,
+      "efficiency": 0
+    }
+  ]
+}

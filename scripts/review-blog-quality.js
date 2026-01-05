@@ -241,7 +241,8 @@ function reviewBlogs() {
     '../blogs/blog46_dublin_rental_market_analysis.md',
     '../blogs/blog47_market_quiet_zones.md',
     '../blogs/blog48_conservative_market_strategy.md',
-    '../blogs/blog49_rental_market_hotspots.md'
+    '../blogs/blog49_rental_market_hotspots.md',
+    '../blog53_square_meter_efficiency.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');

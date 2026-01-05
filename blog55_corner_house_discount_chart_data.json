@@ -1,0 +1,130 @@
+{
+  "CornerDiscountOverviewChart": [
+    {
+      "category": "Corner Houses",
+      "averagePrice": 526886,
+      "count": 2621
+    },
+    {
+      "category": "Regular Terrace/Semi",
+      "averagePrice": 601298,
+      "count": 14909
+    }
+  ],
+  "CornerDiscountByTypeChart": [
+    {
+      "propertyType": "End Terrace vs Terrace",
+      "cornerPrice": 526886,
+      "regularPrice": 537818,
+      "discountPercent": 2,
+      "cornerCount": 2621,
+      "regularCount": 7270
+    },
+    {
+      "propertyType": "End Terrace vs Semi-D",
+      "cornerPrice": 526886,
+      "regularPrice": 661711,
+      "discountPercent": 20.4,
+      "cornerCount": 2621,
+      "regularCount": 7639
+    }
+  ],
+  "CornerDiscountBySizeChart": [
+    {
+      "sizeBracket": "Under 100sqm",
+      "cornerPrice": 423001,
+      "regularPrice": 440058,
+      "discountPercent": 3.9
+    },
+    {
+      "sizeBracket": "100-150sqm",
+      "cornerPrice": 570553,
+      "regularPrice": 622596,
+      "discountPercent": 8.4
+    },
+    {
+      "sizeBracket": "150-200sqm",
+      "cornerPrice": 846750,
+      "regularPrice": 919602,
+      "discountPercent": 7.9
+    },
+    {
+      "sizeBracket": "Over 200sqm",
+      "cornerPrice": 1784006,
+      "regularPrice": 1710778,
+      "discountPercent": -4.3
+    }
+  ],
+  "CornerDiscountByAreaChart": [
+    {
+      "area": "D15",
+      "cornerPrice": 415345,
+      "regularPrice": 449854,
+      "discountPercent": 7.7,
+      "totalProperties": 1493
+    },
+    {
+      "area": "D18",
+      "cornerPrice": 626272,
+      "regularPrice": 670863,
+      "discountPercent": 6.6,
+      "totalProperties": 715
+    },
+    {
+      "area": "D24",
+      "cornerPrice": 376428,
+      "regularPrice": 406919,
+      "discountPercent": 7.5,
+      "totalProperties": 1173
+    },
+    {
+      "area": "D4",
+      "cornerPrice": 1066658,
+      "regularPrice": 1127309,
+      "discountPercent": 5.4,
+      "totalProperties": 863
+    },
+    {
+      "area": "D8",
+      "cornerPrice": 510619,
+      "regularPrice": 524200,
+      "discountPercent": 2.6,
+      "totalProperties": 970
+    },
+    {
+      "area": "D13",
+      "cornerPrice": 515333,
+      "regularPrice": 554852,
+      "discountPercent": 7.1,
+      "totalProperties": 816
+    },
+    {
+      "area": "D14",
+      "cornerPrice": 613980,
+      "regularPrice": 753428,
+      "discountPercent": 18.5,
+      "totalProperties": 1043
+    },
+    {
+      "area": "D7",
+      "cornerPrice": 482902,
+      "regularPrice": 499453,
+      "discountPercent": 3.3,
+      "totalProperties": 1134
+    },
+    {
+      "area": "D6W",
+      "cornerPrice": 702766,
+      "regularPrice": 757700,
+      "discountPercent": 7.3,
+      "totalProperties": 590
+    },
+    {
+      "area": "D22",
+      "cornerPrice": 365549,
+      "regularPrice": 374096,
+      "discountPercent": 2.3,
+      "totalProperties": 639
+    }
+  ]
+}
