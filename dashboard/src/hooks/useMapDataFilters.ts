@@ -233,6 +233,7 @@ export const useMapDataFilters = ({
     if (rentalAvailabilityFilter === 'active') {
       filtered = filtered.filter(r => r.availabilityStatus === 'active');
     }
+    // 'all' shows both active and historical, so no filtering needed
 
     // Apply bedroom filter
     if (bedsFilter !== null) {

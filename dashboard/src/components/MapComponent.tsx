@@ -1049,6 +1049,16 @@ export default function MapComponent({}: MapComponentProps) {
         allRentals = data.rentals.filter((r: RentalListing) => {
           // Apply basic filtering
           return r.monthlyRent >= 200 && r.monthlyRent <= 50000;
+        }).map((r: RentalListing) => {
+          // Determine availability status based on how recently it was scraped
+          const scrapedDate = new Date(r.scrapedAt);
+          const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+          const availabilityStatus = scrapedDate > tenDaysAgo ? 'active' : 'historical';
+
+          return {
+            ...r,
+            availabilityStatus
+          };
         });
       }
 
