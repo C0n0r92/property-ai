@@ -43,6 +43,7 @@ import { useMapAmenities } from '@/hooks/useMapAmenities';
 import { useMapUI } from '@/hooks/useMapUI';
 import { useMapDataFilters } from '@/hooks/useMapDataFilters';
 import { useAlertModal } from '@/contexts/AlertModalContext';
+import { useUI } from '@/contexts/UIContext';
 
 // Set mapbox token
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -80,6 +81,7 @@ export default function MapComponent({}: MapComponentProps) {
   const mapAmenities = useMapAmenities();
   const mapUI = useMapUI();
   const { showAlertModal, canShowModal } = useAlertModal();
+  const { setIsPropertyCardOpen } = useUI();
 
 
 
@@ -97,6 +99,12 @@ export default function MapComponent({}: MapComponentProps) {
     isLoadingRef,
     clearSelections,
   } = mapData;
+
+  // Update UI context when property card state changes
+  useEffect(() => {
+    const isAnyPropertySelected = !!(selectedProperty || selectedListing || selectedRental);
+    setIsPropertyCardOpen(isAnyPropertySelected);
+  }, [selectedProperty, selectedListing, selectedRental, setIsPropertyCardOpen]);
 
   const {
     mapReady, setMapReady,

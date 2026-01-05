@@ -6,6 +6,8 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { useState, useRef, useEffect } from 'react';
 import { RecentlyViewedMobile } from '@/components/RecentlyViewedMobile';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useUI } from '@/contexts/UIContext';
 
 interface NavItem {
   href: string;
@@ -21,6 +23,8 @@ export function BottomNav() {
   const [isRecentlyViewedOpen, setIsRecentlyViewedOpen] = useState(false);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
   const { recentlyViewed } = useRecentlyViewed();
+  const isMobile = useIsMobile();
+  const { isPropertyCardOpen } = useUI();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -110,6 +114,11 @@ export function BottomNav() {
     // Recent is never "active" as it's a modal trigger
     return false;
   };
+
+  // Hide bottom nav on mobile when property card is open
+  if (isMobile && isPropertyCardOpen) {
+    return null;
+  }
 
   return (
     <>
