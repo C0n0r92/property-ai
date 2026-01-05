@@ -15,6 +15,19 @@ export function useSearchTracking() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const lastSearchRef = useRef<SearchEvent | null>(null);
 
+  // Increment search count in localStorage (accessed via context)
+  const incrementSearchCount = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const currentCount = parseInt(localStorage.getItem('user-search-count') || '0', 10);
+      const newCount = isNaN(currentCount) ? 1 : currentCount + 1;
+      localStorage.setItem('user-search-count', newCount.toString());
+      console.log(`Search count incremented to: ${newCount}`);
+    } catch (error) {
+      console.error('Failed to increment search count:', error);
+    }
+  };
+
   // Clear existing timer
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -61,6 +74,7 @@ export function useSearchTracking() {
   // Track search on homepage
   const trackHomepageSearch = useCallback((location: LocationContext) => {
     console.log('trackHomepageSearch called with location:', location);
+    incrementSearchCount();
     analytics.track('search_performed', {
       location: location.name,
       source: 'homepage',
@@ -76,6 +90,7 @@ export function useSearchTracking() {
   // Track search on map page
   const trackMapSearch = useCallback((location: LocationContext) => {
     console.log('🔍 trackMapSearch called with location:', location);
+    incrementSearchCount();
     analytics.track('search_performed', {
       location: location.name,
       source: 'map',
@@ -90,6 +105,7 @@ export function useSearchTracking() {
 
   // Track search on areas page
   const trackAreasSearch = useCallback((location: LocationContext) => {
+    incrementSearchCount();
     analytics.track('search_performed', {
       location: location.name,
       source: 'areas',

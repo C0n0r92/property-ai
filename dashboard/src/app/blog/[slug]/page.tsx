@@ -9174,7 +9174,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
               </h1>
 
               {/* Map Link CTA - Below Title */}
-              <div className="max-w-md">
+              <div className="w-full max-w-md">
                 <MapLink />
               </div>
             </div>

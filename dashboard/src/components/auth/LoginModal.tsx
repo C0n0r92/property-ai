@@ -7,9 +7,10 @@ import { analytics } from '@/lib/analytics';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  message?: string;
 }
 
-export function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, message }: LoginModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -127,6 +128,15 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </svg>
           </button>
         </div>
+
+        {/* Custom Message */}
+        {message && (
+          <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-4 mb-6">
+            <p className="text-blue-300 text-sm text-center">
+              {message}
+            </p>
+          </div>
+        )}
 
         {/* Google OAuth Button */}
         <button

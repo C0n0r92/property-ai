@@ -31,6 +31,7 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showComparisonSuggestions, setShowComparisonSuggestions] = useState(false);
+  const [loginModalMessage, setLoginModalMessage] = useState<string>('');
 
   // Determine which property type we're dealing with
   const data = property || listing || rental;
@@ -121,6 +122,13 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   };
 
   const handleAmenities = () => {
+    if (!user) {
+      analytics.registrationStarted('direct');
+      setLoginModalMessage('Please sign up to access amenity analysis and neighborhood insights');
+      setShowLoginModal(true);
+      return;
+    }
+
     const lat = data.latitude || 53.3498;
     const lng = data.longitude || -6.2603;
     // Include return parameters to reopen property card on back navigation
@@ -131,6 +139,13 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   };
 
   const handleMortgageCalculator = () => {
+    if (!user) {
+      analytics.registrationStarted('direct');
+      setLoginModalMessage('Please sign up to access mortgage calculators and affordability tools');
+      setShowLoginModal(true);
+      return;
+    }
+
     const params = new URLSearchParams({
       price: price.toString(),
       address: encodeURIComponent(address),
@@ -144,6 +159,13 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   };
 
   const handlePlanningPermissions = () => {
+    if (!user) {
+      analytics.registrationStarted('direct');
+      setLoginModalMessage('Please sign up to access planning permissions and development potential insights');
+      setShowLoginModal(true);
+      return;
+    }
+
     const lat = data.latitude || 53.3498;
     const lng = data.longitude || -6.2603;
     router.push(`/planning?lat=${lat}&lng=${lng}&address=${encodeURIComponent(address)}`);
@@ -435,7 +457,11 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
       {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
+        onClose={() => {
+          setShowLoginModal(false);
+          setLoginModalMessage('');
+        }}
+        message={loginModalMessage}
       />
 
       {/* Upgrade Modal */}

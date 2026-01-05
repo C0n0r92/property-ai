@@ -63,6 +63,7 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
   const LOCATION_DISMISSAL_STORAGE_KEY = 'alert-modal-dismissed';
   const BLOG_DISMISSAL_STORAGE_KEY = 'blog-alert-modal-dismissed';
   const SESSION_STORAGE_KEY = 'alert-modal-shown-session';
+  const SEARCH_COUNT_STORAGE_KEY = 'user-search-count';
 
   // Track last searched location for exit-intent (separate from modal state)
   const lastSearchedLocationRef = useRef<LocationContext | null>(null);
@@ -163,6 +164,28 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(shownLocations));
     } catch (error) {
       console.error('Failed to update session storage:', error);
+    }
+  };
+
+  // Get current search count from localStorage
+  const getSearchCount = (): number => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const count = parseInt(localStorage.getItem(SEARCH_COUNT_STORAGE_KEY) || '0', 10);
+      return isNaN(count) ? 0 : count;
+    } catch {
+      return 0;
+    }
+  };
+
+  // Increment search count in localStorage
+  const incrementSearchCount = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const currentCount = getSearchCount();
+      localStorage.setItem(SEARCH_COUNT_STORAGE_KEY, (currentCount + 1).toString());
+    } catch (error) {
+      console.error('Failed to update search count:', error);
     }
   };
 
@@ -273,6 +296,13 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
 
     // Don't show if modal is already open
     if (modalState.isOpen) {
+      return false;
+    }
+
+    // Only show alert after the second search (count >= 2)
+    const searchCount = getSearchCount();
+    if (searchCount < 2) {
+      console.log(`Modal not shown - search count is ${searchCount}, need at least 2`);
       return false;
     }
 
