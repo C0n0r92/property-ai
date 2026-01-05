@@ -67,7 +67,7 @@ export function useLocationAlertTracking() {
 
       // Double-check modal can still be shown
       if (lastEventRef.current && !hasTriggeredRef.current) {
-        const canShow = canShowModal(lastEventRef.current.location);
+        const canShow = canShowModal(lastEventRef.current.location, false); // Don't bypass dismissal for automatic triggers
         console.log(`⏰ canShowModal result:`, canShow);
 
         if (canShow) {
@@ -77,7 +77,7 @@ export function useLocationAlertTracking() {
             page_type: pageType,
             source: 'property_page',
           });
-          showAlertModal(lastEventRef.current.location);
+          showAlertModal(lastEventRef.current.location, false); // Don't bypass dismissal for automatic triggers
           hasTriggeredRef.current = true;
         } else {
           console.log(`📧 ${pageType} modal cannot be shown - canShowModal returned false`);
@@ -108,9 +108,9 @@ export function useLocationAlertTracking() {
 
       timerRef.current = setTimeout(() => {
         // Re-check location context exists
-        if (lastEventRef.current && canShowModal(lastEventRef.current.location)) {
+        if (lastEventRef.current && canShowModal(lastEventRef.current.location, false)) { // Don't bypass dismissal for automatic triggers
           console.log('📧 Showing location alert modal after engagement delay');
-          showAlertModal(lastEventRef.current.location);
+          showAlertModal(lastEventRef.current.location, false); // Don't bypass dismissal for automatic triggers
         }
       }, remainingTime);
     }

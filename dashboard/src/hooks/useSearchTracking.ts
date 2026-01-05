@@ -58,13 +58,13 @@ export function useSearchTracking() {
     timerRef.current = setTimeout(() => {
       console.log('Timer expired, checking if modal can still be shown');
       // Double-check modal can still be shown (user might have dismissed it)
-      if (canShowModal(searchEvent.location)) {
+      if (canShowModal(searchEvent.location, false)) { // Don't bypass dismissal for automatic triggers
         console.log('Showing modal for location:', searchEvent.location.name);
         analytics.track('alert_modal_shown', {
           location: searchEvent.location.name,
           source: searchEvent.source,
         });
-        showAlertModal(searchEvent.location);
+        showAlertModal(searchEvent.location, false); // Don't bypass dismissal for automatic triggers
       } else {
         console.log('Modal cannot be shown anymore');
       }
@@ -96,12 +96,9 @@ export function useSearchTracking() {
       source: 'map',
     });
 
-    startModalTimer({
-      location,
-      timestamp: Date.now(),
-      source: 'map',
-    });
-  }, [startModalTimer]);
+    // Removed automatic alert modal trigger for map searches
+    // Property cards now have their own alert setup buttons
+  }, []);
 
   // Track search on areas page
   const trackAreasSearch = useCallback((location: LocationContext) => {

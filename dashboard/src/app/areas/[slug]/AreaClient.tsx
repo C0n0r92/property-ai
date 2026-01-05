@@ -174,7 +174,7 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
                     sold_alert_on_under_asking: true,
                     sold_price_threshold_percent: 5
                   }
-                });
+                }, true); // Bypass dismissal check for manual button clicks
               }
             }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -253,7 +253,7 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
           </div>
         </div>
         <div className="bg-[var(--surface)] p-4 rounded-lg border border-[var(--border)]">
-          <div className="text-sm text-[var(--muted-foreground)]">Avg € Over/Under</div>
+          <div className="text-sm text-[var(--muted-foreground)]">Avg Over/Under</div>
           <div className={`text-2xl font-bold mt-2 whitespace-nowrap ${data.stats.avgOverUnderEuro > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {data.stats.avgOverUnderEuro > 0 ? '+' : ''}€{Math.abs(data.stats.avgOverUnderEuro).toLocaleString()}
           </div>
@@ -282,17 +282,21 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
           </div>
         </div>
         <div className="bg-[var(--surface)] p-4 rounded-lg border border-[var(--border)]">
-          <div className="text-sm text-[var(--muted-foreground)]">Price Floor</div>
-          <div className="text-2xl font-bold mt-2 text-[var(--foreground)]">{formatFullPrice(data.stats.minPrice)}</div>
+          <div className="text-sm text-[var(--muted-foreground)]">Median Rent</div>
+          <div className="text-2xl font-bold mt-2 text-[var(--foreground)]">
+            {data.yieldData ? `€${data.yieldData.medianRent.toLocaleString()}/mo` : 'Rental data unavailable'}
+          </div>
           <div className="text-xs text-[var(--muted-foreground)] mt-1">
-            Lowest recorded
+            {data.yieldData ? 'Estimated monthly' : 'No rental data'}
           </div>
         </div>
         <div className="bg-[var(--surface)] p-4 rounded-lg border border-[var(--border)]">
-          <div className="text-sm text-[var(--muted-foreground)]">Price Ceiling</div>
-          <div className="text-2xl font-bold mt-2 text-[var(--foreground)]">{formatFullPrice(data.stats.maxPrice)}</div>
+          <div className="text-sm text-[var(--muted-foreground)]">Maximum Rent</div>
+          <div className="text-2xl font-bold mt-2 text-[var(--foreground)]">
+            {data.yieldData ? `€${data.yieldData.rentRange.max.toLocaleString()}/mo` : 'Rental data unavailable'}
+          </div>
           <div className="text-xs text-[var(--muted-foreground)] mt-1">
-            Highest recorded
+            {data.yieldData ? 'Highest estimate' : 'No rental data'}
           </div>
         </div>
       </div>

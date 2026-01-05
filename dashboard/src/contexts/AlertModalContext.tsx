@@ -15,6 +15,7 @@ export interface LocationContext {
     sold_alert_on_over_asking?: boolean;
     sold_alert_on_under_asking?: boolean;
     sold_price_threshold_percent?: number;
+    radius_km?: number;
   };
 }
 
@@ -44,7 +45,7 @@ interface AlertModalContextType {
   modalState: AlertModalState;
 
   // Actions
-  showAlertModal: (location: LocationContext) => void;
+  showAlertModal: (location: LocationContext, bypassDismissal?: boolean) => void;
   showBlogAlertModal: (blog: BlogContext) => void;
   hideAlertModal: () => void;
   dismissAlertModal: () => void;
@@ -53,7 +54,7 @@ interface AlertModalContextType {
   resetModal: () => void;
 
   // Utilities
-  canShowModal: (location: LocationContext) => boolean;
+  canShowModal: (location: LocationContext, bypassDismissal?: boolean) => boolean;
   canShowBlogModal: (blogSlug: string) => boolean;
 }
 
@@ -112,10 +113,29 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
 
   const [modalState, setModalState] = useState<AlertModalState>(getInitialModalState());
 
+  // Extract Dublin postcode from location name for consistent matching
+  const extractDublinPostcode = (locationName: string): string => {
+    // Match patterns like "Dublin 15", "D15", etc.
+    const dublinMatch = locationName.match(/Dublin\s+\d+|\bD\d+\b/i);
+    return dublinMatch ? dublinMatch[0] : locationName;
+  };
+
   // Check if modal was dismissed in last 7 days for a specific location
   const wasRecentlyDismissedForLocation = (locationName: string): boolean => {
     if (typeof window === 'undefined') return false;
     try {
+      // Normalize location name to Dublin postcode for consistent matching
+      const normalizedLocation = extractDublinPostcode(locationName);
+
+      // Check if alert bar was dismissed for this area (takes precedence)
+      // Check for both the full location name and normalized version
+      const alertBarDismissed = sessionStorage.getItem(`alert-bar-dismissed-${locationName}`) ||
+                               sessionStorage.getItem(`alert-bar-dismissed-${normalizedLocation}`);
+      if (alertBarDismissed) {
+        console.log(`🚫 Alert bar dismissed this session for ${normalizedLocation} (takes precedence)`);
+        return true;
+      }
+
       const dismissedData = localStorage.getItem(`${LOCATION_DISMISSAL_STORAGE_KEY}_${locationName}`);
       if (!dismissedData) return false;
 
@@ -189,11 +209,11 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const showAlertModal = (location: LocationContext) => {
+  const showAlertModal = (location: LocationContext, bypassDismissal = false) => {
     // Always store the last searched location for exit-intent
     lastSearchedLocationRef.current = location;
 
-    if (!canShowModal(location)) {
+    if (!canShowModal(location, bypassDismissal)) {
       return;
     }
 
@@ -283,14 +303,14 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const canShowModal = (location: LocationContext): boolean => {
-    // Don't show if recently dismissed for this specific location
-    if (wasRecentlyDismissedForLocation(location.name)) {
+  const canShowModal = (location: LocationContext, bypassDismissal = false): boolean => {
+    // Don't show if recently dismissed for this specific location (unless bypassed)
+    if (!bypassDismissal && wasRecentlyDismissedForLocation(location.name)) {
       return false;
     }
 
-    // Don't show if already shown in this session for this location
-    if (wasShownInSession(location.name)) {
+    // Don't show if already shown in this session for this location (unless bypassed)
+    if (!bypassDismissal && wasShownInSession(location.name)) {
       return false;
     }
 
@@ -299,11 +319,13 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    // Only show alert after the second search (count >= 2)
-    const searchCount = getSearchCount();
-    if (searchCount < 2) {
-      console.log(`Modal not shown - search count is ${searchCount}, need at least 2`);
-      return false;
+    // Only show alert after the second search (count >= 2) for automatic triggers
+    if (!bypassDismissal) {
+      const searchCount = getSearchCount();
+      if (searchCount < 2) {
+        console.log(`Modal not shown - search count is ${searchCount}, need at least 2`);
+        return false;
+      }
     }
 
     return true;
@@ -332,9 +354,9 @@ export function AlertModalProvider({ children }: { children: ReactNode }) {
       if (e.clientY <= 0 && !modalState.isOpen && !modalState.isDismissed) {
         // Use last searched location from ref (works even if modal wasn't triggered by timer)
         const locationToUse = lastSearchedLocationRef.current;
-        if (locationToUse && canShowModal(locationToUse)) {
+        if (locationToUse && canShowModal(locationToUse, false)) { // Don't bypass dismissal for exit-intent
           console.log('Exit-intent triggered for:', locationToUse.name);
-          showAlertModal(locationToUse);
+          showAlertModal(locationToUse, false); // Don't bypass dismissal for exit-intent
         }
       }
     };

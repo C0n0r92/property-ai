@@ -68,7 +68,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
     const defaultConfig = {
       location_name: location.name,
       location_coordinates: location.coordinates,
-      radius_km: 5 as number,
+      radius_km: location.defaultAlertConfig?.radius_km || 3 as number, // Use radius from modal, default to 3km
       // Property types to monitor - default to all types for comprehensive coverage
       monitor_sold: true,  // Include sold properties for market intelligence
       monitor_sale: true,  // Default to true so free tier config panel has content
@@ -266,7 +266,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
                   </div>
                   <div>
                     <h4 className="font-medium text-green-900">Free Alert</h4>
-                    <p className="text-sm text-green-700">1 location alert with weekly digest</p>
+                    <p className="text-sm text-green-700">3 location alerts with weekly digest</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -305,27 +305,6 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
               </div>
             </button>
           </div>
-
-          {/* Radius */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-slate-700">Distance from search: {config.radius_km} km</label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              step="1"
-              value={config.radius_km}
-              onChange={(e) => updateConfig({ radius_km: parseInt(e.target.value) })}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-            />
-            <div className="flex justify-between text-xs text-slate-500">
-              <span>1km</span>
-              <span>10km</span>
-            </div>
-          </div>
-
-
-
 
           <div className="flex gap-3 pt-4">
             <button
@@ -649,7 +628,7 @@ export function AlertConfigForm({ location, onSuccess, onCancel }: AlertConfigFo
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-medium text-green-900">Free Alert Setup</div>
-                  <div className="text-sm text-green-700">1 location alert with weekly digest</div>
+                  <div className="text-sm text-green-700">3 location alerts with weekly digest</div>
                 </div>
                 <div className="text-right">
                   <div className="text-xl font-bold text-green-900">Free</div>

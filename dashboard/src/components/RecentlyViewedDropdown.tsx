@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatFullPrice } from '@/lib/format';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { Building2, Clock } from 'lucide-react';
@@ -9,6 +10,9 @@ import { Building2, Clock } from 'lucide-react';
 export function RecentlyViewedDropdown() {
   const { recentlyViewed, clearRecentlyViewed } = useRecentlyViewed();
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  console.log('RecentlyViewedDropdown render, items:', recentlyViewed.length, recentlyViewed.map(item => item.address));
 
   const hasItems = recentlyViewed.length > 0;
 
@@ -100,11 +104,22 @@ export function RecentlyViewedDropdown() {
             <div className="max-h-80 overflow-y-auto">
               {hasItems ? (
                 recentlyViewed.map((item, index) => (
-                  <Link
+                  <button
                     key={`${item.address}-${item.propertyType}-${index}`}
-                    href={`/property/${item.propertyType === 'sold' ? 'sold' : item.propertyType === 'listing' ? 'forSale' : 'rental'}/${encodeURIComponent(item.address)}`}
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+                    onClick={() => {
+                      console.log('🖱️ Clicking recently viewed property:', item.address);
+                      setIsOpen(false);
+
+                      // Just search for this address - same as typing it in the search box
+                      // This will trigger the search functionality and fly to the location
+                      // If we have coordinates, use them directly, otherwise search
+                      if (item.latitude && item.longitude) {
+                        router.push(`/map?lat=${item.latitude}&lng=${item.longitude}&address=${encodeURIComponent(item.address)}`);
+                      } else {
+                        router.push(`/map?search=${item.address}`);
+                      }
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 w-full text-left"
                   >
                     <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Building2 className="w-5 h-5 text-gray-600" />
@@ -112,7 +127,7 @@ export function RecentlyViewedDropdown() {
 
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-gray-900 truncate">
-                        {item.address.split(',')[0]}
+                        {item.address}
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         <span className={getPropertyTypeColor(item.propertyType)}>
@@ -126,7 +141,7 @@ export function RecentlyViewedDropdown() {
                     <div className="text-xs text-gray-400 flex-shrink-0">
                       {formatTimeAgo(item.viewedAt)}
                     </div>
-                  </Link>
+                  </button>
                 ))
               ) : (
                 <div className="px-4 py-8 text-center text-gray-500">

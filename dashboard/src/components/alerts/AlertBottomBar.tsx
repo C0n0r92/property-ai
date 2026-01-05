@@ -35,6 +35,13 @@ export function AlertBottomBar({ locationName, coordinates }: AlertBottomBarProp
   const [isDismissed, setIsDismissed] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
+  // Extract Dublin postcode from location name for consistent matching
+  const extractDublinPostcode = (locationName: string): string => {
+    // Match patterns like "Dublin 15", "D15", etc.
+    const dublinMatch = locationName.match(/Dublin\s+\d+|\bD\d+\b/i);
+    return dublinMatch ? dublinMatch[0] : locationName;
+  };
+
   // Check if modal was already shown this session for this location
   const wasShownInSession = (locationName: string): boolean => {
     if (typeof window === 'undefined') return false;
@@ -49,8 +56,10 @@ export function AlertBottomBar({ locationName, coordinates }: AlertBottomBarProp
   // Show the bar after a short delay (user has engaged with the page)
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Check if dismissed this session
-      const dismissed = sessionStorage.getItem(`alert-bar-dismissed-${locationName}`);
+      // Check if dismissed this session (check both full name and normalized)
+      const normalizedLocation = extractDublinPostcode(locationName);
+      const dismissed = sessionStorage.getItem(`alert-bar-dismissed-${locationName}`) ||
+                       sessionStorage.getItem(`alert-bar-dismissed-${normalizedLocation}`);
       // Also check if modal was already shown in this session
       const shownInSession = wasShownInSession(locationName);
 
@@ -65,7 +74,10 @@ export function AlertBottomBar({ locationName, coordinates }: AlertBottomBarProp
   const handleDismiss = () => {
     setIsDismissed(true);
     setIsVisible(false);
+    // Store dismissal for both full name and normalized version for better matching
+    const normalizedLocation = extractDublinPostcode(locationName);
     sessionStorage.setItem(`alert-bar-dismissed-${locationName}`, 'true');
+    sessionStorage.setItem(`alert-bar-dismissed-${normalizedLocation}`, 'true');
   };
 
   const handleSetupAlerts = () => {
@@ -79,8 +91,8 @@ export function AlertBottomBar({ locationName, coordinates }: AlertBottomBarProp
       coordinates,
     };
 
-    if (canShowModal(locationContext)) {
-      showAlertModal(locationContext);
+    if (canShowModal(locationContext, false)) { // Don't bypass dismissal for bottom bar
+      showAlertModal(locationContext, false); // Don't bypass dismissal for bottom bar
     }
   };
 

@@ -100,19 +100,35 @@ export default function AreasIndexPage() {
   
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <HeroSection
-        title="Dublin Property Prices by Area"
-        description={`Explore detailed property market data for ${areaStats.length} Dublin areas`}
-        breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Areas' }
-        ]}
-      />
+      {/* Mobile-first compact header */}
+      <div className="md:hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white px-4 py-4">
+        <div className="max-w-7xl mx-auto">
+          <nav className="flex items-center space-x-2 text-slate-300 text-sm mb-2">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <span>/</span>
+            <span className="text-white font-medium">Areas</span>
+          </nav>
+          <h1 className="text-xl font-bold mb-1">Dublin Property Prices by Area</h1>
+          <p className="text-slate-300 text-sm">{areaStats.length} areas with detailed market data</p>
+        </div>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Desktop hero section */}
+      <div className="hidden md:block">
+        <HeroSection
+          title="Dublin Property Prices by Area"
+          description={`Explore detailed property market data for ${areaStats.length} Dublin areas`}
+          breadcrumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Areas' }
+          ]}
+        />
+      </div>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
+
+      {/* Overview Stats - Hidden on mobile, visible on desktop */}
+      <div className="hidden md:grid md:grid-cols-4 gap-4 mb-8">
         <div className="card">
           <div className="stat-label">Total Areas</div>
           <div className="stat-value mt-2">{areaStats.length}</div>
@@ -140,31 +156,31 @@ export default function AreasIndexPage() {
         </div>
       </div>
 
-      {/* Map Link CTA */}
-      <div className="mb-8">
+      {/* Map Link CTA - Compact on mobile */}
+      <div className="mb-4 md:mb-8">
         <Link
           href="/map"
-          className="card hover:shadow-lg transition-all duration-200 border-2 border-[var(--primary)]/20 hover:border-[var(--primary)]/40 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--accent)]/5 block"
+          className="block md:card hover:shadow-lg transition-all duration-200 border-2 border-[var(--primary)]/20 hover:border-[var(--primary)]/40 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--accent)]/5 md:block"
           onClick={() => analytics.pageViewed('map_from_areas_cta')}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[var(--primary)] rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center justify-between gap-3 p-3 md:p-0 md:flex-col md:sm:flex-row md:sm:items-center md:sm:justify-between md:gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-8 h-8 md:w-10 md:h-10 md:sm:w-12 md:sm:h-12 bg-[var(--primary)] rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 md:w-5 md:h-5 md:sm:w-6 md:sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V7m0 0L9 4" />
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-base sm:text-lg text-[var(--foreground)] mb-1">Explore Interactive Map</h3>
-                <p className="text-[var(--muted-foreground)] text-sm leading-relaxed">
+                <h3 className="font-semibold text-sm md:text-base md:sm:text-lg text-[var(--foreground)] mb-0.5 md:mb-1">Interactive Map</h3>
+                <p className="text-[var(--muted-foreground)] text-xs md:text-sm leading-relaxed hidden md:block">
                   View all properties on an interactive map with advanced filtering and search capabilities
                 </p>
               </div>
             </div>
-            <div className="flex items-center justify-end sm:justify-start">
-              <div className="text-[var(--primary)] font-medium text-sm sm:text-base flex items-center gap-1">
+            <div className="flex items-center justify-end md:justify-start">
+              <div className="text-[var(--primary)] font-medium text-xs md:text-sm md:text-base flex items-center gap-1">
                 View Map
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
@@ -173,8 +189,8 @@ export default function AreasIndexPage() {
         </Link>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      {/* Search and Filters - Compact on mobile */}
+      <div className="flex flex-col gap-3 md:flex-row md:gap-4 mb-4 md:mb-6">
         <div className="flex-1">
           <input
             type="text"
@@ -188,7 +204,7 @@ export default function AreasIndexPage() {
                 analytics.areasSearchUsed(value);
               }
             }}
-            className="w-full px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]"
+            className="w-full px-3 py-2 md:px-4 md:py-3 bg-[var(--muted)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] text-sm md:text-base"
           />
         </div>
         <div className="flex gap-2">
@@ -199,25 +215,25 @@ export default function AreasIndexPage() {
               setSortBy(value);
               analytics.areasSortChanged(value);
             }}
-            className="px-4 py-3 bg-[var(--muted)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)]"
+            className="px-3 py-2 md:px-4 md:py-3 bg-[var(--muted)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)] text-sm md:text-base flex-1 md:flex-initial"
           >
-            <option value="count">Sort by Sales Count</option>
-            <option value="medianPrice">Sort by Price</option>
-            <option value="change6m">Sort by 6M Change</option>
+            <option value="count">Sales Count</option>
+            <option value="medianPrice">Price</option>
+            <option value="change6m">6M Change</option>
           </select>
         </div>
       </div>
 
-      {/* Results Summary */}
-      <div className="mb-6">
-        <p className="text-[var(--muted-foreground)]">
+      {/* Results Summary - Compact on mobile */}
+      <div className="mb-3 md:mb-6">
+        <p className="text-[var(--muted-foreground)] text-sm md:text-base">
           Showing {paginatedAreas.length} of {filteredAndSortedAreas.length} areas
           {searchQuery && ` matching "${searchQuery}"`}
         </p>
       </div>
 
-      {/* Areas Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-8">
+      {/* Areas Grid - Immediately visible on mobile */}
+      <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-6 md:mb-8">
         {paginatedAreas.map((area, index) => (
           <Link
             key={area.name}
@@ -265,7 +281,7 @@ export default function AreasIndexPage() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">Avg € Over/Under</span>
+                <span className="text-sm text-[var(--muted-foreground)]">Avg Over/Under</span>
                 <span className={`font-semibold ${area.avgOverUnderEuro > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
                   {area.avgOverUnderEuro > 0 ? '+' : ''}€{formatFullPrice(Math.abs(area.avgOverUnderEuro))}
                 </span>
@@ -374,7 +390,7 @@ export default function AreasIndexPage() {
                 <th className="pb-3 font-medium text-right">€/sqm</th>
                 <th className="pb-3 font-medium text-right">% Over Asking</th>
                 <th className="pb-3 font-medium text-right">Avg % Over/Under</th>
-                <th className="pb-3 font-medium text-right">Avg € Over/Under</th>
+                <th className="pb-3 font-medium text-right">Avg Over/Under</th>
                 <th className="pb-3 font-medium text-right">6mo Change</th>
                 <th className="pb-3 font-medium text-right">Sales</th>
                 <th className="pb-3 font-medium"></th>

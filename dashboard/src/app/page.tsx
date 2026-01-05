@@ -772,7 +772,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="font-semibold text-slate-900 mb-2">Free Alert</h3>
-                <p className="text-sm text-slate-600 text-center">Get 1 location alert with weekly property updates</p>
+                <p className="text-sm text-slate-600 text-center">Get 3 location alerts with weekly property updates</p>
               </div>
 
               <div className="flex flex-col items-center p-4 bg-slate-50 rounded-lg">

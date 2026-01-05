@@ -86,6 +86,8 @@ export default function PropertyDetailsPage() {
           address: data.property.address,
           propertyType: propertyType === 'sold' ? 'sold' : propertyType === 'forSale' ? 'listing' : 'rental',
           price: price,
+          latitude: data.property.latitude ?? undefined,
+          longitude: data.property.longitude ?? undefined,
         });
 
         // Trigger alert immediately when property data is loaded
@@ -422,32 +424,32 @@ export default function PropertyDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-900">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        {/* Header - Compact on Mobile */}
+        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-8">
           <button
             onClick={handleBack}
-            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
           >
-            <ArrowLeft className="w-5 h-5 text-gray-300" />
+            <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 text-gray-300" />
           </button>
-          <div>
-            <h1 className="text-3xl font-bold text-white">{property.address}</h1>
-            <div className={`inline-block px-3 py-1 rounded-full text-white text-sm font-medium mt-2 ${statusConfig.color}`}>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg md:text-3xl font-bold text-white truncate">{property.address}</h1>
+            <div className={`inline-block px-2 py-0.5 md:px-3 md:py-1 rounded-full text-white text-xs md:text-sm font-medium mt-1 md:mt-2 ${statusConfig.color}`}>
               {statusConfig.label}
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
-            {/* Property Value Indicator */}
+          <div className="lg:col-span-2 space-y-4 md:space-y-6 lg:space-y-8 order-1 lg:order-1">
+            {/* Property Value Indicator - Compact on Mobile */}
             {isSold && areaData?.stats?.avgPrice && (
-              <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl border border-gray-600 p-4 lg:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl border border-gray-600 p-3 md:p-4 lg:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
                   <div className="flex-1">
-                    <h3 className="text-lg lg:text-xl font-semibold text-white">Property Value Assessment</h3>
-                    <p className="text-sm text-gray-300 mt-1">
+                    <h3 className="text-base md:text-lg lg:text-xl font-semibold text-white">Property Value Assessment</h3>
+                    <p className="text-xs md:text-sm text-gray-300 mt-1 hidden md:block">
                       Compared to similar properties in the area
                     </p>
                   </div>
@@ -459,22 +461,22 @@ export default function PropertyDetailsPage() {
                     if (percentDiff < -10) {
                       return (
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-green-400">Great Value</div>
-                          <div className="text-sm text-green-300">{percentDiff.toFixed(1)}% below market</div>
+                          <div className="text-lg md:text-2xl font-bold text-green-400">Great Value</div>
+                          <div className="text-xs md:text-sm text-green-300">{percentDiff.toFixed(1)}% below market</div>
                         </div>
                       );
                     } else if (percentDiff > 10) {
                       return (
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-red-400">Premium Price</div>
-                          <div className="text-sm text-red-300">{percentDiff.toFixed(1)}% above market</div>
+                          <div className="text-lg md:text-2xl font-bold text-red-400">Premium Price</div>
+                          <div className="text-xs md:text-sm text-red-300">{percentDiff.toFixed(1)}% above market</div>
                         </div>
                       );
                     } else {
                       return (
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-blue-400">Fair Value</div>
-                          <div className="text-sm text-blue-300">In line with market</div>
+                          <div className="text-lg md:text-2xl font-bold text-blue-400">Fair Value</div>
+                          <div className="text-xs md:text-sm text-blue-300">In line with market</div>
                         </div>
                       );
                     }
@@ -482,16 +484,17 @@ export default function PropertyDetailsPage() {
                 </div>
               </div>
             )}
-            {/* Property Overview */}
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex-1">
-                  <div className="text-4xl font-bold text-white font-mono mb-2">
+            {/* Property Overview - Compact on Mobile */}
+            <div className="bg-gray-800 rounded-xl border border-gray-700 p-4 md:p-6">
+              {/* Header Row: Price + Action Buttons */}
+              <div className="flex items-start justify-between mb-4 md:mb-6">
+                <div>
+                  <div className="text-2xl md:text-4xl font-bold text-white font-mono mb-2">
                     {isRental ? `€${price.toLocaleString()}/mo` : formatFullPrice(price)}
                   </div>
 
                   {isSold && (property as Property).soldDate && (
-                    <div className="text-sm text-gray-300 mb-3">
+                    <div className="text-sm text-gray-300">
                       Sold {(property as Property).soldDate ? new Date((property as Property).soldDate).toLocaleDateString('en-IE', {
                         day: 'numeric',
                         month: 'short',
@@ -499,12 +502,61 @@ export default function PropertyDetailsPage() {
                       }) : 'Unknown date'}
                     </div>
                   )}
+                </div>
 
-                  {/* Asking vs Sold Price Analysis for Sold Properties */}
-                  {isSold && (property as Property).askingPrice && (
-                    <div className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                {/* Action Buttons */}
+                <div className="flex gap-2 flex-shrink-0">
+                  {user ? (
+                    <button
+                      onClick={async () => {
+                        const alreadySaved = isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold');
+                        if (alreadySaved) {
+                          await unsaveProperty(property.address || '', propertyType as any);
+                        } else {
+                          await saveProperty(
+                            property.address || '',
+                            propertyType as any,
+                            property,
+                            undefined
+                          );
+                        }
+                      }}
+                      className={`p-2 md:p-3 rounded-lg border transition-colors ${
+                        isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold')
+                          ? 'bg-red-600 text-white border-red-500'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-600'
+                      }`}
+                      title={isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold') ? 'Remove from saved' : 'Save property'}
+                    >
+                      <Bookmark className={`w-4 h-4 md:w-5 md:h-5 ${isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold') ? 'fill-current' : ''}`} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        analytics.registrationStarted('save_prompt');
+                        setShowLoginModal(true);
+                      }}
+                      className="p-2 md:p-3 rounded-lg border bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-600 transition-colors"
+                      title="Sign in to save properties"
+                    >
+                      <Bookmark className="w-4 h-4 md:w-5 md:h-5" />
+                    </button>
+                  )}
+
+                  <AddToCompareButton
+                    property={property}
+                    type={propertyType as any}
+                    size="sm"
+                    className="p-2 md:p-3"
+                  />
+                </div>
+              </div>
+
+              {/* Full-width Price Analysis Section */}
+              {isSold && (property as Property).askingPrice && (
+                <div className="bg-gray-700 rounded-lg p-4 md:p-6 border border-gray-600 mb-4">
                       <h3 className="text-lg font-semibold text-white mb-3">Price Analysis</h3>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                           <div className="text-sm text-gray-300 mb-1">Asking Price</div>
                           <div className="text-xl font-bold text-white font-mono">
@@ -517,9 +569,25 @@ export default function PropertyDetailsPage() {
                             {formatFullPrice((property as Property).soldPrice)}
                           </div>
                         </div>
+                        <div className="hidden lg:block">
+                          <div className="text-sm text-gray-300 mb-1">Difference</div>
+                          <div className={`text-xl font-bold font-mono ${
+                            (property as Property).soldPrice > (property as Property).askingPrice
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                          }`}>
+                            {((property as Property).soldPrice > (property as Property).askingPrice ? '+' : '') +
+                             formatFullPrice(Math.abs((property as Property).soldPrice - (property as Property).askingPrice))}
+                          </div>
+                          <div className={`text-sm font-medium ${
+                            (property as Property).overUnderPercent >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            ({(property as Property).overUnderPercent >= 0 ? '+' : ''}{(property as Property).overUnderPercent}%)
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="mt-4 pt-4 border-t border-gray-600">
+                      <div className="mt-4 pt-4 border-t border-gray-600 lg:hidden">
                         <div className="flex items-center justify-between">
                           <span className="text-gray-300">Difference</span>
                           <div className="text-right">
@@ -555,8 +623,8 @@ export default function PropertyDetailsPage() {
 
                   {/* Sale Timeline for Sold Properties */}
                   {isSold && (property as Property).first_seen_date && (
-                    <div className="mt-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
-                      <h4 className="text-sm font-medium text-white mb-3">Sale Timeline</h4>
+                    <div className="mt-4 p-4 md:p-6 bg-gray-800 rounded-lg border border-gray-600">
+                      <h4 className="text-lg font-semibold text-white mb-4">Sale Timeline</h4>
 
                       {/* Timeline visualization */}
                       <div className="relative mb-4">
@@ -631,9 +699,9 @@ export default function PropertyDetailsPage() {
 
                   {/* Price Trend Visualization */}
                   {areaData?.stats && (
-                    <div className="mt-6 p-4 lg:p-6 bg-gray-700 rounded-lg border border-gray-600">
+                    <div className="mt-6 p-4 md:p-6 bg-gray-700 rounded-lg border border-gray-600 w-full">
                       <h4 className="text-lg font-semibold text-white mb-4">Price Trend Analysis</h4>
-                      <div className="h-48 lg:h-56">
+                      <div className="h-80 md:h-96 lg:h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={[
                             {
@@ -672,55 +740,6 @@ export default function PropertyDetailsPage() {
                       </div>
                     </div>
                   )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2 ml-4">
-                  {user ? (
-                    <button
-                      onClick={async () => {
-                        const alreadySaved = isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold');
-                        if (alreadySaved) {
-                          await unsaveProperty(property.address || '', propertyType as any);
-                        } else {
-                          await saveProperty(
-                            property.address || '',
-                            propertyType as any,
-                            property,
-                            undefined
-                          );
-                        }
-                      }}
-                      className={`p-3 rounded-lg border transition-colors ${
-                        isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold')
-                          ? 'bg-red-600 text-white border-red-500'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-600'
-                      }`}
-                      title={isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold') ? 'Remove from saved' : 'Save property'}
-                    >
-                      <Bookmark className={`w-5 h-5 ${isSaved(property.address || '', propertyType as 'listing' | 'rental' | 'sold') ? 'fill-current' : ''}`} />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        analytics.registrationStarted('save_prompt');
-                        setShowLoginModal(true);
-                      }}
-                      className="p-3 rounded-lg border bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-600 transition-colors"
-                      title="Sign in to save properties"
-                    >
-                      <Bookmark className="w-5 h-5" />
-                    </button>
-                  )}
-
-                  <AddToCompareButton
-                    property={property}
-                    type={propertyType as any}
-                    size="lg"
-                    className="px-4 py-3"
-                  />
-                </div>
-              </div>
 
               {/* Quick Stats Overview */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
@@ -753,44 +772,44 @@ export default function PropertyDetailsPage() {
                 )}
               </div>
 
-              {/* Comprehensive Property Details */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {/* Comprehensive Property Details - More compact on mobile */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
                 {property.beds !== null && property.beds !== undefined && (
-                  <div className="flex items-center gap-3 p-4 bg-gray-700 rounded-lg border border-gray-600">
-                    <Bed className="w-6 h-6 text-blue-500" />
+                  <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-gray-700 rounded-lg border border-gray-600">
+                    <Bed className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                     <div>
-                      <div className="text-xl font-bold text-white">{property.beds}</div>
-                      <div className="text-sm text-gray-300">Bedrooms</div>
+                      <div className="text-lg md:text-xl font-bold text-white">{property.beds}</div>
+                      <div className="text-xs md:text-sm text-gray-300">Bedrooms</div>
                     </div>
                   </div>
                 )}
 
                 {property.baths !== null && property.baths !== undefined && (
-                  <div className="flex items-center gap-3 p-4 bg-gray-700 rounded-lg border border-gray-600">
-                    <Bath className="w-6 h-6 text-blue-500" />
+                  <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-gray-700 rounded-lg border border-gray-600">
+                    <Bath className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                     <div>
-                      <div className="text-xl font-bold text-white">{property.baths}</div>
-                      <div className="text-sm text-gray-300">Bathrooms</div>
+                      <div className="text-lg md:text-xl font-bold text-white">{property.baths}</div>
+                      <div className="text-xs md:text-sm text-gray-300">Bathrooms</div>
                     </div>
                   </div>
                 )}
 
                 {property.areaSqm && (
-                  <div className="flex items-center gap-3 p-4 bg-gray-700 rounded-lg border border-gray-600">
-                    <Ruler className="w-6 h-6 text-blue-500" />
+                  <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-gray-700 rounded-lg border border-gray-600">
+                    <Ruler className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                     <div>
-                      <div className="text-xl font-bold text-white">{property.areaSqm}m²</div>
-                      <div className="text-sm text-gray-300">Floor Area</div>
+                      <div className="text-lg md:text-xl font-bold text-white">{property.areaSqm}m²</div>
+                      <div className="text-xs md:text-sm text-gray-300">Floor Area</div>
                     </div>
                   </div>
                 )}
 
                 {property.propertyType && (
-                  <div className="flex items-center gap-3 p-4 bg-gray-700 rounded-lg border border-gray-600">
-                    <Building2 className="w-6 h-6 text-blue-500" />
+                  <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-gray-700 rounded-lg border border-gray-600">
+                    <Building2 className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                     <div>
-                      <div className="text-lg font-bold text-white">{property.propertyType}</div>
-                      <div className="text-sm text-gray-300">Property Type</div>
+                      <div className="text-base md:text-lg font-bold text-white">{property.propertyType}</div>
+                      <div className="text-xs md:text-sm text-gray-300">Property Type</div>
                     </div>
                   </div>
                 )}
@@ -803,12 +822,6 @@ export default function PropertyDetailsPage() {
                   {/* Area Market Overview */}
                   <div className="p-4 lg:p-6 bg-gray-700 rounded-lg border border-gray-600">
                     <h4 className="text-lg font-semibold text-white mb-4">Area Market Overview</h4>
-                    {/* Debug info */}
-                    <div className="text-xs text-yellow-400 mb-2">
-                      Debug: areaData exists: {areaData ? 'YES' : 'NO'},
-                      stats: {areaData?.stats ? 'YES' : 'NO'},
-                      type: {propertyType}
-                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-400">
@@ -1057,38 +1070,41 @@ export default function PropertyDetailsPage() {
                   </div>
               </div>
 
-              {/* Quick Actions */}
-              <div className="flex flex-wrap gap-3">
+              {/* Quick Actions - Mobile optimized */}
+              <div className="grid grid-cols-1 md:flex md:flex-wrap gap-3">
                 <button
                   onClick={handleMortgageCalculator}
-                  className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 md:py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors text-sm md:text-base"
                 >
                   <Calculator className="w-4 h-4" />
-                  Mortgage Calculator
+                  <span className="md:hidden">Calculator</span>
+                  <span className="hidden md:inline">Mortgage Calculator</span>
                 </button>
 
                 <button
                   onClick={handleAmenities}
-                  className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 md:py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors text-sm md:text-base"
                 >
                   <TrendingUp className="w-4 h-4" />
-                  Nearby Amenities
+                  <span className="md:hidden">Amenities</span>
+                  <span className="hidden md:inline">Nearby Amenities</span>
                 </button>
 
                 <button
                   onClick={handlePlanning}
-                  className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors"
+                  className="flex items-center justify-center gap-2 px-4 py-3 md:py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors text-sm md:text-base"
                 >
                   <FileText className="w-4 h-4" />
-                  Planning Permissions
+                  <span className="md:hidden">Planning</span>
+                  <span className="hidden md:inline">Planning Permissions</span>
                 </button>
               </div>
             </div>
 
             {/* Location & Amenities */}
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
+            <div className="bg-gray-800 rounded-xl border border-gray-700 p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                <MapPin className="w-4 h-4 md:w-5 md:h-5" />
                 Location & Amenities
               </h2>
 
@@ -1195,9 +1211,9 @@ export default function PropertyDetailsPage() {
 
             {/* Planning Permissions Summary - Only show if we have planning data */}
             {isSold && property.latitude && property.longitude && (
-              <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                  <Building2 className="w-5 h-5" />
+              <div className="bg-gray-800 rounded-xl border border-gray-700 p-4 md:p-6">
+                <h2 className="text-lg md:text-xl font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                  <Building2 className="w-4 h-4 md:w-5 md:h-5" />
                   Planning Permissions
                 </h2>
 
@@ -1223,10 +1239,10 @@ export default function PropertyDetailsPage() {
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-4 lg:space-y-6">
+          {/* Sidebar - Moves below main content on mobile */}
+          <div className="space-y-4 lg:space-y-6 order-2 lg:order-2">
             {/* Property Image Gallery */}
-            <div className="bg-gray-800 rounded-xl border border-gray-700 p-4 lg:p-6">
+            <div className="bg-gray-800 rounded-xl border border-gray-700 p-3 md:p-4 lg:p-6">
               <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-600 rounded-lg flex items-center justify-center relative overflow-hidden">
                 <div className="text-center text-gray-400 z-10">
                   <Building2 className="w-16 h-16 mx-auto mb-3 text-gray-500" />
@@ -1254,8 +1270,8 @@ export default function PropertyDetailsPage() {
 
             {/* Market Insights */}
             {isSold && areaData?.stats && (
-              <div className="bg-gray-800 rounded-xl border border-gray-700 p-4 lg:p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Market Insights</h3>
+              <div className="bg-gray-800 rounded-xl border border-gray-700 p-3 md:p-4 lg:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-white mb-3 md:mb-4">Market Insights</h3>
                 <div className="space-y-3 text-sm">
                   {areaData.stats.avgPrice && (
                     <div className="flex justify-between">
@@ -1281,8 +1297,8 @@ export default function PropertyDetailsPage() {
 
             {/* Rental Info */}
             {isRental && (
-              <div className="bg-gray-800 rounded-xl border border-gray-700 p-4 lg:p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Rental Details</h3>
+              <div className="bg-gray-800 rounded-xl border border-gray-700 p-3 md:p-4 lg:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-white mb-3 md:mb-4">Rental Details</h3>
                 <div className="space-y-3 text-sm">
                   {(property as RentalListing).monthlyRent && property.beds && (
                     <div className="flex justify-between">

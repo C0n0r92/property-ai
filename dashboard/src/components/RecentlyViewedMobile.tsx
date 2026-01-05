@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatFullPrice } from '@/lib/format';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { Building2, Clock, X, ChevronRight } from 'lucide-react';
@@ -14,6 +15,7 @@ interface RecentlyViewedMobileProps {
 
 export function RecentlyViewedMobile({ isOpen, onClose }: RecentlyViewedMobileProps) {
   const { recentlyViewed, clearRecentlyViewed } = useRecentlyViewed();
+  const router = useRouter();
 
 
   const formatTimeAgo = (timestamp: number) => {
@@ -111,11 +113,14 @@ export function RecentlyViewedMobile({ isOpen, onClose }: RecentlyViewedMobilePr
               ) : (
                 <div className="divide-y divide-gray-100">
                   {recentlyViewed.map((item, index) => (
-                    <Link
+                    <button
                       key={`${item.address}-${item.propertyType}-${index}`}
-                      href={`/property/${item.propertyType === 'sold' ? 'sold' : item.propertyType === 'listing' ? 'forSale' : 'rental'}/${encodeURIComponent(item.address)}`}
-                      onClick={onClose}
-                      className="flex items-center gap-3 px-4 py-4 hover:bg-gray-50 transition-colors active:bg-gray-100"
+                      onClick={() => {
+                        onClose();
+                        // Navigate to map with focus on this property
+                        router.push(`/map?focus=${encodeURIComponent(item.address)}&type=${item.propertyType}`);
+                      }}
+                      className="flex items-center gap-3 px-4 py-4 hover:bg-gray-50 transition-colors active:bg-gray-100 w-full text-left"
                     >
                       <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Building2 className="w-6 h-6 text-slate-500" />
@@ -142,7 +147,7 @@ export function RecentlyViewedMobile({ isOpen, onClose }: RecentlyViewedMobilePr
                         </span>
                         <ChevronRight className="w-4 h-4 text-gray-300" />
                       </div>
-                    </Link>
+                    </button>
                   ))}
                 </div>
               )}

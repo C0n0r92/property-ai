@@ -7,11 +7,12 @@ import { useComparison } from '@/contexts/ComparisonContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useSavedProperties } from '@/hooks/useSavedProperties';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { useAlertModal } from '@/contexts/AlertModalContext';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { ComparisonSuggestionsModal } from '@/components/ComparisonSuggestionsModal';
 import { Property, Listing, RentalListing } from '@/types/property';
-import { MapPin, Bed, Bath, Ruler, Building2, TrendingUp, Calculator, Eye, FileText, CheckCircle, X, Plus, Bookmark } from 'lucide-react';
+import { MapPin, Bed, Bath, Ruler, Building2, TrendingUp, Calculator, Eye, FileText, CheckCircle, X, Plus, Bookmark, Bell, Share2 } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 
 interface PropertyCardProps {
@@ -27,11 +28,13 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   const { isSaved, saveProperty, unsaveProperty } = useSavedProperties();
   const { addRecentlyViewed } = useRecentlyViewed();
   const { addToComparison, isInComparison, comparedProperties, count, maxProperties, removeFromComparison, clearComparison } = useComparison();
+  const { showAlertModal } = useAlertModal();
   const [activeTab, setActiveTab] = useState<'details' | 'compare'>('details');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showComparisonSuggestions, setShowComparisonSuggestions] = useState(false);
   const [loginModalMessage, setLoginModalMessage] = useState<string>('');
+  const [showAlertTooltip, setShowAlertTooltip] = useState(false);
 
   // Determine which property type we're dealing with
   const data = property || listing || rental;
@@ -83,9 +86,22 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
         address: data.address,
         propertyType: propertyType as 'sold' | 'listing' | 'rental',
         price: price,
+        latitude: data.latitude ?? undefined,
+        longitude: data.longitude ?? undefined,
       });
     }
   }, [data?.address, price, isSold, isForSale, addRecentlyViewed]);
+
+  // Show alert tooltip for 3 seconds when property card opens
+  useEffect(() => {
+    if (data?.address) {
+      setShowAlertTooltip(true);
+      const timer = setTimeout(() => {
+        setShowAlertTooltip(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [data?.address]);
 
   // Check if property is new (scraped within last 3 days)
   const isNewProperty = data?.scrapedAt ? (() => {
@@ -171,6 +187,34 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
     router.push(`/planning?lat=${lat}&lng=${lng}&address=${encodeURIComponent(address)}`);
   };
 
+  const handleAlerts = () => {
+    // Create location context for the property
+    const propertyLocation = {
+      name: address.split(',')[0] || address, // Use first part of address as location name
+      coordinates: {
+        lat: data.latitude || 53.3498,
+        lng: data.longitude || -6.2603,
+      },
+      postcode: address.match(/Dublin\s+\d+/i)?.[0] || undefined,
+      defaultAlertConfig: {
+        monitor_sale: isForSale,
+        monitor_rental: isRental,
+        monitor_sold: isSold,
+        sale_alert_on_new: true,
+        sale_alert_on_price_drops: true,
+        rental_alert_on_new: true,
+        sold_alert_on_over_asking: true,
+        sold_alert_on_under_asking: true,
+      },
+    };
+
+    // Hide tooltip when user clicks the button
+    setShowAlertTooltip(false);
+
+    // Show alert modal
+    showAlertModal(propertyLocation, true); // Bypass dismissal for explicit user action
+  };
+
   // Handle save property with login gate and upgrade prompt
   const handleSaveProperty = async () => {
     if (!user) {
@@ -198,6 +242,36 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
   const propTypeForSave = isSold ? 'sold' : isForSale ? 'listing' : 'rental';
   const isPropertySaved = isSaved(address, propTypeForSave as 'listing' | 'rental' | 'sold');
 
+  // Handle share property
+  const handleShareProperty = async () => {
+    const propertyType = isSold ? 'sold' : isForSale ? 'forSale' : 'rental';
+    const propertyId = encodeURIComponent(address);
+    const shareUrl = `${window.location.origin}/property/${propertyType}/${propertyId}`;
+
+    try {
+      if (navigator.share) {
+        // Use native share API if available (mobile)
+        await navigator.share({
+          title: `${address} - Property Details`,
+          text: `Check out this ${isSold ? 'sold' : isForSale ? 'property for sale' : 'rental'} property: ${address}`,
+          url: shareUrl,
+        });
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        // Could show a toast notification here, but for now just copy silently
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+      } catch (clipboardError) {
+        console.error('Clipboard fallback failed:', clipboardError);
+      }
+    }
+  };
+
   return (
     <div className={`bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border ${statusConfig.borderColor} z-50 transition-all duration-300 ${isAlreadyInComparison ? 'ring-2 ring-green-500/50' : ''}`}>
       {/* Header with save and close buttons */}
@@ -217,6 +291,14 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
           )}
         </div>
         <div className="flex items-center gap-2">
+          {/* Share button */}
+          <button
+            onClick={handleShareProperty}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+            title="Share property"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
           {/* Save button */}
           <button
             onClick={handleSaveProperty}
@@ -244,66 +326,93 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
       {/* Main content */}
       <div className="p-4">
         {/* Address */}
-        <div className="flex items-start gap-2 mb-3">
-          <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-          <h3 className="font-semibold text-white text-lg leading-tight">
+        <div className="mb-4">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span className="text-gray-400 text-sm">Location</span>
+          </div>
+          <h3 className="font-semibold text-white text-lg leading-tight text-center">
             {address}
           </h3>
-        </div>
-
-        {/* Price */}
-        <div className="mb-4">
-          <div className="text-2xl font-bold text-white font-mono">
-            {isRental ? `€${price.toLocaleString()}/mo` : formatFullPrice(price)}
-          </div>
-
-          {/* Asking vs Sold Price for sold properties */}
-          {isSold && property.askingPrice && priceDifference !== null && (
-            <div className="mt-2 space-y-1">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-300">Asking:</span>
-                <span className="text-gray-300 font-mono">{formatFullPrice(property.askingPrice)}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className={`font-medium ${priceDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {priceDifference >= 0 ? 'Sold +' : 'Sold '}
-                  {formatFullPrice(Math.abs(priceDifference))}
-                </span>
-                <span className={`font-bold ${priceDifferencePercent && priceDifferencePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  ({priceDifferencePercent && priceDifferencePercent >= 0 ? '+' : ''}{priceDifferencePercent}%)
-                </span>
-              </div>
+          {isSold && property && (
+            <div className="flex items-center justify-center gap-4 mt-2 text-xs text-gray-400">
+              {property.soldDate && (
+                <span>Sold: {new Date(property.soldDate).toLocaleDateString('en-IE')}</span>
+              )}
+              {property.pricePerSqm && (
+                <span>€{Math.round(property.pricePerSqm)}/m²</span>
+              )}
             </div>
           )}
         </div>
 
         {/* Key metrics */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="flex items-center justify-center gap-6 mb-6">
           {beds && (
-            <div className="flex items-center gap-2 text-gray-300">
+            <div className="flex items-center gap-1 text-gray-300">
               <Bed className="w-4 h-4" />
-              <span className="text-sm">{beds} bed{beds !== 1 ? 's' : ''}</span>
+              <span className="text-sm">{beds}</span>
             </div>
           )}
           {baths && (
-            <div className="flex items-center gap-2 text-gray-300">
+            <div className="flex items-center gap-1 text-gray-300">
               <Bath className="w-4 h-4" />
-              <span className="text-sm">{baths} bath{baths !== 1 ? 's' : ''}</span>
+              <span className="text-sm">{baths}</span>
             </div>
           )}
           {areaSqm && (
-            <div className="flex items-center gap-2 text-gray-300">
+            <div className="flex items-center gap-1 text-gray-300">
               <Ruler className="w-4 h-4" />
               <span className="text-sm">{areaSqm}m²</span>
             </div>
           )}
           {propertyType && (
-            <div className="flex items-center gap-2 text-gray-300">
+            <div className="flex items-center gap-1 text-gray-300">
               <Building2 className="w-4 h-4" />
               <span className="text-sm">{propertyType}</span>
             </div>
           )}
         </div>
+
+        {/* Price */}
+        <div className="mb-4">
+          {/* Primary Price Display */}
+          {isSold && property.askingPrice ? (
+            /* Sold properties with asking price comparison */
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300 text-sm">Asking:</span>
+                <span className="text-gray-300 font-mono text-sm">{formatFullPrice(property.askingPrice)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white text-sm">Sold:</span>
+                <span className="text-white font-mono text-sm font-medium">{formatFullPrice(price)}</span>
+              </div>
+              {priceDifference !== null && (
+                <div className="flex items-center justify-between">
+                  <span className={`font-medium text-sm ${priceDifference >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {priceDifference >= 0 ? 'Sold +' : 'Sold '}
+                    {formatFullPrice(Math.abs(priceDifference))}
+                  </span>
+                  <span className={`font-bold text-sm ${priceDifferencePercent && priceDifferencePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    ({priceDifferencePercent && priceDifferencePercent >= 0 ? '+' : ''}{priceDifferencePercent}%)
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* For sale or rental properties - single price display */
+            <div className="flex items-center justify-between">
+              <span className="text-gray-300 text-sm">
+                {isForSale ? 'Asking:' : 'Rent:'}
+              </span>
+              <span className="text-white font-mono text-sm font-medium">
+                {isRental ? `€${price.toLocaleString()}/mo` : formatFullPrice(price)}
+              </span>
+            </div>
+          )}
+        </div>
+
 
       </div>
 
@@ -366,6 +475,25 @@ export function PropertyCard({ property, listing, rental, onClose }: PropertyCar
                   <Calculator className="w-4 h-4" />
                   Mortgage
                 </button>
+              </div>
+
+              {/* Alerts Button with Tooltip */}
+              <div className="relative mt-3">
+                <button
+                  onClick={handleAlerts}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg font-medium text-sm transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <Bell className="w-4 h-4" />
+                  Set Up Alerts
+                </button>
+
+                {/* Tooltip */}
+                {showAlertTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg border border-gray-600 z-50 max-w-xs text-center">
+                    Set up 3 alerts for free
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                  </div>
+                )}
               </div>
             </div>
           )}

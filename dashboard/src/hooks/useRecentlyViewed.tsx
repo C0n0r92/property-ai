@@ -4,6 +4,8 @@ interface RecentlyViewedItem {
   address: string;
   propertyType: 'sold' | 'listing' | 'rental';
   price: number;
+  latitude?: number;
+  longitude?: number;
   thumbnail?: string;
   viewedAt: number;
 }

@@ -82,32 +82,6 @@ export default function MapComponent({}: MapComponentProps) {
   const { showAlertModal, canShowModal } = useAlertModal();
 
 
-  // High-intent modal trigger for filter interactions
-  useEffect(() => {
-    // Track when users apply meaningful filters (price, beds, area)
-    const hasActiveFilters = mapFilters.minPrice || mapFilters.maxPrice ||
-                           mapFilters.bedsFilter || mapFilters.minArea ||
-                           mapFilters.maxArea || mapFilters.priceReducedFilter;
-
-    if (hasActiveFilters && mapSearch.searchedLocation) {
-      const locationContext = {
-        name: mapSearch.searchedLocation.name,
-        coordinates: {
-          lat: mapSearch.searchedLocation.coords[1],
-          lng: mapSearch.searchedLocation.coords[0]
-        },
-      };
-
-      // Trigger modal for engaged users
-      if (canShowModal(locationContext)) {
-        showAlertModal(locationContext);
-      }
-    }
-  }, [
-    mapFilters.minPrice, mapFilters.maxPrice, mapFilters.bedsFilter,
-    mapFilters.minArea, mapFilters.maxArea, mapFilters.priceReducedFilter,
-    mapSearch.searchedLocation
-  ]);
 
   // Extract state for easier access
   const {
@@ -314,74 +288,78 @@ export default function MapComponent({}: MapComponentProps) {
     }
   }, [activeTab, showAmenities, selectedProperty, selectedListing, selectedRental]);
 
-  // Handle query parameters for focusing on specific properties, areas, and search
+  // Handle query parameters for areas and search
   useEffect(() => {
     console.log('MapComponent useEffect running, mapReady:', mapReady, 'loading:', loading);
-    const urlParams = new URLSearchParams(window.location.search);
-    const focusId = urlParams.get('focus');
-    const focusType = urlParams.get('type');
-    const areaParam = urlParams.get('area');
-    const searchQuery = urlParams.get('search');
+    const areaParam = searchParams.get('area');
+    const searchQuery = searchParams.get('search');
+    const latParam = searchParams.get('lat');
+    const lngParam = searchParams.get('lng');
+    const addressParam = searchParams.get('address');
 
-    console.log('URL parameters:', { focusId, focusType, areaParam, searchQuery });
+    console.log('Area/Search parameters:', { areaParam, searchQuery, latParam, lngParam, addressParam });
 
-    if (focusId && focusType && !loading) {
-      // Wait a bit for data to load, then find and focus the property
+    // Handle lat/lng coordinates (from recently viewed with saved coordinates)
+    if (latParam && lngParam && mapReady) {
+      const lat = parseFloat(latParam);
+      const lng = parseFloat(lngParam);
+      const coords: [number, number] = [lng, lat];
+
+      console.log('Flying to saved coordinates:', coords, 'for address:', addressParam);
+
       const timer = setTimeout(() => {
-        // Handle different property types
-        if (focusType === 'sold') {
-          const property = properties.find(p => p.address === focusId);
-          if (property) {
-            setSelectedProperty(property);
-            setActiveTab('overview'); // Reset to overview tab when focusing property
-            if (isMobile) setShowFilters(false); // Close filters on mobile when focusing property
-            // Center map on the property
-            if (map.current && property.latitude && property.longitude) {
-              map.current.flyTo({
-                center: [property.longitude, property.latitude],
-                zoom: 16
-              });
+        // Fly to the exact coordinates
+        flyToLocation(coords, 16);
+
+        // Set search state for UI consistency
+        if (addressParam) {
+          setSearchQuery(decodeURIComponent(addressParam).split(',')[0]);
+          setSearchedLocation({
+            name: decodeURIComponent(addressParam),
+            coords: coords
+          });
+        }
+        setSearchResults([]);
+        setShowSearchResults(false);
+
+        // Try to find and open the property card
+        if (!loading && addressParam) {
+          const decodedAddress = decodeURIComponent(addressParam);
+
+          // Search through properties, listings, and rentals
+          const foundProperty = properties.find(p => p.address === decodedAddress);
+          if (foundProperty) {
+            console.log('Found and opening property card:', foundProperty.address);
+            setSelectedProperty(foundProperty);
+            setActiveTab('overview');
+            if (isMobile) setShowFilters(false);
+          } else {
+            const foundListing = listings.find(l => l.address === decodedAddress);
+            if (foundListing) {
+              console.log('Found and opening listing card:', foundListing.address);
+              setSelectedListing(foundListing);
+              setActiveTab('overview');
+              if (isMobile) setShowFilters(false);
+            } else {
+              const foundRental = rentals.find(r => r.address === decodedAddress);
+              if (foundRental) {
+                console.log('Found and opening rental card:', foundRental.address);
+                setSelectedRental(foundRental);
+                setActiveTab('overview');
+                if (isMobile) setShowFilters(false);
+              }
             }
-            return;
-          }
-        } else if (focusType === 'listing') {
-          const listing = listings.find(l => l.address === focusId);
-          if (listing) {
-            setSelectedListing(listing);
-            setActiveTab('overview'); // Reset to overview tab when focusing listing
-            if (isMobile) setShowFilters(false); // Close filters on mobile when focusing listing
-            // Center map on the listing
-            if (map.current && listing.latitude && listing.longitude) {
-              map.current.flyTo({
-                center: [listing.longitude, listing.latitude],
-                zoom: 16
-              });
-            }
-            return;
-          }
-        } else if (focusType === 'rental') {
-          const rental = rentals.find(r => r.address === focusId);
-          if (rental) {
-            setSelectedRental(rental);
-            setActiveTab('overview'); // Reset to overview tab when focusing rental
-            if (isMobile) setShowFilters(false); // Close filters on mobile when focusing rental
-            // Center map on the rental
-            if (map.current && rental.latitude && rental.longitude) {
-              map.current.flyTo({
-                center: [rental.longitude, rental.latitude],
-                zoom: 16
-              });
-            }
-            return;
           }
         }
 
-        // Clean up URL parameters after processing
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete('focus');
-        newUrl.searchParams.delete('type');
-        window.history.replaceState({}, '', newUrl.toString());
-      }, 2000); // Wait 2 seconds for data to load
+        // Track search
+        if (addressParam) {
+          trackMapSearch({
+            name: decodeURIComponent(addressParam).split(',')[0],
+            coordinates: { lat: lat, lng: lng },
+          });
+        }
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
@@ -461,8 +439,8 @@ export default function MapComponent({}: MapComponentProps) {
             const bestMatch = features[0];
             const coords: [number, number] = [bestMatch.center[0], bestMatch.center[1]];
 
-            // Fly to the location
-            flyToLocation(coords, 14);
+            // Fly to the location (zoom in closer for property detail)
+            flyToLocation(coords, 16);
 
             // Set search state for UI consistency
             setSearchQuery(bestMatch.place_name.split(',')[0]);
@@ -472,6 +450,45 @@ export default function MapComponent({}: MapComponentProps) {
             });
             setSearchResults([]);
             setShowSearchResults(false);
+
+            // Try to find and open a property card for this address
+            if (!loading) {
+              // Search through sold properties
+              const foundProperty = properties.find(p =>
+                p.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                searchQuery.toLowerCase().includes(p.address.toLowerCase().split(',')[0])
+              );
+              if (foundProperty) {
+                console.log('Found and opening property card:', foundProperty.address);
+                setSelectedProperty(foundProperty);
+                setActiveTab('overview');
+                if (isMobile) setShowFilters(false);
+              } else {
+                // Search through listings
+                const foundListing = listings.find(l =>
+                  l.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  searchQuery.toLowerCase().includes(l.address.toLowerCase().split(',')[0])
+                );
+                if (foundListing) {
+                  console.log('Found and opening listing card:', foundListing.address);
+                  setSelectedListing(foundListing);
+                  setActiveTab('overview');
+                  if (isMobile) setShowFilters(false);
+                } else {
+                  // Search through rentals
+                  const foundRental = rentals.find(r =>
+                    r.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    searchQuery.toLowerCase().includes(r.address.toLowerCase().split(',')[0])
+                  );
+                  if (foundRental) {
+                    console.log('Found and opening rental card:', foundRental.address);
+                    setSelectedRental(foundRental);
+                    setActiveTab('overview');
+                    if (isMobile) setShowFilters(false);
+                  }
+                }
+              }
+            }
 
             // Track search for alert modal (only if coming from homepage search)
             trackMapSearch({
@@ -485,7 +502,7 @@ export default function MapComponent({}: MapComponentProps) {
       }, 1500); // Slightly longer delay to ensure map is fully ready
       return () => clearTimeout(timer);
     }
-  }, [loading, properties, listings, rentals, mapReady]);
+  }, [mapReady, properties.length, listings.length, rentals.length, loading, searchParams]);
 
   // Auto-manage filters based on screen size
   useEffect(() => {

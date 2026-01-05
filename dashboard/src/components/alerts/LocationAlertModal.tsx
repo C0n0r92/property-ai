@@ -18,13 +18,23 @@ interface LocationStats {
 
 export function LocationAlertModal() {
   const { modalState, hideAlertModal, dismissAlertModal, setModalStep, persistModalForAuth } = useAlertModal();
-  const { user } = useAuth();
+  const { user, authUser } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Debug logging
-  console.log('🎯 LocationAlertModal render - isOpen:', modalState.isOpen, 'user:', !!user, 'location:', modalState.location?.name);
+  console.log('🎯 LocationAlertModal render - isOpen:', modalState.isOpen, 'user:', !!user, 'authUser:', !!authUser, 'location:', modalState.location?.name);
   const [locationStats, setLocationStats] = useState<LocationStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [selectedRadius, setSelectedRadius] = useState(3); // Default to 3km
+
+  // Watch for login completion and advance modal
+  useEffect(() => {
+    if (showLoginModal && authUser && modalState.step === 'initial') {
+      // User just logged in while login modal was open, advance to property types
+      setShowLoginModal(false);
+      setModalStep('property-types');
+    }
+  }, [authUser, showLoginModal, modalState.step, setModalStep]);
 
   // Fetch real location stats when modal opens
   useEffect(() => {
@@ -95,7 +105,7 @@ export function LocationAlertModal() {
   const handleGetAlertsClick = () => {
     analytics.alertStepTransition(modalState.step, 'property-types', modalState.location?.name || 'unknown');
 
-    if (!user) {
+    if (!authUser) {
       // Persist modal state before authentication redirect
       persistModalForAuth();
       setShowLoginModal(true);
@@ -184,15 +194,17 @@ export function LocationAlertModal() {
                     blogTitle={modalState.blog?.title}
                     locationStats={locationStats}
                     statsLoading={statsLoading}
+                    selectedRadius={selectedRadius}
+                    onRadiusChange={setSelectedRadius}
                     onGetAlerts={handleGetAlertsClick}
                     onDismiss={dismissAlertModal}
-                    isSignedOut={!user}
+                    isSignedOut={!authUser}
                   />
                 )}
 
                 {(modalState.step === 'property-types' || modalState.step === 'configure-alerts') && modalState.location && (
                   <AlertConfigForm
-                    location={modalState.location}
+                    location={{...modalState.location, defaultAlertConfig: {...modalState.location.defaultAlertConfig, radius_km: selectedRadius}}}
                     onSuccess={handleAlertCreated}
                     onCancel={() => setModalStep('initial')}
                   />
@@ -218,10 +230,6 @@ export function LocationAlertModal() {
         isOpen={showLoginModal}
         onClose={() => {
           setShowLoginModal(false);
-          // After login, proceed to property types configuration
-          if (!user) {
-            setModalStep('property-types');
-          }
         }}
       />
     </>
@@ -235,6 +243,8 @@ function InitialStep({
   blogTitle,
   locationStats,
   statsLoading,
+  selectedRadius,
+  onRadiusChange,
   onGetAlerts,
   onDismiss,
   isSignedOut
@@ -244,6 +254,8 @@ function InitialStep({
   blogTitle?: string;
   locationStats?: LocationStats | null;
   statsLoading?: boolean;
+  selectedRadius: number;
+  onRadiusChange: (radius: number) => void;
   onGetAlerts: () => void;
   onDismiss: () => void;
   isSignedOut?: boolean;
@@ -251,7 +263,7 @@ function InitialStep({
   const isBlogAlert = alertType === 'blog';
 
   return (
-    <div className="text-center space-y-5">
+    <div className="text-center space-y-6">
       {/* Icon */}
       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
         {isBlogAlert ? (
@@ -261,148 +273,59 @@ function InitialStep({
         )}
       </div>
 
-      {/* Title with Urgency */}
+      {/* Title */}
       <div>
         <h3 className="text-xl font-bold text-slate-900 mb-2">
           {isBlogAlert
             ? `Never miss critical market insights`
-            : `Don't miss the next price drop in ${locationName}`}
+            : `Never miss a new property near ${locationName}`}
         </h3>
-        <p className="text-slate-600 text-sm leading-relaxed">
+        <p className="text-slate-600 text-sm mb-3">
           {isBlogAlert
             ? "Get exclusive research and analysis that could save you thousands on your next property investment."
-            : isSignedOut
-              ? "Create a free account to get instant notifications about new listings and price changes in your area."
-              : "Properties in Dublin sell fast. Be the first to know about new listings, price changes, and market moves."
+            : "Get instant notifications when new properties become available in your area."
           }
         </p>
-      </div>
-
-      {/* Social Proof */}
-      <div className="bg-slate-50 rounded-lg px-4 py-3">
-        <div className="flex items-center justify-center gap-2 text-slate-700">
-          <div className="flex -space-x-2">
-            <div className="w-6 h-6 bg-blue-500 rounded-full border-2 border-white"></div>
-            <div className="w-6 h-6 bg-emerald-500 rounded-full border-2 border-white"></div>
-            <div className="w-6 h-6 bg-purple-500 rounded-full border-2 border-white"></div>
+        {!isBlogAlert && (
+          <div className="flex items-center justify-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span>For Sale</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span>For Rent</span>
+            </div>
           </div>
-          <span className="text-sm font-medium">
-            {isBlogAlert 
-              ? "Join 500+ property investors" 
-              : "500+ property hunters tracking Dublin"}
-          </span>
-        </div>
-      </div>
-
-      {/* Dynamic Area Stats (for location alerts only) */}
-      {!isBlogAlert && (
-        <div className="bg-blue-50 rounded-lg px-4 py-3">
-          <div className="text-center">
-            <div className="text-sm text-blue-800 font-medium mb-2">
-              {locationName} Market Snapshot
-            </div>
-            {statsLoading ? (
-              <div className="flex items-center justify-center py-2">
-                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {/* Eircode display */}
-                {locationStats?.eircode && (
-                  <div className="text-center">
-                    <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                      <span>Eircode: {locationStats.eircode}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Stats grid */}
-                <div className="grid grid-cols-3 gap-4 text-xs">
-                  <div>
-                    <div className="text-blue-900 font-semibold">
-                      {locationStats?.avgPrice || '€450K'}
-                    </div>
-                    <div className="text-blue-700">Avg Price</div>
-                  </div>
-                  <div>
-                    <div className="text-blue-900 font-semibold">
-                      {locationStats?.newListings || 0}
-                    </div>
-                    <div className="text-blue-700">Active Listings</div>
-                  </div>
-                  <div>
-                    <div className="text-blue-900 font-semibold">
-                      {locationStats?.priceChange !== undefined
-                        ? `${locationStats.priceChange >= 0 ? '+' : ''}${locationStats.priceChange}%`
-                        : '+0%'}
-                    </div>
-                    <div className="text-blue-700">YoY Change</div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Features */}
-      <div className="space-y-2.5 text-left">
-        {isBlogAlert ? (
-          <>
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-3 h-3 text-green-600" />
-              </div>
-              <span className="text-sm text-slate-700">Early access to market research</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-3 h-3 text-green-600" />
-              </div>
-              <span className="text-sm text-slate-700">Investment opportunity alerts</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-3 h-3 text-green-600" />
-              </div>
-              <span className="text-sm text-slate-700">Data-driven pricing insights</span>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-3 h-3 text-green-600" />
-              </div>
-              <span className="text-sm text-slate-700">Instant alerts for new listings</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-3 h-3 text-green-600" />
-              </div>
-              <span className="text-sm text-slate-700">Price drop notifications</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-3 h-3 text-green-600" />
-              </div>
-              <span className="text-sm text-slate-700">Sold price intelligence</span>
-            </div>
-          </>
         )}
       </div>
 
-      {/* Pricing for blog alerts */}
-      {isBlogAlert && (
-        <div className="bg-blue-50 rounded-lg p-4">
-          <div className="flex items-center justify-center gap-2 text-blue-700">
-            <span className="text-sm font-medium">One-time payment: €3</span>
+      {/* Distance Selection - for location alerts only */}
+      {!isBlogAlert && (
+        <div className="bg-green-50 rounded-lg px-6 py-4 border border-green-200">
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-green-800 block text-center">
+              Search distance: {selectedRadius} km
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              step="1"
+              value={selectedRadius}
+              onChange={(e) => onRadiusChange(parseInt(e.target.value))}
+              className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-600"
+            />
+            <div className="flex justify-between text-xs text-green-600">
+              <span>1km</span>
+              <span>10km</span>
+            </div>
           </div>
         </div>
       )}
 
       {/* CTA */}
-      <div className="space-y-3 pt-1">
+      <div className="space-y-3">
         <button
           onClick={onGetAlerts}
           className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
@@ -411,22 +334,14 @@ function InitialStep({
             ? 'Get Premium Alerts (€3)'
             : isSignedOut
               ? 'Sign Up for Free Alerts'
-              : 'Set Up Free Alert'
+              : 'Continue'
           }
           <ChevronRight className="w-4 h-4" />
         </button>
 
-        <p className="text-xs text-slate-400">
-          {isBlogAlert
-            ? "One-time payment, lifetime access"
-            : isSignedOut
-              ? "Create free account • Instant alerts"
-              : "Free account • 1 location alert included"}
-        </p>
-
         <button
           onClick={onDismiss}
-          className="w-full sm:w-auto text-sm text-slate-400 hover:text-slate-600 transition-colors py-2 px-4 rounded-lg hover:bg-slate-50 touch-manipulation"
+          className="w-full text-sm text-slate-400 hover:text-slate-600 transition-colors py-2"
         >
           Maybe later
         </button>
