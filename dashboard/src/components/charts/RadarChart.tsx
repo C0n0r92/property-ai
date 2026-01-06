@@ -60,3 +60,4 @@ export function RadarChart({ data, className = "", height = 300 }: RadarChartPro
     </div>
   );
 }
+

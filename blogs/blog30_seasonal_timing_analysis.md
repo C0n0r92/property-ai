@@ -105,3 +105,4 @@ According to Daft.ie Market Reports, Dublin property prices show consistent seas
 
 ## Methodology
 Analysis includes 21,093 Dublin property transactions from January 2024-December 2025. Seasonal patterns calculated using monthly averages across both years. Over-asking rates based on properties selling above original asking price. Peak-to-trough calculations use average monthly pricing. Volume analysis includes all verified transactions within date range.
+

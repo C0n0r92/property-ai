@@ -34,6 +34,18 @@ const researchArticles = [
     views: 0,
   },
   {
+    id: 'dublin-suburban-over-asking-hotspots',
+    title: 'Dublin\'s Suburban Bidding War Hotspots: 9-13% Above Asking Price 78-90% of the Time',
+    excerpt: 'Dublin\'s suburban neighborhoods reveal exceptional over-asking patterns that outperform city center areas, with specific local communities like Ballyfermot, Clondalkin, and Finglas achieving 9-13% above asking price 78-90% of the time despite lower price points.',
+    category: 'Market Analysis',
+    date: '2026-01-06',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Suburban Markets', 'Over-Asking Strategy', 'Local Areas', 'Bidding Competition', 'Property Pricing'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-planning-permission-tool-guide',
     title: 'Dublin Planning Permission Tool: Uncovering Development Potential',
     excerpt: 'Our planning permission search tool reveals Dublin\'s most active development areas, with 15,420 applications analyzed showing 78.5% approval rates and €85,000 average extension values. Extensions dominate at 29.3% of applications with 82.3% approval rates.',
@@ -858,7 +870,7 @@ export default function BlogPage() {
           { label: 'Market Research' }
         ]}
         stats={[
-          { label: 'Articles', value: 56 },
+          { label: 'Articles', value: 57 },
           { label: 'Categories', value: categories.length - 1 },
           { label: 'Access', value: 'Free' }
         ]}

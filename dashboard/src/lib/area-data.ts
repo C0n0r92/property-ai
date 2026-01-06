@@ -20,3 +20,4 @@ export async function getAreaData(slug: string) {
     bedroomBreakdown: [],
   };
 }
+

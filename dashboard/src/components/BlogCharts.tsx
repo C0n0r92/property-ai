@@ -5482,5 +5482,231 @@ export function CornerDiscountByAreaChart() {
     </ChartWrapper>
   );
 }
+
+export function SmallerAreaHotspotsChart() {
+  return (
+    <div className="my-8 p-6 border-2 border-red-500 bg-red-50 rounded-lg">
+      <h3 className="text-xl font-bold text-red-800 mb-2">🧪 CHART TEST: SmallerAreaHotspotsChart Component</h3>
+      <p className="text-red-700 mb-2">If you can see this red box, the chart component is working!</p>
+      <p className="text-sm text-red-600">This will be replaced with the actual bar chart showing over-asking rates by area.</p>
+      <div className="mt-4 p-3 bg-white rounded border">
+        <strong>Test Data:</strong>
+        <ul className="mt-2">
+          <li>Ballyfermot: 12.93% over-asking (287 properties)</li>
+          <li>Clondalkin: 12.04% over-asking (735 properties)</li>
+          <li>Finglas: 10.16% over-asking (659 properties)</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export function SmallerAreaPriceBracketChart() {
+  return (
+    <div className="my-8 p-6 border-2 border-green-500 bg-green-50 rounded-lg">
+      <h3 className="text-xl font-bold text-green-800 mb-2">🧪 CHART TEST: SmallerAreaPriceBracketChart Component</h3>
+      <p className="text-green-700 mb-2">If you can see this green box, the chart component is working!</p>
+      <p className="text-sm text-green-600">This will be replaced with the actual line chart showing price bracket performance.</p>
+      <div className="mt-4 p-3 bg-white rounded border">
+        <strong>Test Data:</strong>
+        <ul className="mt-2">
+          <li>€300k-€450k: Ballyfermot (17.01%), Clondalkin (15.01%), Finglas (13.00%)</li>
+          <li>Under €300k: Ballyfermot (5.3%), Clondalkin (6.47%), Tallaght (5.01%)</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export function SmallerAreaPropertyTypeChart() {
+  return (
+    <div className="my-8 p-6 border-2 border-purple-500 bg-purple-50 rounded-lg">
+      <h3 className="text-xl font-bold text-purple-800 mb-2">🧪 CHART TEST: SmallerAreaPropertyTypeChart Component</h3>
+      <p className="text-purple-700 mb-2">If you can see this purple box, the chart component is working!</p>
+      <p className="text-sm text-purple-600">This will be replaced with the actual bar chart comparing property types.</p>
+      <div className="mt-4 p-3 bg-white rounded border">
+        <strong>Test Data:</strong>
+        <ul className="mt-2">
+          <li>Ballyfermot: End-terrace (15.6%), Terrace (12.21%), Apartments (7.93%)</li>
+          <li>Clondalkin: Terrace (12.21%), Semi-detached (11.07%), Apartments (8.46%)</li>
+          <li>Terenure: Apartments (17.52%), Terrace (10.64%), Semi-detached (10.08%)</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// Dublin Over-Asking Hotspots Charts
+
+export function OverAskingHotspotsChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog56_geographic_hotspots_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.OverAskingHotspotsChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  `${value}%`,
+                  'Over-Asking Rate'
+                ]}
+                labelFormatter={(label) => `Area: ${label}`}
+              />
+              <Bar dataKey="overAskingPercent" fill="#2563EB" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          D22 leads with 13.59% over-asking rate, followed by D12 at 12.66%
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PriceBracketPerformanceChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog56_geographic_hotspots_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => setData(chartData.PriceBracketPerformanceChart || []))
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="priceBracket"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={10}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  `${value}%`,
+                  name
+                ]}
+                labelFormatter={(label) => `Price Bracket: ${label}`}
+              />
+              <Bar dataKey="D22" fill="#2563EB" name="D22" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="D12" fill="#DC2626" name="D12" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="D24" fill="#16A34A" name="D24" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="D11" fill="#CA8A04" name="D11" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="D9" fill="#9333EA" name="D9" radius={[2, 2, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          €300k-€450k bracket shows strongest performance across hotspots with 11-16% over-asking
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
+export function PropertyTypeOverAskingChart() {
+  const [data, setData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/blog56_geographic_hotspots_chart_data.json')
+      .then(res => res.json())
+      .then(chartData => {
+        const propertyTypeData = chartData.PropertyTypeOverAskingChart || [];
+        const transformedData = propertyTypeData.map((area: any) => {
+          const result: any = { area: area.area };
+          area.propertyTypes.forEach((type: any) => {
+            // Clean up property type names for chart keys
+            let key = type.type;
+            if (key === 'Semi-D') key = 'Semi-D';
+            else if (key === 'End of Terrace') key = 'End of Terrace';
+            else if (key === '') key = 'Other';
+            result[key] = type.avgOverAsking;
+          });
+          return result;
+        });
+        setData(transformedData);
+      })
+      .catch(() => setData([]));
+  }, []);
+
+  return (
+    <ChartWrapper>
+      <div className="my-8">
+        <div className="h-80 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <XAxis
+                dataKey="area"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                fontSize={11}
+              />
+              <YAxis
+                label={{ value: 'Over-Asking Rate (%)', angle: -90, position: 'insideLeft' }}
+                fontSize={12}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  `${value}%`,
+                  name
+                ]}
+                labelFormatter={(label) => `Area: ${label}`}
+              />
+              <Bar dataKey="Terrace" fill="#2563EB" name="Terrace" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="Semi-D" fill="#DC2626" name="Semi-Detached" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="End of Terrace" fill="#16A34A" name="End of Terrace" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="Apartment" fill="#CA8A04" name="Apartment" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="Other" fill="#9333EA" name="Other" radius={[2, 2, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-sm text-slate-600 text-center">
+          Terrace properties show consistent over-asking success across all hotspot areas
+        </p>
+      </div>
+    </ChartWrapper>
+  );
+}
+
 // Street Type Momentum Charts
 

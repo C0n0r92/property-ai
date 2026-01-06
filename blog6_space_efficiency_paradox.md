@@ -55,3 +55,4 @@ According to the Central Statistics Office, household sizes in Ireland average 2
 
 ## Methodology
 This analysis examined 13,923 Dublin properties sold between January 2024 and December 2025, excluding future-dated transactions. Space efficiency was calculated as bedrooms per square meter, with geographic coverage spanning all Dublin postcodes containing at least 20 valid transactions. Properties with unrealistic price per square meter values (>€15,000/㎡ or <€1,000/㎡) were excluded from analysis.
+

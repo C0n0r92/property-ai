@@ -78,3 +78,4 @@ GRANT SELECT ON blog_votes TO anon;
 
 
 
+

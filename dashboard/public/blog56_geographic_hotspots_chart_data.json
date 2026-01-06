@@ -1,0 +1,207 @@
+{
+  "OverAskingHotspotsChart": [
+    {
+      "area": "D22",
+      "overAskingPercent": 13.59,
+      "propertyCount": 493,
+      "avgPrice": 375496
+    },
+    {
+      "area": "D12",
+      "overAskingPercent": 12.66,
+      "propertyCount": 859,
+      "avgPrice": 479919
+    },
+    {
+      "area": "D24",
+      "overAskingPercent": 11.41,
+      "propertyCount": 1041,
+      "avgPrice": 402977
+    },
+    {
+      "area": "D11",
+      "overAskingPercent": 10.95,
+      "propertyCount": 687,
+      "avgPrice": 403799
+    },
+    {
+      "area": "D9",
+      "overAskingPercent": 8.09,
+      "propertyCount": 942,
+      "avgPrice": 525205
+    },
+    {
+      "area": "D15",
+      "overAskingPercent": 7.31,
+      "propertyCount": 1623,
+      "avgPrice": 463571
+    },
+    {
+      "area": "D16",
+      "overAskingPercent": 6.81,
+      "propertyCount": 746,
+      "avgPrice": 647426
+    },
+    {
+      "area": "D14",
+      "overAskingPercent": 6.4,
+      "propertyCount": 841,
+      "avgPrice": 767192
+    },
+    {
+      "area": "D13",
+      "overAskingPercent": 6.21,
+      "propertyCount": 804,
+      "avgPrice": 585608
+    },
+    {
+      "area": "D8",
+      "overAskingPercent": 6.17,
+      "propertyCount": 912,
+      "avgPrice": 470420
+    }
+  ],
+  "PriceBracketPerformanceChart": [
+    {
+      "priceBracket": "Under €300k",
+      "D22": 7.3,
+      "D12": -6.49,
+      "D24": 7.11,
+      "D11": 7.02,
+      "D9": 2.78
+    },
+    {
+      "priceBracket": "€300k-€450k",
+      "D22": 15.86,
+      "D12": 11.94,
+      "D24": 13.57,
+      "D11": 14.53,
+      "D9": 8.79
+    },
+    {
+      "priceBracket": "€450k-€600k",
+      "D22": 12.8,
+      "D12": 13.87,
+      "D24": 11.8,
+      "D11": 9.81,
+      "D9": 9.22
+    },
+    {
+      "priceBracket": "€600k-€800k",
+      "D22": 15.14,
+      "D12": 15.66,
+      "D24": 10.01,
+      "D11": 9.72,
+      "D9": 10.52
+    },
+    {
+      "priceBracket": "Over €800k",
+      "D12": 18.21,
+      "D24": 8.69,
+      "D11": 6.37,
+      "D9": 3.75
+    }
+  ],
+  "PropertyTypeOverAskingChart": [
+    {
+      "area": "D22",
+      "propertyTypes": [
+        {
+          "type": "Site",
+          "avgOverAsking": 259.18,
+          "count": 2
+        },
+        {
+          "type": "Duplex",
+          "avgOverAsking": 17.48,
+          "count": 7
+        },
+        {
+          "type": "",
+          "avgOverAsking": 17.19,
+          "count": 28
+        }
+      ]
+    },
+    {
+      "area": "D12",
+      "propertyTypes": [
+        {
+          "type": "Duplex",
+          "avgOverAsking": 18.18,
+          "count": 1
+        },
+        {
+          "type": "End of Terrace",
+          "avgOverAsking": 14.46,
+          "count": 218
+        },
+        {
+          "type": "Semi-D",
+          "avgOverAsking": 12.78,
+          "count": 160
+        }
+      ]
+    },
+    {
+      "area": "D24",
+      "propertyTypes": [
+        {
+          "type": "",
+          "avgOverAsking": 15.52,
+          "count": 23
+        },
+        {
+          "type": "Duplex",
+          "avgOverAsking": 15.16,
+          "count": 38
+        },
+        {
+          "type": "Terrace",
+          "avgOverAsking": 12.85,
+          "count": 177
+        }
+      ]
+    },
+    {
+      "area": "D11",
+      "propertyTypes": [
+        {
+          "type": "",
+          "avgOverAsking": 17.94,
+          "count": 23
+        },
+        {
+          "type": "Terrace",
+          "avgOverAsking": 13.19,
+          "count": 201
+        },
+        {
+          "type": "Duplex",
+          "avgOverAsking": 10.92,
+          "count": 23
+        }
+      ]
+    },
+    {
+      "area": "D9",
+      "propertyTypes": [
+        {
+          "type": "Site",
+          "avgOverAsking": 186.67,
+          "count": 1
+        },
+        {
+          "type": "terrace",
+          "avgOverAsking": 25.22,
+          "count": 1
+        },
+        {
+          "type": "Terrace",
+          "avgOverAsking": 9.61,
+          "count": 239
+        }
+      ]
+    }
+  ]
+}

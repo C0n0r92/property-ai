@@ -133,3 +133,4 @@ According to the Residential Tenancies Board, Dublin's rental market saw 12% ann
 
 ## Methodology
 Analysis includes 777 active rental listings from December 2025 across 25 Dublin postcodes. Rent per bedroom calculations exclude studio apartments and properties without bedroom data. Areas with fewer than 3 rental listings were excluded from premium/best value rankings to ensure statistical reliability. Data sourced from Daft.ie rental platform with geographic validation against Dublin postcode boundaries.
+

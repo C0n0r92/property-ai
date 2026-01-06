@@ -116,3 +116,4 @@ According to the Central Statistics Office Housing Survey 2024, terrace housing 
 
 ## Methodology
 Analysis includes 20,718 Dublin property transactions from 2024-2025 with verified asking prices and sale dates. Property types categorized by RTB classification standards. Over-asking rates calculated as properties selling above asking price. Premiums computed as percentage difference between final sale and original asking price. Year-over-year growth based on minimum 10-property annual samples per type.
+

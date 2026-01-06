@@ -200,3 +200,4 @@ console.log(`• Best over-asking performance: ${overAskingRank[0][0]} (${overAs
 console.log(`• Strongest growth: ${growthRank[0][0]} (${growthRank[0][1].growthRate.toFixed(1)}% YoY)`);
 console.log(`• Best value efficiency: ${efficiencyRank[0][0]} (€${Math.round(efficiencyRank[0][1].avgPricePerBed).toLocaleString()}/bed)`);
 console.log(`• Market leader by share: ${validTypes.sort((a,b) => b[1].marketShare - a[1].marketShare)[0][0]} (${validTypes.sort((a,b) => b[1].marketShare - a[1].marketShare)[0][1].marketShare.toFixed(1)}%)`);
+

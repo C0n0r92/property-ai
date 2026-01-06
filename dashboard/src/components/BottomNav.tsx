@@ -122,8 +122,8 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface)] border-t border-[var(--border)] pb-safe-or-2">
-        <div className="flex items-center justify-around px-2 py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface)] border-t border-[var(--border)] pb-safe-or-2" suppressHydrationWarning>
+        <div className="flex items-center justify-around px-2 py-2" suppressHydrationWarning>
           {visibleItems.map((item) => {
             const active = isActive(item.href);
 
@@ -133,6 +133,7 @@ export function BottomNav() {
                 <button
                   key={item.href}
                   onClick={() => setIsRecentlyViewedOpen(true)}
+                  suppressHydrationWarning
                   className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-all duration-200 min-h-[56px] flex-1 relative ${
                     'text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]'
                   }`}
@@ -155,9 +156,10 @@ export function BottomNav() {
             // Special handling for Tools dropdown
             if (item.href === '/tools/compare') {
               return (
-                <div key={item.href} className="relative flex-1" ref={toolsDropdownRef}>
+                <div key={item.href} className="relative flex-1" ref={toolsDropdownRef} suppressHydrationWarning>
                   <button
                     onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
+                    suppressHydrationWarning
                     className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-all duration-200 min-h-[56px] w-full ${
                       active
                         ? 'text-[var(--accent)] bg-[var(--accent)]/10'
@@ -181,7 +183,7 @@ export function BottomNav() {
                   </button>
 
                   {isToolsDropdownOpen && (
-                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <div suppressHydrationWarning className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                       <Link
                         href="/tools/compare"
                         className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
@@ -231,6 +233,7 @@ export function BottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
+                suppressHydrationWarning
                 className={`flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-all duration-200 min-h-[56px] flex-1 ${
                   active
                     ? 'text-[var(--accent)] bg-[var(--accent)]/10'

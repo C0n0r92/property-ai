@@ -1,7 +1,7 @@
 {
-  "reviewDate": "2026-01-05T11:15:48.444Z",
+  "reviewDate": "2026-01-06T11:19:27.705Z",
   "summary": {
-    "totalBlogs": 26,
+    "totalBlogs": 27,
     "passed": 8,
     "averageScore": 76
   },
@@ -911,6 +911,41 @@
         "Include more practical recommendations for buyers, sellers, and investors",
         "Ensure formal tone and proper formatting throughout"
       ]
+    },
+    {
+      "filename": "../blogs/blog57_dublin_smaller_areas_hotspots.md",
+      "overallScore": 79,
+      "totalScore": 79,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 18,
+          "maxScore": 25,
+          "percentage": 72
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 76
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": false,
+      "recommendations": []
     },
     {
       "filename": "../blog53_square_meter_efficiency.md",

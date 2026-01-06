@@ -74,3 +74,4 @@ export function getMapStyles(): { value: string; label: string; description: str
     }
   ];
 }
+

@@ -119,3 +119,4 @@ According to the Residential Tenancies Board Q4 2024 analysis, Dublin's rental m
 
 ## Methodology
 Analysis includes 13,973 Dublin properties with verified square meter data from 2024-2025 transactions. Efficiency scores calculated as square meters per €100,000 invested, controlling for property type and geographic distribution. Minimum 30-property sample sizes per area ensure statistical validity. Premium calculations based on differential from most efficient area (D1) baseline.
+

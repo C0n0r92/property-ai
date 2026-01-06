@@ -171,3 +171,4 @@ console.log(`• Value Increase: €${Math.round(avgPrice2025 - avgPrice2024).to
 console.log(`• Over-Asking Rate: ${((overAsking.length / biddingProps.length) * 100).toFixed(1)}%`);
 console.log(`• Average Premium: ${avgPremium.toFixed(1)}%`);
 console.log(`• Dominant Property Type: ${Object.entries(typeBreakdown).sort((a, b) => b[1].count - a[1].count)[0][0]} (${((Object.entries(typeBreakdown).sort((a, b) => b[1].count - a[1].count)[0][1].count / validProps.length) * 100).toFixed(1)}%)`);
+

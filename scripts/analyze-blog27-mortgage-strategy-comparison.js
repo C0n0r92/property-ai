@@ -280,3 +280,4 @@ console.log(`• Luxury investors break even fastest: ${breakEvenResults.filter(
 console.log(`• Conservative rates make overpayment less attractive due to lower interest costs`);
 console.log(`• €200 extra payments pay for themselves in ${Math.min(...breakEvenResults.map(r => r.breakEven200Years).filter(y => y !== null))} years minimum`);
 console.log(`• Time saved ranges from ${Math.min(...savingsProjections.map(p => p.yearsSaved))} to ${Math.max(...savingsProjections.map(p => p.yearsSaved))} years across buyer profiles`);
+

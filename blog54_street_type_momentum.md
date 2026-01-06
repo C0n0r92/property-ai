@@ -63,3 +63,4 @@ According to the Residential Tenancies Board, family-oriented neighborhoods comm
 
 ## Methodology
 Analysis covers 29,102 Dublin property transactions from 2021-2025 with valid price and location data. Street types identified through address pattern matching excluding apartments and commercial properties. Growth calculations based on average price changes across 4-year period with minimum 200+ property sample sizes per street type. Geographic coverage spans all Dublin postcodes with consistent data availability.
+

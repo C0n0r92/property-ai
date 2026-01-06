@@ -261,3 +261,4 @@ console.log(`• Areas with least competition: ${areaResults.slice(-3).map(a => 
 console.log(`• Most competitive property types: ${typeResults.slice(0, 3).map(t => `${t.type} (${t.competitionIndex})`).join(', ')}`);
 console.log(`• Competition peaks in ${mostCompetitiveBracket.bracket} bracket`);
 console.log(`• Average bidding war premium: ${avgPremium}%`);
+

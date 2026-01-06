@@ -40,3 +40,4 @@ To run this migration:
 
 This is safe to run multiple times - it only affects users without profiles.
 */
+

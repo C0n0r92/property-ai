@@ -85,3 +85,4 @@ COMMENT ON COLUMN mortgage_scenarios.results IS 'JSONB containing calculated res
 
 
 
+

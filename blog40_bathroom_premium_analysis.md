@@ -34,3 +34,4 @@ Bathroom count emerges as a critical value driver in Dublin's property market, w
 
 ## Methodology
 Analysis covers 21,093 Dublin property transactions from 2024-2025, with bathroom configurations validated against property types and geographic locations. Premium calculations account for size increases and market positioning across all major Dublin postcodes.
+

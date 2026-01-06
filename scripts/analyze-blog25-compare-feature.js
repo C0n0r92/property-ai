@@ -209,3 +209,4 @@ console.log(`• Most Compared Type: ${Object.entries(propertyTypes).sort((a, b)
 console.log(`• Most Popular Price Range: ${Object.entries(priceRanges).sort((a, b) => b[1] - a[1])[0][0]}`);
 console.log(`• Most Used Feature: ${Object.entries(featureUsageStats).sort((a, b) => b[1] - a[1])[0][0]} (${Object.entries(featureUsageStats).sort((a, b) => b[1] - a[1])[0][1]}%)`);
 
+

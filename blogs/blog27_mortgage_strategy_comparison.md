@@ -118,3 +118,4 @@ According to the Central Bank of Ireland's mortgage statistics, average mortgage
 
 ## Methodology
 Analysis includes 15,714 Dublin property transactions across 2024-2025 with median price calculations by buyer profile. Mortgage scenarios incorporate 75-90% loan-to-value ratios at 2.5-4.5% interest rates over 25-30 year terms. Overpayment calculations account for compound interest effects and principal acceleration benefits. Break-even analysis determines point where interest savings equal extra payment costs.
+

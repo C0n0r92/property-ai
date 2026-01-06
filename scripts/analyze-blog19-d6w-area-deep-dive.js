@@ -170,3 +170,4 @@ console.log(`• Value Increase: €${Math.round(avgPrice2025 - avgPrice2024).to
 console.log(`• Over-Asking Rate: ${((overAsking.length / biddingProps.length) * 100).toFixed(1)}%`);
 console.log(`• Average Premium: ${avgPremium.toFixed(1)}%`);
 console.log(`• Dominant Property Type: Semi-Detached (${typeBreakdown['Semi-Detached'] ? ((typeBreakdown['Semi-Detached'].count / validProps.length) * 100).toFixed(1) : 0}%)`);
+

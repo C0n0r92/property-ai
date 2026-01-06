@@ -242,6 +242,8 @@ function reviewBlogs() {
     '../blogs/blog47_market_quiet_zones.md',
     '../blogs/blog48_conservative_market_strategy.md',
     '../blogs/blog49_rental_market_hotspots.md',
+    '../blogs/blog56_dublin_over_asking_hotspots.md',
+    '../blogs/blog57_dublin_smaller_areas_hotspots.md',
     '../blog53_square_meter_efficiency.md'
   ];
 

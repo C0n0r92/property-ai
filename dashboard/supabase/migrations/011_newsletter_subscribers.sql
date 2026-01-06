@@ -18,3 +18,4 @@ CREATE INDEX IF NOT EXISTS newsletter_subscribers_source_idx ON public.newslette
 
 -- Add comment
 COMMENT ON TABLE public.newsletter_subscribers IS 'Email addresses subscribed to marketing newsletters';
+

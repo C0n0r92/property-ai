@@ -101,3 +101,4 @@ According to the Residential Tenancies Board Q4 2024 report, Dublin rental growt
 
 ## Methodology
 Analysis includes 13,862 Dublin property transactions from 2024-2025 with verified rental estimates. Geographic coverage spans all Dublin postcodes with minimum 50-property sample sizes. Price-rent correlation calculated using Pearson coefficient methodology. Growth rates computed using year-over-year average price comparisons with minimum 10-property annual samples.
+

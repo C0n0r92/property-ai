@@ -306,3 +306,4 @@ console.log(JSON.stringify({
     increase: comp.compare.soldPrice - comp.base.soldPrice
   }))
 }, null, 2));
+

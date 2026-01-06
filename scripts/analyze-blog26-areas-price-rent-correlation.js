@@ -208,3 +208,4 @@ console.log(`• Fastest growing area: ${growthAreas[0][0]} (${growthAreas[0][1]
 console.log(`• Price-rent correlation: ${correlation.toFixed(3)} (${Math.abs(correlation) > 0.7 ? 'Strong' : 'Moderate'} relationship)`);
 console.log(`• Highest rental yield area: ${correlationData.sort((a,b) => b.rentYield - a.rentYield)[0].postcode} (${correlationData.sort((a,b) => b.rentYield - a.rentYield)[0].rentYield.toFixed(1)}%)`);
 console.log(`• Best rent growth: ${rentVsPriceGrowth[0].postcode} (${rentVsPriceGrowth[0].rentGrowth.toFixed(1)}% rent increase)`);
+

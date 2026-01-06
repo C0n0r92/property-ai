@@ -297,3 +297,4 @@ export function PlanningDetail({ coordinates, address }: PlanningDetailProps) {
     </div>
   );
 }
+

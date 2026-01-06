@@ -255,3 +255,4 @@ console.log(`• Most efficient property type: ${validTypes[0][0]} (${validTypes
 console.log(`• Best bedroom efficiency: ${validBedrooms[0][0]} beds (${Math.round(validBedrooms[0][1].sqmPerBedroom)}m² per bedroom)`);
 console.log(`• Optimal size bracket: ${sizeAnalysis.sort((a,b) => b.efficiencyScore - a.efficiencyScore)[0].label} (€${sizeAnalysis.sort((a,b) => b.efficiencyScore - a.efficiencyScore)[0].pricePerSqm}/m²)`);
 console.log(`• Biggest space premium: ${inefficiencyAnalysis[0].postcode} (${inefficiencyAnalysis[0].inefficiencyPremium.toFixed(1)}% over most efficient)`);
+

@@ -199,3 +199,4 @@ console.log(`• Best buyer month: ${buyerFavored[0].monthName} (€${buyerFavor
 console.log(`• Price volatility: ${(((peakMonth.avgPrice - troughMonth.avgPrice) / troughMonth.avgPrice) * 100).toFixed(1)}% annual range`);
 console.log(`• Peak volume month: ${peakVolumeMonth.monthName} (${peakVolumeMonth.volume} sales)`);
 console.log(`• Best seller timing: ${sellerFavored[0].monthName} (combines price + over-asking success)`);
+

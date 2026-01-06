@@ -1,0 +1,199 @@
+{
+  "SmallerAreaHotspotsChart": [
+    {
+      "area": "Ballyfermot",
+      "overAskingPercent": 12.93,
+      "propertyCount": 287,
+      "avgPrice": 327740
+    },
+    {
+      "area": "Clondalkin",
+      "overAskingPercent": 12.04,
+      "propertyCount": 735,
+      "avgPrice": 357860
+    },
+    {
+      "area": "Finglas",
+      "overAskingPercent": 10.16,
+      "propertyCount": 659,
+      "avgPrice": 341109
+    },
+    {
+      "area": "Raheny",
+      "overAskingPercent": 10.11,
+      "propertyCount": 412,
+      "avgPrice": 565779
+    },
+    {
+      "area": "Tallaght",
+      "overAskingPercent": 9.6,
+      "propertyCount": 1254,
+      "avgPrice": 360423
+    },
+    {
+      "area": "Ballycullen",
+      "overAskingPercent": 9.57,
+      "propertyCount": 167,
+      "avgPrice": 491455
+    },
+    {
+      "area": "Firhouse",
+      "overAskingPercent": 9.56,
+      "propertyCount": 138,
+      "avgPrice": 497925
+    },
+    {
+      "area": "Donaghmede",
+      "overAskingPercent": 9.4,
+      "propertyCount": 107,
+      "avgPrice": 426737
+    },
+    {
+      "area": "Terenure",
+      "overAskingPercent": 9.07,
+      "propertyCount": 647,
+      "avgPrice": 730971
+    },
+    {
+      "area": "Lucan",
+      "overAskingPercent": 8.74,
+      "propertyCount": 1048,
+      "avgPrice": 457552
+    }
+  ],
+  "SmallerAreaPriceBracketChart": [
+    {
+      "priceBracket": "Under €300k",
+      "Ballyfermot": 5.3,
+      "Clondalkin": 6.47,
+      "Finglas": 5.22,
+      "Tallaght": 5.01
+    },
+    {
+      "priceBracket": "€300k-€450k",
+      "Ballyfermot": 17.01,
+      "Clondalkin": 15.01,
+      "Finglas": 13,
+      "Raheny": 10.59,
+      "Tallaght": 12.01
+    },
+    {
+      "priceBracket": "€450k-€600k",
+      "Clondalkin": 12.44,
+      "Finglas": 11.45,
+      "Raheny": 9.87,
+      "Tallaght": 12.11
+    },
+    {
+      "priceBracket": "€600k-€800k",
+      "Raheny": 9.6,
+      "Tallaght": 5.86
+    },
+    {
+      "priceBracket": "Over €800k",
+      "Raheny": 14.59
+    }
+  ],
+  "SmallerAreaPropertyTypeChart": [
+    {
+      "area": "Ballyfermot",
+      "propertyTypes": [
+        {
+          "type": "",
+          "avgOverAsking": 22.16,
+          "count": 8
+        },
+        {
+          "type": "End of Terrace",
+          "avgOverAsking": 15.6,
+          "count": 87
+        },
+        {
+          "type": "Terrace",
+          "avgOverAsking": 12.21,
+          "count": 138
+        }
+      ]
+    },
+    {
+      "area": "Clondalkin",
+      "propertyTypes": [
+        {
+          "type": "Site",
+          "avgOverAsking": 179.5,
+          "count": 3
+        },
+        {
+          "type": "",
+          "avgOverAsking": 16.92,
+          "count": 30
+        },
+        {
+          "type": "End of Terrace",
+          "avgOverAsking": 14.66,
+          "count": 94
+        }
+      ]
+    },
+    {
+      "area": "Finglas",
+      "propertyTypes": [
+        {
+          "type": "terrace",
+          "avgOverAsking": 25.22,
+          "count": 1
+        },
+        {
+          "type": "",
+          "avgOverAsking": 16.82,
+          "count": 21
+        },
+        {
+          "type": "Terrace",
+          "avgOverAsking": 11.96,
+          "count": 221
+        }
+      ]
+    },
+    {
+      "area": "Raheny",
+      "propertyTypes": [
+        {
+          "type": "Detached",
+          "avgOverAsking": 14.74,
+          "count": 24
+        },
+        {
+          "type": "",
+          "avgOverAsking": 12.72,
+          "count": 7
+        },
+        {
+          "type": "End of Terrace",
+          "avgOverAsking": 11.39,
+          "count": 46
+        }
+      ]
+    },
+    {
+      "area": "Tallaght",
+      "propertyTypes": [
+        {
+          "type": "",
+          "avgOverAsking": 16.56,
+          "count": 18
+        },
+        {
+          "type": "Duplex",
+          "avgOverAsking": 12.54,
+          "count": 33
+        },
+        {
+          "type": "Semi-D",
+          "avgOverAsking": 10.58,
+          "count": 379
+        }
+      ]
+    }
+  ]
+}

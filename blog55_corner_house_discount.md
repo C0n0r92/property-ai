@@ -72,3 +72,4 @@ According to the Society of Chartered Surveyors Ireland, corner properties in ma
 
 ## Methodology
 Analysis covers 17,530 Dublin terrace and semi-detached transactions from 2021-2025. Corner properties identified as "End of Terrace" property type with minimum 20-property sample sizes per comparison group. Geographic coverage spans Dublin postcodes D1-D24 with consistent data availability. Price calculations based on average sold prices with outlier removal.
+
