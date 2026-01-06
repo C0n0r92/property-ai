@@ -10,7 +10,7 @@ import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
 import { MapLink } from '@/components/MapLink';
 import { getCategoryConfig } from '@/lib/blog-categories';
-import { BlogAlertTracker } from '@/components/BlogAlertTracker';
+import { AISignupCTA } from '@/components/AISignupCTA';
 import { OverAskingChart, DistanceChart, ThreeBedChart, ChristmasPriceChart, YieldCurveChart, BedroomPerformanceChart, D4PremiumChart, JanuaryVolumeChart, RentalPricingChart, TopRentalAreasChart, Q2VsQ1Chart, MonthlyTrendChart, RentalYieldChart, YieldDistributionChartNew, SizeEfficiencyChartNew, PostcodeEfficiencyChart, YearOverYearPricesChart, PropertyTypeComparisonChart, PremiumDistributionChartNew, PremiumPaybackChart, OpportunityCostChart, BreakEvenChart, AreaPremiumChart, PriceIncreaseChart, BiddingWarsChart, PriceChangeComparisonChart, YearOverYearChart, PropertyTypeChart, PriceDistributionChart, PriceTrendChart, YearOverYearChartD7, PropertyTypeChartD7, PriceDistributionChartD7, PriceTrendChartD7, YearOverYearChartD2, PropertyTypeChartD2, PriceDistributionChartD2, PriceTrendChartD2, SeasonalPerformanceChart, MonthlyTimingChart, TimingValueTradeoffChart, BestTypeByAreaChart, MortgageImpactChart, OverpaymentSavingsChartNew, MonthlyPaymentBreakdownChart, PropertyTypeSavingsChart, BiddingWarImpactChart, YieldByPostcodeChart, YieldByPriceBracketChart, BestValueAreasChart, YieldDistributionChartNew2, BedroomEfficiencyChart, PropertyTypeEfficiencyChart, SizeBracketEfficiencyChart, EfficiencyParadoxChart, OverAskingByPriceBracketChart, OverAskingByPropertyTypeChart, OverAskingByPostcodeChart, PremiumDistributionChartNew2, OptimalStrategyChart, D3PropertyTypesChart, D3MonthlyTrendsChart, SizeBandMortgageChart, OverpaymentSavingsChartNew as OverpaymentSavingsChartNew2, SizeBandOverAskingChart, BreakEvenAnalysisChart, YieldBySizeBandChart, GeographicPriceVariationsChart, PriceEfficiencyChart, OverAskingSuccessChart, PropertySizeVariationsChart, PricePredictabilityChart, RentalYieldMapChart, BuyerTypeScoresChart, CyclicalPerformanceChart, SeasonalIndexChart, PeakPerformanceChart, MarketTimingChart, PriceVolatilityChart, AutumnForecastChart, SizeEfficiencyChartNew2, OverAskingParadoxChart, ValueEfficiencyChart, QuarterlyTimingChart, PropertyTypeDistributionChart, BuyerProfileOptimizationChart, SalesVolumeChart, PriceStabilityChart, OverAskingStabilityChart, AnnualAppreciationChart, ConservativeStrategyChart, BuyerAdvantageChart, RentalVolumeChart, PremiumRentalsChart, ValueRentalsChart, YieldEfficiencyChart, D5YearlyTrendsChart, D5PropertyTypeChart, D5PriceDistributionChart, CovidRecoveryChart, CovidPropertyTypeChart, CovidGrowthRatesChart, StreetTypeGrowthChart, PriceProgressionChart, StreetTypeInvestmentEfficiencyChart, PropertySizeInvestmentEfficiencyChart, CornerDiscountOverviewChart, CornerDiscountByTypeChart, CornerDiscountBySizeChart, CornerDiscountByAreaChart, SmallerAreaHotspotsChart, SmallerAreaPriceBracketChart, SmallerAreaPropertyTypeChart } from '@/components/BlogCharts';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
@@ -9151,7 +9151,7 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
   // Blog content rendering enabled
   return (
     <div>
-      <BlogAlertTracker slug={slug} />
+      <AISignupCTA />
       <div className="min-h-screen bg-slate-900">
         {/* Hero Section with Article Header */}
         <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">
@@ -9187,9 +9187,11 @@ export default async function ResearchArticlePage({ params }: { params: Promise<
                 {article.title}
               </h1>
 
-              {/* Map Link CTA - Below Title */}
-              <div className="w-full max-w-md">
-                <MapLink />
+              {/* Compact Map Link CTA - Top Right */}
+              <div className="absolute top-4 right-4 md:top-6 md:right-6">
+                <div className="w-36 md:w-40">
+                  <MapLink />
+                </div>
               </div>
             </div>
           </div>

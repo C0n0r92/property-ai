@@ -8,8 +8,8 @@ import { ReadingProgress } from '@/components/ReadingProgress';
 import { BlogVoteButton } from '@/components/BlogVoteButton';
 import { BlogShareButton } from '@/components/BlogShareButton';
 import { BlogViewTracker } from '@/components/BlogViewTracker';
+import { FloatingBlogSignup } from '@/components/FloatingBlogSignup';
 import { articles } from '@/lib/blog-articles';
-import { useBlogAlertTracking } from '@/hooks/useBlogAlertTracking';
 
 interface BlogClientProps {
   slug: string;
@@ -66,36 +66,12 @@ export default function BlogClient({ slug }: BlogClientProps) {
   // Process markdown to HTML
   const htmlContent = processMarkdownToHtml(article.content);
 
-  // Blog alert tracking
-  const { startBlogTracking, stopBlogTracking, trackEngagement } = useBlogAlertTracking();
-
-  // Start tracking when component mounts
-  useEffect(() => {
-    console.log('🚀 BlogClient useEffect triggered, starting blog alert tracking for slug:', slug);
-    console.log('🚀 Article exists:', !!article);
-    console.log('🚀 Article title:', article?.title);
-    startBlogTracking(slug);
-
-    // Track user engagement events
-    const handleScroll = () => trackEngagement();
-    const handleClick = () => trackEngagement();
-
-    // Add event listeners
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    document.addEventListener('click', handleClick);
-
-    // Cleanup on unmount
-    return () => {
-      stopBlogTracking();
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('click', handleClick);
-    };
-  }, [slug, article.title, article.excerpt, startBlogTracking, stopBlogTracking, trackEngagement]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <BlogViewTracker articleSlug={slug} />
       <ReadingProgress />
+      <FloatingBlogSignup blogTitle={article.title} blogSlug={slug} />
 
       {/* Hero Section with Article Header */}
       <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900">

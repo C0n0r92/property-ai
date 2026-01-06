@@ -1,21 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface NewsletterSignupProps {
   title?: string;
   description?: string;
   compact?: boolean;
+  source?: string;
+  blogSlug?: string;
+  onSuccess?: () => void;
 }
 
 export function NewsletterSignup({
   title = "Stay Ahead of Market Trends",
   description = "Get notified when new research is published and receive quarterly market intelligence reports directly to your inbox.",
-  compact = false
+  compact = false,
+  source = "homepage",
+  blogSlug,
+  onSuccess
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Auto-hide success message after 5 seconds
+  useEffect(() => {
+    if (isSubmitted) {
+      const timer = setTimeout(() => {
+        setIsSubmitted(false);
+      }, 5000); // 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [isSubmitted]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +42,11 @@ export function NewsletterSignup({
       const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          source,
+          blogSlug
+        }),
       });
 
       const data = await response.json();
@@ -36,12 +57,14 @@ export function NewsletterSignup({
 
       setIsSubmitted(true);
       setEmail('');
+      onSuccess?.();
     } catch (error: any) {
       console.error('Newsletter signup error:', error);
       // For now, just show success to avoid breaking UX
       // In production, you'd want to show the error
       setIsSubmitted(true);
       setEmail('');
+      onSuccess?.();
     } finally {
       setIsSubmitting(false);
     }

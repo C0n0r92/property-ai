@@ -496,5 +496,58 @@ export const analytics = {
       value: amount
     });
   },
+
+  // AI Summary Analytics
+  aiSummaryCtaShown: (blogSlug: string) => {
+    trackEvent({
+      action: 'ai_summary_cta_shown',
+      category: 'engagement',
+      label: blogSlug
+    });
+  },
+
+  aiSummaryCtaClicked: (blogSlug: string) => {
+    trackEvent({
+      action: 'ai_summary_cta_clicked',
+      category: 'engagement',
+      label: blogSlug
+    });
+  },
+
+  aiSummaryEmailEntered: (blogSlug: string, requestNumber: number) => {
+    trackEvent({
+      action: 'ai_summary_email_entered',
+      category: 'engagement',
+      label: `${blogSlug}:${requestNumber}`,
+      value: requestNumber
+    });
+  },
+
+  aiSummaryPaymentInitiated: (blogSlug: string, amount: number, requestNumber: number) => {
+    trackEvent({
+      action: 'ai_summary_payment_initiated',
+      category: 'conversion',
+      label: `${blogSlug}:${requestNumber}`,
+      value: amount
+    });
+  },
+
+  aiSummaryPaymentCompleted: (blogSlug: string, amount: number, requestNumber: number) => {
+    trackEvent({
+      action: 'ai_summary_payment_completed',
+      category: 'revenue',
+      label: `${blogSlug}:${requestNumber}`,
+      value: amount
+    });
+  },
+
+  aiSummaryRequestSubmitted: (blogSlug: string, isPaid: boolean, requestNumber: number) => {
+    trackEvent({
+      action: 'ai_summary_request_submitted',
+      category: isPaid ? 'revenue' : 'engagement',
+      label: `${blogSlug}:${isPaid ? 'paid' : 'free'}:${requestNumber}`,
+      value: isPaid ? 99 : 0 // 99 cents for paid, 0 for free
+    });
+  },
 };
 

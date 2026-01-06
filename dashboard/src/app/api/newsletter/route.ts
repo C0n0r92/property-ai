@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const { email, source = 'homepage', blogSlug } = await request.json();
 
     if (!email || !email.includes('@')) {
       return NextResponse.json(
@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
       .upsert({
         email: email.toLowerCase().trim(),
         subscribed_at: new Date().toISOString(),
-        source: 'homepage'
+        source: source,
+        blog_slug: blogSlug
       }, {
         onConflict: 'email'
       });

@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import { Navigation } from "@/components/Navigation";
 import { BottomNav } from "@/components/BottomNav";
+import { BuyMeCoffeeWidget } from "@/components/BuyMeCoffeeWidget";
 
 export const metadata: Metadata = {
   title: "Irish Property Data | Property Intelligence & Market Insights",
@@ -155,7 +156,7 @@ export default function RootLayout({
           <BottomNav />
         </Providers>
         {/* Buy Me a Coffee widget */}
-        <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="conor.mcloughlin" data-description="Support me on Buy me a coffee!" data-message="" data-color="#40DCA5" data-position="BottomLeft" data-x_margin="18" data-y_margin="80"></script>
+        <BuyMeCoffeeWidget />
       </body>
     </html>
   );
