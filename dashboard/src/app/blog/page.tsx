@@ -34,6 +34,18 @@ const researchArticles = [
     views: 0,
   },
   {
+    id: 'dublin-rental-affordability-crisis',
+    title: 'Dublin Rental Affordability Crisis: Under €2,000 Housing Gap',
+    excerpt: 'Dublin rental market reveals stark affordability crisis with only 8.2% of rentals under €2,000 despite median rent of €2,600. Analysis of 2,105 properties shows extreme polarization between luxury rentals (€16,300) and scarce affordable options.',
+    category: 'Market Analysis',
+    date: '2026-01-12',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['Rental Market', 'Affordability Crisis', 'Housing Accessibility', 'Market Polarization', 'Dublin Rentals', 'Property Supply'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-suburban-over-asking-hotspots',
     title: 'Dublin\'s Suburban Bidding War Hotspots: 9-13% Above Asking Price 78-90% of the Time',
     excerpt: 'Dublin\'s suburban neighborhoods reveal exceptional over-asking patterns that outperform city center areas, with specific local communities like Ballyfermot, Clondalkin, and Finglas achieving 9-13% above asking price 78-90% of the time despite lower price points.',

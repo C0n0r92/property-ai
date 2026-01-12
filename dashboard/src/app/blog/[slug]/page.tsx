@@ -2683,6 +2683,20 @@ This analysis is based on comprehensive transaction data covering all property t
     `,
     relatedArticles: ['properties-over-asking-dublin', 'fastest-growing-areas-dublin', 'dublin-price-per-square-meter'],
   },
+  'dublin-rental-affordability-crisis': {
+    title: 'Dublin Rental Affordability Crisis: Under €2,000 Housing Gap',
+    excerpt: 'Dublin rental market reveals stark affordability crisis with only 8.2% of rentals under €2,000 despite median rent of €2,600. Analysis of 2,105 properties shows extreme polarization between luxury rentals (€16,300) and scarce affordable options.',
+    category: 'Market Analysis',
+    date: '2026-01-12',
+    readTime: '5 min read',
+    tags: ['Rental Market', 'Affordability Crisis', 'Housing Accessibility', 'Market Polarization', 'Dublin Rentals', 'Property Supply'],
+    author: 'Market Research Team',
+    views: 0,
+    relatedArticles: ['dublin-rental-market-hotspots', 'dublin-conservative-market-strategy', 'dublin-market-quiet-zones'],
+    content: `
+${readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../../../../blogs/blog59_dublin_rental_affordability_crisis.md'), 'utf8')}
+    `,
+  },
   'properties-over-asking-dublin': {
     title: 'Where Dublin Properties Go Most Over Asking Price in 2024',
     excerpt: 'Detailed breakdown of Dublin areas where properties consistently sell above asking price, with market demand indicators.',

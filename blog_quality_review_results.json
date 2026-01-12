@@ -1,8 +1,8 @@
 {
-  "reviewDate": "2026-01-06T11:19:27.705Z",
+  "reviewDate": "2026-01-12T16:04:10.170Z",
   "summary": {
-    "totalBlogs": 27,
-    "passed": 8,
+    "totalBlogs": 29,
+    "passed": 10,
     "averageScore": 76
   },
   "detailedResults": [
@@ -913,6 +913,41 @@
       ]
     },
     {
+      "filename": "../blogs/blog56_dublin_over_asking_hotspots.md",
+      "overallScore": 82,
+      "totalScore": 82,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 22,
+          "maxScore": 25,
+          "percentage": 88
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 14,
+          "maxScore": 20,
+          "percentage": 72
+        },
+        "uniqueness": {
+          "score": 16,
+          "maxScore": 20,
+          "percentage": 80
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
+    },
+    {
       "filename": "../blogs/blog57_dublin_smaller_areas_hotspots.md",
       "overallScore": 79,
       "totalScore": 79,
@@ -981,6 +1016,43 @@
       },
       "passThreshold": true,
       "recommendations": []
+    },
+    {
+      "filename": "../blogs/blog59_dublin_rental_affordability_crisis.md",
+      "overallScore": 81,
+      "totalScore": 81,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 21,
+          "maxScore": 25,
+          "percentage": 84
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 10,
+          "maxScore": 20,
+          "percentage": 48
+        },
+        "uniqueness": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": [
+        "Include more practical recommendations for buyers, sellers, and investors"
+      ]
     }
   ]
 }

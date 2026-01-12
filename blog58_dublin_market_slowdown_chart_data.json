@@ -1,0 +1,78 @@
+{
+  "MarketActivityDeclineChart": [
+    {
+      "period": "Previous Month",
+      "sales": 136,
+      "rentals": 88
+    },
+    {
+      "period": "Current Month",
+      "sales": 0,
+      "rentals": 0
+    }
+  ],
+  "PriceIncreaseAreasChart": [],
+  "ActivityDeclineByAreaChart": [
+    {
+      "area": "D4",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D5",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D6",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D7",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D8",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D14",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D15",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D18",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D22",
+      "activityChange": -100,
+      "currentSales": 0
+    },
+    {
+      "area": "D24",
+      "activityChange": -100,
+      "currentSales": 0
+    }
+  ],
+  "RentIncreaseAreasChart": [],
+  "OverAskingTrendChart": [
+    {
+      "period": "Previous Month",
+      "successRate": 63.2
+    },
+    {
+      "period": "Current Month",
+      "successRate": 0
+    }
+  ]
+}
