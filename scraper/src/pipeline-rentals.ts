@@ -337,11 +337,14 @@ async function saveRentals(rentals: RentalListing[]): Promise<void> {
   writeFileSync(filePath, JSON.stringify(rentals, null, 2));
   console.log(`✅ Saved ${rentals.length} rentals to JSON: ${filePath}`);
 
-  // Transform for Supabase
+  // Transform for Supabase - filter out records with null monthly rent
   // Debug: check what we're receiving
   console.log('First rental object:', rentals[0]);
 
-  const supabaseRecords: RentalRecord[] = rentals.map(r => ({
+  const validRentals = rentals.filter(r => r.monthlyRent !== null && r.monthlyRent > 0);
+  console.log(`Filtered ${rentals.length} rentals down to ${validRentals.length} with valid monthly rent`);
+
+  const supabaseRecords: RentalRecord[] = validRentals.map(r => ({
     id: r.id,
     address: r.address,
     property_type: r.propertyType,
