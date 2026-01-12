@@ -304,8 +304,10 @@ export default function MapComponent({}: MapComponentProps) {
     const latParam = searchParams.get('lat');
     const lngParam = searchParams.get('lng');
     const addressParam = searchParams.get('address');
+    const focusParam = searchParams.get('focus');
+    const typeParam = searchParams.get('type');
 
-    console.log('Area/Search parameters:', { areaParam, searchQuery, latParam, lngParam, addressParam });
+    console.log('Area/Search parameters:', { areaParam, searchQuery, latParam, lngParam, addressParam, focusParam, typeParam });
 
     // Handle lat/lng coordinates (from recently viewed with saved coordinates)
     if (latParam && lngParam && mapReady) {
@@ -422,6 +424,71 @@ export default function MapComponent({}: MapComponentProps) {
           }, 2500); // Wait a bit longer than the fly animation
         } else {
           console.log('No area data found for:', areaParam);
+        }
+      }, 2000); // Wait 2 seconds for map to be ready
+
+      return () => clearTimeout(timer);
+    }
+
+    // Handle focus parameter - focus on a specific property
+    if (focusParam && !loading && mapReady) {
+      const timer = setTimeout(() => {
+        const decodedAddress = decodeURIComponent(focusParam);
+        console.log('Focusing on property:', decodedAddress, 'type:', typeParam);
+
+        let foundProperty: any = null;
+        let propertyType: 'sold' | 'listing' | 'rental' = 'sold';
+
+        // Determine which data source to search based on type parameter
+        if (typeParam === 'listing') {
+          foundProperty = listings.find((p: any) =>
+            p.address.toLowerCase().includes(decodedAddress.toLowerCase()) ||
+            decodedAddress.toLowerCase().includes(p.address.toLowerCase().split(',')[0])
+          );
+          propertyType = 'listing';
+        } else if (typeParam === 'rental') {
+          foundProperty = rentals.find((p: any) =>
+            p.address.toLowerCase().includes(decodedAddress.toLowerCase()) ||
+            decodedAddress.toLowerCase().includes(p.address.toLowerCase().split(',')[0])
+          );
+          propertyType = 'rental';
+        } else {
+          // Default to sold properties
+          foundProperty = properties.find((p: any) =>
+            p.address.toLowerCase().includes(decodedAddress.toLowerCase()) ||
+            decodedAddress.toLowerCase().includes(p.address.toLowerCase().split(',')[0])
+          );
+          propertyType = 'sold';
+        }
+
+        if (foundProperty && foundProperty.latitude && foundProperty.longitude) {
+          console.log('Found and focusing on property:', foundProperty.address);
+
+          // Fly to the property location
+          flyToLocation([foundProperty.longitude, foundProperty.latitude], 16);
+
+          // Set the appropriate selected property based on type
+          if (propertyType === 'listing') {
+            setSelectedListing(foundProperty);
+          } else if (propertyType === 'rental') {
+            setSelectedRental(foundProperty);
+          } else {
+            setSelectedProperty(foundProperty);
+          }
+
+          // Set active tab to overview
+          setActiveTab('overview');
+          if (isMobile) setShowFilters(false);
+
+          // Clean up focus and type parameters after processing
+          setTimeout(() => {
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete('focus');
+            newUrl.searchParams.delete('type');
+            window.history.replaceState({}, '', newUrl.toString());
+          }, 2500);
+        } else {
+          console.log('Property not found or missing coordinates:', decodedAddress);
         }
       }, 2000); // Wait 2 seconds for map to be ready
 

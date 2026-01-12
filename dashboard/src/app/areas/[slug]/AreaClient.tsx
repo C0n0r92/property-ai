@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatFullPrice } from '@/lib/format';
 import { slugToArea, areaToSlug } from '@/lib/areas';
@@ -48,6 +49,7 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
   const [data, setData] = useState<any>(initialData);
   const [loading, setLoading] = useState(false);
   const areaName = slugToArea(slug) || 'Unknown Area';
+  const router = useRouter();
   const { trackMapSearch } = useSearchTracking();
   const { showAlertModal } = useAlertModal();
 
@@ -697,7 +699,7 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
                     title={sale.latitude && sale.longitude ? 'Click to view on map' : 'Location data not available'}
                     onClick={() => {
                       if (sale.latitude && sale.longitude) {
-                        window.open(`/map?focus=${encodeURIComponent(sale.address)}&type=listing`, '_blank');
+                        router.push(`/map?focus=${encodeURIComponent(sale.address)}&type=sold`);
                       }
                     }}
                   >
