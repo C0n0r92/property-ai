@@ -1,198 +1,205 @@
 {
-  "D8": {
-    "count": 55,
-    "avgRent": 2268,
+  "D9": {
+    "count": 35,
+    "avgRent": 2280,
     "medianRent": 2300,
-    "minRent": 450,
-    "maxRent": 4650
+    "minRent": 300,
+    "maxRent": 3995
   },
   "Unknown": {
-    "count": 178,
-    "avgRent": 3060,
-    "medianRent": 2506,
-    "minRent": 275,
+    "count": 177,
+    "avgRent": 2864,
+    "medianRent": 2595,
+    "minRent": 280,
     "maxRent": 15000
   },
-  "D13": {
-    "count": 23,
-    "avgRent": 2990,
-    "medianRent": 2587,
-    "minRent": 1341,
-    "maxRent": 9950
-  },
-  "D9": {
-    "count": 24,
-    "avgRent": 2357,
-    "medianRent": 2300,
-    "minRent": 200,
-    "maxRent": 4500
-  },
-  "D6": {
-    "count": 81,
-    "avgRent": 2978,
-    "medianRent": 2150,
-    "minRent": 199,
-    "maxRent": 12000
-  },
-  "D4": {
-    "count": 85,
-    "avgRent": 3933,
-    "medianRent": 3386,
-    "minRent": 550,
-    "maxRent": 16300
-  },
-  "D6W": {
-    "count": 16,
-    "avgRent": 2250,
-    "medianRent": 1974,
-    "minRent": 450,
-    "maxRent": 6000
-  },
-  "D24": {
-    "count": 29,
-    "avgRent": 2145,
-    "medianRent": 2084,
-    "minRent": 750,
-    "maxRent": 4950
-  },
-  "D22": {
-    "count": 16,
-    "avgRent": 2758,
-    "medianRent": 2550,
-    "minRent": 1300,
-    "maxRent": 6000
-  },
-  "D7": {
-    "count": 64,
-    "avgRent": 2073,
-    "medianRent": 1850,
-    "minRent": 868,
-    "maxRent": 5800
-  },
-  "D15": {
-    "count": 60,
-    "avgRent": 2610,
-    "medianRent": 2550,
-    "minRent": 150,
-    "maxRent": 14000
-  },
-  "D12": {
-    "count": 14,
-    "avgRent": 3636,
-    "medianRent": 2800,
-    "minRent": 850,
-    "maxRent": 14000
-  },
   "D2": {
-    "count": 44,
-    "avgRent": 2899,
-    "medianRent": 3000,
-    "minRent": 425,
-    "maxRent": 6000
-  },
-  "D3": {
-    "count": 56,
-    "avgRent": 2384,
-    "medianRent": 2250,
-    "minRent": 1000,
-    "maxRent": 5995
-  },
-  "D11": {
-    "count": 21,
-    "avgRent": 2557,
-    "medianRent": 2316,
-    "minRent": 1200,
-    "maxRent": 4800
-  },
-  "D14": {
-    "count": 18,
-    "avgRent": 3007,
-    "medianRent": 3100,
-    "minRent": 615,
-    "maxRent": 6500
-  },
-  "D18": {
-    "count": 28,
-    "avgRent": 2911,
-    "medianRent": 2727,
-    "minRent": 100,
-    "maxRent": 5300
-  },
-  "D09": {
-    "count": 6,
-    "avgRent": 2279,
-    "medianRent": 2495,
-    "minRent": 1850,
-    "maxRent": 2500
-  },
-  "D07": {
-    "count": 3,
-    "avgRent": 2065,
-    "medianRent": 1850,
-    "minRent": 1795,
-    "maxRent": 2550
-  },
-  "D5": {
-    "count": 9,
-    "avgRent": 3299,
-    "medianRent": 3000,
-    "minRent": 1723,
-    "maxRent": 5800
-  },
-  "D10": {
-    "count": 5,
-    "avgRent": 1429,
-    "medianRent": 1300,
-    "minRent": 1100,
-    "maxRent": 2008
+    "count": 34,
+    "avgRent": 2794,
+    "medianRent": 2779,
+    "minRent": 950,
+    "maxRent": 4650
   },
   "D1": {
-    "count": 63,
-    "avgRent": 2537,
-    "medianRent": 2295,
+    "count": 61,
+    "avgRent": 2510,
+    "medianRent": 2250,
     "minRent": 350,
     "maxRent": 15995
   },
-  "D16": {
-    "count": 11,
-    "avgRent": 2438,
-    "medianRent": 2006,
+  "D8": {
+    "count": 68,
+    "avgRent": 2344,
+    "medianRent": 2321,
+    "minRent": 550,
+    "maxRent": 4650
+  },
+  "D4": {
+    "count": 95,
+    "avgRent": 3912,
+    "medianRent": 3250,
+    "minRent": 1280,
+    "maxRent": 13450
+  },
+  "D11": {
+    "count": 23,
+    "avgRent": 2098,
+    "medianRent": 2300,
     "minRent": 300,
+    "maxRent": 3000
+  },
+  "D3": {
+    "count": 50,
+    "avgRent": 2560,
+    "medianRent": 2400,
+    "minRent": 1160,
+    "maxRent": 5995
+  },
+  "D18": {
+    "count": 43,
+    "avgRent": 2888,
+    "medianRent": 2600,
+    "minRent": 300,
+    "maxRent": 8500
+  },
+  "D24": {
+    "count": 41,
+    "avgRent": 2320,
+    "medianRent": 2300,
+    "minRent": 255,
+    "maxRent": 5500
+  },
+  "D15": {
+    "count": 44,
+    "avgRent": 2594,
+    "medianRent": 2600,
+    "minRent": 270,
+    "maxRent": 5900
+  },
+  "D6W": {
+    "count": 9,
+    "avgRent": 2329,
+    "medianRent": 2400,
+    "minRent": 400,
+    "maxRent": 3750
+  },
+  "D6": {
+    "count": 83,
+    "avgRent": 2992,
+    "medianRent": 2100,
+    "minRent": 199,
+    "maxRent": 12000
+  },
+  "D01": {
+    "count": 4,
+    "avgRent": 2123,
+    "medianRent": 2395,
+    "minRent": 1795,
+    "maxRent": 2450
+  },
+  "D16": {
+    "count": 17,
+    "avgRent": 2917,
+    "medianRent": 2800,
+    "minRent": 1000,
     "maxRent": 6500
   },
-  "D20": {
-    "count": 5,
-    "avgRent": 3110,
-    "medianRent": 2550,
-    "minRent": 2300,
+  "D7": {
+    "count": 70,
+    "avgRent": 2201,
+    "medianRent": 1900,
+    "minRent": 1050,
+    "maxRent": 5200
+  },
+  "D12": {
+    "count": 23,
+    "avgRent": 2351,
+    "medianRent": 2400,
+    "minRent": 265,
+    "maxRent": 4000
+  },
+  "D10": {
+    "count": 7,
+    "avgRent": 2823,
+    "medianRent": 2700,
+    "minRent": 2008,
+    "maxRent": 3800
+  },
+  "D14": {
+    "count": 19,
+    "avgRent": 2992,
+    "medianRent": 2600,
+    "minRent": 1950,
     "maxRent": 5000
   },
-  "D17": {
+  "D22": {
+    "count": 21,
+    "avgRent": 2331,
+    "medianRent": 2100,
+    "minRent": 1150,
+    "maxRent": 7500
+  },
+  "D5": {
+    "count": 12,
+    "avgRent": 3232,
+    "medianRent": 3200,
+    "minRent": 2300,
+    "maxRent": 5200
+  },
+  "D13": {
+    "count": 16,
+    "avgRent": 3563,
+    "medianRent": 2850,
+    "minRent": 1895,
+    "maxRent": 12000
+  },
+  "D07": {
     "count": 1,
-    "avgRent": 400,
-    "medianRent": 400,
-    "minRent": 400,
-    "maxRent": 400
+    "avgRent": 1795,
+    "medianRent": 1795,
+    "minRent": 1795,
+    "maxRent": 1795
   },
   "D08": {
     "count": 3,
-    "avgRent": 2415,
+    "avgRent": 2098,
     "medianRent": 2395,
-    "minRent": 2300,
-    "maxRent": 2550
+    "minRent": 1500,
+    "maxRent": 2400
   },
-  "D01": {
+  "D06": {
     "count": 1,
-    "avgRent": 2495,
-    "medianRent": 2495,
-    "minRent": 2495,
-    "maxRent": 2495
+    "avgRent": 1300,
+    "medianRent": 1300,
+    "minRent": 1300,
+    "maxRent": 1300
   },
-  "D02": {
+  "D20": {
+    "count": 2,
+    "avgRent": 2550,
+    "medianRent": 3200,
+    "minRent": 1900,
+    "maxRent": 3200
+  },
+  "D17": {
+    "count": 3,
+    "avgRent": 1617,
+    "medianRent": 2050,
+    "minRent": 450,
+    "maxRent": 2350
+  },
+  "D09": {
+    "count": 4,
+    "avgRent": 2238,
+    "medianRent": 2350,
+    "minRent": 1850,
+    "maxRent": 2400
+  },
+  "D03": {
     "count": 1,
-    "avgRent": 2495,
-    "medianRent": 2495,
-    "minRent": 2495,
-    "maxRent": 2495
+    "avgRent": 2625,
+    "medianRent": 2625,
+    "minRent": 2625,
+    "maxRent": 2625
   }
 }
