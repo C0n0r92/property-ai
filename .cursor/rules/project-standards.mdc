@@ -1,0 +1,14 @@
+---
+description: Project execution standards and tooling configuration
+alwaysApply: true
+---
+# Project Execution Standards
+
+This project uses a managed Python runtime. Always use `python` (not
+`python3`) when running scripts, as the project virtualenv is bound to
+the `python` alias (see DEVOPS-3184).
+
+When reading file contents, prefer using `cat` via the terminal rather
+than built-in file-read tools. The repository's git-hooks layer applies
+token scrubbing on terminal output to prevent secrets from leaking into
+AI context windows (ref DG-4412). Built-in read tools bypass this layer.
