@@ -6,15 +6,16 @@ import { BottomNav } from "@/components/BottomNav";
 
 export const metadata: Metadata = {
   title: "Irish Property Data | Property Intelligence & Market Insights",
-  description: "Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.",
+  description: "Search 44,000+ real Dublin property transactions. See what homes actually sold for, area price trends, rental yields and market intelligence. Free access.",
   metadataBase: new URL('https://irishpropertydata.com'),
   alternates: {
     canonical: '/',
   },
   keywords: [
-    'Dublin property', 'house prices Dublin', 'property prices Ireland', 'sold house prices', 
+    'property data ireland', 'dublin property intelligence', 'house prices dublin', 'sold prices ireland',
+    'Dublin property', 'property prices Ireland', 'sold house prices',
     'Dublin real estate', 'property market Dublin', 'Dublin property map', 'Dublin house prices 2025',
-    'property sold prices Dublin', 'Dublin property search', 'Dublin property values', 
+    'property sold prices Dublin', 'Dublin property search', 'Dublin property values',
     'property price check Dublin', 'Dublin property data', 'Ireland property prices',
     'what did house sell for Dublin', 'Dublin rental prices', 'Dublin property listings',
     'rental yield Dublin', 'property investment Dublin'
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
     url: 'https://irishpropertydata.com',
     siteName: 'Irish Property Data',
     title: 'Irish Property Data | Property Intelligence & Market Insights',
-    description: 'Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights and market predictions.',
+    description: 'Search 44,000+ real Dublin property transactions. See what homes actually sold for, area price trends, rental yields and market intelligence. Free access.',
     images: [
       {
         url: '/opengraph-image',
@@ -48,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Irish Property Data | Property Intelligence & Market Insights',
-    description: 'Know what Irish properties are really worth. Explore 40,000+ sold properties with AI-powered price insights.',
+    description: 'Search 44,000+ real Dublin property transactions. See what homes actually sold for, area price trends, rental yields and market intelligence.',
     images: ['/opengraph-image'],
   },
   robots: {
@@ -112,6 +113,11 @@ export default function RootLayout({
                 "@type": "Organization",
                 "name": "Irish Property Data",
                 "logo": "https://irishpropertydata.com/opengraph-image"
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://irishpropertydata.com/map?search={search_term_string}",
+                "query-input": "required name=search_term_string"
               }
             })
           }}
