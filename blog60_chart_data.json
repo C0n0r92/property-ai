@@ -1,0 +1,240 @@
+{
+  "priceByPropertyType": [
+    {
+      "type": "Apartment",
+      "avgPrice": 364899,
+      "count": 403
+    },
+    {
+      "type": "Terrace",
+      "avgPrice": 557532,
+      "count": 362
+    },
+    {
+      "type": "End of Terrace",
+      "avgPrice": 509034,
+      "count": 69
+    },
+    {
+      "type": "Semi-D",
+      "avgPrice": 613481,
+      "count": 27
+    }
+  ],
+  "pricePerSqmByType": [
+    {
+      "type": "",
+      "pricePerSqm": 7284,
+      "avgArea": 88
+    },
+    {
+      "type": "Terrace",
+      "pricePerSqm": 6564,
+      "avgArea": 88
+    },
+    {
+      "type": "End of Terrace",
+      "pricePerSqm": 6366,
+      "avgArea": 83
+    },
+    {
+      "type": "Apartment",
+      "pricePerSqm": 6300,
+      "avgArea": 75
+    },
+    {
+      "type": "Semi-D",
+      "pricePerSqm": 6284,
+      "avgArea": 101
+    }
+  ],
+  "priceByBedrooms": [
+    {
+      "beds": 1,
+      "avgPrice": 300915,
+      "count": 181
+    },
+    {
+      "beds": 2,
+      "avgPrice": 445738,
+      "count": 453
+    },
+    {
+      "beds": 3,
+      "avgPrice": 592047,
+      "count": 211
+    },
+    {
+      "beds": 4,
+      "avgPrice": 808338,
+      "count": 34
+    }
+  ],
+  "priceBands": [
+    {
+      "label": "Under €300k",
+      "count": 127,
+      "pct": 13.9
+    },
+    {
+      "label": "€300k-€400k",
+      "count": 276,
+      "pct": 30.2
+    },
+    {
+      "label": "€400k-€500k",
+      "count": 218,
+      "pct": 23.9
+    },
+    {
+      "label": "€500k-€600k",
+      "count": 131,
+      "pct": 14.3
+    },
+    {
+      "label": "€600k-€750k",
+      "count": 78,
+      "pct": 8.5
+    },
+    {
+      "label": "€750k-€1m",
+      "count": 55,
+      "pct": 6
+    },
+    {
+      "label": "Over €1m",
+      "count": 29,
+      "pct": 3.2
+    }
+  ],
+  "monthlyVolume": [
+    {
+      "month": "2024-01",
+      "count": 28,
+      "avgPrice": 542371
+    },
+    {
+      "month": "2024-02",
+      "count": 40,
+      "avgPrice": 463928
+    },
+    {
+      "month": "2024-03",
+      "count": 37,
+      "avgPrice": 424002
+    },
+    {
+      "month": "2024-04",
+      "count": 25,
+      "avgPrice": 420040
+    },
+    {
+      "month": "2024-05",
+      "count": 54,
+      "avgPrice": 435501
+    },
+    {
+      "month": "2024-06",
+      "count": 36,
+      "avgPrice": 407125
+    },
+    {
+      "month": "2024-07",
+      "count": 44,
+      "avgPrice": 495779
+    },
+    {
+      "month": "2024-08",
+      "count": 32,
+      "avgPrice": 419734
+    },
+    {
+      "month": "2024-09",
+      "count": 37,
+      "avgPrice": 450946
+    },
+    {
+      "month": "2024-10",
+      "count": 52,
+      "avgPrice": 463033
+    },
+    {
+      "month": "2024-11",
+      "count": 38,
+      "avgPrice": 470857
+    },
+    {
+      "month": "2024-12",
+      "count": 50,
+      "avgPrice": 414021
+    },
+    {
+      "month": "2025-01",
+      "count": 30,
+      "avgPrice": 445667
+    },
+    {
+      "month": "2025-02",
+      "count": 43,
+      "avgPrice": 429047
+    },
+    {
+      "month": "2025-03",
+      "count": 30,
+      "avgPrice": 532833
+    },
+    {
+      "month": "2025-04",
+      "count": 39,
+      "avgPrice": 391968
+    },
+    {
+      "month": "2025-05",
+      "count": 36,
+      "avgPrice": 460738
+    },
+    {
+      "month": "2025-06",
+      "count": 28,
+      "avgPrice": 490446
+    },
+    {
+      "month": "2025-07",
+      "count": 48,
+      "avgPrice": 564996
+    },
+    {
+      "month": "2025-08",
+      "count": 41,
+      "avgPrice": 453634
+    },
+    {
+      "month": "2025-09",
+      "count": 48,
+      "avgPrice": 480929
+    },
+    {
+      "month": "2025-10",
+      "count": 51,
+      "avgPrice": 561758
+    },
+    {
+      "month": "2025-11",
+      "count": 40,
+      "avgPrice": 572274
+    }
+  ],
+  "overviewMetrics": {
+    "totalSales": 914,
+    "avgPrice": 470162,
+    "medianPrice": 418000,
+    "avgOverUnder": 5.96,
+    "overAskingPct": 76.4,
+    "avgPricePerSqm": 6409,
+    "dublinComparison": {
+      "d8AvgPrice": 470162,
+      "dublinAvgPrice": 597912,
+      "priceDiff": -21.4
+    }
+  }
+}
