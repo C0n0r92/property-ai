@@ -11,6 +11,7 @@ import { ShareButton } from '@/components/ShareButton';
 import { analytics } from '@/lib/analytics';
 import { useSearchTracking } from '@/hooks/useSearchTracking';
 import { useAlertModal } from '@/contexts/AlertModalContext';
+import { AreaPriceTrendChart } from '@/components/AreaPriceTrendChart';
 
 interface AreaData {
   area: string;
@@ -302,6 +303,9 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
           </div>
         </div>
       </div>
+
+      {/* 12-Month Price Trend Chart */}
+      <AreaPriceTrendChart slug={slug} />
 
       {/* Investment Insights - Rental Yield */}
       {data.yieldData && (
