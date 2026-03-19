@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import HomepageClient from './HomepageClient';
+import { loadProperties, getAreaStats } from '@/lib/data';
+import { areaToSlug } from '@/lib/areas';
 
 export const metadata: Metadata = {
   title: 'Irish Property Data | 47,000+ Dublin Property Sales & Prices',
@@ -32,7 +34,38 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+// Helper to determine county from area name
+function getCountyFromArea(areaName: string): string {
+  // Dublin districts
+  if (areaName.match(/^Dublin\s+\d/i) || areaName.match(/\bDublin\s+\d/i)) {
+    const district = parseInt(areaName.match(/\d+/)?.[0] || '0');
+    if ([1, 2, 4, 6, 8].includes(district)) return 'South Dublin';
+    if ([3, 5, 7, 9, 11, 13, 15, 17].includes(district)) return 'North Dublin';
+    return 'Dublin';
+  }
+  // Named areas
+  if (['Lucan', 'Clondalkin', 'Tallaght'].includes(areaName)) return 'West Dublin';
+  if (['Swords', 'Malahide', 'Balbriggan'].includes(areaName)) return 'North County Dublin';
+  if (['Ranelagh', 'Ballsbridge', 'Rathgar'].includes(areaName)) return 'South Dublin';
+  return 'Dublin';
+}
+
+export default async function Home() {
+  // Load properties and calculate area stats
+  const properties = await loadProperties();
+  const areaStats = getAreaStats(properties);
+
+  // Get top 3 areas by sales volume
+  const topAreas = areaStats.slice(0, 3).map(area => ({
+    name: area.name,
+    slug: areaToSlug(area.name),
+    medianPrice: area.medianPrice,
+    change6m: area.change6m,
+    overAskingPct: Math.round(area.avgOverUnderPercent),
+    salesCount: area.count,
+    county: getCountyFromArea(area.name),
+  }));
+
   return (
     <>
       <Script
@@ -67,7 +100,7 @@ export default function Home() {
           })
         }}
       />
-      <HomepageClient />
+      <HomepageClient topAreas={topAreas} totalProperties={properties.length} />
     </>
   );
 }

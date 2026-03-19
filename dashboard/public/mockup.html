@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #fff; }
+
+/* Nav */
+nav {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 40px; border-bottom: 1px solid #1e2330;
+  position: sticky; top: 0; background: #0f1117; z-index: 10;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+.logo-text { font-weight: 700; font-size: 16px; }
+.logo-sub { font-size: 10px; color: #6b7280; letter-spacing: 1px; text-transform: uppercase; }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a { color: #9ca3af; text-decoration: none; font-size: 14px; }
+.nav-links a:hover { color: #fff; }
+.nav-cta { background: #6366f1; color: #fff !important; padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 13px !important; }
+
+/* Hero */
+.hero {
+  min-height: 85vh; display: flex; flex-direction: column; justify-content: center;
+  align-items: center; text-align: center; padding: 60px 40px;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 70%);
+}
+.trust-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+  padding: 6px 14px; border-radius: 100px; font-size: 12px; color: #86efac;
+  margin-bottom: 24px; position: relative;
+}
+.trust-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+h1 { font-size: 52px; font-weight: 800; line-height: 1.1; max-width: 720px; margin-bottom: 20px; position: relative; }
+h1 span { background: linear-gradient(135deg, #6366f1, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-sub { font-size: 18px; color: #9ca3af; max-width: 560px; line-height: 1.6; margin-bottom: 36px; position: relative; }
+.free-badge { color: #22c55e; font-weight: 600; }
+
+/* Search */
+.search-wrap { display: flex; gap: 0; max-width: 600px; width: 100%; position: relative; margin-bottom: 20px; }
+.search-input {
+  flex: 1; padding: 16px 20px; background: #1a1d2e; border: 1px solid #2d3148;
+  border-right: none; border-radius: 12px 0 0 12px; color: #fff; font-size: 15px;
+  outline: none;
+}
+.search-input::placeholder { color: #4b5563; }
+.search-btn {
+  padding: 16px 28px; background: #6366f1; border: none; border-radius: 0 12px 12px 0;
+  color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; white-space: nowrap;
+}
+
+.popular-areas { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 48px; position: relative; }
+.popular-label { font-size: 13px; color: #4b5563; }
+.area-chip { background: #1a1d2e; border: 1px solid #2d3148; padding: 5px 12px; border-radius: 100px; font-size: 12px; color: #9ca3af; cursor: pointer; }
+.area-chip:hover { border-color: #6366f1; color: #fff; }
+
+/* Stats */
+.stats { display: flex; gap: 40px; justify-content: center; margin-bottom: 48px; position: relative; }
+.stat { text-align: center; }
+.stat-num { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+.stat-divider { width: 1px; background: #1e2330; }
+
+/* How it works */
+.how {
+  display: flex; gap: 16px; justify-content: center; position: relative;
+}
+.how-step { display: flex; align-items: center; gap: 10px; }
+.how-num { width: 28px; height: 28px; background: #1a1d2e; border: 1px solid #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #818cf8; flex-shrink: 0; }
+.how-text { font-size: 13px; color: #6b7280; }
+.how-arrow { color: #2d3148; font-size: 18px; }
+
+/* Data source */
+.data-source { margin-top: 32px; font-size: 12px; color: #4b5563; position: relative; }
+.data-source a { color: #6366f1; }
+
+/* Preview section */
+.preview-section { padding: 80px 40px; background: #080b12; }
+.section-label { text-align: center; font-size: 12px; color: #6366f1; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.section-title { text-align: center; font-size: 32px; font-weight: 700; margin-bottom: 48px; }
+
+.sample-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 900px; margin: 0 auto; }
+.sample-card { background: #1a1d2e; border: 1px solid #2d3148; border-radius: 12px; padding: 20px; }
+.card-area { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.card-price { font-size: 28px; font-weight: 800; color: #818cf8; margin-bottom: 8px; }
+.card-meta { display: flex; gap: 12px; }
+.card-chip { font-size: 11px; padding: 3px 8px; border-radius: 100px; }
+.chip-up { background: rgba(34,197,94,0.1); color: #86efac; }
+.chip-neutral { background: rgba(99,102,241,0.1); color: #a5b4fc; }
+.card-sales { font-size: 12px; color: #4b5563; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">IPD</div>
+    <div>
+      <div class="logo-text">Irish Property Data</div>
+      <div class="logo-sub">Market Intelligence</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#">Map</a>
+    <a href="#">Areas</a>
+    <a href="#">Tools</a>
+    <a href="#">Blog</a>
+    <a href="#">Pricing</a>
+    <a href="#" class="nav-cta">Start Free</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="trust-badge">
+    <div class="trust-dot"></div>
+    Based on Ireland's Property Price Register • Updated daily
+  </div>
+
+  <h1>Find Out What Houses<br><span>Actually Sold For</span><br>In Your Area</h1>
+
+  <p class="hero-sub">
+    Real sale prices, area trends and market intelligence from 47,000+ Irish property transactions.
+    <span class="free-badge">Free to search — no sign-up required.</span>
+  </p>
+
+  <div class="search-wrap">
+    <input class="search-input" placeholder="Search by area, address or Eircode..." />
+    <button class="search-btn">🔍 Search</button>
+  </div>
+
+  <div class="popular-areas">
+    <span class="popular-label">Popular:</span>
+    <span class="area-chip">Dublin 15</span>
+    <span class="area-chip">Lucan</span>
+    <span class="area-chip">Swords</span>
+    <span class="area-chip">Cork City</span>
+    <span class="area-chip">Galway</span>
+    <span class="area-chip">Sandyford</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">47k+</div><div class="stat-label">Property transactions</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-num">307</div><div class="stat-label">Dublin areas covered</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-num">Daily</div><div class="stat-label">Data updates</div></div>
+  </div>
+
+  <div class="how">
+    <div class="how-step"><div class="how-num">1</div><span class="how-text">Search your area</span></div>
+    <div class="how-arrow">→</div>
+    <div class="how-step"><div class="how-num">2</div><span class="how-text">See actual sale prices & trends</span></div>
+    <div class="how-arrow">→</div>
+    <div class="how-step"><div class="how-num">3</div><span class="how-text">Make a confident offer</span></div>
+  </div>
+
+  <div class="data-source">Data sourced from the <a href="#">Property Price Register</a> — Ireland's official record of property sales.</div>
+</section>
+
+<section class="preview-section">
+  <div class="section-label">Live Market Data</div>
+  <div class="section-title">What you'll see when you search</div>
+  <div class="sample-cards">
+    <div class="sample-card">
+      <div class="card-area">Dublin 4</div>
+      <div class="card-price">€898k</div>
+      <div class="card-meta">
+        <span class="card-chip chip-up">↑ 12.3% (6mo)</span>
+        <span class="card-chip chip-neutral">67% over asking</span>
+      </div>
+      <div class="card-sales">Based on 1,871 sales</div>
+    </div>
+    <div class="sample-card">
+      <div class="card-area">Lucan</div>
+      <div class="card-price">€385k</div>
+      <div class="card-meta">
+        <span class="card-chip chip-up">↑ 8.1% (6mo)</span>
+        <span class="card-chip chip-neutral">54% over asking</span>
+      </div>
+      <div class="card-sales">Based on 423 sales</div>
+    </div>
+    <div class="sample-card">
+      <div class="card-area">Clondalkin</div>
+      <div class="card-price">€332k</div>
+      <div class="card-meta">
+        <span class="card-chip chip-up">↑ 5.4% (6mo)</span>
+        <span class="card-chip chip-neutral">61% over asking</span>
+      </div>
+      <div class="card-sales">Based on 1,112 sales</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
