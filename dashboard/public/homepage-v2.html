@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Irish Property Data — Homepage V2</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+/* TOKENS */
+:root {
+  --white: #ffffff;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-50: #eff6ff;
+  --emerald-500: #10b981;
+  --emerald-50: #ecfdf5;
+  --amber-500: #f59e0b;
+  --red-500: #ef4444;
+  --green-500: #22c55e;
+  --indigo-600: #4f46e5;
+  --indigo-50: #eef2ff;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+}
+
+body { font-family: var(--font); background: var(--white); color: var(--gray-900); line-height: 1.5; }
+
+/* NAV */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 64px; background: var(--white);
+  border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--indigo-600), #7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 800; font-size: 13px; letter-spacing: -0.5px;
+}
+.logo-name { font-weight: 700; font-size: 15px; color: var(--gray-900); }
+.logo-tagline { font-size: 10px; color: var(--gray-400); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 1px; }
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-links a {
+  padding: 8px 14px; font-size: 14px; color: var(--gray-600); text-decoration: none;
+  border-radius: 8px; font-weight: 500; transition: all .15s;
+}
+.nav-links a:hover { background: var(--gray-100); color: var(--gray-900); }
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+.btn-ghost { padding: 8px 16px; font-size: 14px; font-weight: 500; color: var(--gray-700); text-decoration: none; border-radius: 8px; border: 1px solid var(--gray-200); transition: all .15s; }
+.btn-ghost:hover { background: var(--gray-100); }
+.btn-primary {
+  padding: 8px 18px; font-size: 14px; font-weight: 600; color: white; text-decoration: none;
+  background: var(--indigo-600); border-radius: 8px; transition: all .15s; border: none; cursor: pointer;
+}
+.btn-primary:hover { background: #4338ca; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
+  padding: 96px 48px 80px; text-align: center; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,70,229,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--emerald-50); border: 1px solid #bbf7d0;
+  padding: 5px 12px; border-radius: 100px; font-size: 12px;
+  color: #065f46; font-weight: 600; margin-bottom: 28px;
+}
+.eyebrow-dot { width: 6px; height: 6px; background: var(--emerald-500); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+
+h1 {
+  font-size: 56px; font-weight: 800; line-height: 1.1; letter-spacing: -1.5px;
+  color: var(--gray-900); max-width: 680px; margin: 0 auto 20px;
+}
+h1 em { font-style: normal; color: var(--indigo-600); }
+.hero-sub {
+  font-size: 18px; color: var(--gray-500); max-width: 500px;
+  margin: 0 auto 40px; line-height: 1.7;
+}
+.free-flag { color: var(--emerald-500); font-weight: 600; }
+
+/* SEARCH BAR */
+.search-container { max-width: 640px; margin: 0 auto 20px; position: relative; }
+.search-bar {
+  display: flex; background: var(--white); border: 2px solid var(--gray-200);
+  border-radius: 16px; overflow: hidden; transition: border-color .2s;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.08);
+}
+.search-bar:focus-within { border-color: var(--indigo-600); box-shadow: 0 4px 24px rgba(79,70,229,0.15); }
+.search-icon { padding: 0 16px; color: var(--gray-400); display: flex; align-items: center; font-size: 18px; }
+.search-input {
+  flex: 1; padding: 18px 8px; font-size: 16px; border: none; outline: none;
+  color: var(--gray-900); background: transparent;
+}
+.search-input::placeholder { color: var(--gray-400); }
+.search-btn {
+  margin: 8px; padding: 0 24px; background: var(--indigo-600); color: white;
+  border: none; border-radius: 10px; font-weight: 600; font-size: 15px;
+  cursor: pointer; white-space: nowrap; transition: background .15s;
+}
+.search-btn:hover { background: #4338ca; }
+
+.popular-chips { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.chip-label { font-size: 13px; color: var(--gray-400); font-weight: 500; }
+.chip {
+  padding: 5px 12px; background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 100px; font-size: 13px; color: var(--gray-600); cursor: pointer; transition: all .15s;
+  font-weight: 500;
+}
+.chip:hover { border-color: var(--indigo-600); color: var(--indigo-600); background: var(--indigo-50); }
+
+/* STATS */
+.stats-strip {
+  display: flex; justify-content: center; align-items: center; gap: 0;
+  margin: 56px auto 0; max-width: 640px; background: var(--white);
+  border: 1px solid var(--gray-200); border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.stat-item { flex: 1; text-align: center; padding: 20px 24px; }
+.stat-item + .stat-item { border-left: 1px solid var(--gray-200); }
+.stat-value { font-size: 26px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.5px; }
+.stat-value span { color: var(--indigo-600); }
+.stat-desc { font-size: 12px; color: var(--gray-400); margin-top: 3px; font-weight: 500; letter-spacing: 0.2px; }
+
+/* HOW IT WORKS */
+.how-strip {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 32px; flex-wrap: wrap;
+}
+.how-step { display: flex; align-items: center; gap: 8px; }
+.how-num {
+  width: 24px; height: 24px; border-radius: 50%; background: var(--indigo-50);
+  border: 1px solid #c7d2fe; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--indigo-600);
+}
+.how-text { font-size: 13px; color: var(--gray-500); font-weight: 500; }
+.how-sep { color: var(--gray-300); font-size: 16px; }
+
+.data-attribution { margin-top: 24px; font-size: 12px; color: var(--gray-400); }
+.data-attribution a { color: var(--indigo-600); text-decoration: none; font-weight: 500; }
+
+/* DATA PREVIEW */
+.preview {
+  background: var(--gray-50); padding: 80px 48px; border-top: 1px solid var(--gray-200);
+}
+.section-eyebrow { text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--indigo-600); margin-bottom: 10px; }
+.section-title { text-align: center; font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+.section-sub { text-align: center; font-size: 16px; color: var(--gray-500); margin-bottom: 48px; }
+.cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; max-width: 960px; margin: 0 auto 32px; }
+.card {
+  background: var(--white); border: 1px solid var(--gray-200); border-radius: 16px;
+  padding: 24px; transition: all .2s; cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card:hover { border-color: var(--indigo-600); box-shadow: 0 4px 20px rgba(79,70,229,0.12); transform: translateY(-2px); }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.card-area { font-size: 17px; font-weight: 700; color: var(--gray-900); }
+.card-county { font-size: 12px; color: var(--gray-400); font-weight: 500; }
+.card-price { font-size: 32px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.5px; margin: 12px 0 10px; }
+.card-chips { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.badge { padding: 4px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+.badge-up { background: #dcfce7; color: #166534; }
+.badge-neutral { background: var(--indigo-50); color: #3730a3; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.card-footer { font-size: 12px; color: var(--gray-400); border-top: 1px solid var(--gray-100); padding-top: 12px; display: flex; justify-content: space-between; }
+.view-all-wrap { text-align: center; }
+.view-all { display: inline-flex; align-items: center; gap: 6px; padding: 12px 24px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: 10px; font-weight: 600; font-size: 14px; color: var(--gray-700); text-decoration: none; transition: all .15s; }
+.view-all:hover { border-color: var(--indigo-600); color: var(--indigo-600); }
+
+/* FEATURES */
+.features { padding: 80px 48px; background: var(--white); }
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 960px; margin: 0 auto; }
+.feature { padding: 28px; border-radius: 16px; border: 1px solid var(--gray-100); }
+.feature-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+.fi-blue { background: var(--blue-50); }
+.fi-green { background: var(--emerald-50); }
+.fi-amber { background: #fef3c7; }
+.feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.feature-desc { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+
+/* CTA */
+.cta-section {
+  background: var(--gray-900); padding: 80px 48px; text-align: center;
+}
+.cta-section h2 { font-size: 36px; font-weight: 800; color: var(--white); margin-bottom: 12px; letter-spacing: -0.5px; }
+.cta-section p { font-size: 16px; color: var(--gray-400); margin-bottom: 32px; }
+.cta-buttons { display: flex; gap: 12px; justify-content: center; }
+.btn-white { padding: 14px 28px; background: var(--white); color: var(--gray-900); font-weight: 700; font-size: 15px; border-radius: 10px; text-decoration: none; border: none; cursor: pointer; }
+.btn-outline-white { padding: 14px 28px; background: transparent; color: var(--white); font-weight: 600; font-size: 15px; border-radius: 10px; border: 1.5px solid #334155; text-decoration: none; }
+
+/* FOOTER */
+footer { background: var(--gray-900); border-top: 1px solid var(--gray-800); padding: 32px 48px; display: flex; justify-content: space-between; align-items: center; }
+.footer-copy { font-size: 13px; color: var(--gray-500); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--gray-500); text-decoration: none; }
+.footer-links a:hover { color: var(--white); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-mark">IPD</div>
+    <div>
+      <div class="logo-name">Irish Property Data</div>
+      <div class="logo-tagline">Market Intelligence</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#">Map</a>
+    <a href="#">Areas</a>
+    <a href="#">Tools ▾</a>
+    <a href="#">Blog</a>
+    <a href="#">Pricing</a>
+  </div>
+  <div class="nav-actions">
+    <a href="#" class="btn-ghost">Sign In</a>
+    <a href="#" class="btn-primary">Start Free →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <div class="eyebrow-dot"></div>
+    Data from Ireland's Property Price Register — updated daily
+  </div>
+
+  <h1>What Did That House<br><em>Actually Sell For?</em></h1>
+
+  <p class="hero-sub">
+    Real sale prices from 47,000+ Irish transactions. See what homes sold for, track area trends, and make confident offers.
+    <span class="free-flag">Free to search.</span>
+  </p>
+
+  <div class="search-container">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Search by area, address or Eircode...">
+      <button class="search-btn">Search</button>
+    </div>
+  </div>
+
+  <div class="popular-chips">
+    <span class="chip-label">Popular:</span>
+    <span class="chip">Dublin 15</span>
+    <span class="chip">Lucan</span>
+    <span class="chip">Swords</span>
+    <span class="chip">Ranelagh</span>
+    <span class="chip">Cork City</span>
+    <span class="chip">Galway</span>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-item">
+      <div class="stat-value"><span>47</span>k+</div>
+      <div class="stat-desc">Property transactions</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value"><span>307</span></div>
+      <div class="stat-desc">Dublin areas covered</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">Daily</div>
+      <div class="stat-desc">Data updates</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">Free</div>
+      <div class="stat-desc">No sign-up required</div>
+    </div>
+  </div>
+
+  <div class="how-strip">
+    <div class="how-step"><div class="how-num">1</div><span class="how-text">Search your area</span></div>
+    <span class="how-sep">→</span>
+    <div class="how-step"><div class="how-num">2</div><span class="how-text">See actual sale prices</span></div>
+    <span class="how-sep">→</span>
+    <div class="how-step"><div class="how-num">3</div><span class="how-text">Make a confident offer</span></div>
+  </div>
+
+  <p class="data-attribution">Prices sourced from the <a href="#">Property Price Register</a> — Ireland's official record of residential property sales.</p>
+</section>
+
+<!-- DATA PREVIEW -->
+<section class="preview">
+  <div class="section-eyebrow">Live Market Data</div>
+  <h2 class="section-title">What you'll see when you search</h2>
+  <p class="section-sub">Real prices, real trends — no estimates or guesswork.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-top">
+        <div><div class="card-area">Dublin 4</div><div class="card-county">South Dublin</div></div>
+        <div style="font-size:20px">🏘️</div>
+      </div>
+      <div class="card-price">€898k</div>
+      <div class="card-chips">
+        <span class="badge badge-up">↑ 12.3% (6mo)</span>
+        <span class="badge badge-warn">67% over asking</span>
+      </div>
+      <div class="card-footer">
+        <span>1,871 sales tracked</span>
+        <span style="color:#4f46e5;font-weight:600">View area →</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div><div class="card-area">Lucan</div><div class="card-county">West Dublin</div></div>
+        <div style="font-size:20px">🏡</div>
+      </div>
+      <div class="card-price">€385k</div>
+      <div class="card-chips">
+        <span class="badge badge-up">↑ 8.1% (6mo)</span>
+        <span class="badge badge-neutral">54% over asking</span>
+      </div>
+      <div class="card-footer">
+        <span>423 sales tracked</span>
+        <span style="color:#4f46e5;font-weight:600">View area →</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div><div class="card-area">Clondalkin</div><div class="card-county">Dublin 22</div></div>
+        <div style="font-size:20px">🏠</div>
+      </div>
+      <div class="card-price">€332k</div>
+      <div class="card-chips">
+        <span class="badge badge-up">↑ 5.4% (6mo)</span>
+        <span class="badge badge-neutral">61% over asking</span>
+      </div>
+      <div class="card-footer">
+        <span>1,112 sales tracked</span>
+        <span style="color:#4f46e5;font-weight:600">View area →</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="view-all-wrap">
+    <a href="#" class="view-all">Browse all 307 areas ›</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-eyebrow">What you can do</div>
+  <h2 class="section-title" style="margin-bottom:8px">Everything a Dublin buyer needs</h2>
+  <p class="section-sub">Free tools built on real transaction data.</p>
+
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon fi-blue">🗺️</div>
+      <div class="feature-title">Interactive Price Map</div>
+      <div class="feature-desc">Explore 47,000+ sold properties on a live map. Filter by area, price, beds, and date.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon fi-green">📊</div>
+      <div class="feature-title">Area Price Trends</div>
+      <div class="feature-desc">12-month price history, over-asking rates, and price per m² for every Dublin neighbourhood.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon fi-amber">🏗️</div>
+      <div class="feature-title">Planning Permissions</div>
+      <div class="feature-desc">See planning applications near any property — extensions, developments, and refusals.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Start searching — it's free</h2>
+  <p>No sign-up required. See what homes actually sold for in your area.</p>
+  <div class="cta-buttons">
+    <a href="#" class="btn-white">Search Now →</a>
+    <a href="#" class="btn-outline-white">See Pricing</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-copy">© 2025 Irish Property Data · Data from the Property Price Register</div>
+  <div class="footer-links">
+    <a href="#">About</a>
+    <a href="#">Pricing</a>
+    <a href="#">Blog</a>
+    <a href="#">Privacy</a>
+  </div>
+</footer>
+
+</body>
+</html>
