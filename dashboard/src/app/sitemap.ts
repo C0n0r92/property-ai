@@ -4,6 +4,7 @@ import { loadProperties } from '@/lib/data';
 
 // Blog article slugs - all active blog posts
 const blogArticleSlugs = [
+  'dublin-spring-2026-market-outlook',
   '250k-350k-property-bracket-dublin',
   '3-bed-property-sweet-spot',
   '3bed-phenomenon',

@@ -10,6 +10,18 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'dublin-spring-2026-market-outlook',
+    title: 'Dublin Spring 2026 Property Market: What Buyers Need to Know Now',
+    excerpt: 'Spring 2026 brings critical decisions for Dublin property buyers as supply constraints intensify and seasonal demand peaks. Our analysis of 47,000+ transactions reveals which postcodes offer opportunity and which strategies work in today\'s competitive market.',
+    category: 'Market Analysis',
+    date: '2026-03-19',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Market Outlook', 'Spring 2026', 'Dublin Property'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'first-time-buyer-bracket-analysis',
     title: 'Dublin First-Time Buyer Bracket: The \u20ac300k\u2013\u20ac500k Market Deep Dive',
     excerpt: 'The \u20ac300k-\u20ac500k price bracket accounts for 42% of Dublin sales and is where most first-time buyers compete. We analyse competition levels, best postcodes, winning property types, and bidding strategies using data from 47,000+ transactions.',

@@ -245,7 +245,8 @@ function reviewBlogs() {
     '../blogs/blog56_dublin_over_asking_hotspots.md',
     '../blogs/blog57_dublin_smaller_areas_hotspots.md',
     '../blog53_square_meter_efficiency.md',
-    '../blogs/blog59_dublin_rental_affordability_crisis.md'
+    '../blogs/blog59_dublin_rental_affordability_crisis.md',
+    '../blogs/blog60_d8_value_investor_hotspot.md'
   ];
 
   console.log('=== BLOG QUALITY REVIEW SYSTEM ===\n');

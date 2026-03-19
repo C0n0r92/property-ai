@@ -1,5 +1,17 @@
 export const researchArticles = [
   {
+    id: 'blog60-d8-value-investor-hotspot',
+    title: 'Dublin 8: The Liberties\' Yield Paradox - Where 21% Below Market Average Delivers 7.6% Returns',
+    excerpt: 'D8 trades 21.4% below Dublin average at €470K while delivering 7.56% yields. 80.7% of properties achieve 6%+ returns, making The Liberties Dublin\'s premier value-yield location.',
+    category: 'Area Analysis',
+    date: '2026-03-19',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Dublin 8', 'Area Analysis', 'Investor Yields', 'Value Areas', 'The Liberties', 'First-Time Buyers', 'Rental Returns'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-property-timing-value-tradeoff',
     title: 'Dublin Property Timing: 31% Price Difference Between Best & Worst Months',
     excerpt: 'Dublin property prices vary by 31.0% between optimal and suboptimal months, with December averaging €708,728 vs April at €540,823. Autumn properties command 5.2% premiums over winter. Strategic timing delivers €167,905 additional value.',

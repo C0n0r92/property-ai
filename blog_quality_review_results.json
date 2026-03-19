@@ -1,9 +1,9 @@
 {
-  "reviewDate": "2026-01-12T16:04:10.170Z",
+  "reviewDate": "2026-03-19T15:07:14.224Z",
   "summary": {
-    "totalBlogs": 29,
-    "passed": 10,
-    "averageScore": 76
+    "totalBlogs": 30,
+    "passed": 11,
+    "averageScore": 77
   },
   "detailedResults": [
     {
@@ -1053,6 +1053,41 @@
       "recommendations": [
         "Include more practical recommendations for buyers, sellers, and investors"
       ]
+    },
+    {
+      "filename": "../blogs/blog60_d8_value_investor_hotspot.md",
+      "overallScore": 89,
+      "totalScore": 89,
+      "maxScore": 100,
+      "criteria": {
+        "dataUsage": {
+          "score": 20,
+          "maxScore": 25,
+          "percentage": 80
+        },
+        "clarity": {
+          "score": 15,
+          "maxScore": 20,
+          "percentage": 75
+        },
+        "actionability": {
+          "score": 20,
+          "maxScore": 20,
+          "percentage": 100
+        },
+        "uniqueness": {
+          "score": 19,
+          "maxScore": 20,
+          "percentage": 95
+        },
+        "professionalism": {
+          "score": 15,
+          "maxScore": 15,
+          "percentage": 100
+        }
+      },
+      "passThreshold": true,
+      "recommendations": []
     }
   ]
 }
