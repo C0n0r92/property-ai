@@ -363,10 +363,10 @@ export default function AlertsPage() {
           <h1 className="text-2xl font-bold text-white mb-2">Property Alerts</h1>
           <p className="text-gray-400 mb-6">Sign in to manage your location alerts</p>
           <Link
-            href="/"
+            href="/login"
             className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg transition-colors"
           >
-            Go to Homepage
+            Sign In to Set Up Alerts
           </Link>
         </div>
       </div>

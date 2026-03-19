@@ -291,7 +291,7 @@ export default function HomepageClient() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    placeholder=""
+                    placeholder="Search by area, address or Eircode..."
                     onFocus={() => setShowSearchResults(true)}
                     onBlur={() => {
                       // Delay hiding to allow click on suggestions

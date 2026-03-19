@@ -326,12 +326,12 @@ function PlanningContent() {
             <p className="text-[var(--foreground-secondary)] mb-4">
               Please access this page from a property card to view planning permissions.
             </p>
-            <button
-              onClick={handleBack}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            <a
+              href="/map"
+              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Go Back
-            </button>
+              Search Properties on Map
+            </a>
           </div>
         </div>
       </div>

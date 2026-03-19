@@ -3,7 +3,6 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import { Navigation } from "@/components/Navigation";
 import { BottomNav } from "@/components/BottomNav";
-import { BuyMeCoffeeWidget } from "@/components/BuyMeCoffeeWidget";
 
 export const metadata: Metadata = {
   title: "Irish Property Data | Property Intelligence & Market Insights",
@@ -155,8 +154,6 @@ export default function RootLayout({
           </main>
           <BottomNav />
         </Providers>
-        {/* Buy Me a Coffee widget */}
-        <BuyMeCoffeeWidget />
       </body>
     </html>
   );

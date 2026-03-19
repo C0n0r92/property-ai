@@ -246,7 +246,7 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
           </div>
         </div>
         <div className="bg-[var(--surface)] p-4 rounded-lg border border-[var(--border)]">
-          <div className="text-sm text-[var(--muted-foreground)]">Avg Over/Under</div>
+          <div className="text-sm text-[var(--muted-foreground)]">% Over Asking</div>
           <div className={`text-2xl font-bold mt-2 ${data.stats.avgOverUnderPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {data.stats.avgOverUnderPercent > 0 ? '+' : ''}{(data.stats.avgOverUnderPercent || 0).toFixed(1)}%
           </div>
@@ -255,7 +255,7 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
           </div>
         </div>
         <div className="bg-[var(--surface)] p-4 rounded-lg border border-[var(--border)]">
-          <div className="text-sm text-[var(--muted-foreground)]">Avg Over/Under</div>
+          <div className="text-sm text-[var(--muted-foreground)]">€ Premium</div>
           <div className={`text-2xl font-bold mt-2 whitespace-nowrap ${data.stats.avgOverUnderEuro > 0 ? 'text-green-600' : 'text-red-600'}`}>
             {data.stats.avgOverUnderEuro > 0 ? '+' : ''}€{Math.abs(data.stats.avgOverUnderEuro).toLocaleString()}
           </div>

@@ -50,12 +50,12 @@ function PropertyContent() {
           <p className="text-[var(--foreground-secondary)] mb-4">
             Property coordinates are required to view details.
           </p>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          <a
+            href="/map"
+            className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
-            Go Back
-          </button>
+            Search Properties on Map
+          </a>
         </div>
       </div>
     );
