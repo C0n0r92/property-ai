@@ -5,7 +5,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { areaToSlug } from '@/lib/areas';
 import { formatFullPrice } from '@/lib/format';
-import { Search } from 'lucide-react';
+import { Search, Home } from 'lucide-react';
 
 interface TopArea {
   name: string;
@@ -57,9 +57,9 @@ export default function HomepageClient({ topAreas, totalProperties }: HomepageCl
   return (
     <div className="min-h-screen bg-white">
       {/* HERO SECTION */}
-      <section className="relative bg-gradient-to-b from-gray-50 to-white overflow-hidden">
-        {/* Subtle radial glow */}
-        <div className="absolute top-[-200px] left-1/2 transform -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-indigo-600/[0.06] pointer-events-none" />
+      <section className="relative bg-white overflow-hidden border-b border-gray-100">
+        {/* Subtle top gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/40 via-white to-white pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto px-6 pt-24 pb-20 text-center">
           {/* Eyebrow badge */}
@@ -223,7 +223,7 @@ export default function HomepageClient({ topAreas, totalProperties }: HomepageCl
                     </div>
                     <div className="text-xs text-gray-400 font-medium">{area.county}</div>
                   </div>
-                  <div className="text-2xl">🏘️</div>
+                  <Home className="w-5 h-5 text-indigo-400" />
                 </div>
 
                 <div className="text-3xl font-extrabold text-gray-900 tracking-tight my-3">
@@ -281,7 +281,7 @@ export default function HomepageClient({ topAreas, totalProperties }: HomepageCl
               What you can do
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
-              Everything a Dublin buyer needs
+              Everything an Irish buyer needs
             </h2>
             <p className="text-base text-gray-500">
               Free tools built on real transaction data.

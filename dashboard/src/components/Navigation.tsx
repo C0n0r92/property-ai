@@ -139,6 +139,12 @@ export function Navigation() {
               >
                 Blog
               </Link>
+              <Link
+                href="/pricing"
+                className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium text-sm"
+              >
+                Pricing
+              </Link>
               <RecentlyViewedDropdown />
               {user && (
                 <Link

@@ -5,8 +5,8 @@ import { loadProperties, getAreaStats } from '@/lib/data';
 import { areaToSlug } from '@/lib/areas';
 
 export const metadata: Metadata = {
-  title: 'Irish Property Data | 47,000+ Dublin Property Sales & Prices',
-  description: 'Search 47,000+ real Dublin property transactions. See actual sold prices, area trends, price per sqm, and market intelligence for every Dublin neighbourhood. Free.',
+  title: 'Irish Property Data | 44,000+ Dublin Property Sales & Prices',
+  description: 'Search 44,000+ real Dublin property transactions. See actual sold prices, area trends, price per sqm, and market intelligence for every Dublin neighbourhood. Free.',
   keywords: [
     'Dublin property prices',
     'Dublin house prices',
@@ -19,15 +19,15 @@ export const metadata: Metadata = {
     'Dublin area prices',
   ],
   openGraph: {
-    title: 'Irish Property Data | 47,000+ Dublin Property Sales & Prices',
-    description: 'Search 47,000+ real Dublin property transactions. See actual sold prices, area trends, price per sqm, and market intelligence for every Dublin neighbourhood.',
+    title: 'Irish Property Data | 44,000+ Dublin Property Sales & Prices',
+    description: 'Search 44,000+ real Dublin property transactions. See actual sold prices, area trends, price per sqm, and market intelligence for every Dublin neighbourhood.',
     type: 'website',
     url: 'https://irishpropertydata.com',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Irish Property Data | 47,000+ Dublin Property Sales & Prices',
-    description: 'Search 47,000+ real Dublin property transactions. Actual sold prices, area trends & market intelligence.',
+    title: 'Irish Property Data | 44,000+ Dublin Property Sales & Prices',
+    description: 'Search 44,000+ real Dublin property transactions. Actual sold prices, area trends & market intelligence.',
   },
   alternates: {
     canonical: '/',
@@ -79,7 +79,7 @@ export default async function Home() {
                 "@type": "WebSite",
                 "name": "Irish Property Data",
                 "url": "https://irishpropertydata.com",
-                "description": "Search 47,000+ real Dublin property transactions with actual sold prices, area trends, and market intelligence.",
+                "description": "Search 44,000+ real Dublin property transactions with actual sold prices, area trends, and market intelligence.",
                 "potentialAction": {
                   "@type": "SearchAction",
                   "target": "https://irishpropertydata.com/map?search={search_term_string}",
