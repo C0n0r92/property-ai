@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'Dublin Property Prices by Area | Complete Guide 2025',
-  description: 'Explore property prices across 300+ Dublin areas. Compare median prices, market trends, and sales data for every Dublin neighborhood with detailed analytics.',
+  title: 'Dublin Property Prices by Area | All 150+ Neighbourhoods',
+  description: 'Compare property prices across 150+ Dublin areas. Median prices, price per sqm, over-asking trends, and 6-month growth data for every Dublin neighbourhood. Updated weekly.',
   keywords: [
     'Dublin property prices by area',
     'Dublin house prices by district',
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     'Dublin area investment guide',
   ],
   openGraph: {
-    title: 'Dublin Property Prices by Area | Complete Guide 2025',
-    description: 'Compare property prices across 300+ Dublin areas with comprehensive market data and trends.',
+    title: 'Dublin Property Prices by Area | All 150+ Neighbourhoods',
+    description: 'Compare property prices across 150+ Dublin areas with comprehensive market data and trends.',
     type: 'website',
     url: 'https://irishpropertydata.com/areas',
   },
