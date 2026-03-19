@@ -10,6 +10,18 @@ import { HeroSection } from '@/components/HeroSection';
 // Research articles data
 const researchArticles = [
   {
+    id: 'first-time-buyer-bracket-analysis',
+    title: 'Dublin First-Time Buyer Bracket: The \u20ac300k\u2013\u20ac500k Market Deep Dive',
+    excerpt: 'The \u20ac300k-\u20ac500k price bracket accounts for 42% of Dublin sales and is where most first-time buyers compete. We analyse competition levels, best postcodes, winning property types, and bidding strategies using data from 47,000+ transactions.',
+    category: 'Market Analysis',
+    date: '2026-03-19',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['First-Time Buyers', 'Property Brackets', 'Dublin Market', 'Bidding Strategy', 'Mortgage Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'dublin-street-type-momentum',
     title: 'Dublin Street Type Momentum: Why Cul-de-Sacs Outperform Main Roads by 12.8 Percentage Points',
     excerpt: 'Dublin street positioning creates dramatic performance gaps, with cul-de-sacs growing 11.9% annually while main roads decline by 0.9%. Analysis of 29,102 properties reveals €249K price differences and 12.8 percentage point momentum advantages favoring family-focused street types.',
