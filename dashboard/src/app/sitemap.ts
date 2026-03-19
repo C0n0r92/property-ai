@@ -54,6 +54,7 @@ const blogArticleSlugs = [
   'value-erosion-2021-2025',
   'dublin-property-map-guide',
   'dublin-bidding-wars-analysis',
+  'first-time-buyer-bracket-analysis',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
