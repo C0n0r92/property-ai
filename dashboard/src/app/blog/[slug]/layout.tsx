@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
-import { articles } from './page';
+import { readArticle } from '@/lib/blog';
 import { BlogArticleStructuredData } from '@/components/BlogArticleStructuredData';
 
 // Generate metadata for each blog post
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const article = articles[slug as keyof typeof articles];
+  const article = readArticle(slug);
 
   if (!article) {
     return {
@@ -54,7 +54,7 @@ export default async function BlogPostLayout({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const article = articles[slug as keyof typeof articles];
+  const article = readArticle(slug);
 
   if (!article) {
     return children;
