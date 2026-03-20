@@ -147,7 +147,7 @@ function ComparePageContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h1 className="text-3xl font-bold mb-4">Sign in to Compare Properties</h1>
+              <h1 className="text-3xl font-bold text-slate-900 mb-4">Sign in to Compare Properties</h1>
               <p className="text-slate-600 mb-6 max-w-2xl mx-auto">
                 Create a free account to unlock the full comparison tool. Compare up to 5 properties
                 side-by-side with market intelligence, mortgage calculations, and more.
@@ -204,7 +204,7 @@ function ComparePageContent() {
         <div className="max-w-7xl mx-auto px-4 py-16 text-center">
           {/* Header */}
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-8">
-            <h1 className="text-3xl font-bold mb-4">Property Comparison Tool</h1>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">Property Comparison Tool</h1>
             <p className="text-slate-600 mb-6 max-w-2xl mx-auto">
               Compare up to 5 properties side-by-side with comprehensive market intelligence,
               mortgage calculations, walkability scores, and planning data.
@@ -223,7 +223,7 @@ function ComparePageContent() {
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                 <span className="text-2xl">M</span>
               </div>
-              <h3 className="font-semibold mb-2">Market Intelligence</h3>
+              <h3 className="font-semibold text-slate-900 mb-2">Market Intelligence</h3>
               <p className="text-sm text-slate-600">Compare prices, market positions, and competition levels</p>
             </div>
 
@@ -231,7 +231,7 @@ function ComparePageContent() {
               <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
                 <span className="text-2xl">W</span>
               </div>
-              <h3 className="font-semibold mb-2">Walkability & Amenities</h3>
+              <h3 className="font-semibold text-slate-900 mb-2">Walkability & Amenities</h3>
               <p className="text-sm text-slate-600">See transport access, nearby schools, shops, and services</p>
             </div>
 
@@ -239,7 +239,7 @@ function ComparePageContent() {
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                 <span className="text-2xl">P</span>
               </div>
-              <h3 className="font-semibold mb-2">Planning & Development</h3>
+              <h3 className="font-semibold text-slate-900 mb-2">Planning & Development</h3>
               <p className="text-sm text-slate-600">Check for nearby planning applications and future developments</p>
             </div>
           </div>

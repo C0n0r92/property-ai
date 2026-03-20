@@ -3446,27 +3446,31 @@ export default function MapComponent({}: MapComponentProps) {
             >
               Sale
             </button>
-            <button
-              onClick={() => toggleDataSource('rentals')}
-              className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
-                dataSources.rentals
-                  ? 'bg-purple-500 text-white shadow-sm'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
-              }`}
-              title="Toggle rental listings"
-            >
-              Rentals
-            </button>
-            {dataSources.rentals && (
-              <select
-                value={rentalAvailabilityFilter}
-                onChange={(e) => setRentalAvailabilityFilter(e.target.value as 'active' | 'all')}
-                className="ml-2 px-2 py-1 text-xs bg-gray-800 text-white border border-gray-600 rounded-md focus:outline-none focus:border-purple-500"
-                title="Filter rental availability"
-              >
-                <option value="active">Active Only</option>
-                <option value="all">Include Historical</option>
-              </select>
+            {rentals.length > 0 && (
+              <>
+                <button
+                  onClick={() => toggleDataSource('rentals')}
+                  className={`flex-1 px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all ${
+                    dataSources.rentals
+                      ? 'bg-purple-500 text-white shadow-sm'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                  }`}
+                  title="Toggle rental listings"
+                >
+                  Rentals
+                </button>
+                {dataSources.rentals && (
+                  <select
+                    value={rentalAvailabilityFilter}
+                    onChange={(e) => setRentalAvailabilityFilter(e.target.value as 'active' | 'all')}
+                    className="ml-2 px-2 py-1 text-xs bg-gray-800 text-white border border-gray-600 rounded-md focus:outline-none focus:border-purple-500"
+                    title="Filter rental availability"
+                  >
+                    <option value="active">Active Only</option>
+                    <option value="all">Include Historical</option>
+                  </select>
+                )}
+              </>
             )}
 
 

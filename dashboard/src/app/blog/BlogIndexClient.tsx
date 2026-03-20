@@ -260,7 +260,7 @@ export default function BlogIndexClient({ articles }: BlogIndexClientProps) {
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-4 border-t border-slate-700">
                     <div className="flex items-center gap-4 text-sm text-slate-400">
-                      <span>{article.date}</span>
+                      <span>{new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       <span>•</span>
                       <span>{article.readTime}</span>
                       <span>•</span>

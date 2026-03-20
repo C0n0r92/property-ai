@@ -7,6 +7,7 @@ export function SignInButton() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -62,7 +63,34 @@ export function SignInButton() {
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setError('');
+    setSuccessMessage('');
     setFormData({ email: '', password: '', confirmPassword: '' });
+  };
+
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      setSuccessMessage('Check your email for a password reset link');
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      setError(error.message || 'Failed to send reset email');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -115,6 +143,18 @@ export function SignInButton() {
             required
             className="w-full px-3 py-2 bg-[var(--surface-hover)] border border-[var(--border)] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
+          {isLogin && (
+            <div className="text-right mt-2">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={loading}
+                className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors disabled:opacity-50"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
         </div>
 
         {!isLogin && (
@@ -143,6 +183,12 @@ export function SignInButton() {
       {error && (
         <p className="text-sm text-center" style={{ color: error.includes('check your email') ? '#10b981' : '#ef4444' }}>
           {error}
+        </p>
+      )}
+
+      {successMessage && (
+        <p className="text-sm text-center text-emerald-500">
+          {successMessage}
         </p>
       )}
     </div>

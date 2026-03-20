@@ -266,6 +266,13 @@ export default function AreaClient({ slug, initialData }: { slug: string; initia
         </div>
       </div>
 
+      {/* Time Period Context */}
+      <div className="text-center mb-6">
+        <p className="text-xs text-gray-400">
+          Based on sales data 2022–2025 (updated daily)
+        </p>
+      </div>
+
       {/* Additional Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-[var(--surface)] p-4 rounded-lg border border-[var(--border)]">
