@@ -1,0 +1,1237 @@
+'use client'
+
+import Link from 'next/link';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { NewsletterSignup } from '@/components/NewsletterSignup';
+import { ArticleCardSkeleton } from '@/components/ArticleCardSkeleton';
+import { getCategoryConfig } from '@/lib/blog-categories';
+import { HeroSection } from '@/components/HeroSection';
+
+interface Article {
+  id: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  readTime: string;
+  featured?: boolean;
+  tags: string[];
+  author: string;
+  views: number;
+}
+
+interface BlogIndexClientProps {
+  articles: Article[];
+}
+
+// Research articles data - now passed as props, this is deprecated
+const researchArticles_DEPRECATED = [
+  {
+    id: 'dublin-spring-2026-market-outlook',
+    title: 'Dublin Spring 2026 Property Market: What Buyers Need to Know Now',
+    excerpt: 'Spring 2026 brings critical decisions for Dublin property buyers as supply constraints intensify and seasonal demand peaks. Our analysis of 47,000+ transactions reveals which postcodes offer opportunity and which strategies work in today\'s competitive market.',
+    category: 'Market Analysis',
+    date: '2026-03-19',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Market Outlook', 'Spring 2026', 'Dublin Property'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'first-time-buyer-bracket-analysis',
+    title: 'Dublin First-Time Buyer Bracket: The \u20ac300k\u2013\u20ac500k Market Deep Dive',
+    excerpt: 'The \u20ac300k-\u20ac500k price bracket accounts for 42% of Dublin sales and is where most first-time buyers compete. We analyse competition levels, best postcodes, winning property types, and bidding strategies using data from 47,000+ transactions.',
+    category: 'Market Analysis',
+    date: '2026-03-19',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['First-Time Buyers', 'Property Brackets', 'Dublin Market', 'Bidding Strategy', 'Mortgage Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-street-type-momentum',
+    title: 'Dublin Street Type Momentum: Why Cul-de-Sacs Outperform Main Roads by 12.8 Percentage Points',
+    excerpt: 'Dublin street positioning creates dramatic performance gaps, with cul-de-sacs growing 11.9% annually while main roads decline by 0.9%. Analysis of 29,102 properties reveals €249K price differences and 12.8 percentage point momentum advantages favoring family-focused street types.',
+    category: 'Market Analysis',
+    date: '2026-01-05',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Street Types', 'Market Momentum', 'Property Performance', 'Investment Strategy', 'Location Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-corner-house-discount',
+    title: 'Dublin Corner House Discount: Why End-of-Terrace Properties Cost 12.4% Less',
+    excerpt: 'Dublin corner houses sell for 12.4% less than equivalent mid-terrace homes, representing €74,411 in potential savings. Analysis of 17,530 properties reveals systematic pricing disadvantages for end-of-terrace positions across all property types and sizes.',
+    category: 'Market Analysis',
+    date: '2026-01-05',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['Corner Houses', 'Property Pricing', 'Location Premium', 'Value Analysis', 'Terrace Properties'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-rental-affordability-crisis',
+    title: 'Dublin Rental Affordability Crisis: Under €2,000 Housing Gap',
+    excerpt: 'Dublin rental market reveals stark affordability crisis with only 8.2% of rentals under €2,000 despite median rent of €2,600. Analysis of 2,105 properties shows extreme polarization between luxury rentals (€16,300) and scarce affordable options.',
+    category: 'Market Analysis',
+    date: '2026-01-12',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['Rental Market', 'Affordability Crisis', 'Housing Accessibility', 'Market Polarization', 'Dublin Rentals', 'Property Supply'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-suburban-over-asking-hotspots',
+    title: 'Dublin\'s Suburban Bidding War Hotspots: 9-13% Above Asking Price 78-90% of the Time',
+    excerpt: 'Dublin\'s suburban neighborhoods reveal exceptional over-asking patterns that outperform city center areas, with specific local communities like Ballyfermot, Clondalkin, and Finglas achieving 9-13% above asking price 78-90% of the time despite lower price points.',
+    category: 'Market Analysis',
+    date: '2026-01-06',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Suburban Markets', 'Over-Asking Strategy', 'Local Areas', 'Bidding Competition', 'Property Pricing'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-planning-permission-tool-guide',
+    title: 'Dublin Planning Permission Tool: Uncovering Development Potential',
+    excerpt: 'Our planning permission search tool reveals Dublin\'s most active development areas, with 15,420 applications analyzed showing 78.5% approval rates and €85,000 average extension values. Extensions dominate at 29.3% of applications with 82.3% approval rates.',
+    category: 'Tool Guide',
+    date: '2026-01-03',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Planning Permission', 'Development Potential', 'Property Extensions', 'Planning Applications', 'Investment Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-property-prices-since-covid',
+    title: 'Dublin Property Prices Since COVID: The €107k Recovery Surge',
+    excerpt: 'Dublin property prices have surged €107,000 (22%) since COVID, climbing from €488,242 in 2021 to €595,111 in 2025. Analysis of 32,850 transactions reveals accelerating growth with 7.6% and 6.3% annual increases in recent years.',
+    category: 'Market Analysis',
+    date: '2026-01-03',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['COVID Recovery', 'Price Changes', 'Market Growth', 'Property Values', 'Dublin Market'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-d5-area-analysis',
+    title: 'D5 Dublin: The Hidden Gem of North Dublin Property Market',
+    excerpt: 'D5 emerges as Dublin\'s most competitively priced premium area, with 731 properties analyzed showing 5.4% year-over-year growth from €531,572 to €560,088 average prices. Semi-detached homes dominate at 40.1% with €607,135 averages.',
+    category: 'Area Analysis',
+    date: '2026-01-03',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['D5', 'Area Analysis', 'North Dublin', 'Property Market', 'Competitive Pricing'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-market-quiet-zones',
+    title: 'Dublin\'s Hidden Market Quiet Zones: Where Property Prices Stay Stable',
+    excerpt: 'Dublin\'s property market reveals distinct "quiet zones" where sales activity remains subdued and price movements are minimal. Analysis of 13,973 transactions shows D17 leads with just 137 sales averaging €350,613, while areas like D9 and D13 demonstrate remarkable price stability.',
+    category: 'Market Analysis',
+    date: '2026-01-02',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['Market Quiet Zones', 'Price Stability', 'Sales Activity', 'Conservative Markets', 'Dublin Property'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-conservative-market-strategy',
+    title: 'Dublin Conservative Market Strategy: Areas with Least Price Increases and Over-Asking',
+    excerpt: 'Dublin\'s property market offers conservative investment opportunities in areas demonstrating minimal price appreciation and measured over-asking practices. Analysis reveals D4 experienced -3.2% annual depreciation while maintaining 76.1% over-asking success.',
+    category: 'Market Analysis',
+    date: '2026-01-02',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['Conservative Strategy', 'Price Stability', 'Over-Asking Analysis', 'Buying Strategy', 'Selling Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-rental-market-hotspots',
+    title: 'Dublin Rental Market Hotspots: Most Active Areas and Rent Value Analysis',
+    excerpt: 'Dublin\'s rental market reveals distinct hotspots where rental activity concentrates and rent values vary significantly. Analysis shows D15 dominates with 1,139 rentals averaging €2,783 monthly, while D4 commands premium rents at €5,094 monthly.',
+    category: 'Rental Analysis',
+    date: '2026-01-02',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Rental Market', 'Rent Analysis', 'Rental Hotspots', 'Yield Analysis', 'Investment Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-d3-area-analysis',
+    title: 'Dublin D3: East Dublin\'s Emerging Property Market',
+    excerpt: 'Dublin D3 emerges as East Dublin\'s most dynamic property market in 2024-2025, with 828 transactions averaging €618,071. The area achieves 84.8% over-asking success rates while maintaining competitive pricing relative to premium Dublin 4.',
+    category: 'Area Analysis',
+    date: '2026-01-01',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['D3', 'Area Analysis', 'East Dublin', 'Property Market', 'Over-Asking Success'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'size-based-mortgage-strategy',
+    title: 'Size-Based Mortgage Strategy: How Property Size Impacts Overpayment Savings',
+    excerpt: 'Property size significantly influences mortgage overpayment effectiveness, with compact homes under 70 square meters offering €269 annual savings per €5,000 overpayment versus €1,415 monthly premiums for XL properties over 200 square meters.',
+    category: 'Financial Analysis',
+    date: '2026-01-01',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Mortgage Strategy', 'Overpayment Savings', 'Property Size', 'Size Efficiency', 'Mortgage Calculator'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'geographic-price-intelligence',
+    title: 'Geographic Price Intelligence: How Map Features Enable Smart Dublin Property Decisions',
+    excerpt: 'Dublin\'s geographic price variations reveal €2.1M differences between premium D4 (€925K average) and accessible D22 (€375K average), with map-based analysis enabling 28% better decision-making through area-specific intelligence.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Geographic Analysis', 'Map Features', 'Price Intelligence', 'Decision Making', 'Area Comparison'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'property-type-cyclical-performance',
+    title: 'Dublin Property Seasons: When to Buy and Sell Apartments vs Houses for Maximum Value',
+    excerpt: 'Dublin property types exhibit distinct cyclical performance patterns, with apartments peaking in Q3-Q4 at 11.5% premium pricing while detached homes achieve 23.8% seasonal advantages. Understanding these rhythms enables €150K+ strategic advantages.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Property Types', 'Cyclical Performance', 'Seasonal Patterns', 'Market Timing', 'Quarterly Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'size-efficiency-paradox-analysis',
+    title: 'Size Efficiency Paradox: Dublin Property Size Trade-offs and Strategic Advantages',
+    excerpt: 'Dublin property sizes reveal counterintuitive efficiency patterns, with compact homes under 70 square meters commanding €6,625/sqm premiums while XL properties over 200 square meters achieve only €6,231/sqm despite superior over-asking success.',
+    category: 'Market Analysis',
+    date: '2026-01-01',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Size Efficiency', 'Property Size', 'Efficiency Paradox', 'Value Analysis', 'Size Trade-offs'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-property-timing-value-tradeoff',
+    title: 'Dublin Property Timing: 31% Price Difference Between Best & Worst Months',
+    excerpt: 'Dublin property prices vary by 31.0% between optimal and suboptimal months, with December averaging €708,728 vs April at €540,823. Autumn properties command 5.2% premiums over winter. Strategic timing delivers €167,905 additional value.',
+    category: 'Market Analysis',
+    date: '2025-12-31',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Property Timing', 'Market Cycles', 'Seasonal Trends', 'Price Optimization', 'Buying Strategy', 'Selling Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'mortgage-overpayment-savings-strategy',
+    title: 'How €100 Extra Monthly Mortgage Payments Save €37,000+ Over 30 Years',
+    excerpt: 'Dublin bidding wars add 11.0% premiums costing €164,088 lifetime on €1M homes. €150 monthly overpayments save €37,017 interest and reduce loan terms by 2.7 years. Use our mortgage calculator to model your savings.',
+    category: 'Financial Analysis',
+    date: '2025-12-31',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Mortgage Strategy', 'Overpayment Savings', 'Bidding War Costs', 'Financial Planning', 'Debt Reduction', 'Mortgage Calculator'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-4-area-analysis-contrarian-decline',
+    title: 'Dublin 4: Premium Location Showing -2.8% Price Decline - Explore on Our Map',
+    excerpt: 'D4 properties average €911,790 in 2025, down 2.8% from €938,092 in 2024. Despite decline, 75.2% sell over asking with 10.4% premiums. Apartments dominate at 42.5%, luxury properties represent 27.5% of market.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['D4', 'Area Analysis', 'Price Decline', 'Premium Location', 'Apartments', 'Luxury Market'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-property-valuation-increases-2025',
+    title: 'Dublin Property Valuation Inversion: Suburban Areas Outperforming City Center',
+    excerpt: 'Dublin property market shows remarkable valuation inversion with suburban areas achieving 17.4% growth while central districts decline. Analysis of 21,092 transactions reveals D6W gaining €124K in value and D10 at 95.8% over-asking rates.',
+    category: 'Market Analysis',
+    date: '2025-12-30',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Property Valuation', 'Valuation Inversion', 'Suburban Growth', 'Market Dynamics', 'Geographic Performance', 'Investment Strategy'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'd6w-area-deep-dive-analysis',
+    title: 'D6W Dublin: €124K Value Surge - Explore This Hotspot on Our Map',
+    excerpt: 'D6W leads Dublin with 17.4% growth and €124K value increases. Deep dive into 405 transactions reveals property trends, pricing patterns, and strategic insights. Discover why D6W outperforms Dublin average.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['D6W', 'Area Analysis', 'Property Trends', 'Dublin Growth', 'Market Hotspot', 'Investment Opportunities'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'd7-area-deep-dive-analysis',
+    title: 'Dublin 7: €36K Value Growth - Discover This Emerging Area on Our Map',
+    excerpt: 'D7 shows steady 7.6% growth with €36K value increases across 827 transactions. Terraced homes dominate this accessible area offering strong rental yields and growth potential.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['D7', 'Area Analysis', 'Terraced Homes', 'Value Growth', 'Rental Yields', 'First-Time Buyers'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'd2-area-deep-dive-analysis',
+    title: 'Dublin 2: €31K Premium Growth - Explore Dublin\'s Prime District on Our Map',
+    excerpt: 'D2 maintains 6.1% growth with €31K value increases. Luxury apartments dominate this prestigious district, offering premium positioning and consistent demand.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '5 min read',
+    featured: true,
+    tags: ['D2', 'Luxury Market', 'Premium Growth', 'Apartments', 'Prestige District', 'High-End Properties'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'd15-area-analysis-growth-hotspot',
+    title: 'D15 Dublin: €56K Value Surge - Smart Buyer\'s Guide to This Growth Hotspot',
+    excerpt: 'D15 property values surged 12.9% in 2025, adding €56,492 in equity to the average €437,326 home. Semi-detached properties dominate at 35.5% market share with 87.3% selling over asking price.',
+    category: 'Area Analysis',
+    date: '2025-12-31',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['D15', 'Area Analysis', 'Property Growth', 'Value Surge', 'Semi-Detached', 'Market Performance'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'mortgage-overpayment-by-property-type',
+    title: 'Property Type Mortgage Strategy: €150 Overpayments Save €35K+ Across Dublin Markets',
+    excerpt: 'Mortgage overpayment savings vary by property type, with apartments saving €33,859 while detached homes save €38,427 on €150 monthly payments. Detached properties face lowest competition at 63.5% over-asking rate.',
+    category: 'Financial Analysis',
+    date: '2025-12-31',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Mortgage Strategy', 'Overpayment Savings', 'Property Types', 'Financial Planning', 'Debt Reduction', 'Mortgage Calculator'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-geographic-yield-analysis',
+    title: 'Dublin Yield Geography: Where €311K Properties Deliver 9.4% Returns',
+    excerpt: 'Dublin\'s rental yield geography reveals D11 delivering 9.40% gross yields on €311,485 properties while D4 offers only 7.34% on €682,435 homes. Suburban areas outperform city center by 28% in yield efficiency.',
+    category: 'Investment Analysis',
+    date: '2025-12-31',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Rental Yields', 'Geographic Analysis', 'Investment Strategy', 'Property Returns', 'Dublin Areas', 'Buy-to-Let'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-property-size-efficiency',
+    title: 'Dublin Size Efficiency: 3-Bedroom Homes Deliver €192K Value Per Bedroom',
+    excerpt: 'Dublin property size analysis reveals 3-bedroom homes deliver optimal €191,784 value per bedroom, while apartments maximize space efficiency at 2.365 bedrooms per square meter. Strategic sizing decisions can save €200K+.',
+    category: 'Market Analysis',
+    date: '2025-12-31',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Property Size', 'Space Efficiency', 'Bedroom Analysis', 'Value Optimization', 'Property Sizing', 'Cost Savings'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-over-asking-strategy-guide',
+    title: 'Dublin Over-Asking Strategy: €300K Properties Deliver 86.3% Success Rate',
+    excerpt: 'Dublin over-asking strategies vary by price bracket, with €300K properties achieving 86.3% success rates and €34,014 average profits, while €1M+ homes succeed only 52.5% of the time. Strategic pricing can add €83,749+ to proceeds.',
+    category: 'Market Analysis',
+    date: '2025-12-31',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Over-Asking Strategy', 'Pricing Strategy', 'Property Sales', 'Market Success', 'Seller Strategy', 'Dublin Market'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-bidding-war-costs',
+    title: 'How Dublin Bidding Wars Can Add €90,000+ Over 30 Years',
+    excerpt: 'Dublin bidding wars can cost €90,000+ over 30 years when you include both the premium and extra interest payments. Discover the true lifetime cost of competitive property buying.',
+    category: 'Financial Analysis',
+    date: '2025-12-28',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Bidding War Costs', 'Mortgage Impact', 'Long-term Costs', 'Property Investment', 'Financial Planning', 'Dublin Market'],
+    author: 'Market Research Team',
+    views: 1100,
+  },
+  {
+    id: 'dublin-bidding-wars-analysis',
+    title: 'Dublin Bidding Wars: Where Properties Sell Over Asking Price and Why',
+    excerpt: 'Dublin bidding wars analysis reveals 78.8% of properties sell over asking price with 10.74% average premium. Discover bidding war hotspots, under-performing areas, and strategic insights for buyers and sellers.',
+    category: 'Market Analysis',
+    date: '2025-12-27',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Dublin Bidding Wars', 'Over Asking Price', 'Property Competition', 'Buyer Strategies', 'Seller Strategies', 'Market Hotspots'],
+    author: 'Market Research Team',
+    views: 1250,
+  },
+  {
+    id: 'dublin-property-market-q4-2024',
+    title: 'Dublin Property Market Q4 2024 Data: Complete Analysis & Price Trends',
+    excerpt: 'Dublin property market analysis Q4 2024 reveals price trends, market performance, and future outlook based on 47,000+ property transactions. Get the latest Dublin real estate insights.',
+    category: 'Market Analysis',
+    date: '2024-03-15',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Dublin Property Market', 'Q4 2024', 'Price Trends', 'Market Analysis', 'Property Prices', 'Dublin Real Estate'],
+    author: 'Market Research Team',
+    views: 2847,
+  },
+  {
+    id: 'dublin-properties-over-asking-price-2024',
+    title: 'Dublin Properties Over Asking Price 2024 Data: Hot Areas & Market Demand',
+    excerpt: 'Which Dublin areas sell over asking price most? 2024 analysis shows hotspots where properties consistently achieve bidding wars. Essential guide for Dublin property buyers.',
+    category: 'Market Analysis',
+    date: '2024-05-22',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Dublin Over Asking', 'Property Prices', 'Market Demand', 'Buyer Competition', 'Dublin Hotspots', 'Bidding Wars'],
+    author: 'Market Research Team',
+    views: 1923,
+  },
+  {
+    id: 'dublin-rental-yield-analysis-best-areas',
+    title: 'Dublin Rental Yields 2024 Data: Best Areas for Buy-to-Let Investment',
+    excerpt: 'Dublin rental yield analysis reveals top areas for property investment. Discover which Dublin postcodes offer the highest rental returns for buy-to-let investors.',
+    category: 'Investment',
+    date: '2024-07-08',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Dublin Rental Yields', 'Buy-to-Let Investment', 'Property Investment', 'Rental Returns', 'Dublin Areas', 'ROI'],
+    author: 'Investment Research Team',
+    views: 1654,
+  },
+  {
+    id: 'dublin-price-per-square-meter-area-comparison',
+    title: 'Dublin Price Per Square Meter 2024 Data: Complete Area-by-Area Analysis',
+    excerpt: 'Dublin property prices per square meter compared across all areas. Find out which Dublin neighborhoods offer the best value for money in 2024.',
+    category: 'Market Analysis',
+    date: '2024-09-12',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['Dublin Price per m²', 'Property Values', 'Area Comparison', 'Dublin Neighborhoods', 'Value for Money', 'Real Estate Pricing'],
+    author: 'Market Research Team',
+    views: 2134,
+  },
+  {
+    id: 'fastest-growing-areas-dublin',
+    title: 'Dublin Areas with Fastest Property Price Growth: 6-Month Analysis',
+    excerpt: 'Analysis of Dublin\'s fastest growing property markets with momentum indicators and emerging opportunities.',
+    category: 'Market Trends',
+    date: '2025-12-02',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Price Growth', 'Market Momentum', 'Investment Opportunities'],
+    author: 'Market Research Team',
+    views: 1789,
+  },
+  {
+    id: 'planning-permission-activity',
+    title: 'Planning Permission Activity and Future Property Supply in Dublin',
+    excerpt: 'Analysis of development applications and future property supply across Dublin\'s planning pipeline.',
+    category: 'Planning',
+    date: '2025-12-03',
+    readTime: '9 min read',
+    featured: false,
+    tags: ['Planning Permission', 'Future Supply', 'Development'],
+    author: 'Planning Research Team',
+    views: 1456,
+  },
+  {
+    id: 'property-types-analysis',
+    title: 'Dublin Property Types Analysis: Apartments vs Houses Market Dynamics',
+    excerpt: 'Comparative analysis of apartments versus houses in Dublin with price trends and market preferences.',
+    category: 'Market Analysis',
+    date: '2025-12-08',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Property Types', 'Apartments', 'Houses'],
+    author: 'Market Research Team',
+    views: 2341,
+  },
+  {
+    id: 'bedroom-count-analysis',
+    title: 'Bedroom Count vs Property Prices: Dublin Market Breakdown',
+    excerpt: 'Analysis of how bedroom count affects property prices across Dublin with cost per bedroom insights.',
+    category: 'Market Analysis',
+    date: '2025-12-12',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['Bedrooms', 'Price Analysis', 'Property Size'],
+    author: 'Market Research Team',
+    views: 1987,
+  },
+  {
+    id: 'amenities-impact-prices',
+    title: 'Dublin Property Amenities Impact Analysis: Schools, Transport, and Value',
+    excerpt: 'Quantitative analysis of how proximity to amenities affects Dublin property prices and values.',
+    category: 'Location Analysis',
+    date: '2025-12-15',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Amenities', 'Schools', 'Transport'],
+    author: 'Location Research Team',
+    views: 1678,
+  },
+  {
+    id: 'dublin-property-areas-complete-guide-rankings',
+    title: 'Dublin Property Areas 2024 Data: Complete Guide with Prices, Yields & Rankings',
+    excerpt: 'Ultimate guide to Dublin property areas 2024. Compare all Dublin neighborhoods by price, rental yield, and growth potential. Essential for property buyers and investors.',
+    category: 'Location Analysis',
+    date: '2024-01-18',
+    readTime: '12 min read',
+    featured: false,
+    tags: ['Dublin Property Areas', 'Area Rankings', 'Dublin Neighborhoods', 'Property Prices', 'Rental Yields', 'Investment Guide'],
+    author: 'Market Research Team',
+    views: 3124,
+  },
+  {
+    id: 'dublin-luxury-hotspots-2024',
+    title: 'Dublin Luxury Property Hotspots 2024 Data: D6 Leads with €976k Average Price',
+    excerpt: 'Data analysis reveals Dublin\'s most expensive property markets, with D6 commanding the highest average prices at €976k based on 695 recent transactions.',
+    category: 'Market Analysis',
+    date: '2024-04-25',
+    readTime: '6 min read',
+    featured: true,
+    tags: ['Luxury Properties', 'Area Analysis', 'Premium Market'],
+    author: 'Market Research Team',
+    views: 4521,
+  },
+  {
+    id: 'over-asking-phenomenon-2024',
+    title: 'Dublin Over-Asking Phenomenon 2024 Data: 85.6% of D14 Properties Sell Above Asking Price',
+    excerpt: 'Record-breaking analysis shows 85.6% of D14 properties selling over asking price, with an average premium of 11% across Dublin\'s 21,059 recent transactions.',
+    category: 'Market Trends',
+    date: '2024-06-14',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['Over Asking', 'Market Demand', 'Buyer Competition'],
+    author: 'Market Research Team',
+    views: 3876,
+  },
+  {
+    id: 'detached-houses-dominance',
+    title: 'Detached Houses Dominate 2024 Data: €1.1M Average Price in Dublin Premium Market',
+    excerpt: 'Detached properties lead Dublin\'s market with €1.1M average price across 1,666 transactions, commanding 85% premium over apartments.',
+    category: 'Market Analysis',
+    date: '2024-08-09',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Property Types', 'Detached Houses', 'Market Segmentation'],
+    author: 'Market Research Team',
+    views: 3245,
+  },
+  {
+    id: 'dublin-postcode-power-rankings',
+    title: 'Dublin Postcode Power Rankings 2024 Data: Complete Investment Guide',
+    excerpt: 'Comprehensive analysis of all Dublin postcodes reveals D6 as top performer with €9,769/sqm, while D24 offers best value at €3,412/sqm.',
+    category: 'Investment',
+    date: '2024-10-31',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Area Rankings', 'Investment Guide', 'Price Analysis'],
+    author: 'Investment Research Team',
+    views: 5678,
+  },
+  {
+    id: 'bedroom-count-property-values',
+    title: 'Size Matters: Bedroom Count vs Property Values in Dublin 2024 Data',
+    excerpt: 'Detailed analysis shows 4-bedroom properties average €888k vs €394k for apartments, revealing clear pricing patterns by property size.',
+    category: 'Market Analysis',
+    date: '2024-02-07',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Property Size', 'Bedroom Analysis', 'Value Comparison'],
+    author: 'Market Research Team',
+    views: 187,
+  },
+  {
+    id: 'dublin-undervalued-gems-2024',
+    title: 'Dublin\'s Hidden Gems 2024 Data: Undervalued Areas with 78%+ Over-Asking Rates',
+    excerpt: 'Discover Dublin\'s best-kept secrets: D6W leads with 83.7% over-asking rate while maintaining relatively affordable entry points.',
+    category: 'Investment',
+    date: '2024-11-20',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Undervalued Areas', 'Growth Potential', 'Market Opportunities'],
+    author: 'Investment Research Team',
+    views: 234,
+  },
+  {
+    id: 'affordable-hotspots-2025',
+    title: 'Dublin\'s Affordable Hotspots 2025: Where 90%+ Properties Sell Over Asking for Under €400K',
+    excerpt: 'Data reveals fierce buyer competition in affordable areas - D10 leads with 91.3% over-asking rate at just €307K average, based on 4,919 transactions.',
+    category: 'Market Analysis',
+    date: '2025-12-04',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Affordable Areas', 'Over Asking', 'First-Time Buyers', '2025 Data'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'property-size-premium-2025',
+    title: 'Dublin Property Size Premium 2025: Why Homes Over 150sqm Cost 127% More',
+    excerpt: 'Space commands a massive premium - analysis of 3,358 large properties reveals 127% price increase over market average, with implications for buyers and investors.',
+    category: 'Market Analysis',
+    date: '2025-12-09',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Property Size', 'Space Premium', 'Value Analysis', '2025 Trends'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'q4-2024-vs-q1-2025-market-shift',
+    title: 'Dublin Property Market Q4 2024 vs Q1 2025: How Prices Shifted Into The New Year',
+    excerpt: 'Quarter-over-quarter analysis reveals real market movements - 1,850 Q1 2025 transactions show €583K average with shifting competition patterns.',
+    category: 'Market Trends',
+    date: '2025-12-11',
+    readTime: '9 min read',
+    featured: true,
+    tags: ['Market Trends', 'Q1 2025', 'Price Analysis', 'Seasonal Patterns'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'rental-yields-buy-to-let-2025',
+    title: 'Dublin Rental Yields 2025: Best Areas for Buy-to-Let Investors - 9.6% Returns in D22',
+    excerpt: 'Comprehensive rental yield analysis across 27,239 properties reveals top investment areas - D22 leads with 9.6% yield, D11 at 9.1%, based on 11,670 high-confidence estimates.',
+    category: 'Investment',
+    date: '2025-12-13',
+    readTime: '10 min read',
+    featured: false,
+    tags: ['Rental Yield', 'Buy-to-Let', 'Investment', 'ROI Analysis', '2025 Data'],
+    author: 'Investment Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-rental-guide-2025',
+    title: 'Dublin Rental Guide 2025: Where to Find Affordable Rentals - €2,459/Month in D1',
+    excerpt: 'Complete renter\'s guide analyzing 27,239 rental properties - from €1,963 for 1-beds to most affordable neighborhoods, with actual monthly costs across Dublin.',
+    category: 'Renting',
+    date: '2025-12-16',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Renting', 'Rental Prices', 'Affordable Areas', 'Budget Guide', '2025 Data'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'biggest-price-improvements-6-months',
+    title: 'Dublin Areas Showing Biggest Price Improvement: 6-Month Analysis',
+    excerpt: 'Comprehensive analysis reveals Foxrock Dublin 18 leading with 121.4% price increase, followed by Sandycove at 106.5% and Dalkey at 45.7% - based on 43,830 property transactions.',
+    category: 'Market Trends',
+    date: '2025-12-05',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Price Growth', 'Market Trends', 'Area Analysis', '6-Month Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'asking-price-strategy-dublin',
+    title: 'The Asking Price Strategy: How Dublin Sellers Set Prices to Drive Bidding Wars',
+    excerpt: 'Dublin property market analysis reveals 84.3% of properties sell over asking price with 7.5% average premium, examining strategic pricing patterns across property types and areas.',
+    category: 'Market Analysis',
+    date: '2025-12-18',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Pricing Strategy', 'Bidding Wars', 'Market Psychology'],
+    author: 'Market Research Team',
+    views: 456,
+  },
+  {
+    id: '250k-350k-property-bracket-dublin',
+    title: 'The €250,000-€350,000 Bracket: Dublin\'s Largest Property Market Segment',
+    excerpt: 'Analysis of Dublin\'s largest property segment reveals 8,930 properties in the €250k-€350k range, with apartments dominating (50.5%) and key insights for first-time buyers.',
+    category: 'Market Analysis',
+    date: '2025-12-22',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Price Brackets', 'First-Time Buyers', 'Market Segments'],
+    author: 'Market Research Team',
+    views: 1650,
+  },
+  {
+    id: 'dublin-apartment-market-2025',
+    title: 'Dublin Apartment Market 2025: Comprehensive Analysis from €280,000 to €2.1M',
+    excerpt: 'Dublin apartment market analysis covers 11,448 transactions with median €340,000 price, examining bedroom distribution, geographic trends, and investment potential.',
+    category: 'Market Analysis',
+    date: '2025-01-01',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Apartments', 'Investment', 'Urban Living'],
+    author: 'Market Research Team',
+    views: 2100,
+  },
+  {
+    id: '3-bed-property-sweet-spot',
+    title: 'The 3-Bed Sweet Spot: Why 38% of Dublin Buyers Choose This Property Size',
+    excerpt: '3-bedroom properties dominate Dublin market at 38.4% of transactions, with median €475,000 price and strong rental yields across semi-detached, terraced, and apartment options.',
+    category: 'Market Analysis',
+    date: '2025-01-02',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['3-Bed Properties', 'Family Homes', 'Market Trends'],
+    author: 'Market Research Team',
+    views: 1950,
+  },
+  {
+    id: 'commuter-calculation-dublin',
+    title: 'The Commuter Calculation: Dublin Properties by Distance from City Centre',
+    excerpt: 'Property analysis by distance from Dublin city centre reveals median prices from €460,000 (0-5km) to €385,000 (15-25km), with space and yield trade-offs for different buyer profiles.',
+    category: 'Location Analysis',
+    date: '2025-01-03',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Location Analysis', 'Commuting', 'Remote Work'],
+    author: 'Market Research Team',
+    views: 1750,
+  },
+  {
+    id: 'christmas-property-market-analysis',
+    title: 'Christmas Property Sales: Dublin Market Shutdown and Price Impact Analysis',
+    excerpt: 'Analysis of December property sales reveals significant market slowdown during Christmas week with 8.1% lower prices and near-zero activity on Dec 25.',
+    category: 'Market Trends',
+    date: '2025-01-04',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Christmas Sales', 'Market Activity', 'Seasonal Trends', 'Property Prices'],
+    author: 'Market Research Team',
+    views: 4237,
+  },
+  {
+    id: 'investor-yield-curve',
+    title: 'The Investor\'s Yield Curve: How €300k Less Property Doubles Your Returns',
+    excerpt: 'Analysis of Dublin\'s rental yield curve reveals sub-€300k properties deliver 11.52% yields vs 4.88% for €700k+ properties, with the "Duplex Paradox" where premium types achieve both high yields and strong over-asking success.',
+    category: 'Investment',
+    date: '2025-12-06',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Rental Yield', 'Investment Returns', 'Property Pricing', 'Duplex Paradox'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: '3bed-phenomenon',
+    title: 'The 3-Bed Phenomenon: Why Family Homes Win Dublin\'s Bidding Wars',
+    excerpt: '3-bedroom properties achieve 87.4% over-asking success rates, outperforming all other sizes in Dublin\'s competitive market. Analysis reveals why family homes dominate bidding wars with clear performance patterns.',
+    category: 'Market Analysis',
+    date: '2025-12-19',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['3-Bed Properties', 'Family Homes', 'Over-Asking Success', 'Bedroom Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'd4-premium',
+    title: 'The D4 Premium: What €400,000 Extra Actually Buys You',
+    excerpt: 'D4 properties command escalating premiums from 36.4% for 1-bed apartments to 90.8% for 4-bed homes. Analysis quantifies what additional €400,000+ buys in space, location, and efficiency.',
+    category: 'Market Analysis',
+    date: '2025-12-21',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['D4 Premium', 'Property Pricing', 'Space Efficiency', 'Premium Areas'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'january-2025-timing',
+    title: 'January 2025: Is It a Good Time to Buy or Sell Property?',
+    excerpt: 'January 2025 analysis reveals 26% volume decline from December with 764 transactions, but sustained 83% over-asking rates despite severe first-week holiday disruptions affecting market timing.',
+    category: 'Market Analysis',
+    date: '2025-12-23',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['January 2025', 'Market Timing', 'Holiday Impact', 'Buy vs Sell'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-rental-market-2025',
+    title: 'Dublin Rental Market 2025: Complete Guide for Renters and Investors',
+    excerpt: 'Dublin rental market analysis covers 27,236 properties with median rents from €1,925 (1-bed) to €3,931 (4-bed), revealing duplexes offer highest 9.0% yields while only 28.7% of rentals are affordable on €100k income.',
+    category: 'Renting',
+    date: '2025-12-26',
+    readTime: '9 min read',
+    featured: true,
+    tags: ['Rental Market', 'Rent Prices', 'Rental Yields', 'Affordability', '2025 Data'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'q2-vs-q1-selling-dublin',
+    title: 'When to Sell Property Dublin: Q2 vs Q1 Seasonal Analysis 2024',
+    excerpt: 'Best time to sell property in Dublin? Q2 vs Q1 analysis shows spring quarter delivers 8.86% higher sales volume and better over-asking rates. Seasonal property market timing guide.',
+    category: 'Market Analysis',
+    date: '2025-12-27',
+    readTime: '7 min read',
+    featured: false,
+    tags: ['Dublin Property Selling', 'Q2 vs Q1', 'Seasonal Market', 'Property Timing', 'Spring Sales', 'Dublin Real Estate'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-rental-market-tenant-perspective',
+    title: 'Dublin Rental Market 2025: Tenant Guide to Affordable Housing',
+    excerpt: 'Dublin rental prices 2025: Can you afford to rent in Dublin? Analysis shows rents consume 67-102% of average incomes. Find affordable areas and understand the tenant market.',
+    category: 'Renting',
+    date: '2025-12-27',
+    readTime: '8 min read',
+    featured: false,
+    tags: ['Dublin Rental Market', 'Affordable Housing', 'Tenant Guide', 'Rent Prices Dublin', 'Housing Affordability', 'Property Renting'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'space-efficiency-paradox',
+    title: 'Space Efficiency Paradox: Why Smaller Dublin Properties Deliver More Bedrooms Per Square Meter',
+    excerpt: 'Dublin\'s property market reveals a counterintuitive pattern where smaller properties achieve dramatically higher space efficiency. Properties under 80㎡ deliver 2.66 bedrooms per square meter while commanding premium pricing.',
+    category: 'Market Analysis',
+    date: '2025-12-28',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Space Efficiency', 'Property Size', 'Bedrooms per m²', 'Market Paradox', 'Dublin Property Analysis', 'Compact Properties'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'value-erosion-2021-2025',
+    title: 'Value Erosion: How Dublin Property Prices Have Skyrocketed Since 2021',
+    excerpt: 'Dublin property prices have increased dramatically since 2021, with detached houses rising 44% and the same money buying significantly less property value today. A €355,000 detached house in D15 that sold in 2021 would cost €1,500,000 today.',
+    category: 'Market Trends',
+    date: '2025-12-28',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Property Price Inflation', 'Value Erosion', '2021 vs 2025', 'Dublin Property Prices', 'Purchasing Power', 'Market Trends'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
+    id: 'dublin-property-map-guide',
+    title: 'Dublin Property Map: Your Complete Guide to Smart Property Decisions',
+    excerpt: 'Master Dublin\'s property market with our interactive map featuring 48,000+ transactions, walkability scoring, and comparison tools. Explore three viewing modes, filter by time periods, and compare properties side-by-side.',
+    category: 'Location Analysis',
+    date: '2025-12-29',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Property Map', 'Walkability', 'Location Intelligence', 'Property Tools', 'Dublin Areas', 'Investment Guide'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+];
+
+const categories = ['All', 'Market Analysis', 'Investment', 'Market Trends', 'Planning', 'Location Analysis', 'Market Guide', 'Renting', 'Financial Analysis'];
+const ARTICLES_PER_PAGE = 9;
+
+export default function BlogIndexClient({ articles }: BlogIndexClientProps) {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('date');
+  const [isLoading, setIsLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Filtered and sorted articles
+  const filteredArticles = useMemo(() => {
+    let filtered = articles.filter(article => {
+      const matchesCategory = selectedCategory === 'All' || article.category === selectedCategory;
+      const matchesSearch = searchQuery === '' ||
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      return matchesCategory && matchesSearch;
+    });
+
+    // Sort articles
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'views':
+          return b.views - a.views;
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [selectedCategory, searchQuery, sortBy]);
+
+  const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
+  const paginatedArticles = filteredArticles.slice(
+    (currentPage - 1) * ARTICLES_PER_PAGE,
+    currentPage * ARTICLES_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 200);
+    return () => clearTimeout(timer);
+  }, [selectedCategory, searchQuery, sortBy]);
+
+  const featuredArticle = articles.find(article => article.featured);
+
+  return (
+    <div className="min-h-screen bg-slate-900">
+      <HeroSection
+        title="Market Research & Intelligence"
+        description="Professional market analysis and data-driven insights for Dublin's property landscape."
+        breadcrumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'Market Research' }
+        ]}
+        stats={[
+          { label: 'Articles', value: 57 },
+          { label: 'Categories', value: categories.length - 1 },
+          { label: 'Access', value: 'Free' }
+        ]}
+      />
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8 bg-slate-900" id="articles">
+        {/* Compact Filters Section */}
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search Bar */}
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search articles..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                />
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Category Filters */}
+            <div className="flex-1">
+              <div className="flex flex-wrap gap-2">
+                {categories.map(category => {
+                  const categoryConfig = getCategoryConfig(category);
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                        selectedCategory === category
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm'
+                          : 'bg-slate-700 text-slate-200 hover:bg-slate-600 border border-slate-600'
+                      }`}
+                    >
+                      {categoryConfig && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={categoryConfig.icon} />
+                        </svg>
+                      )}
+                      {category}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400">Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-2 py-1.5 bg-slate-700 border border-slate-600 rounded text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="date">Latest</option>
+                  <option value="title">A-Z</option>
+                  <option value="views">Popular</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-sm text-slate-400">
+            {filteredArticles.length} articles
+            {searchQuery && <span> matching "{searchQuery}"</span>}
+            {selectedCategory !== 'All' && <span> in {selectedCategory}</span>}
+          </div>
+        </div>
+
+        {/* Articles Grid/List */}
+        {isLoading ? (
+          <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" : "space-y-6"}>
+            {Array.from({ length: ARTICLES_PER_PAGE }, (_, i) => (
+              <ArticleCardSkeleton key={`skeleton-${i}`} />
+            ))}
+          </div>
+        ) : (
+          <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" : "space-y-6"}>
+            {paginatedArticles.map(article => (
+              <article
+                key={article.id}
+                className={`group bg-slate-800/50 backdrop-blur-sm border border-slate-700 hover:border-blue-500/50 rounded-2xl hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden relative ${
+                  viewMode === 'list' ? 'flex' : ''
+                }`}
+              >
+                {/* Article Content */}
+                <div className={`p-6 ${viewMode === 'list' ? 'flex-1' : ''}`}>
+                  {/* Category Badge */}
+                  <div className="flex items-start justify-between mb-4">
+                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                      getCategoryConfig(article.category)?.color.bg || 'bg-slate-700 text-slate-200'
+                    } ${
+                      getCategoryConfig(article.category)?.color.text || 'text-slate-200'
+                    }`}>
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={
+                          getCategoryConfig(article.category)?.icon || 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
+                        } />
+                      </svg>
+                      {article.category}
+                    </span>
+                    <div className="flex items-center gap-1 text-xs text-slate-400">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>{article.views.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-white mb-3 leading-tight group-hover:text-blue-400 transition-colors">
+                    <Link href={`/blog/${article.id}`} className="block">
+                      {article.title}
+                    </Link>
+                  </h3>
+
+                  {/* Excerpt */}
+                  <p className="text-slate-400 mb-4 line-clamp-3 leading-relaxed">{article.excerpt}</p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {article.tags.slice(0, 3).map(tag => (
+                      <span key={tag} className="px-2.5 py-1 bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-600">
+                        {tag}
+                      </span>
+                    ))}
+                    {article.tags.length > 3 && (
+                      <span className="px-2.5 py-1 bg-slate-700 text-slate-400 rounded-lg text-xs border border-slate-600">
+                        +{article.tags.length - 3} more
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+                    <div className="flex items-center gap-4 text-sm text-slate-400">
+                      <span>{article.date}</span>
+                      <span>•</span>
+                      <span>{article.readTime}</span>
+                      <span>•</span>
+                      <span>{article.author}</span>
+                    </div>
+                    <Link
+                      href={`/blog/${article.id}`}
+                      className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors"
+                    >
+                      <span>Read More</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Featured Badge for Grid View */}
+                {viewMode === 'grid' && article.featured && (
+                  <div className="absolute top-4 right-4">
+                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                      Featured
+                    </div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-16">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-sm text-white rounded-xl bg-slate-700 border border-slate-600 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-12 h-12 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        currentPage === pageNum
+                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
+                          : 'text-white bg-slate-700 border border-slate-600 hover:bg-slate-600'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-sm text-white rounded-xl bg-slate-700 border border-slate-600 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+              >
+                Next
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
+
+        {/* Explore Areas Section */}
+        <div className="mt-20 mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              Explore Areas Featured in Research
+            </h2>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+              Discover detailed market analysis for Dublin's key neighborhoods and property hotspots
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { href: '/areas/dublin-4', name: 'Dublin 4', desc: 'Premium Market', color: 'from-blue-500 to-blue-600' },
+              { href: '/areas/dublin-6', name: 'Dublin 6', desc: 'Family Areas', color: 'from-green-500 to-green-600' },
+              { href: '/areas/dublin-2', name: 'Dublin 2', desc: 'City Centre', color: 'from-purple-500 to-purple-600' },
+              { href: '/areas', name: 'All Areas', desc: 'Complete List', color: 'from-orange-500 to-red-500' }
+            ].map((area, index) => (
+              <Link
+                key={area.href}
+                href={area.href}
+                className={`group relative overflow-hidden bg-gradient-to-br ${area.color} rounded-3xl p-8 text-white hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="relative">
+                  <div className="text-2xl font-bold mb-2">{area.name}</div>
+                  <div className="text-white/80 text-sm">{area.desc}</div>
+                  <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Newsletter Signup */}
+        <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-3xl p-12 border border-slate-700">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              Stay Ahead of the Market
+            </h2>
+            <p className="text-xl text-slate-300 mb-8 leading-relaxed">
+              Get weekly market insights, analysis updates, and exclusive research delivered to your inbox.
+            </p>
+            <NewsletterSignup />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
