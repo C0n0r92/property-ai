@@ -1,0 +1,157 @@
+{
+  "quarterlyData": [
+    {
+      "quarter": "2024Q1",
+      "avgPrice": 391041,
+      "count": 79,
+      "overAsking": 8.7
+    },
+    {
+      "quarter": "2024Q2",
+      "avgPrice": 394668,
+      "count": 83,
+      "overAsking": 8.5
+    },
+    {
+      "quarter": "2024Q3",
+      "avgPrice": 391336,
+      "count": 106,
+      "overAsking": 10.8
+    },
+    {
+      "quarter": "2024Q4",
+      "avgPrice": 388277,
+      "count": 75,
+      "overAsking": 10
+    },
+    {
+      "quarter": "2025Q1",
+      "avgPrice": 436370,
+      "count": 86,
+      "overAsking": 11.6
+    },
+    {
+      "quarter": "2025Q2",
+      "avgPrice": 411122,
+      "count": 74,
+      "overAsking": 14
+    },
+    {
+      "quarter": "2025Q3",
+      "avgPrice": 420391,
+      "count": 91,
+      "overAsking": 12.2
+    },
+    {
+      "quarter": "2025Q4",
+      "avgPrice": 429933,
+      "count": 67,
+      "overAsking": 13.1
+    }
+  ],
+  "typeData": [
+    {
+      "type": "Terrace",
+      "count": 197,
+      "avgPrice": 386571,
+      "overAsking": 13.2,
+      "pctAbove": 92.9
+    },
+    {
+      "type": "Semi-D",
+      "count": 164,
+      "avgPrice": 562225,
+      "overAsking": 8.1,
+      "pctAbove": 83.5
+    },
+    {
+      "type": "Apartment",
+      "count": 157,
+      "avgPrice": 289484,
+      "overAsking": 10.6,
+      "pctAbove": 89.8
+    },
+    {
+      "type": "End of Terrace",
+      "count": 83,
+      "avgPrice": 391736,
+      "overAsking": 11.7,
+      "pctAbove": 91.6
+    },
+    {
+      "type": "Duplex",
+      "count": 21,
+      "avgPrice": 326071,
+      "overAsking": 11.3,
+      "pctAbove": 85.7
+    }
+  ],
+  "comparisonData": [
+    {
+      "area": "D10",
+      "avgPrice": 332455,
+      "overAsking": 15,
+      "pctAbove": 91.8
+    },
+    {
+      "area": "D11",
+      "avgPrice": 407359,
+      "overAsking": 11.1,
+      "pctAbove": 89.6
+    },
+    {
+      "area": "D12",
+      "avgPrice": 490260,
+      "overAsking": 13.2,
+      "pctAbove": 90.1
+    },
+    {
+      "area": "D17",
+      "avgPrice": 353317,
+      "overAsking": 6.9,
+      "pctAbove": 83.6
+    },
+    {
+      "area": "D22",
+      "avgPrice": 376268,
+      "overAsking": 12.7,
+      "pctAbove": 90.6
+    },
+    {
+      "area": "D9",
+      "avgPrice": 528065,
+      "overAsking": 7.9,
+      "pctAbove": 85.1
+    }
+  ],
+  "bedsData": [
+    {
+      "beds": "1bed",
+      "count": 28,
+      "avgPrice": 232071,
+      "overAsking": 8.7,
+      "pctAbove": 85.7
+    },
+    {
+      "beds": "2bed",
+      "count": 194,
+      "avgPrice": 311485,
+      "overAsking": 11.2,
+      "pctAbove": 91.8
+    },
+    {
+      "beds": "3bed",
+      "count": 353,
+      "avgPrice": 427467,
+      "overAsking": 11.7,
+      "pctAbove": 90.4
+    },
+    {
+      "beds": "4bed",
+      "count": 69,
+      "avgPrice": 567551,
+      "overAsking": 7.4,
+      "pctAbove": 82.6
+    }
+  ]
+}
