@@ -1,5 +1,17 @@
 export const researchArticles = [
   {
+    id: 'fast-movers-march-2026-velocity',
+    title: 'Fast Movers Win: Why 6-Day Market Velocity Rules March 2026',
+    excerpt: 'Dublin\'s property market is moving at lightning speed—median 1 day on market, average 6 days. Discover why velocity is now the primary competitive advantage and how to win in a fast-moving market.',
+    category: 'Market Analysis',
+    date: '2026-03-21',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['market velocity', 'buyer strategy', 'seller tactics', 'investor playbook', 'market timing', 'March 2026'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'blog60-d8-value-investor-hotspot',
     title: 'Dublin 8: The Liberties\' Yield Paradox - Where 21% Below Market Average Delivers 7.6% Returns',
     excerpt: 'D8 trades 21.4% below Dublin average at €470K while delivering 7.56% yields. 80.7% of properties achieve 6%+ returns, making The Liberties Dublin\'s premier value-yield location.',
