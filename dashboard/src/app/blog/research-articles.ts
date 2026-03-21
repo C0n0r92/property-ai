@@ -1,5 +1,17 @@
 export const researchArticles = [
   {
+    id: 'easter-2026-market-reset',
+    title: 'Easter 2026 Property Market Reset: Seller Expectations vs. Buyer Reality',
+    excerpt: 'Dublin\'s Q4 2025–Q1 2026 analysis reveals a market shift: 9% over-asking premium (down from 2024 peaks) signals genuine buyer leverage. Timing strategies for Easter season and beyond.',
+    category: 'Market Analysis',
+    date: '2026-03-21',
+    readTime: '9 min read',
+    featured: true,
+    tags: ['Easter 2026', 'market normalization', 'buyer strategy', 'seller expectations', 'over-asking analysis', 'Dublin Q1 2026'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'fast-movers-march-2026-velocity',
     title: 'Fast Movers Win: Why 6-Day Market Velocity Rules March 2026',
     excerpt: 'Dublin\'s property market is moving at lightning speed—median 1 day on market, average 6 days. Discover why velocity is now the primary competitive advantage and how to win in a fast-moving market.',
