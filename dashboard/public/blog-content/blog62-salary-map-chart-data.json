@@ -1,0 +1,445 @@
+{
+  "salaryMapByPostcode": [
+    {
+      "postcode": "D10",
+      "medianPrice": 325000,
+      "salarySingle": 73125,
+      "salaryCouple": 36562,
+      "count": 213
+    },
+    {
+      "postcode": "D17",
+      "medianPrice": 333000,
+      "salarySingle": 74925,
+      "salaryCouple": 37462,
+      "count": 158
+    },
+    {
+      "postcode": "D1",
+      "medianPrice": 350000,
+      "salarySingle": 78750,
+      "salaryCouple": 39375,
+      "count": 366
+    },
+    {
+      "postcode": "D11",
+      "medianPrice": 361500,
+      "salarySingle": 81338,
+      "salaryCouple": 40669,
+      "count": 687
+    },
+    {
+      "postcode": "D22",
+      "medianPrice": 366000,
+      "salarySingle": 82350,
+      "salaryCouple": 41175,
+      "count": 493
+    },
+    {
+      "postcode": "D24",
+      "medianPrice": 391500,
+      "salarySingle": 88088,
+      "salaryCouple": 44044,
+      "count": 1042
+    },
+    {
+      "postcode": "D15",
+      "medianPrice": 405000,
+      "salarySingle": 91125,
+      "salaryCouple": 45562,
+      "count": 1621
+    },
+    {
+      "postcode": "D8",
+      "medianPrice": 418000,
+      "salarySingle": 94050,
+      "salaryCouple": 47025,
+      "count": 913
+    },
+    {
+      "postcode": "D20",
+      "medianPrice": 430000,
+      "salarySingle": 96750,
+      "salaryCouple": 48375,
+      "count": 167
+    },
+    {
+      "postcode": "D12",
+      "medianPrice": 455000,
+      "salarySingle": 102375,
+      "salaryCouple": 51188,
+      "count": 858
+    },
+    {
+      "postcode": "D7",
+      "medianPrice": 465000,
+      "salarySingle": 104625,
+      "salaryCouple": 52312,
+      "count": 826
+    },
+    {
+      "postcode": "D2",
+      "medianPrice": 468250,
+      "salarySingle": 105356,
+      "salaryCouple": 52678,
+      "count": 290
+    },
+    {
+      "postcode": "D9",
+      "medianPrice": 480000,
+      "salarySingle": 108000,
+      "salaryCouple": 54000,
+      "count": 942
+    },
+    {
+      "postcode": "D13",
+      "medianPrice": 492500,
+      "salarySingle": 110812,
+      "salaryCouple": 55406,
+      "count": 804
+    },
+    {
+      "postcode": "D5",
+      "medianPrice": 510000,
+      "salarySingle": 114750,
+      "salaryCouple": 57375,
+      "count": 730
+    },
+    {
+      "postcode": "D3",
+      "medianPrice": 530000,
+      "salarySingle": 119250,
+      "salaryCouple": 59625,
+      "count": 829
+    },
+    {
+      "postcode": "D18",
+      "medianPrice": 575000,
+      "salarySingle": 129375,
+      "salaryCouple": 64688,
+      "count": 1157
+    },
+    {
+      "postcode": "D16",
+      "medianPrice": 630000,
+      "salarySingle": 141750,
+      "salaryCouple": 70875,
+      "count": 747
+    },
+    {
+      "postcode": "D4",
+      "medianPrice": 651500,
+      "salarySingle": 146588,
+      "salaryCouple": 73294,
+      "count": 924
+    },
+    {
+      "postcode": "D14",
+      "medianPrice": 711000,
+      "salarySingle": 159975,
+      "salaryCouple": 79988,
+      "count": 842
+    },
+    {
+      "postcode": "D6W",
+      "medianPrice": 713000,
+      "salarySingle": 160425,
+      "salaryCouple": 80212,
+      "count": 405
+    },
+    {
+      "postcode": "D6",
+      "medianPrice": 760000,
+      "salarySingle": 171000,
+      "salaryCouple": 85500,
+      "count": 692
+    }
+  ],
+  "aptEntryPoints": [
+    {
+      "postcode": "D22",
+      "medianPrice": 261000,
+      "salarySingle": 58725,
+      "count": 58
+    },
+    {
+      "postcode": "D24",
+      "medianPrice": 284000,
+      "salarySingle": 63900,
+      "count": 167
+    },
+    {
+      "postcode": "D11",
+      "medianPrice": 290000,
+      "salarySingle": 65250,
+      "count": 123
+    },
+    {
+      "postcode": "D17",
+      "medianPrice": 306500,
+      "salarySingle": 68962,
+      "count": 48
+    },
+    {
+      "postcode": "D12",
+      "medianPrice": 315000,
+      "salarySingle": 70875,
+      "count": 24
+    },
+    {
+      "postcode": "D15",
+      "medianPrice": 325000,
+      "salarySingle": 73125,
+      "count": 348
+    },
+    {
+      "postcode": "D9",
+      "medianPrice": 331000,
+      "salarySingle": 74475,
+      "count": 153
+    },
+    {
+      "postcode": "D20",
+      "medianPrice": 347500,
+      "salarySingle": 78188,
+      "count": 24
+    },
+    {
+      "postcode": "D13",
+      "medianPrice": 366500,
+      "salarySingle": 82462,
+      "count": 148
+    },
+    {
+      "postcode": "D5",
+      "medianPrice": 371500,
+      "salarySingle": 83588,
+      "count": 36
+    },
+    {
+      "postcode": "D7",
+      "medianPrice": 375000,
+      "salarySingle": 84375,
+      "count": 105
+    },
+    {
+      "postcode": "D8",
+      "medianPrice": 390000,
+      "salarySingle": 87750,
+      "count": 231
+    },
+    {
+      "postcode": "D3",
+      "medianPrice": 390000,
+      "salarySingle": 87750,
+      "count": 118
+    },
+    {
+      "postcode": "D1",
+      "medianPrice": 403000,
+      "salarySingle": 90675,
+      "count": 143
+    },
+    {
+      "postcode": "D18",
+      "medianPrice": 405000,
+      "salarySingle": 91125,
+      "count": 340
+    },
+    {
+      "postcode": "D16",
+      "medianPrice": 435000,
+      "salarySingle": 97875,
+      "count": 105
+    },
+    {
+      "postcode": "D14",
+      "medianPrice": 456000,
+      "salarySingle": 102600,
+      "count": 109
+    },
+    {
+      "postcode": "D6W",
+      "medianPrice": 458000,
+      "salarySingle": 103050,
+      "count": 24
+    },
+    {
+      "postcode": "D2",
+      "medianPrice": 470000,
+      "salarySingle": 105750,
+      "count": 140
+    },
+    {
+      "postcode": "D6",
+      "medianPrice": 505000,
+      "salarySingle": 113625,
+      "count": 100
+    },
+    {
+      "postcode": "D4",
+      "medianPrice": 530000,
+      "salarySingle": 119250,
+      "count": 240
+    }
+  ],
+  "houseEntryPoints": [
+    {
+      "postcode": "D10",
+      "medianPrice": 335000,
+      "salarySingle": 75375,
+      "count": 61
+    },
+    {
+      "postcode": "D17",
+      "medianPrice": 375500,
+      "salarySingle": 84488,
+      "count": 64
+    },
+    {
+      "postcode": "D22",
+      "medianPrice": 376500,
+      "salarySingle": 84712,
+      "count": 246
+    },
+    {
+      "postcode": "D11",
+      "medianPrice": 415500,
+      "salarySingle": 93488,
+      "count": 310
+    },
+    {
+      "postcode": "D24",
+      "medianPrice": 422000,
+      "salarySingle": 94950,
+      "count": 487
+    },
+    {
+      "postcode": "D15",
+      "medianPrice": 439500,
+      "salarySingle": 98888,
+      "count": 514
+    },
+    {
+      "postcode": "D20",
+      "medianPrice": 455000,
+      "salarySingle": 102375,
+      "count": 76
+    },
+    {
+      "postcode": "D13",
+      "medianPrice": 495000,
+      "salarySingle": 111375,
+      "count": 259
+    },
+    {
+      "postcode": "D12",
+      "medianPrice": 500000,
+      "salarySingle": 112500,
+      "count": 346
+    },
+    {
+      "postcode": "D5",
+      "medianPrice": 505000,
+      "salarySingle": 113625,
+      "count": 415
+    },
+    {
+      "postcode": "D9",
+      "medianPrice": 522500,
+      "salarySingle": 117562,
+      "count": 420
+    },
+    {
+      "postcode": "D8",
+      "medianPrice": 546000,
+      "salarySingle": 122850,
+      "count": 173
+    },
+    {
+      "postcode": "D7",
+      "medianPrice": 559272,
+      "salarySingle": 125836,
+      "count": 256
+    },
+    {
+      "postcode": "D16",
+      "medianPrice": 625000,
+      "salarySingle": 140625,
+      "count": 298
+    },
+    {
+      "postcode": "D3",
+      "medianPrice": 630000,
+      "salarySingle": 141750,
+      "count": 259
+    },
+    {
+      "postcode": "D18",
+      "medianPrice": 640000,
+      "salarySingle": 144000,
+      "count": 190
+    },
+    {
+      "postcode": "D6W",
+      "medianPrice": 675000,
+      "salarySingle": 151875,
+      "count": 157
+    },
+    {
+      "postcode": "D14",
+      "medianPrice": 681000,
+      "salarySingle": 153225,
+      "count": 259
+    },
+    {
+      "postcode": "D4",
+      "medianPrice": 926258,
+      "salarySingle": 208408,
+      "count": 150
+    },
+    {
+      "postcode": "D6",
+      "medianPrice": 930000,
+      "salarySingle": 209250,
+      "count": 143
+    }
+  ],
+  "incomeAccessScenarios": [
+    {
+      "scenario": "\u20ac60k single",
+      "combinedIncome": 60000,
+      "maxPrice": 266667,
+      "marketAccess": 5.0,
+      "count": 789
+    },
+    {
+      "scenario": "\u20ac80k single",
+      "combinedIncome": 80000,
+      "maxPrice": 355556,
+      "marketAccess": 21.7,
+      "count": 3410
+    },
+    {
+      "scenario": "\u20ac100k single",
+      "combinedIncome": 100000,
+      "maxPrice": 444444,
+      "marketAccess": 42.6,
+      "count": 6697
+    },
+    {
+      "scenario": "\u20ac60k couple",
+      "combinedIncome": 120000,
+      "maxPrice": 533333,
+      "marketAccess": 60.4,
+      "count": 9492
+    },
+    {
+      "scenario": "\u20ac80k couple",
+      "combinedIncome": 160000,
+      "maxPrice": 711111,
+      "marketAccess": 79.9,
+      "count": 12547
+    }
+  ]
+}
