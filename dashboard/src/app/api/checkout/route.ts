@@ -27,16 +27,47 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe();
     const { plan } = await request.json();
 
-    if (!plan || (plan !== 'one-time' && plan !== 'monthly')) {
+    const VALID_PLANS = ['one-time', 'monthly', 'pro', 'agency'] as const;
+    type Plan = typeof VALID_PLANS[number];
+
+    if (!plan || !VALID_PLANS.includes(plan as Plan)) {
       return NextResponse.json(
-        { error: 'Invalid plan. Must be "one-time" or "monthly"' },
+        { error: 'Invalid plan. Must be "one-time", "monthly", "pro", or "agency"' },
         { status: 400 }
       );
     }
 
-    // Price in cents
-    const amount = plan === 'one-time' ? 2000 : 500; // €20 or €5
     const currency = 'eur';
+
+    // Plan config
+    const planConfig: Record<Plan, { amount: number; name: string; description: string; mode: 'payment' | 'subscription' }> = {
+      'one-time': {
+        amount: 2000, // €20
+        name: 'Irish Property Data - Lifetime Access',
+        description: 'One-time payment for lifetime access to Pro Insights and Saved Properties',
+        mode: 'payment',
+      },
+      'monthly': {
+        amount: 500, // €5/mo
+        name: 'Irish Property Data - Monthly',
+        description: 'Monthly subscription to Pro Insights and Saved Properties',
+        mode: 'subscription',
+      },
+      'pro': {
+        amount: 900, // €9/mo
+        name: 'Irish Property Data Pro',
+        description: 'Pro plan — AI price predictions, deal finder, area forecasts, and more',
+        mode: 'subscription',
+      },
+      'agency': {
+        amount: 4900, // €49/mo
+        name: 'Irish Property Data Agency',
+        description: 'Agency plan — everything in Pro plus bulk analysis and priority support',
+        mode: 'subscription',
+      },
+    };
+
+    const config = planConfig[plan as Plan];
 
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
@@ -47,25 +78,21 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency,
             product_data: {
-              name: plan === 'one-time' 
-                ? 'Irish Property Data Pro - Lifetime Access' 
-                : 'Irish Property Data Pro - Monthly Subscription',
-              description: plan === 'one-time'
-                ? 'One-time payment for lifetime access to Pro Insights and Saved Properties'
-                : 'Monthly subscription to Pro Insights and Saved Properties',
+              name: config.name,
+              description: config.description,
             },
-            unit_amount: amount,
-            ...(plan === 'monthly' && { recurring: { interval: 'month' } }),
+            unit_amount: config.amount,
+            ...(config.mode === 'subscription' && { recurring: { interval: 'month' } }),
           },
           quantity: 1,
         },
       ],
-      mode: plan === 'one-time' ? 'payment' : 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/insights?payment=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/insights?payment=cancelled`,
+      mode: config.mode,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://irishpropertydata.com'}/insights?payment=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://irishpropertydata.com'}/insights?payment=cancelled`,
       metadata: {
         plan,
-        user_id: user.id, // Pass user ID to webhook
+        user_id: user.id,
       },
     });
 

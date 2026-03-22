@@ -42,7 +42,7 @@ interface MonthlyTrend {
 
 // Payment Modal Component
 function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
-  const [selectedPlan, setSelectedPlan] = useState<'one-time' | 'monthly'>('one-time');
+  const [selectedPlan, setSelectedPlan] = useState<'pro' | 'agency'>('pro');
   const [loading, setLoading] = useState(false);
 
   // Track modal view on mount
@@ -50,9 +50,9 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
     analytics.paymentModalViewed();
   }, []);
 
-  const handlePlanChange = (plan: 'one-time' | 'monthly') => {
+  const handlePlanChange = (plan: 'pro' | 'agency') => {
     setSelectedPlan(plan);
-    analytics.paymentPlanSelected(plan);
+    analytics.paymentPlanSelected('monthly'); // pro/agency are both monthly billing
   };
 
   const handleDismiss = () => {
@@ -61,8 +61,8 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
   };
 
   const handleCheckout = async () => {
-    const amount = selectedPlan === 'one-time' ? 20 : 5;
-    analytics.paymentCheckoutStarted(selectedPlan, amount);
+    const amount = selectedPlan === 'pro' ? 9 : 49;
+    analytics.paymentCheckoutStarted('monthly', amount);
     
     // Re-enabled Stripe checkout with Supabase integration
     setLoading(true);
@@ -185,47 +185,47 @@ function PaymentModal({ onDismiss }: { onDismiss: () => void }) {
           <div className="flex justify-center mb-6">
             <div className="inline-flex rounded-xl bg-gray-800 p-1">
               <button
-                onClick={() => handlePlanChange('one-time')}
+                onClick={() => handlePlanChange('pro')}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  selectedPlan === 'one-time'
+                  selectedPlan === 'pro'
                     ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                One-Time
+                Pro
               </button>
               <button
-                onClick={() => handlePlanChange('monthly')}
+                onClick={() => handlePlanChange('agency')}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  selectedPlan === 'monthly'
+                  selectedPlan === 'agency'
                     ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                Monthly
+                Agency
               </button>
             </div>
           </div>
           
           {/* Price Display */}
           <div className="text-center mb-8">
-            {selectedPlan === 'one-time' ? (
+            {selectedPlan === 'pro' ? (
               <div>
                 <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-5xl font-bold text-white">€20</span>
-                  <span className="text-gray-500 line-through">€49</span>
+                  <span className="text-5xl font-bold text-white">€9</span>
+                  <span className="text-gray-400">/month</span>
                 </div>
-                <p className="text-emerald-400 text-sm mt-1">Lifetime access • One-time payment</p>
-                <p className="text-gray-500 text-xs mt-1">No subscriptions, no recurring fees</p>
+                <p className="text-emerald-400 text-sm mt-1">Cancel anytime • Full Pro access</p>
+                <p className="text-gray-500 text-xs mt-1">AI predictions, deal finder, area forecasts, saved properties</p>
               </div>
             ) : (
               <div>
                 <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-5xl font-bold text-white">€5</span>
+                  <span className="text-5xl font-bold text-white">€49</span>
                   <span className="text-gray-400">/month</span>
                 </div>
-                <p className="text-emerald-400 text-sm mt-1">Cancel anytime • Full access</p>
-                <p className="text-gray-500 text-xs mt-1">First month free for early adopters</p>
+                <p className="text-emerald-400 text-sm mt-1">Everything in Pro + bulk analysis</p>
+                <p className="text-gray-500 text-xs mt-1">Ideal for estate agents, investors, and property professionals</p>
               </div>
             )}
           </div>
