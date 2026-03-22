@@ -11,6 +11,7 @@ export interface YieldEstimate {
 }
 
 export interface Property {
+  id?: string;
   address: string;
   soldDate: string;
   soldPrice: number;

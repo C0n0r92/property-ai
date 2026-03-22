@@ -93,13 +93,14 @@ async function getRecentPropertyUrls(): Promise<MetadataRoute.Sitemap> {
   try {
     const properties = await loadProperties();
     const recent = properties
-      .filter(p => p.soldDate)
+      .filter(p => p.soldDate && p.id)
       .sort((a, b) => new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime())
       .slice(0, 500);
 
     const baseUrl = 'https://irishpropertydata.com';
     return recent.map(p => ({
-      url: `${baseUrl}/property/sold/${encodeURIComponent(p.address)}`,
+      // Use clean ID-based URLs (no URL-encoded addresses)
+      url: `${baseUrl}/property/sold/${encodeURIComponent(p.id ?? p.address)}`,
       lastModified: new Date(p.soldDate),
       changeFrequency: 'never' as const,
       priority: 0.4,
