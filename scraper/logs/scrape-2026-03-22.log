@@ -1,0 +1,221 @@
+=======================================
+🏠 Daily Property Scrape - Sun Mar 22 05:00:03 GMT 2026
+=======================================
+05:00:03 - Starting Sold Properties Scraper...
+
+> gaff-intel-scraper@2.0.0 scrape:sold
+> tsx src/pipeline-incremental.ts
+
+╔════════════════════════════════════════════════════════════╗
+║          INCREMENTAL SOLD PROPERTIES PIPELINE              ║
+╚════════════════════════════════════════════════════════════╝
+
+Mode: INCREMENTAL
+Output: ./data/sold/sold-2026-03-22.json
+
+Loading existing data from 9 files...
+Loaded 43,929 existing property IDs
+
+✓ Using LocationIQ geocoding (no Nominatim required)
+
+Error during scraping: browserType.launch: Executable doesn't exist at /Users/conormcloughlin/Library/Caches/ms-playwright/chromium_headless_shell-1200/chrome-headless-shell-mac-arm64/chrome-headless-shell
+╔═════════════════════════════════════════════════════════════════════════╗
+║ Looks like Playwright Test or Playwright was just installed or updated. ║
+║ Please run the following command to download new browsers:              ║
+║                                                                         ║
+║     npx playwright install                                              ║
+║                                                                         ║
+║ <3 Playwright Team                                                      ║
+╚═════════════════════════════════════════════════════════════════════════╝
+    at SoldScraper.initializeBrowser (/Users/conormcloughlin/property-ai/scraper/src/scraper-utils.ts:30:35)
+    at SoldScraper.run (/Users/conormcloughlin/property-ai/scraper/src/pipeline-incremental.ts:470:16)
+    at runIncrementalPipeline (/Users/conormcloughlin/property-ai/scraper/src/pipeline-incremental.ts:520:19)
+    at <anonymous> (/Users/conormcloughlin/property-ai/scraper/src/pipeline-incremental.ts:617:1) {
+  name: 'Error'
+}
+05:00:03 - ✅ Sold Properties Scraper completed in 0s
+05:00:03 - Starting Property Listings Scraper...
+
+> gaff-intel-scraper@2.0.0 scrape:listings
+> tsx src/pipeline-open.ts
+
+Starting listings scraper...
+=== For Sale Listings Pipeline ===
+
+Target: https://www.daft.ie/property-for-sale/dublin?sort=publishDateDesc
+
+✓ Using LocationIQ geocoding (no Nominatim required)
+
+Creating scraper instance...
+Error during scraping: browserType.launch: Executable doesn't exist at /Users/conormcloughlin/Library/Caches/ms-playwright/chromium_headless_shell-1200/chrome-headless-shell-mac-arm64/chrome-headless-shell
+╔═════════════════════════════════════════════════════════════════════════╗
+║ Looks like Playwright Test or Playwright was just installed or updated. ║
+║ Please run the following command to download new browsers:              ║
+║                                                                         ║
+║     npx playwright install                                              ║
+║                                                                         ║
+║ <3 Playwright Team                                                      ║
+╚═════════════════════════════════════════════════════════════════════════╝
+    at ForSaleScraper.initializeBrowser (/Users/conormcloughlin/property-ai/scraper/src/scraper-utils.ts:30:35)
+    at ForSaleScraper.run (/Users/conormcloughlin/property-ai/scraper/src/pipeline-open.ts:341:16)
+    at runPipeline (/Users/conormcloughlin/property-ai/scraper/src/pipeline-open.ts:371:36)
+    at <anonymous> (/Users/conormcloughlin/property-ai/scraper/src/pipeline-open.ts:448:1) {
+  name: 'Error'
+}
+05:00:04 - ✅ Property Listings Scraper completed in 1s
+05:00:04 - Starting Rental Listings Scraper...
+
+> gaff-intel-scraper@2.0.0 scrape:rentals
+> tsx src/pipeline-rentals.ts
+
+=== Rental Listings Pipeline ===
+
+Target: https://www.daft.ie/property-for-rent/dublin?sort=publishDateDesc
+✓ Using LocationIQ geocoding (no Nominatim required)
+
+Error during scraping: browserType.launch: Executable doesn't exist at /Users/conormcloughlin/Library/Caches/ms-playwright/chromium_headless_shell-1200/chrome-headless-shell-mac-arm64/chrome-headless-shell
+╔═════════════════════════════════════════════════════════════════════════╗
+║ Looks like Playwright Test or Playwright was just installed or updated. ║
+║ Please run the following command to download new browsers:              ║
+║                                                                         ║
+║     npx playwright install                                              ║
+║                                                                         ║
+║ <3 Playwright Team                                                      ║
+╚═════════════════════════════════════════════════════════════════════════╝
+    at RentalScraper.initializeBrowser (/Users/conormcloughlin/property-ai/scraper/src/scraper-utils.ts:30:35)
+    at RentalScraper.run (/Users/conormcloughlin/property-ai/scraper/src/pipeline-rentals.ts:278:16)
+    at scrapeRentals (/Users/conormcloughlin/property-ai/scraper/src/pipeline-rentals.ts:302:39)
+    at <anonymous> (/Users/conormcloughlin/property-ai/scraper/src/pipeline-rentals.ts:417:1) {
+  name: 'Error'
+}
+05:00:04 - ✅ Rental Listings Scraper completed in 0s
+05:00:04 - Starting Data Consolidation...
+
+> gaff-intel-scraper@2.0.0 consolidate
+> tsx src/consolidate-new.ts
+
+╔════════════════════════════════════════════════════════════╗
+║               DATA CONSOLIDATION                           ║
+╚════════════════════════════════════════════════════════════╝
+
+📂 Loading sold properties...
+  Found 9 file(s) in ./data/sold
+    sold-2025-12-19.json: 12 records
+    sold-2025-12-22.json: 4 records
+    sold-2025-12-23.json: 1 records
+    sold-2025-12-27.json: 32 records
+    sold-2025-12-30.json: 200 records
+    sold-2026-01-03.json: 6 records
+    sold-2026-01-12.json: 4 records
+    sold-2026-02-23.json: 56 records
+    sold-initial.json: 43,813 records
+
+📂 Loading listings...
+  Found 10 file(s) in ./data/listings
+    listings-2025-12-19.json: 18 records
+    listings-2025-12-22.json: 250 records
+    listings-2025-12-23.json: 310 records
+    listings-2025-12-27.json: 330 records
+    listings-2025-12-30.json: 350 records
+    listings-2025-12-31.json: 350 records
+    listings-2026-01-03.json: 350 records
+    listings-2026-01-12.json: 960 records
+    listings-2026-02-23.json: 751 records
+    listings-latest.json: 2,860 records
+  Deduplicated listings: 6529 → 4124 unique properties
+  783 listings have price history
+
+📂 Loading rentals...
+  Found 10 file(s) in ./data/rentals
+    rentals-2025-12-19.json: 1 records
+    rentals-2025-12-22.json: 1 records
+    rentals-2025-12-23.json: 1 records
+    rentals-2025-12-27.json: 1 records
+    rentals-2025-12-30.json: 1 records
+    rentals-2025-12-31.json: 516 records
+    rentals-2026-01-03.json: 653 records
+    rentals-2026-01-12.json: 920 records
+    rentals-2026-02-23.json: 967 records
+    rentals-latest.json: 982 records
+  Processed rentals with snapshot availability: 4043 → 2862 rentals
+  Active rentals: 0, No longer available: 2862
+
+🔄 Deduplicating sold properties...
+  Input: 44,128 total records
+  Removed 199 duplicates
+  Output: 43,929 unique properties
+
+🔍 Cross-referencing listings with sold properties...
+  Removed 0 listings that were already sold
+  Remaining active listings: 4,124
+
+📍 Extracting Dublin postcodes...
+  32,904 properties with postcodes
+
+📊 Building area rental statistics...
+  29 postcodes with rental data
+
+💰 Calculating yields for sold properties...
+  30,414 properties with yield estimates
+
+💰 Calculating yields for listings...
+  2,791 listings with yield estimates
+
+🗺️  Generating area statistics...
+  321 areas with 5+ properties
+
+  Top 20 areas by sales count:
+     1. Dublin 15                  2749 sales
+     2. Dublin 12                  1722 sales
+     3. Dublin 8                   1678 sales
+     4. Dublin 9                   1639 sales
+     5. Dublin 7                   1630 sales
+     6. Dublin 24                  1567 sales
+     7. Dublin 18                  1471 sales
+     8. Dublin 14                  1413 sales
+     9. Swords                     1387 sales
+    10. Dublin 4                   1387 sales
+    11. Dublin 13                  1383 sales
+    12. Dublin 3                   1339 sales
+    13. Lucan                      1280 sales
+    14. Dublin 5                   1268 sales
+    15. Dublin 16                  1138 sales
+    16. Dublin 11                  1137 sales
+    17. Dublin 6                   1102 sales
+    18. Blackrock                  1009 sales
+    19. Dublin 22                   895 sales
+    20. Dublin 6w                   814 sales
+
+  Area mapping quality:
+    Total properties: 43,929
+    Mapped to areas: 42,286 (96%)
+    ⚠️  Unmapped (< 5 properties): 1,643
+✓ Written to: data/consolidated/data-2026-03-22.json
+✓ Written to: data/data-2026-03-22.json
+✓ Updated latest files: data.json
+✓ Written to: ../dashboard/public/data-2026-03-22.json
+✓ Updated: ../dashboard/public/data.json
+
+════════════════════════════════════════════════════════════
+✅ CONSOLIDATION COMPLETE
+════════════════════════════════════════════════════════════
+
+📦 Output files written:
+   - data/consolidated/data-2026-03-22.json (dated)
+   - data/data-2026-03-22.json (dated)
+   - data.json → data-2026-03-22.json (symlink)
+⏱️  Time: 0.8s
+
+📊 Summary:
+   Sold Properties:   43,929 (69% with yields)
+   Listings:           4,124 (68% with yields)
+   Rentals:            2,862
+
+🗺️  Geocoding:
+   Properties: 43,701 / 43,929 (99%)
+   Listings:   3,638 / 4,124 (88%)
+
+05:00:05 - ✅ Data Consolidation completed in 1s
+=======================================
+Daily scrape completed at Sun Mar 22 05:00:05 GMT 2026
+✅ All scrapers completed successfully
