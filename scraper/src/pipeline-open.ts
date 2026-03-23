@@ -20,6 +20,7 @@ import type { Listing } from './types';
 import { geocodeAddress } from './geocode.js';
 import { acceptCookiesAndPopups, navigateToNextPage, createBrowserContextOptions, BaseDaftScraper } from './scraper-utils.js';
 import { db, ListingRecord } from './database.js';
+import { historyTracker, ListingState } from './history-tracker.js';
 
 // ============== Utility Functions ==============
 
@@ -427,6 +428,28 @@ async function saveListings(listings: Listing[]): Promise<void> {
     nominatim_address: l.nominatimAddress,
     yield_estimate: l.yieldEstimate
   }));
+
+  // Track listing history (price changes, status changes)
+  try {
+    const listingStates: ListingState[] = listings.map(l => ({
+      id: l.id,
+      address: l.address,
+      askingPrice: l.askingPrice,
+      status: 'for_sale' as const,
+      source: 'daft' as const,
+      latitude: l.latitude || undefined,
+      longitude: l.longitude || undefined,
+      propertyType: l.propertyType || undefined,
+      beds: l.beds || undefined,
+      baths: l.baths || undefined,
+    }));
+
+    const historyResult = await historyTracker.trackListings(listingStates, 'daft');
+    console.log(`📊 History tracking: ${historyResult.newListings} new, ${historyResult.priceChanges} price changes, ${historyResult.statusChanges} status changes`);
+  } catch (error) {
+    console.error('⚠️ History tracking failed:', error);
+    // Continue with normal save - history tracking is not critical
+  }
 
   // Save to Supabase
   try {

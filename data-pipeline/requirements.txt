@@ -1,0 +1,41 @@
+# Gaff Intel Data Pipeline Dependencies
+
+# Core
+supabase>=2.0.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+pandas>=2.0.0
+
+# Fuzzy matching for address matching
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.21.0
+
+# GTFS parsing
+gtfs-kit>=5.2.0
+
+# Excel parsing (BPFI)
+openpyxl>=3.1.0
+xlrd>=2.0.0
+
+# Geospatial
+shapely>=2.0.0
+pyproj>=3.5.0
+
+# JSON-stat parsing (CSO)
+pyjstat>=2.3.0
+
+# HTTP with retries
+urllib3>=2.0.0
+tenacity>=8.2.0
+
+# Data validation
+pydantic>=2.0.0
+
+# Progress bars
+tqdm>=4.65.0
+
+# Logging
+structlog>=23.0.0
+
+# Type hints
+typing-extensions>=4.5.0
