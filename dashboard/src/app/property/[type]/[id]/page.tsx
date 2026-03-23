@@ -166,6 +166,91 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+// Build JSON-LD structured data for property
+function buildJsonLd(property: any, type: string) {
+  const baseUrl = 'https://irishpropertydata.com';
+  const canonicalId = property.id || encodeURIComponent(property.address);
+  const url = `${baseUrl}/property/${type}/${canonicalId}`;
+
+  // Common property data
+  const commonData = {
+    "@context": "https://schema.org",
+    "@type": type === 'rental' ? "Accommodation" : "RealEstateListing",
+    "name": property.address,
+    "url": url,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": property.address?.split(',')[0]?.trim() || '',
+      "addressLocality": property.dublin_postcode || "Dublin",
+      "addressRegion": "Dublin",
+      "addressCountry": "IE",
+      "postalCode": property.eircode || undefined
+    },
+    ...(property.latitude && property.longitude && {
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": property.latitude,
+        "longitude": property.longitude
+      }
+    }),
+    ...(property.beds && { "numberOfBedrooms": property.beds }),
+    ...(property.baths && { "numberOfBathroomsTotal": property.baths }),
+    ...(property.area_sqm && {
+      "floorSize": {
+        "@type": "QuantitativeValue",
+        "value": property.area_sqm,
+        "unitCode": "MTK"
+      }
+    }),
+    ...(property.property_type && { "propertyType": property.property_type }),
+  };
+
+  // Type-specific data
+  if (type === 'sold' && property.sold_price) {
+    return {
+      ...commonData,
+      "datePosted": property.sold_date,
+      "price": property.sold_price,
+      "priceCurrency": "EUR",
+      "offers": {
+        "@type": "Offer",
+        "price": property.sold_price,
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/SoldOut"
+      }
+    };
+  } else if (type === 'forSale' && property.asking_price) {
+    return {
+      ...commonData,
+      "offers": {
+        "@type": "Offer",
+        "price": property.asking_price,
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock"
+      }
+    };
+  } else if (type === 'rental' && property.monthly_rent) {
+    return {
+      ...commonData,
+      "@type": "Accommodation",
+      "offers": {
+        "@type": "Offer",
+        "price": property.monthly_rent,
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": property.monthly_rent,
+          "priceCurrency": "EUR",
+          "unitText": "MONTH"
+        }
+      }
+    };
+  }
+
+  return commonData;
+}
+
 export default async function PropertyDetailsPage({ params }: Props) {
   const { type, id } = await params;
   const result = await fetchPropertyData(type, id);
@@ -174,6 +259,16 @@ export default async function PropertyDetailsPage({ params }: Props) {
 
   return (
     <>
+      {/* JSON-LD Structured Data for Property */}
+      {property && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(buildJsonLd(property, type))
+          }}
+        />
+      )}
+
       {/* SSR-rendered content for crawlers — hidden visually but readable by bots */}
       {property && (
         <div
