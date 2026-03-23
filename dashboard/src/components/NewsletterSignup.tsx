@@ -58,6 +58,9 @@ export function NewsletterSignup({
       setIsSubmitted(true);
       setEmail('');
       onSuccess?.();
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'sign_up', { method: 'newsletter' });
+      }
     } catch (error: any) {
       console.error('Newsletter signup error:', error);
       // For now, just show success to avoid breaking UX
