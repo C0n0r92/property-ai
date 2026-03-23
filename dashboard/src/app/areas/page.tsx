@@ -1,529 +1,102 @@
-'use client';
+import { Metadata } from 'next';
+import { loadProperties, getAreaStats } from '@/lib/data';
+import AreasIndexClient from './AreasIndexClient';
 
-import { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import { areaToSlug } from '@/lib/areas';
-import { formatFullPrice } from '@/lib/format';
-import { HeroSection } from '@/components/HeroSection';
-import { analytics } from '@/lib/analytics';
-import { useSearchTracking } from '@/hooks/useSearchTracking';
+export const metadata: Metadata = {
+  title: 'Dublin Property Prices by Area | Compare 300+ Neighbourhoods | Irish Property Data',
+  description: 'Compare Dublin property prices across 300+ areas. View median prices, price per sqm, over-asking rates, and 6-month trends for every Dublin neighbourhood. Data from 44,000+ sales.',
+  keywords: [
+    'Dublin property prices by area',
+    'Dublin neighbourhood prices',
+    'Dublin area property prices',
+    'Dublin postcode prices',
+    'property prices Dublin areas',
+    'Dublin property market areas',
+    'compare Dublin areas',
+    'Dublin house prices by area',
+  ],
+  openGraph: {
+    title: 'Dublin Property Prices by Area | Compare 300+ Neighbourhoods',
+    description: 'Compare property prices across 300+ Dublin areas. View median prices, over-asking rates, and market trends for every neighbourhood.',
+    type: 'website',
+    url: 'https://irishpropertydata.com/areas',
+    images: [{
+      url: '/opengraph-image',
+      width: 1200,
+      height: 630,
+      alt: 'Dublin Property Prices by Area | Irish Property Data'
+    }]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Dublin Property Prices by Area | Compare 300+ Neighbourhoods',
+    description: 'Compare property prices across 300+ Dublin areas with real market data.',
+  },
+  alternates: {
+    canonical: '/areas',
+  },
+};
 
-interface AreaStats {
-  name: string;
-  count: number;
-  medianPrice: number;
-  avgPricePerSqm: number;
-  pctOverAsking: number;
-  avgOverUnderPercent: number;
-  avgOverUnderEuro: number;
-  change6m: number;
-}
+export default async function AreasPage() {
+  // Load properties server-side
+  const properties = await loadProperties();
+  const areaStats = getAreaStats(properties);
 
-export default function AreasIndexPage() {
-  const { trackAreasSearch } = useSearchTracking();
-  const [areaStats, setAreaStats] = useState<AreaStats[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'count' | 'medianPrice' | 'change6m'>('count');
-  const [currentPage, setCurrentPage] = useState(1);
+  // Serialize for client component
+  const serializedStats = areaStats.map(area => ({
+    name: area.name,
+    count: area.count,
+    medianPrice: area.medianPrice,
+    avgPricePerSqm: area.avgPricePerSqm,
+    pctOverAsking: area.pctOverAsking,
+    avgOverUnderPercent: area.avgOverUnderPercent,
+    avgOverUnderEuro: area.avgOverUnderEuro,
+    change6m: area.change6m,
+  }));
 
-  const ITEMS_PER_PAGE = 20;
-  
-  useEffect(() => {
-    // Track page view
-    analytics.areasPageViewed();
-
-    // Fetch stats from existing stats API
-    fetch('/api/stats')
-      .then(res => res.json())
-      .then(data => {
-        setAreaStats(data.areaStats || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to load area stats:', err);
-        setLoading(false);
-      });
-  }, []);
-  
-  // Filter and sort areas
-  const filteredAndSortedAreas = useMemo(() => {
-    let filtered = areaStats;
-    
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(area =>
-        area.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    // Apply sorting
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'medianPrice': return b.medianPrice - a.medianPrice;
-        case 'change6m': return b.change6m - a.change6m;
-        default: return b.count - a.count;
-      }
-    });
-    
-    return sorted;
-  }, [areaStats, searchQuery, sortBy]);
-  
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedAreas.length / ITEMS_PER_PAGE);
-  const paginatedAreas = filteredAndSortedAreas.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-  
-  // Reset to page 1 when search or sort changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, sortBy]);
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-[var(--muted)] rounded w-64"></div>
-            <div className="grid grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="card h-24"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
   return (
-    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      {/* Mobile-first compact header */}
-      <div className="md:hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white px-4 py-4">
-        <div className="max-w-7xl mx-auto">
-          <nav className="flex items-center space-x-2 text-slate-300 text-sm mb-2">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span>/</span>
-            <span className="text-white font-medium">Areas</span>
-          </nav>
-          <h1 className="text-xl font-bold mb-1">Dublin Property Prices by Area</h1>
-          <p className="text-slate-300 text-sm">{areaStats.length} areas with detailed market data</p>
-        </div>
-      </div>
-
-      {/* Desktop hero section */}
-      <div className="hidden md:block">
-        <HeroSection
-          title="Dublin Property Prices by Area"
-          description={`Explore detailed property market data for ${areaStats.length} Dublin areas`}
-          breadcrumbs={[
-            { label: 'Home', href: '/' },
-            { label: 'Areas' }
-          ]}
-        />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
-
-      {/* Overview Stats - Hidden on mobile, visible on desktop */}
-      <div className="hidden md:grid md:grid-cols-4 gap-4 mb-8">
-        <div className="card">
-          <div className="stat-label">Total Areas</div>
-          <div className="stat-value mt-2">{areaStats.length}</div>
-        </div>
-        <div className="card">
-          <div className="stat-label">Sales in Featured Areas</div>
-          <div className="stat-value mt-2">
-            {areaStats.reduce((sum, a) => sum + a.count, 0).toLocaleString()}
-          </div>
-          <div className="text-xs text-[var(--muted-foreground)] mt-1">
-            Areas with 5+ sales
-          </div>
-        </div>
-        <div className="card">
-          <div className="stat-label">Highest Typical Price</div>
-          <div className="stat-value mt-2">
-            {areaStats.length > 0 ? formatFullPrice(Math.max(...areaStats.map(a => a.medianPrice))) : 'N/A'}
-          </div>
-        </div>
-        <div className="card">
-          <div className="stat-label">Lowest Typical Price</div>
-          <div className="stat-value mt-2">
-            {areaStats.length > 0 ? formatFullPrice(Math.min(...areaStats.map(a => a.medianPrice))) : 'N/A'}
-          </div>
-        </div>
-      </div>
-
-      {/* Map Link CTA - Compact on mobile */}
-      <div className="mb-4 md:mb-8">
-        <Link
-          href="/map"
-          className="block md:card hover:shadow-lg transition-all duration-200 border-2 border-[var(--primary)]/20 hover:border-[var(--primary)]/40 bg-gradient-to-r from-[var(--primary)]/5 to-[var(--accent)]/5 md:block"
-          onClick={() => analytics.pageViewed('map_from_areas_cta')}
-        >
-          <div className="flex items-center justify-between gap-3 p-3 md:p-0 md:flex-col md:sm:flex-row md:sm:items-center md:sm:justify-between md:gap-4">
-            <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-8 h-8 md:w-10 md:h-10 md:sm:w-12 md:sm:h-12 bg-[var(--primary)] rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 md:w-5 md:h-5 md:sm:w-6 md:sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V7m0 0L9 4" />
-                </svg>
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-sm md:text-base md:sm:text-lg text-[var(--foreground)] mb-0.5 md:mb-1">Interactive Map</h3>
-                <p className="text-[var(--muted-foreground)] text-xs md:text-sm leading-relaxed hidden md:block">
-                  View all properties on an interactive map with advanced filtering and search capabilities
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center justify-end md:justify-start">
-              <div className="text-[var(--primary)] font-medium text-xs md:text-sm md:text-base flex items-center gap-1">
-                View Map
-                <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      {/* Search and Filters - Compact on mobile */}
-      <div className="flex flex-col gap-3 md:flex-row md:gap-4 mb-4 md:mb-6">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search areas..."
-            value={searchQuery}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSearchQuery(value);
-              // Track search usage (debounced)
-              if (value.trim().length > 2) {
-                analytics.areasSearchUsed(value);
-              }
-            }}
-            className="w-full px-3 py-2 md:px-4 md:py-3 bg-[var(--muted)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] text-sm md:text-base"
-          />
-        </div>
-        <div className="flex gap-2">
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              const value = e.target.value as 'count' | 'medianPrice' | 'change6m';
-              setSortBy(value);
-              analytics.areasSortChanged(value);
-            }}
-            className="px-3 py-2 md:px-4 md:py-3 bg-[var(--muted)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-[var(--foreground)] text-sm md:text-base flex-1 md:flex-initial"
-          >
-            <option value="count">Sales Count</option>
-            <option value="medianPrice">Price</option>
-            <option value="change6m">6M Change</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Results Summary - Compact on mobile */}
-      <div className="mb-3 md:mb-6">
-        <p className="text-[var(--muted-foreground)] text-sm md:text-base">
-          Showing {paginatedAreas.length} of {filteredAndSortedAreas.length} areas
-          {searchQuery && ` matching "${searchQuery}"`}
-        </p>
-      </div>
-
-      {/* Areas Grid - Immediately visible on mobile */}
-      <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-6 md:mb-8">
-        {paginatedAreas.map((area, index) => (
-          <Link
-            key={area.name}
-            href={`/areas/${areaToSlug(area.name)}`}
-            className="card hover:shadow-lg transition-shadow"
-            onClick={() => {
-              analytics.areasAreaViewed(area.name);
-              // Track for alert modal (use Dublin center as fallback coordinates)
-              trackAreasSearch({
-                name: area.name,
-                coordinates: { lat: 53.3498, lng: -6.2603 }, // Dublin center
-              });
-            }}
-          >
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="font-semibold text-lg text-[var(--foreground)]">{area.name}</h3>
-              <span className="text-xs text-[var(--muted-foreground)] bg-[var(--muted)] px-2 py-1 rounded">
-                #{index + 1}
-              </span>
-            </div>
-
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">Median Price</span>
-                <span className="font-semibold text-[var(--foreground)]">{formatFullPrice(area.medianPrice)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">Price per m²</span>
-                <span className="font-semibold text-[var(--foreground)]">€{area.avgPricePerSqm.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">Sales Count</span>
-                <span className="font-semibold text-[var(--foreground)]">{area.count}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">Over Asking</span>
-                <span className={`font-semibold ${area.pctOverAsking > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
-                  {area.pctOverAsking > 0 ? '+' : ''}{area.pctOverAsking.toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">Avg Over/Under</span>
-                <span className={`font-semibold ${area.avgOverUnderPercent > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
-                  {area.avgOverUnderPercent > 0 ? '+' : ''}{area.avgOverUnderPercent.toFixed(1)}%
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">Avg Over/Under</span>
-                <span className={`font-semibold ${area.avgOverUnderEuro > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
-                  {area.avgOverUnderEuro > 0 ? '+' : ''}€{formatFullPrice(Math.abs(area.avgOverUnderEuro))}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-[var(--muted-foreground)]">6M Change</span>
-                <span className={`font-semibold ${area.change6m > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
-                  {area.change6m > 0 ? '+' : ''}{area.change6m.toFixed(1)}%
-                </span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Quick Navigation */}
-      <div className="card mb-8">
-        <h2 className="text-xl font-semibold mb-4">Popular Areas</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div>
-            <h3 className="font-medium mb-2 text-sm text-[var(--muted-foreground)]">City Centre</h3>
-            <div className="space-y-1">
-              {['Dublin 1', 'Dublin 2', 'Dublin 7', 'Dublin 8'].map(area => {
-                const slug = areaToSlug(area);
-                return (
-                  <Link
-                    key={slug}
-                    href={`/areas/${slug}`}
-                    className="block text-sm text-[var(--primary)] hover:underline"
-                    onClick={() => analytics.areasQuickNavUsed(area)}
-                  >
-                    {area}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <h3 className="font-medium mb-2 text-sm text-[var(--muted-foreground)]">South Dublin</h3>
-            <div className="space-y-1">
-              {['Dublin 4', 'Dublin 6', 'Dublin 14', 'Dublin 16'].map(area => {
-                const slug = areaToSlug(area);
-                return (
-                  <Link
-                    key={slug}
-                    href={`/areas/${slug}`}
-                    className="block text-sm text-[var(--primary)] hover:underline"
-                    onClick={() => analytics.areasQuickNavUsed(area)}
-                  >
-                    {area}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <h3 className="font-medium mb-2 text-sm text-[var(--muted-foreground)]">North Dublin</h3>
-            <div className="space-y-1">
-              {['Dublin 3', 'Dublin 5', 'Dublin 9', 'Dublin 11'].map(area => {
-                const slug = areaToSlug(area);
-                return (
-                  <Link
-                    key={slug}
-                    href={`/areas/${slug}`}
-                    className="block text-sm text-[var(--primary)] hover:underline"
-                    onClick={() => analytics.areasQuickNavUsed(area)}
-                  >
-                    {area}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <h3 className="font-medium mb-2 text-sm text-[var(--muted-foreground)]">Popular</h3>
-            <div className="space-y-1">
-              {['Ballsbridge', 'Ranelagh', 'Rathmines', 'Clontarf'].map(area => {
-                const slug = areaToSlug(area);
-                return (
-                  <Link
-                    key={slug}
-                    href={`/areas/${slug}`}
-                    className="block text-sm text-[var(--primary)] hover:underline"
-                    onClick={() => analytics.areasQuickNavUsed(area)}
-                  >
-                    {area}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* All Areas Table */}
-      <div className="card">
-        <h2 className="text-2xl font-semibold mb-6">All Dublin Areas</h2>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[var(--border)] text-left text-[var(--muted-foreground)] text-sm">
-                <th className="pb-3 font-medium">#</th>
-                <th className="pb-3 font-medium">Area</th>
-                <th className="pb-3 font-medium text-right">Typical Price</th>
-                <th className="pb-3 font-medium text-right">€/sqm</th>
-                <th className="pb-3 font-medium text-right">% Over Asking</th>
-                <th className="pb-3 font-medium text-right">Avg % Over/Under</th>
-                <th className="pb-3 font-medium text-right">Avg Over/Under</th>
-                <th className="pb-3 font-medium text-right">6mo Change</th>
-                <th className="pb-3 font-medium text-right">Sales</th>
-                <th className="pb-3 font-medium"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedAreas.map((area, i) => {
-                const slug = areaToSlug(area.name);
-                const globalIndex = (currentPage - 1) * ITEMS_PER_PAGE + i + 1;
-                return (
-                  <tr 
-                    key={area.name} 
-                    className="border-b border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
-                  >
-                    <td className="py-3 text-[var(--muted-foreground)]">{globalIndex}</td>
-                    <td className="py-3">
-                      <Link
-                        href={`/areas/${slug}`}
-                        className="font-medium hover:text-[var(--primary)] hover:underline text-[var(--foreground)]"
-                        onClick={() => analytics.areasAreaViewed(area.name)}
-                      >
-                        {area.name}
-                      </Link>
-                    </td>
-                    <td className="py-3 text-right font-mono text-[var(--foreground)]">
-                      {formatFullPrice(area.medianPrice)}
-                    </td>
-                    <td className="py-3 text-right font-mono text-[var(--muted-foreground)]">
-                      {area.avgPricePerSqm > 0 ? `€${area.avgPricePerSqm.toLocaleString()}` : 'N/A'}
-                    </td>
-                    <td className={`py-3 text-right font-mono ${area.pctOverAsking > 60 ? 'text-[var(--positive)]' : 'text-[var(--foreground)]'}`}>
-                      {area.pctOverAsking}%
-                    </td>
-                    <td className={`py-3 text-right font-mono ${area.avgOverUnderPercent > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
-                      {area.avgOverUnderPercent > 0 ? '+' : ''}{area.avgOverUnderPercent}%
-                    </td>
-                    <td className={`py-3 text-right font-mono ${area.avgOverUnderEuro > 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
-                      {area.avgOverUnderEuro > 0 ? '+' : ''}€{formatFullPrice(Math.abs(area.avgOverUnderEuro))}
-                    </td>
-                    <td className={`py-3 text-right font-mono ${area.change6m >= 0 ? 'text-[var(--positive)]' : 'text-[var(--negative)]'}`}>
-                      {area.change6m >= 0 ? '+' : ''}{area.change6m}%
-                    </td>
-                    <td className="py-3 text-right text-[var(--muted-foreground)]">
-                      {area.count.toLocaleString()}
-                    </td>
-                    <td className="py-3 text-right">
-                      <Link
-                        href={`/areas/${slug}`}
-                        className="text-sm text-[var(--primary)] hover:underline"
-                        onClick={() => analytics.areasAreaViewed(area.name)}
-                      >
-                        View →
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex justify-center">
-            <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const newPage = Math.max(1, currentPage - 1);
-                setCurrentPage(newPage);
-                analytics.areasPaginationUsed(newPage);
-              }}
-              disabled={currentPage === 1}
-              className="px-3 py-2 border border-[var(--border)] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--muted)] text-[var(--foreground)] bg-[var(--muted)]"
-            >
-                Previous
-              </button>
-
-              {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
-                if (pageNum > totalPages) return null;
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => {
-                    setCurrentPage(pageNum);
-                    analytics.areasPaginationUsed(pageNum);
-                  }}
-                  className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                    currentPage === pageNum
-                      ? 'bg-[var(--primary)] text-white'
-                      : 'text-[var(--foreground)] hover:bg-[var(--muted)] bg-[var(--muted)]'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-              })}
-
-            <button
-              onClick={() => {
-                const newPage = Math.min(totalPages, currentPage + 1);
-                setCurrentPage(newPage);
-                analytics.areasPaginationUsed(newPage);
-              }}
-              disabled={currentPage === totalPages}
-              className="px-3 py-2 border border-[var(--border)] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--muted)] text-[var(--foreground)] bg-[var(--muted)]"
-            >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      {/* SEO Content */}
-      <div className="mt-8 card">
-        <h2 className="text-2xl font-semibold mb-4">Understanding Dublin Property Prices by Area</h2>
-        <p className="text-[var(--muted-foreground)] mb-6">
-          Dublin's property market varies significantly by area, with prices influenced by factors including 
-          proximity to the city centre, transport links, schools, and local amenities. Our comprehensive data 
-          covers {areaStats.length} distinct areas across Dublin and surrounding counties.
-        </p>
-        
-        <h3 className="text-xl font-semibold mb-3">How to Use This Data</h3>
-        <p className="text-[var(--muted-foreground)]">
-          Use the search box above to find specific areas, or sort by price, growth, or sales volume. 
-          Click on any area to see detailed statistics including price trends over time, property type 
-          breakdowns, recent sales, and comprehensive market analysis.
-        </p>
-      </div>
-
-      </div>
-    </div>
+    <>
+      {/* JSON-LD Structured Data for Areas Index */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Dublin Property Prices by Area",
+            "description": "Compare property prices across 300+ Dublin areas with median prices, over-asking rates, and market trends.",
+            "url": "https://irishpropertydata.com/areas",
+            "mainEntity": {
+              "@type": "ItemList",
+              "numberOfItems": serializedStats.length,
+              "itemListElement": serializedStats.slice(0, 10).map((area, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "name": area.name,
+                "url": `https://irishpropertydata.com/areas/${area.name.toLowerCase().replace(/\s+/g, '-')}`
+              }))
+            },
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://irishpropertydata.com"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Areas",
+                  "item": "https://irishpropertydata.com/areas"
+                }
+              ]
+            }
+          })
+        }}
+      />
+      <AreasIndexClient areaStats={serializedStats} />
+    </>
   );
 }

@@ -88,18 +88,17 @@ const blogArticleSlugs = [
   'value-erosion-2021-2025',
 ];
 
-// Fetch top 500 most recent sold properties for sitemap
+// Fetch recent sold properties for sitemap (top 1000)
 async function getRecentPropertyUrls(): Promise<MetadataRoute.Sitemap> {
   try {
     const properties = await loadProperties();
     const recent = properties
       .filter(p => p.soldDate && p.id)
       .sort((a, b) => new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime())
-      .slice(0, 500);
+      .slice(0, 1000);
 
     const baseUrl = 'https://irishpropertydata.com';
     return recent.map(p => ({
-      // Use clean ID-based URLs (no URL-encoded addresses)
       url: `${baseUrl}/property/sold/${encodeURIComponent(p.id ?? p.address)}`,
       lastModified: new Date(p.soldDate),
       changeFrequency: 'never' as const,
@@ -196,6 +195,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/alerts`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/mortgage-scenarios`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/research`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
     },
     // Add all area pages
     ...areaPages,
