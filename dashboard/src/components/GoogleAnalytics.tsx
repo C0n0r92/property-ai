@@ -1,71 +1,11 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect, useState } from 'react';
 
 export default function GoogleAnalytics() {
-  const [hasConsent, setHasConsent] = useState(false);
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-  // Only track analytics in production
-  const isProduction = typeof window !== 'undefined' &&
-    window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1';
-
-  // Debug functions for troubleshooting (available regardless of GA loading)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).debugGA = () => {
-        console.log('GA Status:', {
-          gtag: !!(window as any).gtag,
-          dataLayer: !!(window as any).dataLayer,
-          consent: localStorage.getItem('cookie-consent'),
-          measurementId: measurementId ? 'configured' : 'missing',
-          hostname: window.location.hostname,
-          isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-        });
-        return 'GA debug info logged to console';
-      };
-
-      (window as any).testGAEvent = () => {
-        if ((window as any).gtag) {
-          console.log('Sending test event to GA...');
-          (window as any).gtag('event', 'debug_test', {
-            event_category: 'debug',
-            event_label: 'manual_test'
-          });
-          return 'Test event sent - check GA realtime dashboard';
-        } else {
-          return 'GA not loaded - check debugGA() for status';
-        }
-      };
-    }
-  }, [measurementId]);
-
-  if (!isProduction) {
-    return null;
-  }
-
-  useEffect(() => {
-    // Check if user has consented to cookies
-    const consent = localStorage.getItem('cookie-consent');
-    if (consent === 'accepted') {
-      setHasConsent(true);
-    }
-
-    // Listen for consent changes
-    const handleConsentChange = () => {
-      const newConsent = localStorage.getItem('cookie-consent');
-      setHasConsent(newConsent === 'accepted');
-    };
-
-    window.addEventListener('cookie-consent-changed', handleConsentChange);
-    return () => {
-      window.removeEventListener('cookie-consent-changed', handleConsentChange);
-    };
-  }, []);
-
-  if (!measurementId || !hasConsent) {
+  if (!measurementId) {
     return null;
   }
 

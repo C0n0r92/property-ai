@@ -7,11 +7,8 @@ export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Check if user has already made a choice
-    const consent = localStorage.getItem('cookie-consent');
-    if (!consent) {
-      setShowBanner(true);
-    }
+    // Cookie consent banner temporarily disabled — GA fires unconditionally
+    setShowBanner(false);
   }, []);
 
   const handleAccept = () => {

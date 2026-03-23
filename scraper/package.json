@@ -4,11 +4,16 @@
   "description": "Property data scraper for Gaff Intel",
   "type": "module",
   "scripts": {
-    "// DATA COLLECTION": "========================================",
+    "// DATA COLLECTION - DAFT.IE": "========================================",
     "scrape:sold": "tsx src/pipeline-incremental.ts",
     "scrape:sold:full": "tsx src/pipeline-incremental.ts --full",
     "scrape:listings": "tsx src/pipeline-open.ts",
     "scrape:rentals": "tsx src/pipeline-rentals.ts",
+
+    "// DATA COLLECTION - ADDITIONAL SOURCES": "========================================",
+    "scrape:myhome": "tsx src/pipeline-myhome.ts",
+    "scrape:planning": "tsx src/pipeline-planning.ts",
+    "scrape:abp": "tsx src/pipeline-abp.ts",
 
     "// CONSOLIDATION": "========================================",
     "consolidate": "tsx src/consolidate-new.ts",

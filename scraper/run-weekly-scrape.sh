@@ -1,12 +1,16 @@
 #!/bin/bash
-# Daily scraping orchestration script
-# Runs scrapers sequentially to avoid anti-bot detection
+# Weekly scraping orchestration script
+# Runs planning data scrapers
+# Schedule: Every Sunday at 3am
 
 echo "======================================="
-echo "🏠 Daily Property Scrape - $(date)"
+echo "📅 Weekly Property Scrape - $(date)"
 echo "======================================="
 
 # Load environment variables
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 if [ -f .env ]; then
     export $(grep -v '^#' .env | xargs)
 else
@@ -18,6 +22,7 @@ fi
 run_with_timing() {
     local cmd="$1"
     local name="$2"
+    echo ""
     echo "$(date '+%H:%M:%S') - Starting $name..."
     local start_time=$(date +%s)
 
@@ -34,36 +39,25 @@ run_with_timing() {
     fi
 }
 
-# Run scrapers sequentially (anti-bot friendly)
+# Track failures
 failures=0
 
 echo ""
-echo "=== Daft.ie Scrapers ==="
-run_with_timing "npm run scrape:sold" "Sold Properties Scraper" || ((failures++))
-run_with_timing "npm run scrape:listings" "Daft Listings Scraper (with history tracking)" || ((failures++))
-run_with_timing "npm run scrape:rentals" "Rental Listings Scraper" || ((failures++))
+echo "=== TypeScript Scrapers ==="
+
+# Planning applications from Dublin councils (ArcGIS)
+run_with_timing "npm run scrape:planning" "Planning Applications Scraper" || ((failures++))
+
+# An Bord Pleanala strategic housing decisions
+run_with_timing "npm run scrape:abp" "An Bord Pleanala Scraper" || ((failures++))
 
 echo ""
-echo "=== MyHome.ie Scraper ==="
-run_with_timing "npm run scrape:myhome" "MyHome.ie Listings Scraper (with history tracking)" || ((failures++))
-
-if [ $failures -eq 0 ]; then
-    run_with_timing "npm run consolidate" "Data Consolidation"
-else
-    echo "$(date '+%H:%M:%S') - ⚠️  Skipping consolidation due to scraper failures"
-fi
-
 echo "======================================="
-echo "Daily scrape completed at $(date)"
+echo "Weekly scrape completed at $(date)"
 if [ $failures -gt 0 ]; then
     echo "⚠️  $failures scraper(s) failed"
     exit 1
 else
-    echo "✅ All scrapers completed successfully"
+    echo "✅ All weekly scrapers completed successfully"
     exit 0
 fi
-
-
-
-
-
