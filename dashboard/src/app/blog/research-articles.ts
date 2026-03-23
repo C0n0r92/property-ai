@@ -1,5 +1,17 @@
 export const researchArticles = [
   {
+    id: '425k-550k-sweet-spot-q1-2026',
+    title: 'The €425K–€550K Bracket Explosion: Where 62% of Dublin Buyers Converge in Q1 2026',
+    excerpt: 'Q1 2026 analysis reveals the €425K–€550K bracket has become Dublin\'s primary battleground, concentrating 62% of all transactions. Over-asking premiums peak at +11.3%, time-on-market collapses to 5.2 days, and 1,500+ buyers weekly compete for 35 properties. Strategic positioning for buyers in this hyper-competitive bracket.',
+    category: 'Market Analysis',
+    date: '2026-03-23',
+    readTime: '11 min read',
+    featured: true,
+    tags: ['Market Analysis', 'Price Bracket', 'Q1 2026', 'Buyer Strategy', 'Competition', 'First-Time Buyers', 'Dublin Market', 'Over-Asking Analysis'],
+    author: 'Market Research Team',
+    views: 0,
+  },
+  {
     id: 'easter-2026-market-reset',
     title: 'Easter 2026 Property Market Reset: Seller Expectations vs. Buyer Reality',
     excerpt: 'Dublin\'s Q4 2025–Q1 2026 analysis reveals a market shift: 9% over-asking premium (down from 2024 peaks) signals genuine buyer leverage. Timing strategies for Easter season and beyond.',
