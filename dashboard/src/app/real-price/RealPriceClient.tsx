@@ -140,6 +140,8 @@ export default function RealPriceClient({
   const [label, setLabel] = useState("");
   const [buying, setBuying] = useState(false);
   const [hovered, setHovered] = useState<number | null>(null);
+  const [touched, setTouched] = useState(false);
+  const [showBar, setShowBar] = useState(false);
   const hero = useRef<HTMLElement>(null);
   const plotBox = useRef<HTMLDivElement>(null);
   const requestId = useRef(0);
@@ -186,6 +188,14 @@ export default function RealPriceClient({
       setError(null);
       setAnswer(data);
       setAnsweredFor(next);
+      // Keep the address bar in step so a result can be shared or bookmarked
+      const params = new URLSearchParams({
+        area: next.areaKey,
+        type: next.typeGroup,
+        beds: String(next.beds),
+        asking: String(next.askingPrice),
+      });
+      window.history.replaceState(null, "", `?${params.toString()}`);
       setPlotPlay(
         `${next.areaKey}-${next.typeGroup}-${next.beds}-${next.askingPrice}`,
       );
@@ -201,6 +211,7 @@ export default function RealPriceClient({
   }, []);
 
   function update(patch: Partial<FormState>) {
+    setTouched(true);
     const next = { ...form, ...patch };
     setForm(next);
     check(next);
@@ -213,6 +224,30 @@ export default function RealPriceClient({
     setPriceText(value.toLocaleString("en-IE"));
     if (value !== form.askingPrice) update({ askingPrice: value });
   }
+
+  // Show the sticky report bar between the hero and the offer
+  useEffect(() => {
+    const heroEl = hero.current;
+    const offerEl = document.getElementById("report");
+    if (!heroEl || !offerEl) return;
+    let pastHero = false;
+    let atOffer = false;
+    const sync = () => setShowBar(pastHero && !atOffer);
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      pastHero = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      sync();
+    });
+    const offerObserver = new IntersectionObserver(([entry]) => {
+      atOffer = entry.isIntersecting || entry.boundingClientRect.top < 0;
+      sync();
+    });
+    heroObserver.observe(heroEl);
+    offerObserver.observe(offerEl);
+    return () => {
+      heroObserver.disconnect();
+      offerObserver.disconnect();
+    };
+  }, []);
 
   // Play the plot's entrance the first time it scrolls into view
   useEffect(() => {
@@ -308,10 +343,35 @@ export default function RealPriceClient({
         <RealPriceNav />
         <div className="rp-hero-grid">
           <div className="rp-hero-copy">
+            <p className={`rp-hint${touched ? " rp-hint--done" : ""}`}>
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M6 1.5v8.2L4.3 8a1.3 1.3 0 0 0-1.9 1.8l3.4 3.9c.5.5 1.1.8 1.8.8H11a3 3 0 0 0 3-3V7.6a1.2 1.2 0 0 0-2.4 0V7a1.2 1.2 0 0 0-2.4 0v-.5a1.2 1.2 0 0 0-2.4 0V1.5a1.2 1.2 0 0 0-2.4 0Z"
+                  fill="currentColor"
+                />
+              </svg>
+              {touched
+                ? "Updated from real sales"
+                : "Tap the blue words to describe the home you’re looking at"}
+            </p>
             <h1 className="rp-sentence">
               A{" "}
               <span className="rp-field">
                 <span>{form.beds}-bed</span>
+                <svg
+                  className="rp-field-icon"
+                  viewBox="0 0 12 12"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M2.5 4.5 6 8l3.5-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 <select
                   aria-label="Bedrooms"
                   value={form.beds}
@@ -328,6 +388,20 @@ export default function RealPriceClient({
                 <span>
                   {TYPES.find((t) => t.value === form.typeGroup)!.label}
                 </span>
+                <svg
+                  className="rp-field-icon"
+                  viewBox="0 0 12 12"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M2.5 4.5 6 8l3.5-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 <select
                   aria-label="Property type"
                   value={form.typeGroup}
@@ -345,6 +419,20 @@ export default function RealPriceClient({
               in{" "}
               <span className="rp-field">
                 <span>{formAreaLabel}</span>
+                <svg
+                  className="rp-field-icon"
+                  viewBox="0 0 12 12"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M2.5 4.5 6 8l3.5-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 <select
                   aria-label="Area"
                   value={form.areaKey}
@@ -371,7 +459,7 @@ export default function RealPriceClient({
                 className="rp-field rp-field--price"
                 style={
                   {
-                    "--chars": `${priceText.length + 0.6}ch`,
+                    "--chars": `${priceText.length * 0.92}ch`,
                   } as React.CSSProperties
                 }
               >
@@ -384,6 +472,19 @@ export default function RealPriceClient({
                   onBlur={commitPrice}
                   onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
                 />
+                <svg
+                  className="rp-field-icon"
+                  viewBox="0 0 12 12"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M8.2 1.8 10.2 3.8 4 10 1.6 10.4 2 8z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </span>{" "}
               <span className="rp-answer">
                 will really sell for about
@@ -409,9 +510,17 @@ export default function RealPriceClient({
                     areaLabel,
                   )}
                 </strong>
-                . Change any of the underlined words.
+                .
               </p>
             )}
+            <div className="rp-hero-actions">
+              <a className="rp-button rp-button--ink" href="#report">
+                Get the full bidding report
+              </a>
+              <a className="rp-link" href="#bid">
+                Try a bid first
+              </a>
+            </div>
           </div>
 
           <div className="rp-scene-box">
@@ -472,7 +581,9 @@ export default function RealPriceClient({
       </section>
 
       <div className="rp-wrap">
-        <h2 className="rp-h2">Drag the gold line to try a bid.</h2>
+        <h2 className="rp-h2" id="bid">
+          Drag the gold line to try a bid.
+        </h2>
         <p className="rp-statement-sub">
           Every dot is{" "}
           {dots.salesPerDot === 1
@@ -544,6 +655,12 @@ export default function RealPriceClient({
             <h2 className="rp-h2">
               Take the whole picture to the bidding, as a PDF.
             </h2>
+            <p className="rp-offer-anchor">
+              Here, an even-odds bid and one that is rarely beaten are{" "}
+              <strong>{euro(prediction.high - prediction.mid)} apart</strong>.
+              The report shows every comparable sale in that range, so you know
+              where to stop.
+            </p>
             <ul className="rp-offer-list">
               <li>
                 <strong>Your bidding plan</strong>: what each bid level has won,
@@ -633,6 +750,25 @@ export default function RealPriceClient({
             </p>
           </div>
         </section>
+      </div>
+
+      <div
+        className={`rp-bar${showBar ? " rp-bar--on" : ""}`}
+        aria-hidden={!showBar}
+      >
+        <span className="rp-bar-text">
+          Likely <b>{euro(prediction.mid)}</b>
+          <small>
+            {answeredFor.beds}-bed in {areaLabel}
+          </small>
+        </span>
+        <a
+          className="rp-button rp-button--ink"
+          href="#report"
+          tabIndex={showBar ? 0 : -1}
+        >
+          Full report €{reportPriceEuro}
+        </a>
       </div>
     </>
   );

@@ -9,6 +9,7 @@ import { Metadata } from "next";
 import { BACKTEST } from "@/lib/real-price/backtest";
 import { analyse, extractAreas, tidyAddress } from "@/lib/real-price/model";
 import { REPORT_PRICE_CENTS } from "@/lib/real-price/report";
+import { querySchema } from "@/lib/real-price/schema";
 import { getSalesStore } from "@/lib/real-price/store";
 import RealPriceClient from "./RealPriceClient";
 
@@ -39,9 +40,35 @@ const EXAMPLE = {
   askingPrice: 395_000,
 } as const;
 
-export default function RealPricePage() {
+type Params = Record<string, string | string[] | undefined>;
+
+/** A shared link (?area=d8&type=terraced&beds=2&asking=395000), if valid. */
+function fromLink(params: Params) {
+  const one = (key: string) =>
+    typeof params[key] === "string" ? (params[key] as string) : undefined;
+  const parsed = querySchema.safeParse({
+    areaKey: one("area"),
+    typeGroup: one("type"),
+    beds: one("beds") ? Number(one("beds")) : undefined,
+    askingPrice: Number(one("asking")),
+  });
+  if (!parsed.success || parsed.data.beds === undefined) return null;
+  return { ...parsed.data, beds: parsed.data.beds };
+}
+
+export default async function RealPricePage({
+  searchParams,
+}: {
+  searchParams: Promise<Params>;
+}) {
   const store = getSalesStore();
-  const result = analyse(store.sales, EXAMPLE, store.asOf);
+  const linked = fromLink(await searchParams);
+  const linkedResult =
+    linked && store.areaLabels.has(linked.areaKey)
+      ? analyse(store.sales, linked, store.asOf)
+      : null;
+  const form = linked && linkedResult ? linked : { ...EXAMPLE };
+  const result = linkedResult ?? analyse(store.sales, EXAMPLE, store.asOf);
   if (!result) throw new Error("Example check has no comparable sales");
 
   // The most recent sales across Dublin, for the departures-style board
@@ -69,9 +96,9 @@ export default function RealPricePage() {
       backtest={BACKTEST}
       boardSales={boardSales}
       initial={{
-        form: { ...EXAMPLE },
+        form,
         answer: {
-          areaLabel: store.areaLabels.get(EXAMPLE.areaKey) ?? "Dublin 8",
+          areaLabel: store.areaLabels.get(form.areaKey) ?? "Dublin",
           result,
         },
       }}

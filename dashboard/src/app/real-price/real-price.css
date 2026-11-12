@@ -1756,3 +1756,206 @@
     animation: none;
   }
 }
+
+/* =====================================================================
+   Conversion pass: obvious controls, hero CTA, anchor line, sticky bar
+   ===================================================================== */
+
+/* The editable words read as controls: a tinted chip with an icon */
+.rp-hero .rp-field {
+  border-bottom: 0;
+  padding: 0 0.32em 0.04em 0.22em;
+  margin: 0.04em 0;
+  border-radius: 0.28em;
+  background: rgba(47, 79, 176, 0.09);
+  box-shadow: inset 0 -0.06em 0 rgba(47, 79, 176, 0.45);
+  cursor: pointer;
+  transition: background 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  animation: rp-cue 1.5s ease-in-out 1 backwards;
+  animation-delay: var(--cue-delay, 1.2s);
+}
+
+.rp-hero .rp-field:nth-of-type(2) {
+  --cue-delay: 1.45s;
+}
+
+.rp-hero .rp-field:nth-of-type(3) {
+  --cue-delay: 1.7s;
+}
+
+.rp-hero .rp-field:nth-of-type(4) {
+  --cue-delay: 1.95s;
+}
+
+.rp-hero .rp-field:hover,
+.rp-hero .rp-field:focus-within {
+  color: var(--accent);
+  background: rgba(47, 79, 176, 0.16);
+  box-shadow: inset 0 -0.06em 0 var(--accent);
+}
+
+@keyframes rp-cue {
+  0%,
+  100% {
+    background: rgba(47, 79, 176, 0.09);
+  }
+  35% {
+    background: rgba(201, 153, 47, 0.34);
+  }
+}
+
+.rp-field-icon {
+  display: inline-block;
+  width: 0.36em;
+  height: 0.36em;
+  margin-left: 0.14em;
+  vertical-align: 0.12em;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.rp-field--price .rp-field-icon {
+  width: 0.32em;
+  height: 0.32em;
+}
+
+.rp-hero .rp-field--price input {
+  cursor: text;
+}
+
+.rp-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.1rem;
+  padding: 0.38rem 0.8rem 0.38rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: rgba(47, 79, 176, 0.08);
+  transition: color 300ms ease, background 300ms ease;
+}
+
+.rp-hint svg {
+  width: 1rem;
+  height: 1rem;
+  animation: rp-tap 1.6s ease-in-out 3;
+  animation-delay: 1s;
+}
+
+@keyframes rp-tap {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(3px) scale(0.92);
+  }
+}
+
+.rp-hint--done {
+  color: #2e6b4a;
+  background: rgba(46, 107, 74, 0.1);
+}
+
+.rp-hint--done svg {
+  display: none;
+}
+
+.rp-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.4rem;
+  margin-top: 1.6rem;
+}
+
+.rp-button--ink {
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.rp-button--ink:hover {
+  background: var(--accent);
+}
+
+.rp-offer-anchor {
+  font-family: var(--prose);
+  font-size: 1.12rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 32em;
+  margin: 1rem 0 0;
+}
+
+.rp-offer-anchor strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Sticky report bar for phones */
+.rp-bar {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .rp-bar {
+    position: fixed;
+    left: 0.6rem;
+    right: 0.6rem;
+    bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+    z-index: 45;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding: 0.55rem 0.55rem 0.55rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(22, 34, 63, 0.08);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: 0 10px 30px rgba(22, 34, 63, 0.16);
+    transform: translateY(140%);
+    transition: transform 380ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .rp-bar--on {
+    transform: translateY(0);
+  }
+
+  .rp-bar-text {
+    display: grid;
+    line-height: 1.2;
+    font-size: 0.9rem;
+  }
+
+  .rp-bar-text small {
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+  }
+
+  .rp-bar .rp-button {
+    padding: 0.7rem 1.05rem;
+    font-size: 0.92rem;
+    white-space: nowrap;
+  }
+
+  .rp-hint {
+    font-size: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rp-hero .rp-field,
+  .rp-hint svg {
+    animation: none;
+  }
+
+  .rp-bar {
+    transition: none;
+  }
+}
