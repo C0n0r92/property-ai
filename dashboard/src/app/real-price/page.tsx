@@ -8,6 +8,7 @@
 import { Metadata } from "next";
 import { BACKTEST } from "@/lib/real-price/backtest";
 import { analyse, extractAreas, tidyAddress } from "@/lib/real-price/model";
+import { getMarket } from "@/lib/real-price/market";
 import { toPublicResult } from "@/lib/real-price/public";
 import { REPORT_PRICE_CENTS } from "@/lib/real-price/report";
 import { querySchema } from "@/lib/real-price/schema";
@@ -96,6 +97,7 @@ export default async function RealPricePage({
       reportPriceEuro={REPORT_PRICE_CENTS / 100}
       backtest={BACKTEST}
       boardSales={boardSales}
+      market={getMarket("all")}
       initial={{
         form,
         answer: {

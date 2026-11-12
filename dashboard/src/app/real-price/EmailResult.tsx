@@ -12,17 +12,28 @@ interface Props {
     askingPrice: number;
   };
   areaLabel: string;
+  /** The answer, so the email preview shows exactly what will arrive. */
+  likelyPrice: number;
+  homeLabel: string;
 }
 
 type Status = "idle" | "sending" | "emailed" | "saved" | "error";
 
-/** "Not bidding yet? Email me this result", with separate opt-in for alerts. */
-export default function EmailResult({ query, areaLabel }: Props) {
+const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
+
+/** "Not bidding yet? Email me this result", with a separate alert opt-in. */
+export default function EmailResult({
+  query,
+  areaLabel,
+  likelyPrice,
+  homeLabel,
+}: Props) {
   const [email, setEmail] = useState("");
-  const [consent, setConsent] = useState(false);
+  const [alerts, setAlerts] = useState(false);
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  const done = status === "emailed" || status === "saved";
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -34,7 +45,7 @@ export default function EmailResult({ query, areaLabel }: Props) {
         body: JSON.stringify({
           email,
           query,
-          marketingConsent: consent,
+          marketingConsent: alerts,
           company,
         }),
       });
@@ -60,75 +71,107 @@ export default function EmailResult({ query, areaLabel }: Props) {
     }
   }
 
-  if (status === "emailed" || status === "saved") {
-    return (
-      <div className="rp-email rp-email--done" role="status">
-        <p className="rp-email-title">
-          {status === "emailed"
-            ? "Sent. Check your inbox."
-            : "Saved. Your email is on its way."}
-        </p>
-        <p className="rp-email-sub">
-          {consent
-            ? `We’ll also tell you when a similar home sells in ${areaLabel}.`
-            : "It has a link back to this result whenever you need it."}
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <form className="rp-email" onSubmit={onSubmit}>
-      <div className="rp-email-copy">
-        <p className="rp-email-title">Not bidding yet?</p>
-        <p className="rp-email-sub">
-          Get this result by email, with a link back to it for when you are.
+    <section
+      className={`rp-mail${done ? " rp-mail--done" : ""}`}
+      aria-labelledby="rp-mail-title"
+    >
+      <div className="rp-mail-copy">
+        <h2 className="rp-mail-title" id="rp-mail-title">
+          {done ? "It’s on its way." : "Not bidding yet? Keep this answer."}
+        </h2>
+        <p className="rp-mail-sub">
+          {done
+            ? alerts
+              ? `Check your inbox. We’ll also email you when a similar home sells in ${areaLabel}.`
+              : "Check your inbox. The email links straight back to this result."
+            : "We’ll email you this result with a link back to it, so it’s there when the right home comes up."}
         </p>
-      </div>
-      <div className="rp-email-fields">
-        <div className="rp-email-row">
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            aria-label="Your email address"
-            placeholder="you@example.ie"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button
-            className="rp-button rp-button--ink"
-            type="submit"
-            disabled={status === "sending"}
-          >
-            {status === "sending" ? "Sending…" : "Email me this result"}
-          </button>
-        </div>
-        <label className="rp-email-consent">
-          <input
-            type="checkbox"
-            checked={consent}
-            onChange={(e) => setConsent(e.target.checked)}
-          />
-          Also email me when a similar home sells in {areaLabel}. Unsubscribe
-          any time.
-        </label>
-        {/* Hidden from people; bots fill it in */}
-        <input
-          className="rp-email-trap"
-          tabIndex={-1}
-          autoComplete="off"
-          aria-hidden="true"
-          name="company"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-        />
-        {status === "error" && (
-          <p className="rp-offer-error" role="alert">
-            {message}
-          </p>
+
+        {!done && (
+          <form onSubmit={onSubmit} noValidate={false}>
+            <div className="rp-mail-field">
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                aria-label="Your email address"
+                placeholder="Your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <button type="submit" disabled={status === "sending"}>
+                {status === "sending" ? "Sending…" : "Email it to me"}
+              </button>
+            </div>
+
+            <label className="rp-switch">
+              <input
+                type="checkbox"
+                role="switch"
+                checked={alerts}
+                onChange={(e) => setAlerts(e.target.checked)}
+              />
+              <span className="rp-switch-track" aria-hidden="true">
+                <span />
+              </span>
+              <span className="rp-switch-text">
+                <b>Alert me when a similar home sells in {areaLabel}</b>
+                <small>
+                  Optional. One click to unsubscribe from any email.
+                </small>
+              </span>
+            </label>
+
+            {/* Hidden from people; bots fill it in */}
+            <input
+              className="rp-email-trap"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              name="company"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+            />
+            {status === "error" && (
+              <p className="rp-offer-error" role="alert">
+                {message}
+              </p>
+            )}
+          </form>
         )}
       </div>
-    </form>
+
+      {/* A preview of the email itself, so people know what they'll get */}
+      <div className="rp-mail-preview" aria-hidden="true">
+        <div className="rp-mail-window">
+          <div className="rp-mail-meta">
+            <span className="rp-mail-avatar">RP</span>
+            <span>
+              <b>Real Price</b>
+              <small>to {email.trim() || "you"}</small>
+            </span>
+          </div>
+          <p className="rp-mail-subject">
+            {euro(likelyPrice)}: what a {homeLabel} will really sell for
+          </p>
+          <p className="rp-mail-body-small">
+            A {homeLabel} asking {euro(query.askingPrice)} will likely sell for
+            about
+          </p>
+          <p className="rp-mail-big">{euro(likelyPrice)}</p>
+          <span className="rp-mail-button">See it again and try a bid</span>
+        </div>
+        {alerts && (
+          <div className="rp-mail-window rp-mail-window--alert">
+            <span className="rp-mail-avatar">RP</span>
+            <span>
+              <b>A similar home just sold in {areaLabel}</b>
+              <small>Asked, sold, and what it means for your bid</small>
+            </span>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

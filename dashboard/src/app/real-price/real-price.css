@@ -2137,3 +2137,676 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* =====================================================================
+   Area comparison and the email section
+   ===================================================================== */
+
+.rp {
+  /* Validated categorical slots (dataviz reference palette, first three) */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+}
+
+.rp-market {
+  margin-top: clamp(4rem, 9vw, 7rem);
+}
+
+.rp-market-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.2rem 2rem;
+}
+
+.rp-market-sub {
+  margin: 0.8rem 0 0;
+  max-width: 34em;
+}
+
+.rp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: #eef0f5;
+}
+
+.rp-chip {
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.rp-chip:hover {
+  color: var(--ink);
+}
+
+.rp-chip--on {
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(22, 34, 63, 0.12);
+}
+
+.rp-market-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin-top: 2rem;
+  transition: opacity 200ms ease;
+}
+
+.rp-market--loading {
+  opacity: 0.55;
+}
+
+/* Ranked districts */
+.rp-rank {
+  position: relative;
+  --name: 6.2rem;
+  --val: 3.6rem;
+}
+
+.rp-rank-axis {
+  position: relative;
+  height: 1.2rem;
+  margin: 0 var(--val) 0.3rem var(--name);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.rp-rank-axis span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.rp-rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rp-rank-row {
+  display: grid;
+  grid-template-columns: var(--name) minmax(0, 1fr) var(--val);
+  align-items: center;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.28rem 0;
+  cursor: pointer;
+  --series: var(--ink);
+  transition: background 120ms ease;
+}
+
+.rp-rank-row:hover {
+  background: rgba(22, 34, 63, 0.04);
+}
+
+.rp-rank-name {
+  font-size: 0.88rem;
+  padding-left: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.rp-rank-name em {
+  font-style: normal;
+  font-size: 0.68rem;
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.rp-rank-track {
+  position: relative;
+  height: 18px;
+}
+
+.rp-rank-zero {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+}
+
+.rp-rank-range {
+  position: absolute;
+  top: 7px;
+  height: 4px;
+  border-radius: 2px;
+  background: #c6cbdb;
+}
+
+.rp-rank-dot {
+  position: absolute;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.rp-rank-row--on .rp-rank-range {
+  background: color-mix(in srgb, var(--series) 40%, white);
+}
+
+.rp-rank-row--on .rp-rank-dot {
+  background: var(--series);
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  top: 3px;
+}
+
+.rp-rank-row--on .rp-rank-name {
+  font-weight: 600;
+}
+
+.rp-rank-value {
+  font-size: 0.85rem;
+  text-align: right;
+  padding-right: 0.4rem;
+  color: var(--ink-soft);
+}
+
+.rp-rank-row--on .rp-rank-value {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.rp-rank-tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 4px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.rp-rank-key {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin: 0.8rem 0 0 var(--name);
+}
+
+.rp-rank-key-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+}
+
+.rp-rank-key-range {
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  background: #c6cbdb;
+  margin-left: 0.8rem;
+}
+
+/* Comparison */
+.rp-compare {
+  min-width: 0;
+}
+
+.rp-compare-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.rp-compare-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid rgba(22, 34, 63, 0.12);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+.rp-compare-chip i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--series);
+}
+
+.rp-compare-chip span {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.rp-compare-chip:hover span {
+  color: var(--red);
+}
+
+.rp-compare-add select {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--accent);
+  background: rgba(47, 79, 176, 0.08);
+  border: 1px dashed rgba(47, 79, 176, 0.45);
+  border-radius: 999px;
+  padding: 0.42rem 0.9rem;
+  cursor: pointer;
+}
+
+.rp-trend-box {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.rp-trend-box svg {
+  display: block;
+  overflow: visible;
+}
+
+.rp-trend-grid line {
+  stroke: #e3e6ee;
+}
+
+.rp-trend-grid .rp-trend-zero {
+  stroke: var(--ink-soft);
+  stroke-dasharray: 2 4;
+}
+
+.rp-trend-grid text,
+.rp-trend-q {
+  fill: var(--ink-soft);
+  font-size: 11px;
+}
+
+.rp-trend-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.rp-trend-end {
+  fill: currentColor;
+  stroke: var(--paper);
+  stroke-width: 2;
+}
+
+.rp-trend-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.rp-trend-cross {
+  stroke: var(--ink-soft);
+  stroke-width: 1;
+}
+
+.rp-trend-tip {
+  position: absolute;
+  top: 0;
+  display: grid;
+  gap: 0.25rem;
+  min-width: 11rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.78rem;
+  pointer-events: none;
+}
+
+.rp-trend-tip span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rp-trend-tip i,
+.rp-compare-table th i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+}
+
+.rp-trend-tip em {
+  font-style: normal;
+  margin-left: auto;
+  padding-left: 0.8rem;
+  color: #c5cddb;
+}
+
+.rp-trend-empty {
+  margin-top: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--ink-soft);
+  border: 1px dashed var(--rule);
+  border-radius: 12px;
+}
+
+.rp-compare-table {
+  margin-top: 1.2rem;
+}
+
+.rp-compare-table td:first-child {
+  color: var(--ink-soft);
+}
+
+/* ---------- Email section ---------- */
+
+.rp-mail {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+  margin-top: clamp(3rem, 7vw, 4.5rem);
+  padding: clamp(1.5rem, 4vw, 2.6rem);
+  border-radius: 28px;
+  background:
+    radial-gradient(60% 90% at 100% 0%, rgba(196, 184, 238, 0.45), transparent 70%),
+    #f2f4f9;
+  overflow: hidden;
+}
+
+.rp-mail-title {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  margin: 0;
+}
+
+.rp-mail-sub {
+  font-family: var(--prose);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0.7rem 0 0;
+  max-width: 30em;
+}
+
+.rp-mail-field {
+  display: flex;
+  align-items: center;
+  margin-top: 1.4rem;
+  max-width: 30rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(22, 34, 63, 0.12);
+  box-shadow: 0 8px 24px -12px rgba(22, 34, 63, 0.25);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.rp-mail-field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(47, 79, 176, 0.12);
+}
+
+.rp-mail-field input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  padding: 0.55rem 0.9rem;
+}
+
+.rp-mail-field input:focus {
+  outline: none;
+}
+
+.rp-mail-field button {
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--paper);
+  background: var(--ink);
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.rp-mail-field button:hover {
+  background: var(--accent);
+}
+
+.rp-mail-field button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Toggle switch for the optional alerts */
+.rp-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1.1rem;
+  max-width: 30rem;
+  cursor: pointer;
+}
+
+.rp-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.rp-switch-track {
+  flex: none;
+  position: relative;
+  width: 40px;
+  height: 24px;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: #cfd4e0;
+  transition: background 180ms ease;
+}
+
+.rp-switch-track span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(22, 34, 63, 0.3);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.rp-switch input:checked + .rp-switch-track {
+  background: var(--accent);
+}
+
+.rp-switch input:checked + .rp-switch-track span {
+  transform: translateX(16px);
+}
+
+.rp-switch input:focus-visible + .rp-switch-track {
+  outline: 3px solid var(--brass-bright);
+  outline-offset: 2px;
+}
+
+.rp-switch-text {
+  display: grid;
+  gap: 0.15rem;
+  font-size: 0.95rem;
+}
+
+.rp-switch-text b {
+  font-weight: 500;
+}
+
+.rp-switch-text small {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* Preview of the email that will arrive */
+.rp-mail-preview {
+  position: relative;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.rp-mail-window {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.1rem 1.2rem 1.3rem;
+  box-shadow: 0 24px 48px -20px rgba(22, 34, 63, 0.35);
+  transform: rotate(-1.5deg);
+}
+
+.rp-mail-meta,
+.rp-mail-window--alert {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rp-mail-meta span:last-child,
+.rp-mail-window--alert > span:last-child {
+  display: grid;
+  line-height: 1.25;
+  font-size: 0.85rem;
+  min-width: 0;
+}
+
+.rp-mail-meta small,
+.rp-mail-window--alert small {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rp-mail-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--brass-bright);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.rp-mail-subject {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0.9rem 0 0.6rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.rp-mail-body-small {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.rp-mail-big {
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin: 0.1rem 0 0.8rem;
+}
+
+.rp-mail-button {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--paper);
+  background: var(--ink);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+}
+
+.rp-mail-window--alert {
+  transform: rotate(1deg) translateX(1.2rem);
+  padding: 0.85rem 1rem;
+  animation: rp-card-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.rp-mail--done {
+  background:
+    radial-gradient(60% 90% at 100% 0%, rgba(46, 107, 74, 0.16), transparent 70%),
+    #f2f6f3;
+}
+
+@media (max-width: 900px) {
+  .rp-market-grid,
+  .rp-mail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .rp-mail-field {
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 18px;
+  }
+
+  .rp-mail-field button {
+    border-radius: 12px;
+  }
+
+  .rp-rank {
+    --name: 5.2rem;
+    --val: 3.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rp-mail-window--alert {
+    animation: none;
+  }
+}

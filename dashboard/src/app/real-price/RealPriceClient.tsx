@@ -11,6 +11,8 @@ import DotPlot from "./DotPlot";
 import HeroScene from "./HeroScene";
 import RealPriceNav from "./RealPriceNav";
 import EmailResult from "./EmailResult";
+import MarketExplorer from "./MarketExplorer";
+import type { Market } from "@/lib/real-price/market";
 import ReportPreview from "./ReportPreview";
 import SalesBoard, { type BoardSale } from "./SalesBoard";
 
@@ -35,6 +37,7 @@ interface Props {
   reportPriceEuro: number;
   initial: { form: FormState; answer: Answer };
   boardSales: BoardSale[];
+  market: Market;
   backtest: {
     testYear: number;
     salesTested: number;
@@ -128,6 +131,7 @@ export default function RealPriceClient({
   initial,
   backtest,
   boardSales,
+  market,
 }: Props) {
   const [form, setForm] = useState<FormState>(initial.form);
   const [priceText, setPriceText] = useState(
@@ -701,7 +705,14 @@ export default function RealPriceClient({
           ))}
         </div>
 
-        <EmailResult query={answeredFor} areaLabel={areaLabel} />
+        <EmailResult
+          query={answeredFor}
+          areaLabel={areaLabel}
+          likelyPrice={prediction.mid}
+          homeLabel={`${answeredFor.beds}-bed ${type.label} in ${areaLabel}`}
+        />
+
+        <MarketExplorer initial={market} homeArea={answeredFor.areaKey} />
 
         <section className="rp-board-section">
           <div className="rp-board-intro">

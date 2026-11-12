@@ -7,6 +7,7 @@ import {
   predict,
   quantile,
   quarterlyTrend,
+  areaProfile,
   sampleOverAsking,
   selectComparables,
   tidyAddress,
@@ -370,5 +371,63 @@ describe('analyse evidence limit', () => {
     const query = { areaKey: 'd8', typeGroup: 'terraced' as const, beds: 3, askingPrice: 400_000 };
     const result = analyse(spread(60, 0.95, 1.15), query, AS_OF, 40)!;
     expect(result.evidence.recent).toHaveLength(40);
+  });
+});
+
+describe('cleanSale floor area', () => {
+  it('keeps a plausible floor area and drops nonsense', () => {
+    const raw = {
+      address: '1 Test Road, Kilmainham, Dublin 8',
+      soldDate: '2025-06-01',
+      soldPrice: 420_000,
+      askingPrice: 400_000,
+      propertyType: 'Terrace',
+      dublinPostcode: 'D8',
+    };
+    expect(cleanSale({ ...raw, areaSqm: 84 }, AS_OF)!.sqm).toBe(84);
+    expect(cleanSale({ ...raw, areaSqm: 4 }, AS_OF)!.sqm).toBeNull();
+    expect(cleanSale({ ...raw, areaSqm: 9000 }, AS_OF)!.sqm).toBeNull();
+    expect(cleanSale(raw, AS_OF)!.sqm).toBeNull();
+  });
+});
+
+describe('areaProfile', () => {
+  const dated = (list: Sale[], iso: string) =>
+    list.map((s) => ({ ...s, t: Date.parse(iso), soldDate: iso }));
+
+  it('summarises the last year of sales in an area', () => {
+    const sales = [
+      ...dated(spread(30, 1.0, 1.2, { sqm: 100 }), '2025-06-01'),
+      ...dated(spread(30, 1.5, 1.6, { areaKeys: ['d15'] }), '2025-06-01'),
+    ];
+    const profile = areaProfile(sales, 'd8', null, AS_OF)!;
+    expect(profile.count).toBe(30);
+    expect(profile.medianOverAskingPct).toBeCloseTo(10, 0);
+    expect(profile.p25OverAskingPct).toBeCloseTo(5, 0);
+    expect(profile.p75OverAskingPct).toBeCloseTo(15, 0);
+    expect(profile.medianPrice).toBe(440_000);
+    expect(profile.medianPricePerSqm).toBe(4_400);
+    expect(profile.shareAboveAsking).toBeCloseTo(29 / 30, 2);
+  });
+
+  it('filters by home type and ignores sales older than a year for the summary', () => {
+    const sales = [
+      ...dated(spread(25, 1.0, 1.1), '2025-06-01'),
+      ...dated(spread(25, 1.2, 1.3, { typeGroup: 'apartment' }), '2025-06-01'),
+      ...dated(spread(25, 1.4, 1.5), '2024-06-01'),
+    ];
+    expect(areaProfile(sales, 'd8', 'terraced', AS_OF)!.count).toBe(25);
+    expect(areaProfile(sales, 'd8', 'apartment', AS_OF)!.medianOverAskingPct).toBeCloseTo(25, 0);
+    // The older sales still feed the quarterly trend
+    const trend = areaProfile(sales, 'd8', 'terraced', AS_OF)!.trend;
+    expect(trend.map((q) => q.quarter)).toEqual(['2024 Q2', '2025 Q2']);
+  });
+
+  it('returns null when an area has too few recent sales', () => {
+    expect(areaProfile(spread(10, 1, 1.1), 'd8', null, AS_OF)).toBeNull();
+  });
+
+  it('leaves price per square metre empty when floor areas are missing', () => {
+    expect(areaProfile(spread(30, 1, 1.1), 'd8', null, AS_OF)!.medianPricePerSqm).toBeNull();
   });
 });

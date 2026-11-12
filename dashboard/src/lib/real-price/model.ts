@@ -31,6 +31,8 @@ export interface Sale {
   beds: number | null;
   typeGroup: TypeGroup | null;
   areaKeys: string[];
+  /** Floor area in square metres, when known. */
+  sqm?: number | null;
 }
 
 export interface RawSale {
@@ -41,6 +43,7 @@ export interface RawSale {
   beds?: number | null;
   propertyType?: string | null;
   dublinPostcode?: string | null;
+  areaSqm?: number | null;
 }
 
 export interface Query {
@@ -216,6 +219,7 @@ export function cleanSale(raw: RawSale, now: number): Sale | null {
     beds: typeof raw.beds === 'number' && raw.beds > 0 ? raw.beds : null,
     typeGroup: toTypeGroup(raw.propertyType),
     areaKeys: extractAreas(address, raw.dublinPostcode).map((a) => a.key),
+    sqm: typeof raw.areaSqm === 'number' && raw.areaSqm >= 20 && raw.areaSqm <= 1000 ? raw.areaSqm : null,
   };
 }
 
@@ -346,12 +350,14 @@ export function quarterlyTrend(
   sales: Sale[],
   areaKey: string,
   asOf: number,
-  minPerQuarter = 8
+  minPerQuarter = 8,
+  typeGroup: TypeGroup | null = null
 ): QuarterSummary[] {
   const from = asOf - 3 * 365 * DAY_MS;
   const groups = new Map<string, Sale[]>();
   for (const sale of sales) {
     if (sale.t < from || sale.t > asOf || !sale.areaKeys.includes(areaKey)) continue;
+    if (typeGroup && sale.typeGroup !== typeGroup) continue;
     const month = Number(sale.soldDate.slice(5, 7));
     const quarter = `${sale.soldDate.slice(0, 4)} Q${Math.ceil(month / 3)}`;
     const group = groups.get(quarter) ?? [];
@@ -408,4 +414,57 @@ export function analyse(
   }
 
   return result;
+}
+
+export interface AreaProfile {
+  count: number;
+  medianOverAskingPct: number;
+  p25OverAskingPct: number;
+  p75OverAskingPct: number;
+  shareAboveAsking: number;
+  medianPrice: number;
+  medianPricePerSqm: number | null;
+  trend: QuarterSummary[];
+}
+
+export const MIN_PROFILE_SALES = 20;
+
+/**
+ * How an area bids: the last year of sales (optionally one home type), plus
+ * a quarter-by-quarter trend over three years.
+ */
+export function areaProfile(
+  sales: Sale[],
+  areaKey: string,
+  typeGroup: TypeGroup | null,
+  asOf: number
+): AreaProfile | null {
+  const from = asOf - 365 * DAY_MS;
+  const recent = sales.filter(
+    (s) =>
+      s.t >= from &&
+      s.t <= asOf &&
+      s.areaKeys.includes(areaKey) &&
+      (!typeGroup || s.typeGroup === typeGroup)
+  );
+  if (recent.length < MIN_PROFILE_SALES) return null;
+
+  const ratios = sortedRatios(recent);
+  const prices = recent.map((s) => s.soldPrice).sort((a, b) => a - b);
+  const perSqm = recent
+    .filter((s) => s.sqm)
+    .map((s) => s.soldPrice / s.sqm!)
+    .sort((a, b) => a - b);
+
+  return {
+    count: recent.length,
+    medianOverAskingPct: (quantile(ratios, 0.5) - 1) * 100,
+    p25OverAskingPct: (quantile(ratios, 0.25) - 1) * 100,
+    p75OverAskingPct: (quantile(ratios, 0.75) - 1) * 100,
+    shareAboveAsking: ratios.filter((r) => r > 1 + EPSILON).length / ratios.length,
+    medianPrice: roundTo(quantile(prices, 0.5), 1000),
+    // Too few floor areas makes this figure unreliable
+    medianPricePerSqm: perSqm.length >= 10 ? roundTo(quantile(perSqm, 0.5), 100) : null,
+    trend: quarterlyTrend(sales, areaKey, asOf, 6, typeGroup).slice(-10),
+  };
 }
