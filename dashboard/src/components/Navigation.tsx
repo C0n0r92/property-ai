@@ -63,6 +63,12 @@ export function Navigation() {
 
             <div className="hidden md:flex items-center gap-1">
               <Link
+                href="/real-price"
+                className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium text-sm"
+              >
+                Real Price Check
+              </Link>
+              <Link
                 href="/map"
                 className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium text-sm"
               >

@@ -14,9 +14,6 @@ services:
     instance_size_slug: apps-s-1vcpu-1gb
     http_port: 3000
     envs:
-      - key: NEXT_PUBLIC_MAPBOX_TOKEN
-        scope: RUN_AND_BUILD_TIME
-        value: pk.eyJ1IjoiYzBuMHI5IiwiYSI6ImNtajZiaXZzdDBrOHMzZXF5dnFnMmZ6Ym4ifQ.Np14DcYGtlYDP8yBPUp_JQ
       - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
         scope: RUN_AND_BUILD_TIME
         value: G-43FMLL1ZG0
