@@ -5,50 +5,59 @@ import type { Market, MarketArea, MarketType } from "@/lib/real-price/market";
 
 interface Props {
   initial: Market;
-  /** The area in the visitor's search, highlighted and compared first. */
+  /** The area in the visitor's search, compared first. */
   homeArea: string;
 }
 
 const TYPES: Array<{ value: MarketType; label: string }> = [
-  { value: "all", label: "All homes" },
-  { value: "apartment", label: "Apartments" },
-  { value: "terraced", label: "Terraced" },
-  { value: "semi", label: "Semi-detached" },
-  { value: "detached", label: "Detached" },
+  { value: "all", label: "all homes" },
+  { value: "apartment", label: "apartments" },
+  { value: "terraced", label: "terraced houses" },
+  { value: "semi", label: "semi-detached houses" },
+  { value: "detached", label: "detached houses" },
 ];
 
-const MAX_COMPARE = 3;
+const SLOTS = 3;
 const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
 const signed = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
 
-function defaultSelection(market: Market, homeArea: string): string[] {
+function defaultPicks(market: Market, homeArea: string): string[] {
   const keys = new Set(market.areas.map((a) => a.key));
   const picks = keys.has(homeArea) ? [homeArea] : [];
-  // Compare against the busiest districts, which most visitors know
   const busiest = market.areas
     .filter((a) => a.kind === "district" && a.key !== homeArea)
     .sort((a, b) => b.profile.count - a.profile.count);
   for (const area of busiest) {
-    if (picks.length >= MAX_COMPARE) break;
+    if (picks.length >= SLOTS) break;
     picks.push(area.key);
   }
   return picks;
 }
+
+const chevron = (
+  <svg className="rp-field-icon" viewBox="0 0 12 12" aria-hidden="true">
+    <path
+      d="M2.5 4.5 6 8l3.5-3.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 export default function MarketExplorer({ initial, homeArea }: Props) {
   const [type, setType] = useState<MarketType>(initial.type);
   const [markets, setMarkets] = useState<Partial<Record<MarketType, Market>>>({
     [initial.type]: initial,
   });
-  // Each chosen area keeps its colour slot, so removing one never repaints the others
-  const [picks, setPicks] = useState<Array<{ key: string; slot: number }>>(() =>
-    defaultSelection(initial, homeArea).map((key, slot) => ({ key, slot })),
+  // Slot i always shows in series colour i, so changing one area never repaints the others
+  const [picks, setPicks] = useState<string[]>(() =>
+    defaultPicks(initial, homeArea),
   );
-  const selected = picks.map((p) => p.key);
-  const slots = new Map(picks.map((p) => [p.key, p.slot]));
-  // Shows the last loaded type until the chosen one arrives
-  const loading = !markets[type];
   const market = markets[type] ?? initial;
+  const loading = !markets[type];
 
   useEffect(() => {
     if (markets[type]) return;
@@ -68,7 +77,16 @@ export default function MarketExplorer({ initial, homeArea }: Props) {
     () => new Map(market.areas.map((a) => [a.key, a])),
     [market],
   );
-  const districts = useMemo(
+  const options = useMemo(
+    () => ({
+      districts: market.areas.filter((a) => a.kind === "district"),
+      localities: market.areas
+        .filter((a) => a.kind === "locality")
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    }),
+    [market],
+  );
+  const ranked = useMemo(
     () =>
       market.areas
         .filter((a) => a.kind === "district")
@@ -78,271 +96,186 @@ export default function MarketExplorer({ initial, homeArea }: Props) {
         ),
     [market],
   );
-  const compared = selected
-    .map((key) => byKey.get(key))
-    .filter((a): a is MarketArea => Boolean(a));
+  const slots = picks.map((key) => byKey.get(key) ?? null);
 
-  function toggle(key: string) {
+  function setSlot(index: number, key: string) {
     setPicks((current) => {
-      if (current.some((p) => p.key === key)) {
-        return current.filter((p) => p.key !== key);
-      }
-      // Full: the oldest choice makes way and frees its colour
-      const kept = current.length >= MAX_COMPARE ? current.slice(1) : current;
-      const used = new Set(kept.map((p) => p.slot));
-      const slot = [0, 1, 2].find((s) => !used.has(s)) ?? 0;
-      return [...kept, { key, slot }];
+      const next = [...current];
+      next[index] = key;
+      return next;
     });
   }
 
-  return (
-    <section className="rp-market" aria-labelledby="rp-market-title">
-      <div className="rp-market-head">
-        <div>
-          <h2 className="rp-h2" id="rp-market-title">
-            How Dublin bids, area by area.
-          </h2>
-          <p className="rp-prose rp-market-sub">
-            Every district ranked by how far over asking homes really sold, in
-            the last year of our records. Pick up to three areas to compare.
-          </p>
-        </div>
-        <div className="rp-chips" role="radiogroup" aria-label="Home type">
-          {TYPES.map((t) => (
-            <button
-              key={t.value}
-              type="button"
-              role="radio"
-              aria-checked={type === t.value}
-              className={`rp-chip${type === t.value ? " rp-chip--on" : ""}`}
-              onClick={() => setType(t.value)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
+  /** From the strip: swap the area into the last slot unless it's already there. */
+  function bringIn(key: string) {
+    setPicks((current) =>
+      current.includes(key) ? current : [...current.slice(0, SLOTS - 1), key],
+    );
+  }
 
-      <div className={`rp-market-grid${loading ? " rp-market--loading" : ""}`}>
-        <Ranking
-          districts={districts}
-          selected={selected}
-          slots={slots}
-          homeArea={homeArea}
-          onToggle={toggle}
-        />
-        <div className="rp-compare">
-          <CompareChips
-            areas={market.areas}
-            compared={compared}
-            slots={slots}
-            onToggle={toggle}
-          />
-          <TrendChart compared={compared} slots={slots} />
-          <CompareTable compared={compared} slots={slots} />
+  const areaSelect = (index: number) => {
+    const area = slots[index];
+    return (
+      <span
+        className="rp-field rp-field--series"
+        style={
+          { "--series": `var(--series-${index + 1})` } as React.CSSProperties
+        }
+      >
+        <i aria-hidden="true" />
+        <span>{area?.label ?? "an area"}</span>
+        {chevron}
+        <select
+          aria-label={`Area ${index + 1}`}
+          value={picks[index] ?? ""}
+          onChange={(e) => setSlot(index, e.target.value)}
+        >
+          <optgroup label="Postal districts">
+            {options.districts.map((a) => (
+              <option key={a.key} value={a.key}>
+                {a.label}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Towns and neighbourhoods">
+            {options.localities.map((a) => (
+              <option key={a.key} value={a.key}>
+                {a.label}
+              </option>
+            ))}
+          </optgroup>
+        </select>
+      </span>
+    );
+  };
+
+  return (
+    <section
+      className="rp-band rp-band--market"
+      aria-labelledby="rp-market-title"
+    >
+      <div className="rp-band-inner">
+        <h2 className="rp-sentence rp-band-sentence" id="rp-market-title">
+          Compare <span className="rp-nowrap">{areaSelect(0)},</span>{" "}
+          <span className="rp-nowrap">{areaSelect(1)}</span> and {areaSelect(2)}{" "}
+          for{" "}
+          <span className="rp-field">
+            <span>{TYPES.find((t) => t.value === type)!.label}</span>
+            {chevron}
+            <select
+              aria-label="Home type"
+              value={type}
+              onChange={(e) => setType(e.target.value as MarketType)}
+            >
+              {TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </span>
+        </h2>
+        <p className="rp-lede rp-band-lede">
+          How far over asking homes really sold in the last year of our records,
+          and how that has moved.
+        </p>
+
+        <div className={`rp-tiles${loading ? " rp-tiles--loading" : ""}`}>
+          {slots.map((area, i) =>
+            area ? (
+              <div
+                key={`${i}-${area.key}`}
+                className="rp-glass rp-tile"
+                style={
+                  {
+                    "--series": `var(--series-${i + 1})`,
+                    animationDelay: `${-i * 2}s, ${i * 90}ms`,
+                  } as React.CSSProperties
+                }
+              >
+                <span className="rp-tile-name">
+                  <i aria-hidden="true" />
+                  {area.label}
+                </span>
+                <b>{signed(area.profile.medianOverAskingPct)}</b>
+                <span className="rp-tile-caption">
+                  typical result on asking
+                </span>
+                <dl>
+                  <div>
+                    <dt>Sold above asking</dt>
+                    <dd>{Math.round(area.profile.shareAboveAsking * 100)}%</dd>
+                  </div>
+                  <div>
+                    <dt>Typical price</dt>
+                    <dd>{euro(area.profile.medianPrice)}</dd>
+                  </div>
+                  <div>
+                    <dt>Per m²</dt>
+                    <dd>
+                      {area.profile.medianPricePerSqm
+                        ? euro(area.profile.medianPricePerSqm)
+                        : "–"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ) : (
+              <div
+                key={`empty-${i}`}
+                className="rp-glass rp-tile rp-tile--empty"
+              >
+                Too few sales of this type here
+              </div>
+            ),
+          )}
         </div>
+
+        <TrendChart slots={slots} />
+
+        {ranked.length > 0 && (
+          <div className="rp-strip">
+            <p className="rp-strip-title">
+              Every district, hottest to coolest. Tap one to compare it.
+            </p>
+            <div className="rp-strip-chips">
+              {ranked.map((area, i) => {
+                const slot = picks.indexOf(area.key);
+                // Warmth by rank: the top of the list glows brass
+                const heat = 1 - i / Math.max(1, ranked.length - 1);
+                return (
+                  <button
+                    key={area.key}
+                    type="button"
+                    className={`rp-strip-chip${slot >= 0 ? " rp-strip-chip--on" : ""}`}
+                    style={
+                      {
+                        "--heat": heat.toFixed(2),
+                        "--series":
+                          slot >= 0 ? `var(--series-${slot + 1})` : undefined,
+                      } as React.CSSProperties
+                    }
+                    aria-pressed={slot >= 0}
+                    onClick={() => bringIn(area.key)}
+                  >
+                    {area.label.replace("Dublin ", "D")}
+                    <span>{signed(area.profile.medianOverAskingPct)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
-/* ---------- Ranked districts: typical result and the usual spread ---------- */
+/* ---------- One airy trend chart, labelled at the line ends ---------- */
 
-function Ranking({
-  districts,
-  selected,
-  slots,
-  homeArea,
-  onToggle,
-}: {
-  districts: MarketArea[];
-  selected: string[];
-  slots: Map<string, number>;
-  homeArea: string;
-  onToggle: (key: string) => void;
-}) {
-  const [hover, setHover] = useState<string | null>(null);
-  if (districts.length === 0) {
-    return (
-      <p className="rp-prose">Too few sales of this type to rank districts.</p>
-    );
-  }
-  const lo = Math.min(
-    -2,
-    Math.floor(Math.min(...districts.map((d) => d.profile.p25OverAskingPct))),
-  );
-  const hi = Math.max(
-    10,
-    Math.ceil(Math.max(...districts.map((d) => d.profile.p75OverAskingPct))),
-  );
-  const x = (v: number) => `${((v - lo) / (hi - lo)) * 100}%`;
-  const ticks = [0, 5, 10, 15, 20, 25, 30].filter((t) => t >= lo && t <= hi);
-
-  return (
-    <div className="rp-rank">
-      <div className="rp-rank-axis" aria-hidden="true">
-        {ticks.map((t) => (
-          <span key={t} style={{ left: x(t) }}>
-            {t === 0 ? "Asking" : `+${t}%`}
-          </span>
-        ))}
-      </div>
-      <ol className="rp-rank-list">
-        {districts.map((d) => {
-          const slot = slots.get(d.key);
-          const on = selected.includes(d.key);
-          const p = d.profile;
-          return (
-            <li key={d.key}>
-              <button
-                type="button"
-                className={`rp-rank-row${on ? " rp-rank-row--on" : ""}`}
-                aria-pressed={on}
-                aria-label={`${d.label}: typically ${signed(p.medianOverAskingPct)} on asking. ${on ? "Remove from" : "Add to"} comparison`}
-                style={
-                  slot !== undefined
-                    ? ({
-                        "--series": `var(--series-${slot + 1})`,
-                      } as React.CSSProperties)
-                    : undefined
-                }
-                onClick={() => onToggle(d.key)}
-                onPointerEnter={() => setHover(d.key)}
-                onPointerLeave={() => setHover(null)}
-                onFocus={() => setHover(d.key)}
-                onBlur={() => setHover(null)}
-              >
-                <span className="rp-rank-name">
-                  {d.label}
-                  {d.key === homeArea && <em>Your search</em>}
-                </span>
-                <span className="rp-rank-track">
-                  <span className="rp-rank-zero" style={{ left: x(0) }} />
-                  <span
-                    className="rp-rank-range"
-                    style={{
-                      left: x(p.p25OverAskingPct),
-                      width: `calc(${x(p.p75OverAskingPct)} - ${x(p.p25OverAskingPct)})`,
-                    }}
-                  />
-                  <span
-                    className="rp-rank-dot"
-                    style={{ left: x(p.medianOverAskingPct) }}
-                  />
-                  {hover === d.key && (
-                    <span
-                      className="rp-rank-tip"
-                      style={{ left: x(p.medianOverAskingPct) }}
-                      role="tooltip"
-                    >
-                      Half sold between {signed(p.p25OverAskingPct)} and{" "}
-                      {signed(p.p75OverAskingPct)} · {p.count} sales
-                    </span>
-                  )}
-                </span>
-                <span className="rp-rank-value">
-                  {signed(p.medianOverAskingPct)}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-      <p className="rp-rank-key">
-        <span className="rp-rank-key-dot" /> Typical result
-        <span className="rp-rank-key-range" /> Middle half of sales
-      </p>
-    </div>
-  );
-}
-
-/* ---------- Chosen areas, with a picker for any area ---------- */
-
-function CompareChips({
-  areas,
-  compared,
-  slots,
-  onToggle,
-}: {
-  areas: MarketArea[];
-  compared: MarketArea[];
-  slots: Map<string, number>;
-  onToggle: (key: string) => void;
-}) {
-  const chosen = new Set(compared.map((a) => a.key));
-  const options = areas
-    .filter((a) => !chosen.has(a.key))
-    .sort((a, b) =>
-      a.kind === b.kind
-        ? a.label.localeCompare(b.label, "en-IE", { numeric: true })
-        : a.kind === "district"
-          ? -1
-          : 1,
-    );
-  return (
-    <div className="rp-compare-chips">
-      {compared.map((a) => (
-        <button
-          key={a.key}
-          type="button"
-          className="rp-compare-chip"
-          style={
-            {
-              "--series": `var(--series-${(slots.get(a.key) ?? 0) + 1})`,
-            } as React.CSSProperties
-          }
-          onClick={() => onToggle(a.key)}
-          aria-label={`Remove ${a.label} from comparison`}
-        >
-          <i aria-hidden="true" />
-          {a.label}
-          <span aria-hidden="true">×</span>
-        </button>
-      ))}
-      <label className="rp-compare-add">
-        <span className="rp-visually-hidden">Add an area to compare</span>
-        <select
-          value=""
-          onChange={(e) => e.target.value && onToggle(e.target.value)}
-        >
-          <option value="">
-            {compared.length >= MAX_COMPARE ? "Swap in an area" : "Add an area"}
-          </option>
-          <optgroup label="Postal districts">
-            {options
-              .filter((a) => a.kind === "district")
-              .map((a) => (
-                <option key={a.key} value={a.key}>
-                  {a.label}
-                </option>
-              ))}
-          </optgroup>
-          <optgroup label="Towns and neighbourhoods">
-            {options
-              .filter((a) => a.kind === "locality")
-              .map((a) => (
-                <option key={a.key} value={a.key}>
-                  {a.label}
-                </option>
-              ))}
-          </optgroup>
-        </select>
-      </label>
-    </div>
-  );
-}
-
-/* ---------- Quarter-by-quarter trend, one line per area ---------- */
-
-function TrendChart({
-  compared,
-  slots,
-}: {
-  compared: MarketArea[];
-  slots: Map<string, number>;
-}) {
+function TrendChart({ slots }: { slots: Array<MarketArea | null> }) {
   const box = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(640);
+  const [width, setWidth] = useState(900);
   const [hoverQ, setHoverQ] = useState<number | null>(null);
 
   useEffect(() => {
@@ -352,24 +285,22 @@ function TrendChart({
     return () => observer.disconnect();
   }, []);
 
-  const quarters = useMemo(() => {
-    const all = new Set<string>();
-    compared.forEach((a) => a.profile.trend.forEach((q) => all.add(q.quarter)));
-    return [...all].sort();
-  }, [compared]);
+  const series = slots
+    .map((area, i) => (area ? { area, slot: i + 1 } : null))
+    .filter((s): s is { area: MarketArea; slot: number } => Boolean(s));
 
-  if (compared.length === 0 || quarters.length < 2) {
-    return (
-      <div ref={box} className="rp-trend-empty">
-        Pick an area to see how its bidding has moved.
-      </div>
-    );
-  }
+  const quarters = [
+    ...new Set(
+      series.flatMap((s) => s.area.profile.trend.map((q) => q.quarter)),
+    ),
+  ].sort();
 
-  const height = 260;
-  const pad = { top: 18, right: 92, bottom: 30, left: 44 };
-  const values = compared.flatMap((a) =>
-    a.profile.trend.map((q) => q.medianOverAskingPct),
+  if (series.length === 0 || quarters.length < 2) return <div ref={box} />;
+
+  const height = 240;
+  const pad = { top: 20, right: 110, bottom: 28, left: 50 };
+  const values = series.flatMap((s) =>
+    s.area.profile.trend.map((q) => q.medianOverAskingPct),
   );
   const lo = Math.min(0, Math.floor(Math.min(...values) / 5) * 5);
   const hi = Math.max(10, Math.ceil(Math.max(...values) / 5) * 5);
@@ -380,30 +311,28 @@ function TrendChart({
   const ticks: number[] = [];
   for (let t = lo; t <= hi; t += 5) ticks.push(t);
 
-  // Direct labels at the line ends, nudged apart so they never overlap
-  const ends = compared
-    .map((a) => {
-      const last = a.profile.trend[a.profile.trend.length - 1];
+  const ends = series
+    .map(({ area, slot }) => {
+      const last = area.profile.trend[area.profile.trend.length - 1];
       return {
-        area: a,
-        y: vy(last.medianOverAskingPct),
+        area,
+        slot,
         x: qx(quarters.indexOf(last.quarter)),
+        y: vy(last.medianOverAskingPct),
       };
     })
     .sort((a, b) => a.y - b.y);
   for (let i = 1; i < ends.length; i++) {
-    if (ends[i].y - ends[i - 1].y < 16) ends[i].y = ends[i - 1].y + 16;
+    if (ends[i].y - ends[i - 1].y < 18) ends[i].y = ends[i - 1].y + 18;
   }
 
-  const hoverIndex = hoverQ;
-
   return (
-    <div ref={box} className="rp-trend-box">
+    <div ref={box} className="rp-glass rp-trend-card">
       <svg
         width={width}
         height={height}
         role="img"
-        aria-label={`Typical result on asking price by quarter for ${compared.map((a) => a.label).join(", ")}`}
+        aria-label={`Typical result on asking price by quarter for ${series.map((s) => s.area.label).join(", ")}`}
         onPointerMove={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const i = Math.round(
@@ -423,39 +352,36 @@ function TrendChart({
               y2={vy(t)}
               className={t === 0 ? "rp-trend-zero" : undefined}
             />
-            <text x={pad.left - 8} y={vy(t) + 4} textAnchor="end">
-              {t === 0 ? "Asking" : `${t > 0 ? "+" : ""}${t}%`}
+            <text x={pad.left - 10} y={vy(t) + 4} textAnchor="end">
+              {t === 0 ? "Asking" : `+${t}%`}
             </text>
           </g>
         ))}
         {quarters.map((q, i) =>
-          i % Math.ceil(quarters.length / 6) === 0 ||
+          i % Math.ceil(quarters.length / 5) === 0 ||
           i === quarters.length - 1 ? (
             <text
               key={q}
               className="rp-trend-q"
               x={qx(i)}
-              y={height - 8}
+              y={height - 6}
               textAnchor="middle"
             >
               {q.replace(" ", " ")}
             </text>
           ) : null,
         )}
-
-        {hoverIndex !== null && (
+        {hoverQ !== null && (
           <line
             className="rp-trend-cross"
-            x1={qx(hoverIndex)}
-            x2={qx(hoverIndex)}
+            x1={qx(hoverQ)}
+            x2={qx(hoverQ)}
             y1={pad.top}
             y2={pad.top + plotH}
           />
         )}
-
-        {compared.map((a) => {
-          const slot = (slots.get(a.key) ?? 0) + 1;
-          const points = a.profile.trend.map(
+        {series.map(({ area, slot }) => {
+          const points = area.profile.trend.map(
             (q) =>
               [
                 qx(quarters.indexOf(q.quarter)),
@@ -469,61 +395,59 @@ function TrendChart({
             )
             .join("");
           const last = points[points.length - 1];
+          const atHover =
+            hoverQ !== null
+              ? area.profile.trend.find((q) => q.quarter === quarters[hoverQ])
+              : undefined;
           return (
-            <g key={a.key} style={{ color: `var(--series-${slot})` }}>
+            <g
+              key={`${slot}-${area.key}`}
+              style={{ color: `var(--series-${slot})` }}
+            >
               <path d={d} className="rp-trend-line" />
               <circle
                 cx={last[0]}
                 cy={last[1]}
-                r={4.5}
+                r={5}
                 className="rp-trend-end"
               />
-              {hoverIndex !== null &&
-                a.profile.trend
-                  .filter((q) => q.quarter === quarters[hoverIndex])
-                  .map((q) => (
-                    <circle
-                      key={q.quarter}
-                      cx={qx(hoverIndex)}
-                      cy={vy(q.medianOverAskingPct)}
-                      r={4.5}
-                      className="rp-trend-end"
-                    />
-                  ))}
+              {atHover && hoverQ !== null && (
+                <circle
+                  cx={qx(hoverQ)}
+                  cy={vy(atHover.medianOverAskingPct)}
+                  r={5}
+                  className="rp-trend-end"
+                />
+              )}
             </g>
           );
         })}
-
-        {ends.map(({ area, x, y }) => (
-          <g key={area.key}>
-            <text className="rp-trend-label" x={x + 10} y={y + 4}>
-              {area.label}
-            </text>
-          </g>
+        {ends.map(({ area, slot, x, y }) => (
+          <text
+            key={`${slot}-${area.key}`}
+            className="rp-trend-label"
+            x={x + 12}
+            y={y + 4}
+          >
+            {area.label}
+          </text>
         ))}
       </svg>
-
-      {hoverIndex !== null && (
+      {hoverQ !== null && (
         <div
           className="rp-trend-tip"
-          style={{
-            left: Math.min(width - 190, Math.max(0, qx(hoverIndex) + 12)),
-          }}
+          style={{ left: Math.min(width - 200, Math.max(0, qx(hoverQ) + 14)) }}
           role="tooltip"
         >
-          <b>{quarters[hoverIndex]}</b>
-          {compared.map((a) => {
-            const q = a.profile.trend.find(
-              (t) => t.quarter === quarters[hoverIndex],
+          <b>{quarters[hoverQ]}</b>
+          {series.map(({ area, slot }) => {
+            const q = area.profile.trend.find(
+              (t) => t.quarter === quarters[hoverQ],
             );
             return (
-              <span key={a.key}>
-                <i
-                  style={{
-                    background: `var(--series-${(slots.get(a.key) ?? 0) + 1})`,
-                  }}
-                />
-                {a.label}
+              <span key={`${slot}-${area.key}`}>
+                <i style={{ background: `var(--series-${slot})` }} />
+                {area.label}
                 <em>
                   {q
                     ? `${signed(q.medianOverAskingPct)} · ${q.count} sales`
@@ -535,73 +459,5 @@ function TrendChart({
         </div>
       )}
     </div>
-  );
-}
-
-/* ---------- Side-by-side figures ---------- */
-
-function CompareTable({
-  compared,
-  slots,
-}: {
-  compared: MarketArea[];
-  slots: Map<string, number>;
-}) {
-  if (compared.length === 0) return null;
-  const rows: Array<{ label: string; value: (a: MarketArea) => string }> = [
-    {
-      label: "Typical result on asking",
-      value: (a) => signed(a.profile.medianOverAskingPct),
-    },
-    {
-      label: "Sold above asking",
-      value: (a) => `${Math.round(a.profile.shareAboveAsking * 100)}%`,
-    },
-    { label: "Typical sale price", value: (a) => euro(a.profile.medianPrice) },
-    {
-      label: "Price per m²",
-      value: (a) =>
-        a.profile.medianPricePerSqm
-          ? euro(a.profile.medianPricePerSqm)
-          : "Not enough data",
-    },
-    {
-      label: "Sales in the last year",
-      value: (a) => a.profile.count.toLocaleString("en-IE"),
-    },
-  ];
-  return (
-    <table className="rp-table rp-compare-table">
-      <thead>
-        <tr>
-          <th>
-            <span className="rp-visually-hidden">Figure</span>
-          </th>
-          {compared.map((a) => (
-            <th key={a.key} className="rp-num">
-              <i
-                style={{
-                  background: `var(--series-${(slots.get(a.key) ?? 0) + 1})`,
-                }}
-                aria-hidden="true"
-              />
-              {a.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={row.label}>
-            <td>{row.label}</td>
-            {compared.map((a) => (
-              <td key={a.key} className="rp-num">
-                {row.value(a)}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
   );
 }
