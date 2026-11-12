@@ -89,3 +89,38 @@ export function getSalesStore(): SalesStore {
   cached = buildStore(rawSales, Date.now());
   return cached;
 }
+
+export interface RegisterSale {
+  date: string;
+  address: string;
+  price: number;
+  newBuild: boolean;
+  areaKeys: string[];
+}
+
+let registerCache: { updated: string; sales: RegisterSale[] } | null = null;
+
+/**
+ * Recent sales from the public Property Price Register (sold prices only),
+ * written by scripts/update-ppr.mjs. Returns an empty set if the file is missing.
+ */
+export function getRegister(): { updated: string; sales: RegisterSale[] } {
+  if (registerCache) return registerCache;
+  const path = join(process.cwd(), 'public', 'ppr-dublin.json');
+  if (!existsSync(path)) return { updated: '', sales: [] };
+  const parsed = JSON.parse(readFileSync(path, 'utf-8')) as {
+    updated: string;
+    sales: Array<{ d: string; a: string; p: number; n: boolean }>;
+  };
+  registerCache = {
+    updated: parsed.updated,
+    sales: parsed.sales.map((s) => ({
+      date: s.d,
+      address: s.a,
+      price: s.p,
+      newBuild: s.n,
+      areaKeys: extractAreas(s.a, null).map((a) => a.key),
+    })),
+  };
+  return registerCache;
+}

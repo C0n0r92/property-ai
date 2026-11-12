@@ -575,6 +575,12 @@ async function saveProperties(properties: any[]): Promise<void> {
   writeFileSync(filePath, JSON.stringify(properties, null, 2));
   console.log(`✅ Saved ${properties.length} properties to JSON: ${filePath}`);
 
+  // --no-db: keep this run local (JSON only); upload later with `npm run upload:sold`
+  if (process.argv.includes('--no-db')) {
+    console.log('Skipping Supabase upload (--no-db)');
+    return;
+  }
+
   // Transform for Supabase
   const supabaseRecords: SoldPropertyRecord[] = properties.map(p => ({
     id: p.id,

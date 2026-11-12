@@ -6,6 +6,8 @@ import {
   maxAskingForBudget,
   predict,
   quantile,
+  quarterlyTrend,
+  sampleOverAsking,
   selectComparables,
   tidyAddress,
   toTypeGroup,
@@ -322,5 +324,51 @@ describe('analyse', () => {
       safeAsking: expect.any(Number),
     });
     expect(result.budget!.safeAsking).toBeLessThan(400_000);
+  });
+});
+
+describe('sampleOverAsking', () => {
+  it('returns one sorted value per sale when there are few sales', () => {
+    const sample = sampleOverAsking(spread(50, 0.95, 1.15), 300);
+    expect(sample.salesPerDot).toBe(1);
+    expect(sample.values).toHaveLength(50);
+    expect(sample.values[0]).toBeCloseTo(-5, 1);
+    expect(sample.values[49]).toBeCloseTo(15, 1);
+    expect([...sample.values].sort((a, b) => a - b)).toEqual(sample.values);
+  });
+
+  it('thins a large set evenly and reports how many sales each dot stands for', () => {
+    const sample = sampleOverAsking(spread(1200, 0.9, 1.3), 300);
+    expect(sample.values).toHaveLength(300);
+    expect(sample.salesPerDot).toBe(4);
+    // The thinned sample keeps the same middle
+    expect(sample.values[150]).toBeCloseTo(10, 0);
+  });
+});
+
+describe('quarterlyTrend', () => {
+  it('summarises an area by quarter and skips thin quarters', () => {
+    const q1 = spread(10, 1.0, 1.1, { t: Date.parse('2025-02-10'), soldDate: '2025-02-10' });
+    const q2 = spread(10, 1.1, 1.2, { t: Date.parse('2025-05-10'), soldDate: '2025-05-10' });
+    const thin = spread(3, 1.0, 1.1, { t: Date.parse('2025-08-10'), soldDate: '2025-08-10' });
+    const elsewhere = spread(10, 1.5, 1.6, {
+      areaKeys: ['d15'],
+      t: Date.parse('2025-02-10'),
+      soldDate: '2025-02-10',
+    });
+    const trend = quarterlyTrend([...q1, ...q2, ...thin, ...elsewhere], 'd8', AS_OF);
+    expect(trend.map((q) => q.quarter)).toEqual(['2025 Q1', '2025 Q2']);
+    expect(trend[0].medianOverAskingPct).toBeCloseTo(5, 0);
+    expect(trend[1].medianOverAskingPct).toBeCloseTo(15, 0);
+    expect(trend[0].count).toBe(10);
+    expect(trend[0].medianPrice).toBeGreaterThan(400_000);
+  });
+});
+
+describe('analyse evidence limit', () => {
+  it('returns as many recent sales as asked for', () => {
+    const query = { areaKey: 'd8', typeGroup: 'terraced' as const, beds: 3, askingPrice: 400_000 };
+    const result = analyse(spread(60, 0.95, 1.15), query, AS_OF, 40)!;
+    expect(result.evidence.recent).toHaveLength(40);
   });
 });

@@ -92,6 +92,8 @@ export interface RealPriceResult {
     to: string;
     recent: ComparableSale[];
   };
+  /** Over-asking % of the comparable sales, for the dot plot. */
+  dots: { values: number[]; salesPerDot: number };
   budget?: BudgetResult;
 }
 
@@ -315,7 +317,64 @@ function buildBidLadder(comps: Sale[], askingPrice: number): BidRung[] {
   return ladder;
 }
 
-export function analyse(sales: Sale[], query: Query, asOf: number): RealPriceResult | null {
+/**
+ * Over-asking percentages for a dot plot. Large sets are thinned evenly through
+ * the sorted values so the picture keeps its shape.
+ */
+export function sampleOverAsking(
+  comps: Sale[],
+  maxDots: number
+): { values: number[]; salesPerDot: number } {
+  const all = sortedRatios(comps).map((r) => Math.round((r - 1) * 1000) / 10);
+  if (all.length <= maxDots) return { values: all, salesPerDot: 1 };
+  const values = Array.from(
+    { length: maxDots },
+    (_, i) => all[Math.floor(((i + 0.5) * all.length) / maxDots)]
+  );
+  return { values, salesPerDot: Math.round(all.length / maxDots) };
+}
+
+export interface QuarterSummary {
+  quarter: string; // "2025 Q1"
+  count: number;
+  medianOverAskingPct: number;
+  medianPrice: number;
+}
+
+/** Quarter-by-quarter picture of an area, skipping quarters with too few sales. */
+export function quarterlyTrend(
+  sales: Sale[],
+  areaKey: string,
+  asOf: number,
+  minPerQuarter = 8
+): QuarterSummary[] {
+  const from = asOf - 3 * 365 * DAY_MS;
+  const groups = new Map<string, Sale[]>();
+  for (const sale of sales) {
+    if (sale.t < from || sale.t > asOf || !sale.areaKeys.includes(areaKey)) continue;
+    const month = Number(sale.soldDate.slice(5, 7));
+    const quarter = `${sale.soldDate.slice(0, 4)} Q${Math.ceil(month / 3)}`;
+    const group = groups.get(quarter) ?? [];
+    group.push(sale);
+    groups.set(quarter, group);
+  }
+  return [...groups.entries()]
+    .filter(([, group]) => group.length >= minPerQuarter)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([quarter, group]) => ({
+      quarter,
+      count: group.length,
+      medianOverAskingPct: (quantile(sortedRatios(group), 0.5) - 1) * 100,
+      medianPrice: quantile(group.map((g) => g.soldPrice).sort((a, b) => a - b), 0.5),
+    }));
+}
+
+export function analyse(
+  sales: Sale[],
+  query: Query,
+  asOf: number,
+  recentLimit = 5
+): RealPriceResult | null {
   const { comps, tier } = selectComparables(sales, query, asOf);
   if (tier === 'none') return null;
 
@@ -324,11 +383,12 @@ export function analyse(sales: Sale[], query: Query, asOf: number): RealPriceRes
     tier,
     prediction: predict(comps, query.askingPrice),
     bidLadder: buildBidLadder(comps, query.askingPrice),
+    dots: sampleOverAsking(comps, 300),
     evidence: {
       count: comps.length,
       from: byDate[byDate.length - 1].soldDate,
       to: byDate[0].soldDate,
-      recent: byDate.slice(0, 5).map((c) => ({
+      recent: byDate.slice(0, recentLimit).map((c) => ({
         address: tidyAddress(c.address),
         soldDate: c.soldDate,
         askingPrice: c.askingPrice,
