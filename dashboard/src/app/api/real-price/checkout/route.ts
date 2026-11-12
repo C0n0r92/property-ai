@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { buildReport, describeHome, REPORT_PRICE_CENTS } from '@/lib/real-price/report';
+import { insertRow } from '@/lib/real-price/db';
 import { checkoutSchema } from '@/lib/real-price/schema';
 
 function getStripe() {
@@ -26,11 +27,11 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: 'invalid_request' }, { status: 400 });
   }
-  const { query, label } = parsed.data;
+  const { query, address, eircode } = parsed.data;
 
   try {
     // Never take payment for a report we cannot produce
-    const report = buildReport(query, label);
+    const report = buildReport(query, address);
     if (!report) {
       return NextResponse.json({ error: 'not_enough_sales' }, { status: 422 });
     }
@@ -56,8 +57,21 @@ export async function POST(request: NextRequest) {
       metadata: {
         kind: 'real-price-report',
         query: JSON.stringify(query),
-        label: label ?? '',
+        address,
+        eircode: eircode ?? '',
       },
+    });
+
+    // Keep the home and its asking price: it is matched later against the
+    // Property Price Register to learn what it sold for
+    await insertRow('real_price_homes', {
+      address,
+      eircode: eircode ?? null,
+      area_key: query.areaKey,
+      type_group: query.typeGroup,
+      beds: query.beds ?? null,
+      asking_price: query.askingPrice,
+      source: 'checkout',
     });
 
     return NextResponse.json({ url: session.url });

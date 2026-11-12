@@ -8,6 +8,7 @@
 import { Metadata } from "next";
 import { BACKTEST } from "@/lib/real-price/backtest";
 import { analyse, extractAreas, tidyAddress } from "@/lib/real-price/model";
+import { toPublicResult } from "@/lib/real-price/public";
 import { REPORT_PRICE_CENTS } from "@/lib/real-price/report";
 import { querySchema } from "@/lib/real-price/schema";
 import { getSalesStore } from "@/lib/real-price/store";
@@ -99,7 +100,7 @@ export default async function RealPricePage({
         form,
         answer: {
           areaLabel: store.areaLabels.get(form.areaKey) ?? "Dublin",
-          result,
+          result: toPublicResult(result),
         },
       }}
     />

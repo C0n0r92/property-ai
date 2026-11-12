@@ -68,7 +68,9 @@ async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> 
   try {
     stored = {
       query: JSON.parse(session.metadata.query ?? ''),
-      label: session.metadata.label || undefined,
+      // Older sessions stored the cover text as "label"
+      address: session.metadata.address || session.metadata.label || '',
+      eircode: session.metadata.eircode || undefined,
     };
   } catch {
     return { problem: 'The report details on that payment are unreadable. Reply to your receipt email.' };
@@ -78,10 +80,10 @@ async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> 
     return { problem: 'The report details on that payment are unreadable. Reply to your receipt email.' };
   }
 
-  const report = buildReport(parsed.data.query, parsed.data.label);
+  const report = buildReport(parsed.data.query, parsed.data.address);
   return report
     ? { report, sample: false }
-    : { problem: 'There is no longer enough sales data for this home. Reply to your receipt email for a refund.' };
+    : { problem: 'There is no longer enough sales data for this home. Reply to your receipt email and we will sort it out.' };
 }
 
 function Folio({ page, total, report }: { page: number; total: number; report: ReportData }) {

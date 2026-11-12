@@ -3,12 +3,14 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { RealPriceResult, Tier, TypeGroup } from "@/lib/real-price/model";
+import type { Tier, TypeGroup } from "@/lib/real-price/model";
+import type { PublicResult } from "@/lib/real-price/public";
 import type { AreaOption } from "@/lib/real-price/store";
 import { trackEvent } from "@/lib/analytics";
 import DotPlot from "./DotPlot";
 import HeroScene from "./HeroScene";
 import RealPriceNav from "./RealPriceNav";
+import EmailResult from "./EmailResult";
 import ReportPreview from "./ReportPreview";
 import SalesBoard, { type BoardSale } from "./SalesBoard";
 
@@ -16,7 +18,7 @@ const Diorama = dynamic(() => import("./Diorama"), { ssr: false });
 
 export interface Answer {
   areaLabel: string;
-  result: RealPriceResult;
+  result: PublicResult;
 }
 
 interface FormState {
@@ -137,7 +139,9 @@ export default function RealPriceClient({
   const [bidPct, setBidPct] = useState(0);
   const [plotPlay, setPlotPlay] = useState<string | undefined>(undefined);
   const [no3d, setNo3d] = useState(false);
-  const [label, setLabel] = useState("");
+  const [address, setAddress] = useState("");
+  const [eircode, setEircode] = useState("");
+  const [offerError, setOfferError] = useState<string | null>(null);
   const [buying, setBuying] = useState(false);
   const [hovered, setHovered] = useState<number | null>(null);
   const [touched, setTouched] = useState(false);
@@ -163,8 +167,19 @@ export default function RealPriceClient({
   const formAreaLabel =
     areas.find((a) => a.key === form.areaKey)?.label ?? "choose an area";
   const dioramaSales = useMemo(
-    () => evidence.recent.slice(0, 5),
-    [evidence.recent],
+    () => [
+      ...evidence.recent.map((sale) => ({ ...sale, locked: false })),
+      // The rest of the street is in the report
+      ...Array.from({ length: Math.min(2, result.lockedSales) }, () => ({
+        address: "",
+        soldDate: "",
+        askingPrice: 0,
+        soldPrice: 0,
+        overAskingPct: 0,
+        locked: true,
+      })),
+    ],
+    [evidence.recent, result.lockedSales],
   );
   const hoveredSale = hovered === null ? null : (dioramaSales[hovered] ?? null);
 
@@ -304,8 +319,14 @@ export default function RealPriceClient({
   }, [no3d]);
 
   async function buyReport() {
+    if (address.trim().length < 6) {
+      setOfferError(
+        "Add the address of the home you’re bidding on. It goes on the cover.",
+      );
+      return;
+    }
     setBuying(true);
-    setError(null);
+    setOfferError(null);
     trackEvent({
       action: "real_price_report_checkout",
       category: "tools",
@@ -315,27 +336,30 @@ export default function RealPriceClient({
       const response = await fetch("/api/real-price/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: answeredFor, label: label || undefined }),
+        body: JSON.stringify({
+          query: answeredFor,
+          address: address.trim(),
+          eircode: eircode.trim() || undefined,
+        }),
       });
       const data = await response.json();
       if (response.ok && data.url) {
         window.location.href = data.url;
         return;
       }
-      setError(ERRORS[data.error] ?? ERRORS.checkout_failed);
+      setOfferError(
+        data.error === "invalid_request"
+          ? "Check the address and Eircode. An Eircode looks like D08 TW8P."
+          : (ERRORS[data.error] ?? ERRORS.checkout_failed),
+      );
     } catch {
-      setError(ERRORS.checkout_failed);
+      setOfferError(ERRORS.checkout_failed);
     }
     setBuying(false);
   }
 
   const beaten = dots.values.filter((v) => v <= bidPct).length;
   const bidPrice = Math.round((asking * (1 + bidPct / 100)) / 1000) * 1000;
-  const bids = [
-    { odds: "Even odds", price: prediction.mid },
-    { odds: "Wins three times in four", price: prediction.likelyHigh },
-    { odds: "Rarely beaten", price: prediction.high },
-  ];
 
   return (
     <>
@@ -523,7 +547,17 @@ export default function RealPriceClient({
             </div>
           </div>
 
-          <div className="rp-scene-box">
+          <div
+            className="rp-scene-box"
+            onClick={() => {
+              // A locked house leads to what the report holds
+              if (hoveredSale?.locked) {
+                document
+                  .getElementById("report")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          >
             {no3d ? (
               <HeroScene />
             ) : (
@@ -546,7 +580,19 @@ export default function RealPriceClient({
               <span>typical result on asking</span>
             </div>
 
-            {hoveredSale ? (
+            {hoveredSale?.locked ? (
+              <div className="rp-glass rp-sale-card" role="status">
+                <span className="rp-sale-card-address">
+                  {result.lockedSales} more sales in the report
+                </span>
+                <span className="rp-sale-card-row">
+                  Every address, asking price and sold price.
+                </span>
+                <span className="rp-sale-card-date rp-sale-card-cta">
+                  Click the house to see what the report includes
+                </span>
+              </div>
+            ) : hoveredSale ? (
               <div className="rp-glass rp-sale-card" role="status">
                 <span className="rp-sale-card-address">
                   {hoveredSale.address}
@@ -620,22 +666,42 @@ export default function RealPriceClient({
         </p>
 
         <div className="rp-bids">
-          {bids.map((bid) => {
-            const over = (bid.price / asking - 1) * 100;
-            return (
-              <button
-                key={bid.odds}
-                type="button"
-                className="rp-bid"
-                onClick={() => setBidPct(Math.round(over * 2) / 2)}
-              >
-                <span className="rp-bid-odds">{bid.odds}</span>
-                <span className="rp-bid-price">{euro(bid.price)}</span>
-                <span className="rp-bid-over">{signed(over)} on asking</span>
-              </button>
-            );
-          })}
+          <button
+            type="button"
+            className="rp-bid"
+            onClick={() =>
+              setBidPct(Math.round(prediction.medianOverAskingPct * 2) / 2)
+            }
+          >
+            <span className="rp-bid-odds">Even odds</span>
+            <span className="rp-bid-price">{euro(prediction.mid)}</span>
+            <span className="rp-bid-over">
+              {signed((prediction.mid / asking - 1) * 100)} on asking
+            </span>
+          </button>
+          {["Wins three times in four", "Rarely beaten"].map((odds) => (
+            <a key={odds} className="rp-bid rp-bid--locked" href="#report">
+              <span className="rp-bid-odds">{odds}</span>
+              <span className="rp-bid-price" aria-hidden="true">
+                €●●●,000
+              </span>
+              <span className="rp-bid-over">
+                <svg viewBox="0 0 12 12" aria-hidden="true">
+                  <path
+                    d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5M2.5 5.5h7v5h-7z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                In your report
+              </span>
+            </a>
+          ))}
         </div>
+
+        <EmailResult query={answeredFor} areaLabel={areaLabel} />
 
         <section className="rp-board-section">
           <div className="rp-board-intro">
@@ -657,8 +723,8 @@ export default function RealPriceClient({
             </h2>
             <p className="rp-offer-anchor">
               Here, an even-odds bid and one that is rarely beaten are{" "}
-              <strong>{euro(prediction.high - prediction.mid)} apart</strong>.
-              The report shows every comparable sale in that range, so you know
+              <strong>{euro(result.gapToRarelyBeaten)} apart</strong>. The
+              report shows every comparable sale in that range, so you know
               where to stop.
             </p>
             <ul className="rp-offer-list">
@@ -668,7 +734,8 @@ export default function RealPriceClient({
               </li>
               <li>
                 <strong>Every comparable sale</strong>: address, asking price,
-                sale price and date, for up to 72 homes.
+                sale price and date. You have seen {evidence.recent.length}; the
+                report has up to {Math.min(72, evidence.count)}.
               </li>
               <li>
                 <strong>How {areaLabel} is moving</strong>: over-asking and
@@ -679,14 +746,36 @@ export default function RealPriceClient({
                 national Property Price Register.
               </li>
             </ul>
-            <input
-              className="rp-label-input"
-              aria-label="Address to print on the cover (optional)"
-              placeholder="Address to print on the cover (optional)"
-              value={label}
-              maxLength={120}
-              onChange={(e) => setLabel(e.target.value)}
-            />
+            <div className="rp-home-fields">
+              <label className="rp-home-field rp-home-field--address">
+                <span>Address of the home you’re bidding on</span>
+                <input
+                  value={address}
+                  maxLength={120}
+                  autoComplete="street-address"
+                  placeholder="14 Rialto Street, Dublin 8"
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    setOfferError(null);
+                  }}
+                />
+              </label>
+              <label className="rp-home-field">
+                <span>Eircode (optional)</span>
+                <input
+                  value={eircode}
+                  maxLength={8}
+                  autoComplete="postal-code"
+                  placeholder="D08 TW8P"
+                  onChange={(e) => setEircode(e.target.value.toUpperCase())}
+                />
+              </label>
+            </div>
+            {offerError && (
+              <p className="rp-offer-error" role="alert">
+                {offerError}
+              </p>
+            )}
             <div className="rp-offer-actions">
               <button
                 type="button"
@@ -709,7 +798,7 @@ export default function RealPriceClient({
           </div>
           <ReportPreview
             title={
-              label.trim() ||
+              address.trim() ||
               `${areaLabel}, ${answeredFor.beds}-bed ${type.label}`
             }
             subtitle={`Asking ${euro(asking)}`}

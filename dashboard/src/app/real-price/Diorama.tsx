@@ -11,6 +11,8 @@ export interface DioramaSale {
   askingPrice: number;
   soldPrice: number;
   overAskingPct: number;
+  /** Held back for the report: shown as a teaser tag. */
+  locked?: boolean;
 }
 
 interface Props {
@@ -32,7 +34,11 @@ const easeOutBack = (p: number) => {
 const easeOutCubic = (p: number) => 1 - Math.pow(1 - p, 3);
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
-function tagTexture(pct: number, active: boolean): THREE.CanvasTexture {
+function tagTexture(
+  pct: number,
+  active: boolean,
+  locked = false,
+): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = 320;
   canvas.height = 150;
@@ -46,12 +52,22 @@ function tagTexture(pct: number, active: boolean): THREE.CanvasTexture {
   ctx.lineTo(160, 146);
   ctx.lineTo(180, 122);
   ctx.fill();
-  ctx.fillStyle = active ? "#ffffff" : pct > 0 ? "#b4232a" : "#4d586b";
+  ctx.fillStyle = active
+    ? "#ffffff"
+    : locked
+      ? "#a37a1f"
+      : pct > 0
+        ? "#b4232a"
+        : "#4d586b";
   ctx.font =
     '600 62px system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif';
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(`${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`, 160, 68);
+  ctx.fillText(
+    locked ? "Report" : `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`,
+    160,
+    68,
+  );
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 4;
@@ -351,7 +367,11 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
       );
       // Fixed to the block, not the house, so lifting a house on hover
       // does not move its target out from under the pointer
-      hit.position.set(house.position.x, GROUND + (h + 1.4) / 2, house.position.z);
+      hit.position.set(
+        house.position.x,
+        GROUND + (h + 1.4) / 2,
+        house.position.z,
+      );
       hit.userData.index = i;
       world.add(hit);
       hitBoxes.push(hit);
@@ -523,7 +543,11 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
       tag.visible = Boolean(sale);
       if (!sale) return;
       tag.material.map?.dispose();
-      tag.material.map = tagTexture(sale.overAskingPct, hovered === i);
+      tag.material.map = tagTexture(
+        sale.overAskingPct,
+        hovered === i,
+        sale.locked,
+      );
       tag.material.needsUpdate = true;
     };
 

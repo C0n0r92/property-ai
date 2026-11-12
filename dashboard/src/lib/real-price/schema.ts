@@ -10,8 +10,35 @@ export const querySchema = z.object({
   budget: price.optional(),
 });
 
+/**
+ * Eircode: a routing key (letter + two digits, or D6W) then four characters
+ * from the Eircode alphabet. The space is optional.
+ */
+const EIRCODE = /^(?:[AC-FHKNPRTV-Y]\d{2}|D6W)\s?[0-9AC-FHKNPRTV-Y]{4}$/i;
+
+export function isEircode(value: string): boolean {
+  return EIRCODE.test(value.trim());
+}
+
+const eircode = z
+  .string()
+  .trim()
+  .transform((v) => (v === '' ? undefined : v.replace(/\s/g, '').toUpperCase()))
+  .refine((v) => v === undefined || isEircode(v), { message: 'invalid_eircode' })
+  .optional();
+
 export const checkoutSchema = z.object({
   query: querySchema,
-  // Shown on the report cover, e.g. the address of the home being considered
-  label: z.string().trim().max(120).optional(),
+  // The home being bid on: printed on the report cover
+  address: z.string().trim().min(6).max(120),
+  eircode,
+});
+
+export const emailSchema = z.object({
+  email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
+  query: querySchema,
+  // Separate, optional consent for follow-up emails about similar sales
+  marketingConsent: z.boolean().default(false),
+  // Hidden field: real visitors leave it empty
+  company: z.string().max(200).optional(),
 });
