@@ -5,7 +5,19 @@ import { getAllSlugs, readArticle, readArticleMeta, RETIRED, RETIRED_SLUGS, topi
 import { areaSlug } from "@/lib/real-price/area-page";
 import { renderArticle } from "@/lib/blog-markdown";
 import { jsonLd, SITE_NAME, SITE_URL } from "@/lib/site";
-import ArticleChart from "./ArticleChart";
+import dynamic from "next/dynamic";
+import chartSpecs from "@/content/blog-charts.json";
+import PlotChart, { type ChartSpec } from "./PlotChart";
+
+// Charts not yet redrawn in Plot load the old library only when used
+const ArticleChart = dynamic(() => import("./ArticleChart"));
+const SPECS = chartSpecs as unknown as Record<string, ChartSpec>;
+/** Chart names used in older articles for charts that were later renamed. */
+const RENAMED: Record<string, string> = {
+  YieldDistributionChart: "YieldDistributionChartNew",
+  SizeEfficiencyChart: "SizeEfficiencyChartNew",
+  PremiumDistributionChart: "PremiumDistributionChartNew",
+};
 
 type Params = Promise<{ slug: string }>;
 
@@ -139,7 +151,17 @@ export default async function ArticlePage({ params }: { params: Params }) {
           </aside>
           {segments.map((segment, i) =>
             segment.type === "chart" ? (
-              <ArticleChart key={i} name={segment.name} />
+              (() => {
+                const name = RENAMED[segment.name] ?? segment.name;
+                const spec = SPECS[name];
+                return spec?.data?.length ? (
+                  <figure key={i} className="rp-article-chart">
+                    <PlotChart spec={spec} name={name} />
+                  </figure>
+                ) : (
+                  <ArticleChart key={i} name={segment.name} />
+                );
+              })()
             ) : (
               <div key={i} dangerouslySetInnerHTML={{ __html: segment.html }} />
             ),

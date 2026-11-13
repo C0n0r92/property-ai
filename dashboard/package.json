@@ -18,6 +18,7 @@
     "@deck.gl/core": "~9.4",
     "@deck.gl/layers": "~9.4",
     "@deck.gl/mapbox": "~9.4",
+    "@observablehq/plot": "^0.6.19",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
     "@react-three/postprocessing": "^3.2.2",
