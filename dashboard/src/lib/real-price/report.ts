@@ -6,6 +6,14 @@ import {
   type RealPriceResult,
   type TypeGroup,
 } from './model';
+import {
+  earlierSales,
+  getMarketInsights,
+  homeAndStreetHistory,
+  listingCut,
+  type MarketInsights,
+  type RegisterEntry,
+} from './insights';
 import { getRegister, getSalesStore } from './store';
 
 export const TYPE_LABELS: Record<TypeGroup, { single: string; plural: string }> = {
@@ -27,6 +35,16 @@ export interface ReportData {
     updated: string;
     sales: Array<{ date: string; address: string; price: number }>;
   };
+  /** What the wider data shows; all optional, so older reports still open */
+  insights?: {
+    market: MarketInsights | null;
+    /** The home's own and its street's register sales, when an address was given */
+    history: { home: RegisterEntry[]; street: RegisterEntry[]; streetName: string; specific: boolean } | null;
+    /** When each comparable had last sold before, keyed "address|soldDate" */
+    earlier: Record<string, { date: string; price: number }>;
+    /** The home's asking price was cut, if we have its listing */
+    cut: { first: number; latest: number; since: string } | null;
+  };
 }
 
 export function describeHome(query: Query, areaLabel: string): string {
@@ -46,6 +64,14 @@ export async function buildReport(query: Query, label?: string): Promise<ReportD
 
   const register = await getRegister();
   const home = describeHome(query, areaLabel);
+  const address = label?.trim();
+  // Each lookup is optional: a failure leaves that part out, never the report
+  const [market, history, earlier, cut] = await Promise.all([
+    getMarketInsights(),
+    address ? homeAndStreetHistory(address).catch(() => null) : null,
+    earlierSales(result.evidence.recent).catch(() => ({})),
+    address ? listingCut(address).catch(() => null) : null,
+  ]);
 
   return {
     query,
@@ -62,5 +88,6 @@ export async function buildReport(query: Query, label?: string): Promise<ReportD
         .slice(0, 12)
         .map(({ date, address, price }) => ({ date, address, price })),
     },
+    insights: { market, history, earlier, cut },
   };
 }

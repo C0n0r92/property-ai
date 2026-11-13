@@ -3204,3 +3204,51 @@
     animation: none;
   }
 }
+
+/* ---------- Report: what else the sales show ---------- */
+
+.rp-insights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5mm 7mm;
+  margin-top: 5mm;
+}
+
+.rp-insight {
+  break-inside: avoid;
+  padding: 4mm 0 0;
+  border-top: 0.4mm solid var(--ink);
+  font-size: 9.5pt;
+  line-height: 1.45;
+}
+
+.rp-insight--wide {
+  grid-column: 1 / -1;
+}
+
+.rp-insight h3 {
+  margin: 0 0 2mm;
+  font-size: 11pt;
+}
+
+.rp-insight p {
+  margin: 0 0 2mm;
+}
+
+.rp-insight-figure {
+  font-size: 11pt;
+}
+
+.rp-muted {
+  color: var(--ink-soft);
+}
+
+.rp-table--tight td {
+  padding-top: 1.2mm;
+  padding-bottom: 1.2mm;
+}
+
+.rp-table .rp-before {
+  padding-right: 4mm;
+  white-space: nowrap;
+}

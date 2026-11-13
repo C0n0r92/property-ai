@@ -25,10 +25,14 @@ export const dynamic = 'force-dynamic';
 
 const SAMPLE = {
   query: { areaKey: 'd8', typeGroup: 'terraced', beds: 2, askingPrice: 395_000 } as const,
-  label: '14 Example Terrace, Dublin 8',
+  // A real street with a long run of register sales, so the sample shows the street history
+  label: 'Rialto Cottages, Rialto, Dublin 8',
 };
 
 const euro = (value: number) => `€${Math.round(value).toLocaleString('en-IE')}`;
+const euroShort = (value: number) =>
+  value >= 1_000_000 ? `€${(value / 1_000_000).toFixed(2).replace(/0$/, '')}m` : `€${Math.round(value / 1000)}k`;
+const titleCase = (s: string) => s.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
 const signed = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
 const longDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -85,6 +89,146 @@ async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> 
   return report
     ? { report, sample: false, paidCents: session.amount_total ?? 0 }
     : { problem: 'There is no longer enough sales data for this home. Reply to your receipt email and we will sort it out.' };
+}
+
+/** Page: what our wider data shows about this home, its street and the market. */
+function InsightsPage({ report, ribbon, page, total }: { report: ReportData; ribbon: React.ReactNode; page: number; total: number }) {
+  const ins = report.insights!;
+  const m = ins.market;
+  const asking = report.query.askingPrice;
+  const history = ins.history;
+  const streetLabel = history?.street[0]
+    ? titleCase(history.street[0].address.split(',')[0].replace(/^(apartment|apt|unit|flat)\s+\S+\s+/i, '').replace(/^\d+[a-z]?\s+/i, ''))
+    : history
+      ? titleCase(history.streetName)
+      : '';
+  const lastOwn = history?.home[0];
+  const band = asking % 50_000 === 0 ? 'round' : asking % 50_000 >= 45_000 ? 'under' : 'other';
+  const pct = (v: number) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}%`;
+
+  return (
+    <section className="rp-page">
+      {ribbon}
+      <h2>What else the sales show</h2>
+      <p>
+        From every Dublin sale on the Property Price Register since 2010, and the asking prices we have collected
+        for the same homes.
+      </p>
+
+      <div className="rp-insights">
+        <div className="rp-insight rp-insight--wide">
+          <h3>This home on the register</h3>
+          {!history ? (
+            <p>No address was given with this report, so its own sales and its street&apos;s are not shown.</p>
+          ) : lastOwn ? (
+            <>
+              <p className="rp-insight-figure">
+                Last sold for <strong>{euro(lastOwn.price)}</strong> on {longDate(lastOwn.date)}.
+              </p>
+              <p>
+                Against today&apos;s asking price of {euro(asking)}, that is {pct((asking / lastOwn.price - 1) * 100)}.
+                {history.home.length > 1 &&
+                  ` Earlier sales: ${history.home
+                    .slice(1)
+                    .map((h) => `${euro(h.price)} in ${h.date.slice(0, 4)}`)
+                    .join(', ')}.`}
+              </p>
+            </>
+          ) : history.specific ? (
+            <p>No earlier sale of this address on the register since 2010.</p>
+          ) : (
+            <p>The address names the street only, so the home&apos;s own sales are not shown.</p>
+          )}
+        </div>
+
+        {history && history.street.length > 0 && (
+          <div className="rp-insight rp-insight--wide">
+            <h3>
+              Every sale on {streetLabel} since 2010 <span className="rp-muted">({history.street.length})</span>
+            </h3>
+            <table className="rp-table rp-table--tight">
+              <tbody>
+                {history.street.slice(0, 14).map((s) => (
+                  <tr key={`${s.address}-${s.date}`}>
+                    <td>{s.address.split(',')[0]}</td>
+                    <td className="rp-num">{shortDate(s.date)}</td>
+                    <td className="rp-num">{euro(s.price)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {history.street.length > 14 && <p className="rp-muted">and {history.street.length - 14} earlier sales.</p>}
+          </div>
+        )}
+
+        {m && (
+          <>
+            <div className="rp-insight">
+              <h3>If the asking price is cut</h3>
+              {ins.cut ? (
+                <p className="rp-insight-figure">
+                  This home&apos;s asking price was cut from {euro(ins.cut.first)} to {euro(ins.cut.latest)} (
+                  {pct((ins.cut.latest / ins.cut.first - 1) * 100)}).
+                </p>
+              ) : null}
+              <p>
+                Homes that cut their asking price (by {m.cuts.averageCutPct.toFixed(1)}% on average) sold for a typical{' '}
+                <strong>{pct(m.cuts.cutMedianOverAskingPct)}</strong> on the reduced price, and{' '}
+                {Math.round(m.cuts.cutShareAbove * 100)}% went above it. Homes that never changed it sold{' '}
+                {pct(m.cuts.unchangedMedianOverAskingPct)}, with {Math.round(m.cuts.unchangedShareAbove * 100)}% above.
+              </p>
+              <p className="rp-muted">From {m.cuts.cutCount} cut and {m.cuts.unchangedCount.toLocaleString('en-IE')} unchanged sales. Indicative: the number of cuts is still small.</p>
+            </div>
+
+            <div className="rp-insight">
+              <h3>Round and just-under asking prices</h3>
+              <p>
+                Since 2024, homes asking just under a round figure (such as €395,000) sold a typical{' '}
+                <strong>{pct(m.roundPricing.underMedianOverAskingPct)}</strong> over, with{' '}
+                {Math.round(m.roundPricing.underShareAbove * 100)}% above asking. Homes asking a round figure (such as
+                €400,000) sold {pct(m.roundPricing.roundMedianOverAskingPct)}, with{' '}
+                {Math.round(m.roundPricing.roundShareAbove * 100)}% above.
+              </p>
+              <p className="rp-muted">
+                {band === 'round'
+                  ? `This home asks a round ${euro(asking)}.`
+                  : band === 'under'
+                    ? `This home asks ${euro(asking)}, just under a round figure.`
+                    : `This home asks ${euro(asking)}, neither round nor just under.`}{' '}
+                The two go together; the price is not shown to cause the bidding.
+              </p>
+            </div>
+
+            <div className="rp-insight">
+              <h3>How long it takes</h3>
+              <p className="rp-insight-figure">
+                <strong>{m.timeline.median} days</strong> from first listed to the sale completing, typically.
+              </p>
+              <p>
+                Half of homes took between {m.timeline.p25} and {m.timeline.p75} days. The register records the date
+                the sale completed, so this includes conveyancing.
+              </p>
+              <p className="rp-muted">From {m.timeline.count.toLocaleString('en-IE')} Dublin sales.</p>
+            </div>
+
+            <div className="rp-insight">
+              <h3>Homes that sold before</h3>
+              <p>
+                {Math.round((m.repeat.withEarlier / m.repeat.matched) * 100)}% of the homes we have matched had sold
+                before since 2010. The typical one sold again {m.repeat.medianYears.toFixed(1)} years later for{' '}
+                <strong>{pct(m.repeat.medianGainPct)}</strong> more.
+              </p>
+              <p className="rp-muted">
+                Across Dublin, {m.repeat.homesSoldTwice.toLocaleString('en-IE')} homes have sold more than once since
+                2010.
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+      <Folio page={page} total={total} report={report} />
+    </section>
+  );
 }
 
 function Folio({ page, total, report }: { page: number; total: number; report: ReportData }) {
@@ -172,7 +316,8 @@ export default async function ReportPage({
   for (let i = 22; i < evidence.recent.length; i += 25) {
     comparablePages.push(evidence.recent.slice(i, i + 25));
   }
-  const total = 4 + comparablePages.length;
+  const ins = report.insights;
+  const total = 4 + comparablePages.length + (ins ? 1 : 0);
   const home = describeHome(query, areaLabel);
   const ribbon = isSample ? <div className="rp-sample">Sample</div> : null;
 
@@ -298,6 +443,7 @@ export default async function ReportPage({
             <thead>
               <tr>
                 <th>Address</th>
+                <th className="rp-num">Sold before</th>
                 <th className="rp-num">Sold</th>
                 <th className="rp-num">Asking</th>
                 <th className="rp-num">Sold for</th>
@@ -308,6 +454,12 @@ export default async function ReportPage({
               {rows.map((sale) => (
                 <tr key={`${sale.address}-${sale.soldDate}`}>
                   <td>{sale.address}</td>
+                  <td className="rp-num rp-muted rp-before">
+                    {(() => {
+                      const before = ins?.earlier[`${sale.address}|${sale.soldDate}`];
+                      return before ? `${euroShort(before.price)} in ${before.date.slice(0, 4)}` : '–';
+                    })()}
+                  </td>
                   <td className="rp-num">{shortDate(sale.soldDate)}</td>
                   <td className="rp-num">{euro(sale.askingPrice)}</td>
                   <td className="rp-num">{euro(sale.soldPrice)}</td>
@@ -358,8 +510,10 @@ export default async function ReportPage({
         ) : (
           <p>The register has no recent second-hand sales recorded under this area name.</p>
         )}
-        <Folio page={total - 1} total={total} report={report} />
+        <Folio page={total - (ins ? 2 : 1)} total={total} report={report} />
       </section>
+
+      {ins && <InsightsPage report={report} ribbon={ribbon} page={total - 1} total={total} />}
 
       {/* 5. Method */}
       <section className="rp-page">
