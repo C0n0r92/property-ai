@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { cleanSale, extractAreas, type RawSale, type Sale } from './model';
+import { getPool } from './pool';
 
 export interface AreaOption {
   key: string;
@@ -15,13 +16,14 @@ export interface SalesStore {
   asOf: number;
   areas: AreaOption[];
   areaLabels: Map<string, string>;
+  /** When this copy was built; caches derived from the store key on it. */
+  loadedAt: number;
 }
 
 /** An area needs this many sales in the last two years to be selectable. */
 const MIN_AREA_SALES = 40;
 const TWO_YEARS_MS = 730 * 86_400_000;
 
-let cached: SalesStore | null = null;
 
 function findDataFile(): string {
   const candidates = [
@@ -78,15 +80,53 @@ export function buildStore(rawSales: RawSale[], now: number): SalesStore {
       : a.label.localeCompare(b.label);
   });
 
-  return { sales, asOf, areas, areaLabels };
+  return { sales, asOf, areas, areaLabels, loadedAt: now };
 }
 
-/** Load and index the sold-property data once per server process. */
-export function getSalesStore(): SalesStore {
-  if (cached) return cached;
+/** How long a loaded copy is served before it is refreshed from the database. */
+const REFRESH_MS = 60 * 60 * 1000;
+
+let cached: SalesStore | null = null;
+let loading: Promise<SalesStore> | null = null;
+
+async function loadSales(): Promise<SalesStore> {
+  const pool = getPool();
+  if (pool) {
+    const { rows } = await pool.query(
+      `SELECT address, sold_date::text AS "soldDate", sold_price AS "soldPrice", asking_price AS "askingPrice",
+              beds, property_type AS "propertyType", dublin_postcode AS "dublinPostcode", sqm AS "areaSqm"
+         FROM sales`
+    );
+    return buildStore(rows as RawSale[], Date.now());
+  }
+  // No database configured: read the seed file (local development only)
   const parsed = JSON.parse(readFileSync(findDataFile(), 'utf-8'));
   const rawSales: RawSale[] = Array.isArray(parsed) ? parsed : parsed.properties ?? [];
-  cached = buildStore(rawSales, Date.now());
+  return buildStore(rawSales, Date.now());
+}
+
+function refresh(): Promise<SalesStore> {
+  loading ??= loadSales()
+    .then((store) => {
+      cached = store;
+      return store;
+    })
+    .finally(() => {
+      loading = null;
+    });
+  return loading;
+}
+
+/**
+ * The sales the pricing model works from, held in memory. The first call
+ * loads them; after that a stale copy is served while a fresh one loads, so
+ * new sales appear within the hour without a redeploy.
+ */
+export async function getSalesStore(): Promise<SalesStore> {
+  if (!cached) return refresh();
+  if (Date.now() - cached.loadedAt > REFRESH_MS) {
+    refresh().catch((error) => console.error('Sales refresh failed:', error));
+  }
   return cached;
 }
 
@@ -94,33 +134,40 @@ export interface RegisterSale {
   date: string;
   address: string;
   price: number;
-  newBuild: boolean;
   areaKeys: string[];
 }
 
-let registerCache: { updated: string; sales: RegisterSale[] } | null = null;
+let registerCache: { updated: string; sales: RegisterSale[]; loadedAt: number } | null = null;
 
 /**
- * Recent sales from the public Property Price Register (sold prices only),
- * written by scripts/update-ppr.mjs. Returns an empty set if the file is missing.
+ * Recent second-hand sales from the public Property Price Register (sold
+ * prices only), newest first.
  */
-export function getRegister(): { updated: string; sales: RegisterSale[] } {
-  if (registerCache) return registerCache;
-  const path = join(process.cwd(), 'public', 'ppr-dublin.json');
-  if (!existsSync(path)) return { updated: '', sales: [] };
-  const parsed = JSON.parse(readFileSync(path, 'utf-8')) as {
-    updated: string;
-    sales: Array<{ d: string; a: string; p: number; n: boolean }>;
-  };
+export async function getRegister(): Promise<{ updated: string; sales: RegisterSale[] }> {
+  if (registerCache && Date.now() - registerCache.loadedAt < REFRESH_MS) return registerCache;
+  const pool = getPool();
+  let rows: Array<{ date: string; address: string; price: number }> = [];
+  if (pool) {
+    rows = (
+      await pool.query(
+        `SELECT sold_date::text AS date, address, price FROM register_sales
+          WHERE NOT new_build AND sold_date >= CURRENT_DATE - INTERVAL '18 months'
+          ORDER BY sold_date DESC`
+      )
+    ).rows;
+  } else {
+    const path = join(process.cwd(), 'public', 'ppr-dublin.json');
+    if (existsSync(path)) {
+      const parsed = JSON.parse(readFileSync(path, 'utf-8')) as {
+        sales: Array<{ d: string; a: string; p: number; n: boolean }>;
+      };
+      rows = parsed.sales.filter((s) => !s.n).map((s) => ({ date: s.d, address: s.a, price: s.p }));
+    }
+  }
   registerCache = {
-    updated: parsed.updated,
-    sales: parsed.sales.map((s) => ({
-      date: s.d,
-      address: s.a,
-      price: s.p,
-      newBuild: s.n,
-      areaKeys: extractAreas(s.a, null).map((a) => a.key),
-    })),
+    updated: rows[0]?.date ?? '',
+    sales: rows.map((r) => ({ ...r, areaKeys: extractAreas(r.address, null).map((a) => a.key) })),
+    loadedAt: Date.now(),
   };
   return registerCache;
 }

@@ -63,7 +63,7 @@ export default async function RealPricePage({
 }: {
   searchParams: Promise<Params>;
 }) {
-  const store = getSalesStore();
+  const store = await getSalesStore();
   const linked = fromLink(await searchParams);
   const linkedResult =
     linked && store.areaLabels.has(linked.areaKey)
@@ -97,7 +97,7 @@ export default async function RealPricePage({
       reportPriceEuro={REPORT_PRICE_CENTS / 100}
       backtest={BACKTEST}
       boardSales={boardSales}
-      market={getMarket("all")}
+      market={await getMarket("all")}
       initial={{
         form,
         answer: {

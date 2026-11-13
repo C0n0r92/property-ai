@@ -20,13 +20,19 @@ export interface Market {
 const MIN_LOCALITY_SALES = 60;
 
 const cache = new Map<MarketType, Market>();
+let cacheFor = 0;
 
 /** Every area with enough recent sales, profiled for one home type (or all). */
-export function getMarket(type: MarketType): Market {
+export async function getMarket(type: MarketType): Promise<Market> {
+  const store = await getSalesStore();
+  // A refreshed store invalidates every profile
+  if (cacheFor !== store.loadedAt) {
+    cache.clear();
+    cacheFor = store.loadedAt;
+  }
   const hit = cache.get(type);
   if (hit) return hit;
 
-  const store = getSalesStore();
   const typeGroup = type === 'all' ? null : type;
   const areas: MarketArea[] = [];
   for (const area of store.areas) {

@@ -31,6 +31,18 @@ npm run update:parallel       # Run all scrapers + consolidate in parallel
 npm run upload:all            # Upload consolidated data to Supabase
 ```
 
+### Data pipeline (Postgres)
+```bash
+docker compose up -d db       # local database on port 55432
+cd pipeline
+npm run migrate               # apply db/*.sql
+npm run daily                 # register import + listing collection + matching
+npm run status                # row counts and recent runs
+```
+All housing records live in Postgres (`db/*.sql`). The Real Price pages read `sales` from it when
+`DATABASE_URL` is set and fall back to `dashboard/public/data.json` without it. See `pipeline/README.md`.
+The Daft.ie scrapers in `/scraper` no longer run (the site refuses automated visitors).
+
 ### Blog Analysis
 ```bash
 node scripts/analyze-blog{N}-data.js  # Generate analysis for blog N

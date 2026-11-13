@@ -35,6 +35,19 @@ services:
       - key: NEXT_PUBLIC_BASE_URL
         scope: RUN_AND_BUILD_TIME
         value: https://irishpropertydata.com
+      # Housing data (sales, register, listings) and report/email records
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+      # Set these three in the DigitalOcean dashboard, not in this file
+      - key: STRIPE_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SMTP_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: EMAIL_FROM
+        scope: RUN_TIME
     routes:
       - path: /
     health_check:
@@ -43,6 +56,44 @@ services:
       period_seconds: 10
       timeout_seconds: 5
       failure_threshold: 3
+databases:
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+
+jobs:
+  # Apply db/*.sql before each deploy
+  - name: migrate
+    kind: PRE_DEPLOY
+    dockerfile_path: Dockerfile.pipeline
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
+    run_command: npm run migrate
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+
+  # Register import, listing collection and matching, once a day
+  - name: daily-data
+    kind: SCHEDULED
+    schedule:
+      cron: "30 5 * * *"
+      time_zone: Europe/Dublin
+    dockerfile_path: Dockerfile.pipeline
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
+    run_command: npm run daily
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+
 domains:
   - domain: irishpropertydata.com
     type: PRIMARY

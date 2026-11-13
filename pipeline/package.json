@@ -1,0 +1,24 @@
+{
+  "name": "pipeline",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "migrate": "tsx src/migrate.ts",
+    "import:legacy": "tsx src/import-legacy.ts",
+    "ingest:register": "tsx src/ingest-register.ts",
+    "ingest:listings": "tsx src/ingest-listings.ts",
+    "match": "tsx src/match.ts",
+    "daily": "tsx src/daily.ts",
+    "status": "tsx src/status.ts"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pg": "^8.11.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5"
+  }
+}

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Never take payment for a report we cannot produce
-    const report = buildReport(query, address);
+    const report = await buildReport(query, address);
     if (!report) {
       return NextResponse.json({ error: 'not_enough_sales' }, { status: 422 });
     }

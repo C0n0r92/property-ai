@@ -37,8 +37,8 @@ export function describeHome(query: Query, areaLabel: string): string {
 }
 
 /** Everything the full report shows, or null when the evidence is too thin. */
-export function buildReport(query: Query, label?: string): ReportData | null {
-  const store = getSalesStore();
+export async function buildReport(query: Query, label?: string): Promise<ReportData | null> {
+  const store = await getSalesStore();
   const areaLabel = store.areaLabels.get(query.areaKey);
   if (!areaLabel) return null;
 
@@ -46,7 +46,7 @@ export function buildReport(query: Query, label?: string): ReportData | null {
   const result = analyse(store.sales, query, store.asOf, 72);
   if (!result) return null;
 
-  const register = getRegister();
+  const register = await getRegister();
   const home = describeHome(query, areaLabel);
 
   return {
@@ -60,7 +60,7 @@ export function buildReport(query: Query, label?: string): ReportData | null {
     register: {
       updated: register.updated,
       sales: register.sales
-        .filter((s) => !s.newBuild && s.areaKeys.includes(query.areaKey))
+        .filter((s) => s.areaKeys.includes(query.areaKey))
         .slice(0, 12)
         .map(({ date, address, price }) => ({ date, address, price })),
     },

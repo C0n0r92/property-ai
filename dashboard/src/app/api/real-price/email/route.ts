@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   if (company) return NextResponse.json({ emailed: true });
 
   try {
-    const store = getSalesStore();
+    const store = await getSalesStore();
     const areaLabel = store.areaLabels.get(query.areaKey);
     const full = areaLabel ? analyse(store.sales, query, store.asOf) : null;
     if (!areaLabel || !full) {

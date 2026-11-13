@@ -1,0 +1,12 @@
+.git
+**/node_modules
+**/.next
+**/.env*
+scraper
+pipeline/node_modules
+blogs
+docs
+data-pipeline
+*.md
+# Old daily copies of the dataset: about 700 MB the app never reads
+dashboard/public/data-20*.json

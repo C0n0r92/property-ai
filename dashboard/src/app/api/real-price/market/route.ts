@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'invalid_type' }, { status: 400 });
   }
   try {
-    return NextResponse.json(getMarket(parsed.data), {
+    return NextResponse.json(await getMarket(parsed.data), {
       headers: { 'Cache-Control': 'public, max-age=3600' },
     });
   } catch (error) {

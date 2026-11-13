@@ -117,10 +117,11 @@ const STREET_SUFFIX =
 
 export function toTypeGroup(raw: string | null | undefined): TypeGroup | null {
   const t = (raw ?? '').trim().toLowerCase();
-  if (t === 'terrace' || t === 'end of terrace' || t === 'townhouse') return 'terraced';
-  if (t === 'semi-d') return 'semi';
-  if (t === 'detached' || t === 'bungalow') return 'detached';
-  if (t === 'apartment' || t === 'duplex') return 'apartment';
+  // Order matters: "semi-detached" and "end of terrace" contain other type words
+  if (/semi/.test(t)) return 'semi';
+  if (/terrace|townhouse/.test(t)) return 'terraced';
+  if (/detached|bungalow/.test(t)) return 'detached';
+  if (/apartment|duplex|studio|flat/.test(t)) return 'apartment';
   return null;
 }
 

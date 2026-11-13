@@ -38,7 +38,7 @@ type Loaded = { report: ReportData; sample: boolean } | { problem: string };
 
 async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> {
   if (sample === '1') {
-    const report = buildReport({ ...SAMPLE.query }, SAMPLE.label);
+    const report = await buildReport({ ...SAMPLE.query }, SAMPLE.label);
     return report ? { report, sample: true } : { problem: 'The sample is unavailable right now.' };
   }
 
@@ -80,7 +80,7 @@ async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> 
     return { problem: 'The report details on that payment are unreadable. Reply to your receipt email.' };
   }
 
-  const report = buildReport(parsed.data.query, parsed.data.address);
+  const report = await buildReport(parsed.data.query, parsed.data.address);
   return report
     ? { report, sample: false }
     : { problem: 'There is no longer enough sales data for this home. Reply to your receipt email and we will sort it out.' };

@@ -56,6 +56,15 @@ describe('toTypeGroup', () => {
     expect(toTypeGroup('terrace')).toBe('terraced');
   });
 
+  it('understands listing-site type names', () => {
+    expect(toTypeGroup('Semi-Detached House')).toBe('semi');
+    expect(toTypeGroup('Terraced House')).toBe('terraced');
+    expect(toTypeGroup('End of Terrace House')).toBe('terraced');
+    expect(toTypeGroup('Detached House')).toBe('detached');
+    expect(toTypeGroup('Studio')).toBe('apartment');
+    expect(toTypeGroup('House')).toBeNull();
+  });
+
   it('returns null for sites and unknown types', () => {
     expect(toTypeGroup('Site')).toBeNull();
     expect(toTypeGroup('')).toBeNull();

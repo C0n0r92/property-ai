@@ -3,7 +3,7 @@
 -- ============================================
 -- Plain Postgres (DigitalOcean Managed Postgres or any Postgres 13+).
 -- Only the server writes to these tables, using DATABASE_URL.
--- Apply with: psql "$DATABASE_URL" -f db/001_real_price.sql
+-- Apply with: npm run migrate (in pipeline/)
 
 -- Homes people are bidding on, with the asking price they gave.
 -- Matched later against the Property Price Register to learn the sold price.

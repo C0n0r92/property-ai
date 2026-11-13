@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const store = getSalesStore();
+    const store = await getSalesStore();
     const areaLabel = store.areaLabels.get(parsed.data.areaKey);
     if (!areaLabel) {
       return NextResponse.json({ error: 'unknown_area' }, { status: 400 });
