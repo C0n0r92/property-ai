@@ -15,6 +15,8 @@ import RealPriceNav from "./RealPriceNav";
 import EmailResult from "./EmailResult";
 import MarketExplorer from "./MarketExplorer";
 import type { Market } from "@/lib/real-price/market";
+import type { MarketInsights } from "@/lib/real-price/insights";
+import { CountUp, Reveal } from "@/components/rp/motion";
 import PasteListing from "./PasteListing";
 import type { ListingAnswer } from "@/lib/real-price/listing-lookup";
 import ReportPreview from "./ReportPreview";
@@ -46,6 +48,8 @@ interface Props {
   initial: { form: FormState; answer: Answer };
   boardSales: BoardSale[];
   market: Market;
+  /** What the wider data shows; null without a database */
+  insights: MarketInsights | null;
   backtest: {
     testYear: number;
     salesTested: number;
@@ -159,6 +163,7 @@ export default function RealPriceClient({
   backtest,
   boardSales,
   market,
+  insights,
 }: Props) {
   const [form, setForm] = useState<FormState>(initial.form);
   const [priceText, setPriceText] = useState(
@@ -917,6 +922,54 @@ export default function RealPriceClient({
           </div>
           <SalesBoard sales={boardSales} />
         </section>
+
+        {insights && (
+          <Reveal as="section" className="rp-findings" aria-labelledby="rp-findings-title">
+            <h2 className="rp-h2" id="rp-findings-title">
+              What the sales show.
+            </h2>
+            <p className="rp-statement-sub">
+              From the register&apos;s sales since 2010, paired with the asking prices we hold.
+            </p>
+            <div className="rp-findings-grid">
+              <article className="rp-finding">
+                <p className="rp-finding-kicker">Homes that sell again</p>
+                <p className="rp-finding-figure">
+                  <CountUp value={insights.repeat.medianGainPct} format="signedPct" decimals={0} />
+                </p>
+                <p className="rp-finding-text">
+                  One in {Math.max(2, Math.round(insights.repeat.matched / Math.max(1, insights.repeat.withEarlier)))} homes
+                  we&apos;ve matched had sold before. The typical one sold again{" "}
+                  {insights.repeat.medianYears.toFixed(1)} years later for{" "}
+                  {Math.round(insights.repeat.medianGainPct)}% more. The full report shows the home&apos;s own sales
+                  history, and every sale on its street since 2010.
+                </p>
+              </article>
+              <article className="rp-finding">
+                <p className="rp-finding-kicker">€395,000 against €400,000</p>
+                <div className="rp-finding-pair">
+                  <div>
+                    <p className="rp-finding-figure">
+                      <CountUp value={insights.roundPricing.underMedianOverAskingPct} format="signedPct" />
+                    </p>
+                    <p className="rp-finding-label">just under a round figure</p>
+                  </div>
+                  <div>
+                    <p className="rp-finding-figure rp-finding-figure--soft">
+                      <CountUp value={insights.roundPricing.roundMedianOverAskingPct} format="signedPct" />
+                    </p>
+                    <p className="rp-finding-label">a round figure</p>
+                  </div>
+                </div>
+                <p className="rp-finding-text">
+                  Since 2024, homes asking just under a round figure sold further over asking, and more of them (
+                  {Math.round(insights.roundPricing.underShareAbove * 100)}% against{" "}
+                  {Math.round(insights.roundPricing.roundShareAbove * 100)}%) went above it.
+                </p>
+              </article>
+            </div>
+          </Reveal>
+        )}
 
         <section className="rp-offer" id="report">
           <div>

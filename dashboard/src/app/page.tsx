@@ -16,6 +16,7 @@ import {
   typicalAsking,
   type TypeGroup,
 } from "@/lib/real-price/model";
+import { getMarketInsights } from "@/lib/real-price/insights";
 import { getMarket } from "@/lib/real-price/market";
 import { toPublicResult } from "@/lib/real-price/public";
 import { reportPrice } from "@/lib/real-price/pricing";
@@ -193,6 +194,7 @@ export default async function RealPricePage({
       backtest={BACKTEST}
       boardSales={boardSales}
       market={await getMarket("all")}
+      insights={await getMarketInsights()}
       initial={{
         form,
         answer: {

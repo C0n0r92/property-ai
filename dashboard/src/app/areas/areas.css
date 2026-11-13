@@ -522,3 +522,194 @@
   height: 100%;
   background: var(--brass-bright);
 }
+
+/* ---------- The price check on an area page ---------- */
+
+.rp-areacheck {
+  max-width: 34rem;
+  scroll-margin-top: 6rem;
+}
+
+.rp-areacheck-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 6px 6px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(22, 34, 63, 0.14);
+  box-shadow: 0 12px 30px -18px rgba(22, 34, 63, 0.45);
+}
+
+.rp-areacheck-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(47, 79, 176, 0.12), 0 12px 30px -18px rgba(22, 34, 63, 0.45);
+}
+
+.rp-areacheck-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font: inherit;
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+
+.rp .rp-areacheck-search input:focus-visible {
+  outline: none;
+}
+
+.rp-areacheck-search > button,
+.rp-areacheck-go {
+  flex: none;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  background: var(--ink);
+  color: var(--paper);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.rp-areacheck-search > button:disabled,
+.rp-areacheck-go:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.rp-areacheck-suggest {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 50px -20px rgba(22, 34, 63, 0.45), 0 0 0 1px rgba(22, 34, 63, 0.08);
+}
+
+.rp-areacheck-suggest button {
+  display: grid;
+  gap: 0.1rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.rp-areacheck-suggest button:hover,
+.rp-areacheck-suggest button:focus-visible {
+  background: #f3f1ec;
+}
+
+.rp-areacheck-suggest small {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.rp-areacheck-manual {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.rp-areacheck-manual select,
+.rp-areacheck-asking {
+  height: 2.2rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  color: var(--ink);
+}
+
+.rp-areacheck-asking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.rp-areacheck-asking input {
+  width: 6.5rem;
+  border: 0;
+  outline: none;
+  font: inherit;
+  color: var(--ink);
+  background: none;
+}
+
+.rp-areacheck-go {
+  padding: 0.5rem 0.95rem;
+}
+
+.rp-areacheck-message {
+  margin: 0.7rem 0 0;
+  font-size: 0.88rem;
+  color: var(--red);
+}
+
+.rp-areacheck-answer {
+  margin-top: 1.2rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 40px -26px rgba(22, 34, 63, 0.5);
+  animation: rp-paste-in 300ms ease both;
+}
+
+.rp-areacheck-home {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.rp-areacheck-price {
+  margin: 0.3rem 0 0;
+  font-size: 1.15rem;
+}
+
+.rp-areacheck-price strong {
+  display: block;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.rp-areacheck-sub {
+  margin: 0.4rem 0 1rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.rp-areacheck-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+}
+
+.rp-area-more {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+}

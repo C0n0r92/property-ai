@@ -3252,3 +3252,73 @@
   padding-right: 4mm;
   white-space: nowrap;
 }
+
+/* ---------- What the sales show (landing) ---------- */
+
+.rp-findings {
+  margin-top: clamp(4rem, 9vw, 7rem);
+}
+
+.rp-findings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+  margin-top: 1.6rem;
+}
+
+@media (max-width: 760px) {
+  .rp-findings-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.rp-finding {
+  padding: clamp(1.4rem, 3vw, 2rem);
+  border-radius: 20px;
+  background:
+    radial-gradient(80% 90% at 100% 0%, rgba(255, 214, 190, 0.45), transparent 70%),
+    var(--sheet);
+  border: 1px solid var(--rule);
+  box-shadow: 0 22px 44px -32px rgba(22, 34, 63, 0.5);
+}
+
+.rp-finding-kicker {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.rp-finding-figure {
+  margin: 0.4rem 0 0;
+  font-size: clamp(2.6rem, 5vw, 3.6rem);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.rp-finding-figure--soft {
+  color: var(--ink-soft);
+}
+
+.rp-finding-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.rp-finding-label {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.rp-finding-text {
+  margin: 1rem 0 0;
+  font-family: var(--prose);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}

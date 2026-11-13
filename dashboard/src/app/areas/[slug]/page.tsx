@@ -14,6 +14,8 @@ import {
 import { getSalesStore } from "@/lib/real-price/store";
 import { jsonLd, SITE_URL } from "@/lib/site";
 import SalesBoard from "../../real-price/SalesBoard";
+import { reportPrice } from "@/lib/real-price/pricing";
+import AreaCheck from "../AreaCheck";
 import AreaStreet from "../AreaStreet";
 
 // Built from the live database on request. Pre-building at deploy time would
@@ -165,14 +167,25 @@ export default async function AreaPageView({ params }: { params: Params }) {
                 : `${pct(aboveDublin)} ${aboveDublin > 0 ? "hotter" : "cooler"} than Dublin as a whole`}
               .
             </p>
-            <div className="rp-hero-actions">
-              <Link href={checkLink(page.key)} className="rp-button rp-button--ink">
-                Check a home in {page.label}
-              </Link>
+            <AreaCheck
+              areaKey={page.key}
+              areaLabel={page.label}
+              priceLabel={reportPrice().label}
+              defaults={
+                page.typical[0]
+                  ? { typeGroup: page.typical[0].type, beds: page.typical[0].beds, askingPrice: page.typical[0].asking }
+                  : {
+                      typeGroup: page.street.type,
+                      beds: page.street.beds,
+                      askingPrice: Math.round(page.profile.medianPrice / 1.08 / 5000) * 5000,
+                    }
+              }
+            />
+            <p className="rp-area-more">
               <Link href="/areas" className="rp-link">
                 Compare every area
               </Link>
-            </div>
+            </p>
           </div>
 
           <AreaStreet sales={page.street.sales} type={page.street.type} beds={page.street.beds}>
@@ -409,9 +422,9 @@ export default async function AreaPageView({ params }: { params: Params }) {
               homes here really sold for.
             </p>
           </div>
-          <Link href={checkLink(page.key)} className="rp-button rp-button--ink">
+          <a href="#check" className="rp-button rp-button--ink">
             Check the home, free
-          </Link>
+          </a>
         </aside>
 
         <p className="rp-area-source">
