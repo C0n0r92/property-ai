@@ -38,11 +38,13 @@ services:
       - key: STRIPE_SECRET_KEY
         scope: RUN_TIME
         type: SECRET
+      # Resend (EU, domain mail.irishpropertydata.com): smtps://resend:<sending key>@smtp.resend.com:465
       - key: SMTP_URL
         scope: RUN_TIME
         type: SECRET
       - key: EMAIL_FROM
         scope: RUN_TIME
+        value: Irish Property Data <hello@mail.irishpropertydata.com>
     routes:
       - path: /
     health_check:

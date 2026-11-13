@@ -71,9 +71,9 @@ export default function RealPricePrivacy() {
           <h2>Who else handles it</h2>
           <p>
             Our database and website are hosted by DigitalOcean in Frankfurt.
-            Stripe handles payments, an email delivery service sends the
-            emails, and PostHog (in the EU) and Google Analytics count visits
-            as described above. We do not sell or share your details with
+            Stripe handles payments, Resend (in the EU) sends the emails, and
+            PostHog (in the EU) and Google Analytics count visits as described
+            above. We do not sell or share your details with
             anyone else.
           </p>
 
