@@ -1397,7 +1397,8 @@
 .rp-board-head,
 .rp-board-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 7.5rem 12.5rem;
+  /* The last column fits a seven-figure price plus its percentage */
+  grid-template-columns: minmax(0, 1fr) 7.5rem 14.75rem;
   align-items: center;
   gap: 1rem;
 }
@@ -1439,6 +1440,10 @@
 .rp-board-area {
   font-size: 0.82rem;
   color: #8c97b1;
+}
+
+.rp-board-asked-inline {
+  display: none;
 }
 
 .rp-board-num {
@@ -1729,6 +1734,16 @@
 
   .rp-board-delta {
     display: none;
+  }
+
+  .rp-board-asked-inline {
+    display: inline;
+  }
+
+  .rp-board-area {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .rp-flap {
@@ -2303,12 +2318,13 @@
 .rp-copy {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .rp-copy svg {
-  width: 1em;
-  height: 1em;
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
 }
 
 .rp-check-area {
@@ -2394,4 +2410,25 @@
 
 .rp-home-optional[open] summary {
   margin-bottom: 0.8rem;
+}
+
+/* The site layout leaves room under every page for its phone tab bar, which
+   these pages do not show. Without this a dark strip sits below the footer. */
+main:has(> .rp) {
+  padding-bottom: 0;
+}
+
+/* Wording that depends on whether the visitor has a pointer or a touch screen */
+.rp-touch-only {
+  display: none;
+}
+
+@media (hover: none) {
+  .rp-touch-only {
+    display: inline;
+  }
+
+  .rp-pointer-only {
+    display: none;
+  }
 }

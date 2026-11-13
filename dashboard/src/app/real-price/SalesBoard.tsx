@@ -131,7 +131,14 @@ export default function SalesBoard({ sales, rows = 6 }: Props) {
             <li key={`${page}-${i}`} className="rp-board-row">
               <span className="rp-board-home">
                 <span className="rp-board-address">{sale.address}</span>
-                <span className="rp-board-area">{sale.area}</span>
+                <span className="rp-board-area">
+                  {sale.area}
+                  {/* On a phone the Asked column is folded into this line */}
+                  <span className="rp-board-asked-inline">
+                    {" · asked "}
+                    {euro(sale.askingPrice)}
+                  </span>
+                </span>
               </span>
               <span className="rp-board-num rp-board-asked">
                 {euro(sale.askingPrice)}

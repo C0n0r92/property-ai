@@ -73,6 +73,9 @@ const ERRORS: Record<string, string> = {
 const euro = (value: number) => `€${Math.round(value).toLocaleString("en-IE")}`;
 const signed = (value: number) =>
   `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+/** Comparable sales listed in the paid report (see lib/real-price/report.ts). */
+const REPORT_SALES = 72;
+const COUNT_WORDS = ["", "one", "two", "three", "four", "five"];
 const longDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-IE", {
     day: "numeric",
@@ -597,12 +600,15 @@ export default function RealPriceClient({
               <a className="rp-link" href="#bid">
                 Try a bid first
               </a>
+              <Link className="rp-link" href="/real-price/report?sample=1">
+                See a sample report
+              </Link>
               <button
                 type="button"
                 className="rp-link rp-copy"
                 onClick={copyLink}
               >
-                <svg viewBox="0 0 16 16" aria-hidden="true">
+                <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
                   {copied ? (
                     <path
                       d="M3 8.5 6.5 12 13 4.5"
@@ -660,7 +666,8 @@ export default function RealPriceClient({
               className="rp-glass rp-glass--b"
               style={{ animationDelay: "-3s, 150ms" }}
             >
-              <b>{signed(prediction.medianOverAskingPct)}</b>
+              {/* Worked from the rounded headline price, so it agrees with the bid tile below */}
+              <b>{signed((prediction.mid / asking - 1) * 100)}</b>
               <span>typical sale price vs asking</span>
             </div>
 
@@ -701,8 +708,14 @@ export default function RealPriceClient({
             ) : (
               !no3d && (
                 <p className="rp-scene-note">
-                  The five most recent similar sales. Point at a house to see
-                  what it sold for.
+                  {evidence.recent.length === 1
+                    ? "The most recent similar sale."
+                    : `The ${COUNT_WORDS[evidence.recent.length] ?? evidence.recent.length} most recent similar sales.`}{" "}
+                  <span className="rp-pointer-only">Point at</span>
+                  <span className="rp-touch-only">Tap</span> a house to see what
+                  it sold for.
+                  {result.lockedSales > 0 &&
+                    ` ${result.lockedSales} more are in the report.`}
                 </p>
               )
             )}
@@ -825,7 +838,11 @@ export default function RealPriceClient({
               <li>
                 <strong>Every comparable sale</strong>: address, asking price,
                 sale price and date. You have seen {evidence.recent.length}; the
-                report has up to {Math.min(72, evidence.count)}.
+                report has{" "}
+                {evidence.count <= REPORT_SALES
+                  ? `all ${evidence.count}`
+                  : `the ${REPORT_SALES} most recent of ${evidence.count.toLocaleString("en-IE")}`}
+                .
               </li>
               <li>
                 <strong>How {areaLabel} is moving</strong>: over-asking and
@@ -942,7 +959,7 @@ export default function RealPriceClient({
 
         <footer className="rp-footer">
           <span>
-            Sales up to {longDate(dataTo)}, refreshed daily. Not a valuation.
+            Sales up to {longDate(dataTo)}. Not a valuation.
           </span>
           <span>
             <Link href="/real-price/privacy">Privacy</Link>

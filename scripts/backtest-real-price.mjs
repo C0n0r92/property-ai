@@ -5,7 +5,7 @@
  * price using only sales that closed before it, then check how often the real
  * price landed inside the predicted ranges.
  *
- * Usage: node scripts/backtest-real-price.mjs [testYear] [sampleEvery]
+ * Usage: [SALES_FILE=sales.json] node scripts/backtest-real-price.mjs [testYear] [sampleEvery]
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -15,8 +15,12 @@ const DAY_MS = 86_400_000;
 const testYear = process.argv[2] ?? '2025';
 const sampleEvery = Number(process.argv[3] ?? 3);
 
-const dataPath = fileURLToPath(new URL('../dashboard/public/data.json', import.meta.url));
-const raw = JSON.parse(readFileSync(dataPath, 'utf-8')).properties;
+// SALES_FILE points at an export of the database's sales table (a JSON array
+// with the same field names). Without it the old seed file is used, which
+// stops in early 2026 and no longer matches what the page serves.
+const dataPath = process.env.SALES_FILE ?? fileURLToPath(new URL('../dashboard/public/data.json', import.meta.url));
+const parsed = JSON.parse(readFileSync(dataPath, 'utf-8'));
+const raw = Array.isArray(parsed) ? parsed : parsed.properties;
 const sales = raw.map((r) => cleanSale(r, Date.now())).filter(Boolean);
 const test = sales
   .filter((s) => s.soldDate.startsWith(testYear) && s.typeGroup && s.areaKeys.length > 0)
