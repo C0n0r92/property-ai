@@ -1,26 +1,30 @@
 name: irish-property-data
 region: fra
-# Deployed from images in DigitalOcean's container registry ("gaff"), built
-# and pushed by scripts/deploy.sh. TAG is replaced with the git commit when
-# the script deploys; the images are built from Dockerfile (web) and
-# Dockerfile.pipeline (jobs).
 services:
   - name: web
-    image:
-      registry_type: DOCR
-      repository: web
-      tag: TAG
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
+      deploy_on_push: true
+    # Built from the repository's Dockerfile: the app is a standalone Next.js
+    # server (output: 'standalone'), which "next start" cannot run
+    dockerfile_path: Dockerfile
+    source_dir: /
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
     http_port: 8080
     envs:
-      # Baked into the image at build time by scripts/deploy.sh; listed so
-      # the running server sees the same value
       - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         value: G-43FMLL1ZG0
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      - key: NEXT_PUBLIC_BASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://irishpropertydata.com
       - key: NEXT_PUBLIC_SITE_URL
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         value: https://irishpropertydata.com
       # Housing data (sales, register, listings) and report/email records
       - key: DATABASE_URL
@@ -30,8 +34,7 @@ services:
       - key: DATABASE_CA_CERT
         scope: RUN_TIME
         value: ${db.CA_CERT}
-      # Secrets: set in the DigitalOcean dashboard (or by the first deploy),
-      # never in this file
+      # Set these in the DigitalOcean dashboard, not in this file
       - key: STRIPE_SECRET_KEY
         scope: RUN_TIME
         type: SECRET
@@ -62,10 +65,10 @@ jobs:
   # Apply db/*.sql before each deploy
   - name: migrate
     kind: PRE_DEPLOY
-    image:
-      registry_type: DOCR
-      repository: pipeline
-      tag: TAG
+    dockerfile_path: Dockerfile.pipeline
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
     run_command: npm run migrate
     instance_size_slug: apps-s-1vcpu-0.5gb
     envs:
@@ -83,10 +86,10 @@ jobs:
     schedule:
       cron: "30 5 * * *"
       time_zone: Europe/Dublin
-    image:
-      registry_type: DOCR
-      repository: pipeline
-      tag: TAG
+    dockerfile_path: Dockerfile.pipeline
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
     run_command: npm run daily
     instance_size_slug: apps-s-1vcpu-0.5gb
     envs:
