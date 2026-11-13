@@ -27,9 +27,9 @@ docker compose exec -T db psql -U gaff -d gaff -Atc \
 echo "Copying..."
 docker compose exec -T db pg_dump -U gaff -d gaff --format=custom --no-owner --no-privileges \
     --exclude-table-data=real_price_homes --exclude-table-data=real_price_leads \
-  | docker run --rm -i postgres:17-alpine pg_restore --no-owner --no-privileges --clean --if-exists \
+  | docker run --rm -i postgres:16-alpine pg_restore --no-owner --no-privileges --clean --if-exists \
     --exit-on-error -d "$TARGET_DATABASE_URL"
 
 echo "Managed database row counts:"
-docker run --rm postgres:17-alpine psql "$TARGET_DATABASE_URL" -Atc \
+docker run --rm postgres:16-alpine psql "$TARGET_DATABASE_URL" -Atc \
   "SELECT 'sales ' || count(*) FROM sales UNION ALL SELECT 'register_sales ' || count(*) FROM register_sales UNION ALL SELECT 'listings ' || count(*) FROM listings UNION ALL SELECT 'listing_prices ' || count(*) FROM listing_prices"
