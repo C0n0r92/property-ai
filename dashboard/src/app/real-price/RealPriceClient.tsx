@@ -590,6 +590,7 @@ export default function RealPriceClient({
             ) : (
               <Diorama
                 sales={dioramaSales}
+                type={answeredFor.typeGroup}
                 onHover={setHovered}
                 onUnavailable={() => setNo3d(true)}
               />

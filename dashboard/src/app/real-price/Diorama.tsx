@@ -18,6 +18,8 @@ export interface DioramaSale {
 interface Props {
   /** The most recent comparable sales: one house each, left to right. */
   sales: DioramaSale[];
+  /** What kind of home the street is built from. */
+  type: "apartment" | "terraced" | "semi" | "detached";
   /** Index of the house under the pointer, or null. */
   onHover?: (index: number | null) => void;
   onUnavailable?: () => void;
@@ -75,13 +77,24 @@ function tagTexture(
 }
 
 /**
- * A clay-style isometric model of a Dublin terrace. Each house stands for one
+ * A clay-style isometric model of a Dublin street, built from the kind of
+ * home being checked: a brick terrace, pairs of semis, detached houses or a
+ * block of flats. Changing the type knocks the street down and raises the
+ * new one. Each house stands for one
  * of the most recent comparable sales and carries a tag showing how far over
  * (or under) its asking price it sold. Hovering a house lifts it.
  */
-export default function Diorama({ sales, onHover, onUnavailable }: Props) {
+export default function Diorama({
+  sales,
+  type,
+  onHover,
+  onUnavailable,
+}: Props) {
   const mount = useRef<HTMLDivElement>(null);
-  const api = useRef<{ setSales: (sales: DioramaSale[]) => void } | null>(null);
+  const api = useRef<{
+    setSales: (sales: DioramaSale[]) => void;
+    setType: (type: Props["type"]) => void;
+  } | null>(null);
   const hoverCallback = useRef(onHover);
 
   useEffect(() => {
@@ -221,24 +234,156 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
     add(world, box(14.2, 0.14, 0.55, 0.05), mat(0xece6dc, 0.8), 0, 0.27, 4.68);
 
     const GROUND = 0.3;
-    const houses: THREE.Group[] = [];
+    const SLATE = 0x57618f;
+    const TRIM = 0xf6efe6;
+    let houses: THREE.Group[] = [];
+    let hitBoxes: THREE.Mesh[] = [];
+    let extras: THREE.Object3D[] = [];
     const tags: THREE.Sprite[] = [];
-    const hitBoxes: THREE.Mesh[] = [];
 
-    for (let i = 0; i < HOUSE_COUNT; i++) {
+    /** A pitched roof: a triangle `span` wide and `rise` tall, `run` long. */
+    const pitched = (span: number, rise: number, run: number) => {
+      const shape = new THREE.Shape();
+      shape.moveTo(-span / 2, 0);
+      shape.lineTo(span / 2, 0);
+      shape.lineTo(0, rise);
+      shape.closePath();
+      const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth: run,
+        bevelEnabled: true,
+        bevelSize: 0.05,
+        bevelThickness: 0.05,
+        bevelSegments: 3,
+      });
+      geometry.translate(0, 0, -run / 2);
+      return geometry;
+    };
+    const glass = (lit: boolean) =>
+      lit
+        ? mat(0xffd98a, 0.4, { emissive: 0xffb84a, emissiveIntensity: 0.9 })
+        : mat(0x34406a, 0.12, { metalness: 0.1 });
+    const isLit = (i: number, floor: number, side: number) =>
+      (i * 3 + floor * 2 + (side > 0 ? 1 : 0)) % 4 === 0;
+    const sash = (
+      house: THREE.Group,
+      x: number,
+      y: number,
+      z: number,
+      lit: boolean,
+      w = 0.64,
+      h = 0.84,
+    ) => {
+      add(house, box(w, h, 0.1, 0.04), mat(TRIM, 0.5), x, y, z + 0.01);
+      add(
+        house,
+        box(w - 0.16, h - 0.16, 0.1, 0.03),
+        glass(lit),
+        x,
+        y,
+        z + 0.04,
+      );
+      add(
+        house,
+        box(w - 0.14, 0.025, 0.11, 0.01),
+        mat(TRIM, 0.5),
+        x,
+        y,
+        z + 0.07,
+      );
+    };
+    const frontDoor = (
+      house: THREE.Group,
+      x: number,
+      z: number,
+      color: number,
+    ) => {
+      add(house, box(0.8, 1.55, 0.12, 0.05), mat(TRIM, 0.5), x, 0.78, z + 0.02);
+      add(
+        house,
+        box(0.54, 1.02, 0.12, 0.04),
+        mat(color, 0.28),
+        x,
+        0.55,
+        z + 0.07,
+      );
+      add(
+        house,
+        box(0.5, 0.26, 0.1, 0.1),
+        mat(0x3a4770, 0.15),
+        x,
+        1.27,
+        z + 0.07,
+      );
+      add(
+        house,
+        new THREE.SphereGeometry(0.055, 16, 16),
+        mat(0xe8c46a, 0.25, { metalness: 0.8 }),
+        x + 0.17,
+        0.58,
+        z + 0.15,
+      );
+      add(
+        house,
+        box(0.98, 0.16, 0.55, 0.05),
+        mat(0xdcd5ca, 0.85),
+        x,
+        0.08,
+        z + 0.3,
+      );
+    };
+    const chimney = (house: THREE.Group, x: number, y: number, z: number) => {
+      add(
+        house,
+        box(0.52, 0.95, 0.52, 0.07),
+        mat(0xa8584a, 0.7),
+        x,
+        y + 0.4,
+        z,
+      );
+      [-0.12, 0.12].forEach((dx) =>
+        add(
+          house,
+          new THREE.CylinderGeometry(0.08, 0.1, 0.28, 16),
+          mat(0xd9855f, 0.55),
+          x + dx,
+          y + 1.0,
+          z,
+        ),
+      );
+    };
+    const hedge = (x: number, z: number, length: number) => {
+      const mesh = add(
+        world,
+        box(0.34, 0.5, length, 0.14),
+        mat(0x5fae5a, 0.75),
+        x,
+        GROUND + 0.25,
+        z,
+      );
+      extras.push(mesh);
+    };
+
+    interface Built {
+      house: THREE.Group;
+      /** Height the price tag floats above. */
+      top: number;
+      w: number;
+      d: number;
+    }
+
+    /** Three-storey brick terrace with a parapet: the Dublin city street. */
+    const terraced = (i: number): Built => {
       const house = new THREE.Group();
       const w = 2.3;
       const d = 2.6;
       const h = 3.6 + (i % 2 === 1 ? 0.35 : 0);
-      house.position.set((i - (HOUSE_COUNT - 1) / 2) * 2.42, GROUND, -0.9);
-      house.userData.baseY = GROUND;
       const front = d / 2;
-
+      house.position.set((i - 2) * 2.42, GROUND, -0.9);
       add(house, box(w, h, d, 0.12), mat(BRICKS[i], 0.72), 0, h / 2, 0);
       add(
         house,
         box(w + 0.14, 0.24, d + 0.14, 0.07),
-        mat(0xf6efe6, 0.5),
+        mat(TRIM, 0.5),
         0,
         h + 0.02,
         0,
@@ -246,136 +391,319 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
       add(
         house,
         box(w - 0.3, 0.34, d - 0.3, 0.14),
-        mat(0x57618f, 0.45),
+        mat(SLATE, 0.45),
         0,
         h + 0.22,
         0,
       );
-      add(
-        house,
-        box(0.52, 0.95, 0.52, 0.07),
-        mat(0xa8584a, 0.7),
-        -w / 2 + 0.46,
-        h + 0.6,
-        -0.65,
-      );
-      [-0.12, 0.12].forEach((dx) =>
-        add(
-          house,
-          new THREE.CylinderGeometry(0.08, 0.1, 0.28, 16),
-          mat(0xd9855f, 0.55),
-          -w / 2 + 0.46 + dx,
-          h + 1.2,
-          -0.65,
-        ),
-      );
+      chimney(house, -w / 2 + 0.46, h + 0.2, -0.65);
       // A string course between floors, as on Georgian brick
       add(
         house,
         box(w + 0.02, 0.07, d + 0.02, 0.02),
-        mat(0xf6efe6, 0.6),
+        mat(TRIM, 0.6),
         0,
         1.65,
         0,
       );
-
-      // Door with surround, fanlight, knocker and step
       const doorX = i % 2 === 0 ? -0.55 : 0.55;
-      add(
-        house,
-        box(0.8, 1.55, 0.12, 0.05),
-        mat(0xf6efe6, 0.5),
-        doorX,
-        0.78,
-        front + 0.02,
-      );
-      add(
-        house,
-        box(0.54, 1.02, 0.12, 0.04),
-        mat(DOORS[i], 0.28),
-        doorX,
-        0.55,
-        front + 0.07,
-      );
-      add(
-        house,
-        box(0.5, 0.26, 0.1, 0.1),
-        mat(0x3a4770, 0.15),
-        doorX,
-        1.27,
-        front + 0.07,
-      );
-      add(
-        house,
-        new THREE.SphereGeometry(0.055, 16, 16),
-        mat(0xe8c46a, 0.25, { metalness: 0.8 }),
-        doorX + 0.17,
-        0.58,
-        front + 0.15,
-      );
-      add(
-        house,
-        box(0.98, 0.16, 0.55, 0.05),
-        mat(0xdcd5ca, 0.85),
-        doorX,
-        0.08,
-        front + 0.3,
-      );
-
-      // Sash windows: lit ones glow
+      frontDoor(house, doorX, front, DOORS[i]);
       for (let floor = 0; floor < 3; floor++) {
         for (const side of [-0.55, 0.55]) {
           if (floor === 0 && side === doorX) continue;
-          const lit = (i * 3 + floor * 2 + (side > 0 ? 1 : 0)) % 4 === 0;
-          const y = 0.9 + floor * 1.1;
+          sash(house, side, 0.9 + floor * 1.1, front, isLit(i, floor, side));
+        }
+      }
+      return { house, top: h + 0.4, w, d };
+    };
+
+    /** Two-storey pairs under a shared roof, with bay windows: the suburbs. */
+    const semi = (i: number): Built => {
+      const house = new THREE.Group();
+      const w = 1.8;
+      const d = 2.6;
+      const h = 2.45;
+      const rise = 1.15;
+      const front = d / 2;
+      const pair = Math.floor(i / 2);
+      const outer = i % 2 === 0 ? -1 : 1; // which side faces away from the neighbour
+      house.position.set((pair - 1) * 4.75 + (outer * w) / 2, GROUND, -0.9);
+      // Brick below, painted render above; both halves of a pair match
+      add(
+        house,
+        box(w, 1.25, d, 0.1),
+        mat(BRICKS[pair * 2], 0.72),
+        0,
+        0.625,
+        0,
+      );
+      add(
+        house,
+        box(w, h - 1.2, d, 0.1),
+        mat(pair === 1 ? 0xf3ead9 : 0xefe2cf, 0.8),
+        0,
+        1.2 + (h - 1.2) / 2,
+        0,
+      );
+      const roof = add(
+        house,
+        pitched(d + 0.36, rise, w + 0.1),
+        mat(SLATE, 0.5),
+        outer * 0.05,
+        h,
+        0,
+      );
+      roof.rotation.y = Math.PI / 2;
+      chimney(house, -outer * (w / 2 - 0.3), h + rise - 0.55, 0);
+      // Bay window by the party wall, door on the outer side
+      const bayX = -outer * 0.4;
+      add(
+        house,
+        box(0.84, 1.05, 0.36, 0.06),
+        mat(TRIM, 0.55),
+        bayX,
+        0.78,
+        front + 0.14,
+      );
+      add(
+        house,
+        box(0.62, 0.72, 0.1, 0.03),
+        glass(isLit(i, 0, 1)),
+        bayX,
+        0.82,
+        front + 0.29,
+      );
+      add(
+        house,
+        box(0.92, 0.12, 0.44, 0.05),
+        mat(SLATE, 0.5),
+        bayX,
+        1.36,
+        front + 0.14,
+      );
+      frontDoor(house, outer * 0.48, front, DOORS[i % DOORS.length]);
+      sash(house, bayX, 1.9, front, isLit(i, 1, 0), 0.7, 0.7);
+      sash(house, outer * 0.48, 1.95, front, isLit(i, 2, 1), 0.48, 0.6);
+      // A hedge down the gap between pairs
+      if (outer === 1 && pair < 2)
+        hedge(house.position.x + w / 2 + 0.57, -0.3, 2.4);
+      return { house, top: h + rise - 0.25, w, d };
+    };
+
+    /** Stand-alone gable-fronted houses, each on its own plot. */
+    const detached = (i: number): Built => {
+      const house = new THREE.Group();
+      const w = 1.8;
+      const d = 2.5;
+      const h = 2.4;
+      const rise = 1.2;
+      const front = d / 2;
+      const flip = i % 2 === 0 ? 1 : -1;
+      house.position.set((i - 2) * 2.78, GROUND, -0.9);
+      add(house, box(w, h, d, 0.12), mat(BRICKS[i], 0.75), 0, h / 2, 0);
+      // The roof runs front to back, so every house shows its own gable
+      add(
+        house,
+        pitched(w + 0.3, rise, d + 0.3),
+        mat(0xa8584a, 0.6),
+        0,
+        h,
+        -0.15,
+      );
+      add(
+        house,
+        new THREE.CylinderGeometry(0.2, 0.2, 0.08, 20),
+        glass(isLit(i, 3, 1)),
+        0,
+        h + 0.42,
+        front + 0.16,
+      ).rotation.x = Math.PI / 2;
+      // Box bay window on one side, door under a porch on the other
+      const bayX = flip * 0.4;
+      add(
+        house,
+        box(0.84, 1.05, 0.34, 0.06),
+        mat(TRIM, 0.55),
+        bayX,
+        0.78,
+        front + 0.13,
+      );
+      add(
+        house,
+        box(0.62, 0.72, 0.1, 0.03),
+        glass(isLit(i, 0, 1)),
+        bayX,
+        0.82,
+        front + 0.27,
+      );
+      add(
+        house,
+        box(0.92, 0.1, 0.42, 0.04),
+        mat(0xa8584a, 0.6),
+        bayX,
+        1.35,
+        front + 0.13,
+      );
+      frontDoor(house, -flip * 0.46, front, DOORS[i]);
+      add(
+        house,
+        box(0.9, 0.1, 0.5, 0.04),
+        mat(0xa8584a, 0.6),
+        -flip * 0.46,
+        1.6,
+        front + 0.22,
+      );
+      sash(house, -0.42, 1.95, front, isLit(i, 1, 0), 0.52, 0.6);
+      sash(house, 0.42, 1.95, front, isLit(i, 2, 1), 0.52, 0.6);
+      chimney(house, -flip * (w / 2 - 0.3), h + 0.35, -0.7);
+      if (i < 4) hedge(house.position.x + 1.39, -0.3, 2.4);
+      return { house, top: h + rise - 0.2, w, d };
+    };
+
+    /** One block of flats, five stacks wide, with glass balconies. */
+    const apartment = (i: number): Built => {
+      const house = new THREE.Group();
+      const w = 2.42;
+      const d = 2.8;
+      const floors = 4;
+      const h = 0.35 + floors * 1.02;
+      const front = d / 2;
+      house.position.set((i - 2) * 2.42, GROUND, -0.9);
+      const tone = i % 2 === 0 ? 0xefe2cf : 0xc9785a;
+      add(house, box(w, h, d, 0.08), mat(tone, 0.75), 0, h / 2, 0);
+      add(
+        house,
+        box(w + 0.06, 0.2, d + 0.12, 0.05),
+        mat(TRIM, 0.5),
+        0,
+        h + 0.02,
+        0,
+      );
+      if (i % 2 === 1)
+        add(
+          house,
+          box(0.8, 0.4, 0.8, 0.08),
+          mat(0xdcd5ca, 0.6),
+          0.3,
+          h + 0.3,
+          -0.4,
+        );
+      const railing = mat(0xbfe0ee, 0.08, {
+        transparent: true,
+        opacity: 0.5,
+        metalness: 0.1,
+      });
+      for (let floor = 0; floor < floors; floor++) {
+        const y = 0.78 + floor * 1.02;
+        if (floor === 0 && i === 2) {
+          // The shared entrance, under a canopy
           add(
             house,
-            box(0.64, 0.84, 0.1, 0.04),
-            mat(0xf6efe6, 0.5),
-            side,
-            y,
-            front + 0.01,
-          );
-          add(
-            house,
-            box(0.48, 0.68, 0.1, 0.03),
-            lit
-              ? mat(0xffd98a, 0.4, {
-                  emissive: 0xffb84a,
-                  emissiveIntensity: 0.9,
-                })
-              : mat(0x34406a, 0.12, { metalness: 0.1 }),
-            side,
-            y,
+            box(1.1, 1.2, 0.1, 0.04),
+            glass(true),
+            0,
+            0.68,
             front + 0.04,
           );
           add(
             house,
-            box(0.5, 0.025, 0.11, 0.01),
-            mat(0xf6efe6, 0.5),
-            side,
-            y,
-            front + 0.07,
+            box(0.04, 1.2, 0.12, 0.01),
+            mat(TRIM, 0.5),
+            0,
+            0.68,
+            front + 0.06,
+          );
+          add(
+            house,
+            box(1.5, 0.1, 0.7, 0.04),
+            mat(SLATE, 0.45),
+            0,
+            1.36,
+            front + 0.3,
+          );
+          continue;
+        }
+        sash(house, -0.62, y, front, isLit(i, floor, 0), 0.6, 0.7);
+        // Balcony door, slab and glass front
+        add(
+          house,
+          box(0.78, 0.86, 0.1, 0.03),
+          glass(isLit(i, floor, 1)),
+          0.5,
+          y - 0.04,
+          front + 0.03,
+        );
+        if (floor > 0) {
+          add(
+            house,
+            box(1.04, 0.07, 0.5, 0.03),
+            mat(TRIM, 0.5),
+            0.5,
+            y - 0.5,
+            front + 0.25,
+          );
+          add(
+            house,
+            box(1.0, 0.42, 0.04, 0.015),
+            railing,
+            0.5,
+            y - 0.26,
+            front + 0.48,
           );
         }
       }
+      return { house, top: h + 0.1, w, d };
+    };
 
-      // Invisible box used for pointer picking
-      const hit = new THREE.Mesh(
-        new THREE.BoxGeometry(w, h + 1.4, d),
-        new THREE.MeshBasicMaterial({ visible: false }),
-      );
-      // Fixed to the block, not the house, so lifting a house on hover
-      // does not move its target out from under the pointer
-      hit.position.set(
-        house.position.x,
-        GROUND + (h + 1.4) / 2,
-        house.position.z,
-      );
-      hit.userData.index = i;
-      world.add(hit);
-      hitBoxes.push(hit);
+    const BUILDERS = { terraced, semi, detached, apartment } as const;
+    type StreetType = keyof typeof BUILDERS;
+    let streetType: StreetType | null = null;
 
+    const clearStreet = () => {
+      for (const object of [...houses, ...hitBoxes, ...extras]) {
+        world.remove(object);
+        object.traverse((child) => {
+          if (child instanceof THREE.Mesh) child.geometry.dispose();
+        });
+      }
+      houses = [];
+      hitBoxes = [];
+      extras = [];
+    };
+
+    /** Replace the buildings on the block with a street of the given type. */
+    const buildStreet = (type: StreetType) => {
+      clearStreet();
+      streetType = type;
+      const count = type === "semi" ? 6 : HOUSE_COUNT;
+      for (let i = 0; i < count; i++) {
+        const { house, top, w, d } = BUILDERS[type](i);
+        house.userData.baseY = GROUND;
+        house.scale.y = 0.001;
+        world.add(house);
+        houses.push(house);
+        if (i >= HOUSE_COUNT) continue; // the sixth semi completes a pair, no sale
+        // Invisible box for pointer picking. Fixed to the block, not the
+        // house, so lifting a house does not move it from under the pointer
+        const hit = new THREE.Mesh(
+          new THREE.BoxGeometry(w, top + 1.4, d),
+          new THREE.MeshBasicMaterial({ visible: false }),
+        );
+        hit.position.set(
+          house.position.x,
+          GROUND + (top + 1.4) / 2,
+          house.position.z,
+        );
+        hit.userData.index = i;
+        world.add(hit);
+        hitBoxes.push(hit);
+        // Halves of a pair sit close together: stagger their tags
+        tags[i].userData.offsetY =
+          top + 2.05 + (type === "semi" && i % 2 === 1 ? 0.75 : 0);
+      }
+    };
+
+    for (let i = 0; i < HOUSE_COUNT; i++) {
       const tag = new THREE.Sprite(
         new THREE.SpriteMaterial({
           transparent: true,
@@ -384,14 +712,11 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
         }),
       );
       tag.scale.set(2.5, 1.17, 1);
-      tag.userData.offsetY = h + 2.45;
       tag.renderOrder = 10;
       world.add(tag);
       tags.push(tag);
-
-      world.add(house);
-      houses.push(house);
     }
+    buildStreet(type);
 
     // Street furniture: trees, lamps, railings, a sale board and parked cars
     const tree = (x: number, z: number, s: number) => {
@@ -528,12 +853,17 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
       );
       g.position.set(x, GROUND - 0.05, 2.9);
       world.add(g);
+      return g;
     };
     car(-4.3, 0xe0b23c);
-    car(1.6, 0x2f4fb0);
     car(5.2, 0xefe6da);
+    // One car drives the far lane, end to end
+    const driver = car(0, 0x2f4fb0);
+    driver.position.z = 4.05;
 
     let playStart = performance.now();
+    // Set while the old street is coming down, before the new one goes up
+    let swap: { at: number; to: StreetType } | null = null;
     let hovered: number | null = null;
     let currentSales: DioramaSale[] = [];
 
@@ -555,7 +885,15 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
       setSales(next) {
         currentSales = next;
         tags.forEach((_, i) => paintTag(i));
-        playStart = performance.now();
+        if (!swap) playStart = performance.now();
+      },
+      setType(next) {
+        if (next === (swap?.to ?? streetType)) return;
+        if (reduceMotion) {
+          buildStreet(next);
+          return;
+        }
+        swap = { at: performance.now(), to: next };
       },
     };
     api.current.setSales(sales);
@@ -648,9 +986,28 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
         hoverCallback.current?.(next);
       }
 
+      // Changing type: the street drops into the ground, then the new one rises
+      let drop = 1;
+      if (swap) {
+        drop = 1 - easeOutCubic(clamp01((now - swap.at) / 320));
+        if (drop <= 0.001) {
+          buildStreet(swap.to);
+          swap = null;
+          playStart = now;
+          return;
+        }
+      }
+      if (!reduceMotion) {
+        driver.position.x = ((time * 1.6) % 17) - 8.5;
+        driver.visible = Math.abs(driver.position.x) < 6.3;
+      } else {
+        driver.position.x = 1.6;
+      }
+
       houses.forEach((house, i) => {
         const grow = clamp01((sincePlay - 0.15 - i * 0.13) / 0.75);
-        house.scale.y = Math.max(0.001, easeOutBack(grow));
+        house.scale.y = Math.max(0.001, easeOutBack(grow) * drop);
+        if (i >= HOUSE_COUNT) return;
         const lift = hovered === i ? 0.45 : 0;
         house.userData.lift =
           (house.userData.lift ?? 0) +
@@ -658,7 +1015,8 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
         house.position.y = house.userData.baseY + house.userData.lift;
 
         const tag = tags[i];
-        tag.material.opacity = clamp01((sincePlay - 0.9 - i * 0.13) / 0.4);
+        tag.material.opacity =
+          clamp01((sincePlay - 0.9 - i * 0.13) / 0.4) * drop;
         tag.position.set(
           house.position.x,
           house.position.y +
@@ -698,6 +1056,10 @@ export default function Diorama({ sales, onHover, onUnavailable }: Props) {
     // The scene is built once; new sales are pushed in through the effect below
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    api.current?.setType(type);
+  }, [type]);
 
   useEffect(() => {
     api.current?.setSales(sales);
