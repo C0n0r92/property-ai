@@ -1523,6 +1523,9 @@
 
 .rp-visually-hidden {
   position: absolute;
+  margin: -1px;
+  padding: 0;
+  border: 0;
   width: 1px;
   height: 1px;
   overflow: hidden;
@@ -1718,8 +1721,12 @@
 }
 
 @media (max-width: 640px) {
+  .rp-nav-brand {
+    margin-right: 0.25rem;
+  }
+
   .rp-nav-link {
-    display: none;
+    padding: 0.45rem 0.6rem;
   }
 
   .rp-board-head,
@@ -2349,10 +2356,15 @@
   gap: 1.4rem;
 }
 
-.rp .rp-footer a {
+.rp .rp-footer a,
+.rp .rp-footer .rp-cookie-settings {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 0.18em;
+}
+
+.rp-footer span:last-child {
+  flex-wrap: wrap;
 }
 
 /* On phones the two figures sit under the street instead of over it */
@@ -2412,12 +2424,6 @@
   margin-bottom: 0.8rem;
 }
 
-/* The site layout leaves room under every page for its phone tab bar, which
-   these pages do not show. Without this a dark strip sits below the footer. */
-main:has(> .rp) {
-  padding-bottom: 0;
-}
-
 /* Wording that depends on whether the visitor has a pointer or a touch screen */
 .rp-touch-only {
   display: none;
@@ -2430,5 +2436,66 @@ main:has(> .rp) {
 
   .rp-pointer-only {
     display: none;
+  }
+}
+
+/* ---------- Cookie consent ---------- */
+
+.rp-consent {
+  position: fixed;
+  z-index: 60;
+  left: 1rem;
+  bottom: 1rem;
+  max-width: 24rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  background: #fff;
+  color: #16223f;
+  font-family: var(--font-rp-display), 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  box-shadow: 0 18px 40px -16px rgba(22, 34, 63, 0.35), 0 0 0 1px rgba(22, 34, 63, 0.08);
+}
+
+.rp-consent p {
+  margin: 0 0 0.8rem;
+}
+
+.rp-consent a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.rp-consent-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.rp-consent-button {
+  appearance: none;
+  border: 1px solid #d9dde6;
+  background: #fff;
+  color: #16223f;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.rp-consent-button--yes {
+  background: #16223f;
+  border-color: #16223f;
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .rp-consent {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    max-width: none;
   }
 }

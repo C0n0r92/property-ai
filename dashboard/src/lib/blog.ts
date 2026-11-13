@@ -28,6 +28,41 @@ export interface Article extends ArticleMeta {
 const CONTENT_DIR = join(process.cwd(), 'public/blog-content');
 
 /**
+ * Guides to tools the site no longer has (the map, the comparison tool, the
+ * planning tool). They are left out of the blog and their addresses
+ * redirect to it.
+ */
+export const RETIRED_SLUGS = new Set([
+  'compare-properties-complete-guide',
+  'dublin-planning-permission-tool-guide',
+  'dublin-property-map-guide',
+]);
+
+/** Readers browse by these topics; each article's category maps to one. */
+export const TOPICS = ['Market', 'Areas', 'Buying', 'Investing and renting', 'Planning'] as const;
+export type Topic = (typeof TOPICS)[number];
+
+const TOPIC_OF_CATEGORY: Record<string, Topic> = {
+  'Market Analysis': 'Market',
+  'Market Trends': 'Market',
+  'Market Guide': 'Areas',
+  'Location Analysis': 'Areas',
+  'Area Analysis': 'Areas',
+  'First-Time Buyers': 'Buying',
+  'Financial Analysis': 'Buying',
+  'Tool Guide': 'Buying',
+  Investment: 'Investing and renting',
+  'Investment Analysis': 'Investing and renting',
+  Renting: 'Investing and renting',
+  'Rental Analysis': 'Investing and renting',
+  Planning: 'Planning',
+};
+
+export function topicOf(category: string): Topic {
+  return TOPIC_OF_CATEGORY[category] ?? 'Market';
+}
+
+/**
  * Read article metadata from JSON file
  * @param slug - Article slug (e.g., 'blog60-d8-value-investor-hotspot')
  * @returns Article metadata or null if not found
@@ -85,7 +120,8 @@ export function getAllSlugs(): string[] {
     // Get unique slugs from .meta.json files
     const slugs = files
       .filter(file => file.endsWith('.meta.json'))
-      .map(file => file.replace('.meta.json', ''));
+      .map(file => file.replace('.meta.json', ''))
+      .filter(slug => !RETIRED_SLUGS.has(slug));
     return slugs;
   } catch (error) {
     return [];

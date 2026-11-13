@@ -6,32 +6,20 @@ services:
       repo: C0n0r92/property-ai
       branch: main
       deploy_on_push: true
-    source_dir: /dashboard
-    build_command: npm run build
-    run_command: npm run start
-    environment_slug: node-js
+    # Built from the repository's Dockerfile: the app is a standalone Next.js
+    # server (output: 'standalone'), which "next start" cannot run
+    dockerfile_path: Dockerfile
+    source_dir: /
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
-    http_port: 3000
+    http_port: 8080
     envs:
       - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
         scope: RUN_AND_BUILD_TIME
         value: G-43FMLL1ZG0
-      - key: NEXTAUTH_SECRET
-        scope: RUN_AND_BUILD_TIME
-        value: 402kbrR3CT3PBkuq6LSPFHMDwCqKdbrpdbiOpEMzXiY=
-      - key: NEXTAUTH_URL
-        scope: RUN_AND_BUILD_TIME
-        value: https://irishpropertydata.com
       - key: NODE_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
-      - key: NEXT_PUBLIC_SUPABASE_URL
-        scope: RUN_AND_BUILD_TIME
-        value: your_supabase_project_url_here
-      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
-        scope: RUN_AND_BUILD_TIME
-        value: your_supabase_anon_key_here
       - key: NEXT_PUBLIC_BASE_URL
         scope: RUN_AND_BUILD_TIME
         value: https://irishpropertydata.com
@@ -42,9 +30,12 @@ services:
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${db.DATABASE_URL}
-      # Set these three in the DigitalOcean dashboard, not in this file
+      # Set these in the DigitalOcean dashboard, not in this file
       - key: STRIPE_SECRET_KEY
         scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: STRIPE_WEBHOOK_SECRET
+        scope: RUN_TIME
         type: SECRET
       - key: SMTP_URL
         scope: RUN_TIME
@@ -60,10 +51,14 @@ services:
       timeout_seconds: 5
       failure_threshold: 3
 databases:
+  # A production database must name an existing Managed Postgres cluster:
+  # create "gaff-db" (PostgreSQL 16, Frankfurt) first, then fill it with
+  # pipeline/scripts/copy-to-remote.sh
   - name: db
     engine: PG
     version: "16"
     production: true
+    cluster_name: gaff-db
 
 jobs:
   # Apply db/*.sql before each deploy

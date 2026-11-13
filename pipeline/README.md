@@ -34,7 +34,28 @@ npm run daily                    # register + listings + match
 npm run status                   # row counts and recent runs
 ```
 
-## Filling a new database
+## Filling the production database
+
+The local database holds more than a fresh bootstrap can rebuild (listing
+prices recovered from web archives), so production is filled by copying it:
+
+```bash
+# from the repository root, after creating the "gaff-db" Managed Postgres cluster
+TARGET_DATABASE_URL="postgres://doadmin:...@host:25060/defaultdb?sslmode=require" \
+  pipeline/scripts/copy-to-remote.sh
+```
+
+It copies every table except the addresses and email addresses typed in
+while testing, prints row counts on both sides, and can be re-run.
+
+## Running every night
+
+`scripts/nightly.sh` runs `npm run daily` and logs to `pipeline/logs/`. On
+this machine it is scheduled from crontab at 01:15 (the Mac has to be awake
+and Docker running). In production the `daily-data` job in `.do/app.yaml`
+does the same at 05:30 Dublin time, and the local schedule can be removed.
+
+## Filling an empty database from scratch
 
 ```bash
 DATABASE_URL="postgres://..." npm run bootstrap

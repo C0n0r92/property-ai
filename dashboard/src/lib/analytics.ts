@@ -1,5 +1,6 @@
-// Analytics event tracking utility (Google Analytics + PostHog)
+// Analytics event tracking (PostHog for everyone, Google Analytics with consent)
 import posthog from 'posthog-js';
+import { isTrackedHost } from './consent';
 
 type GTagEvent = {
   action: string;
@@ -8,35 +9,46 @@ type GTagEvent = {
   value?: number;
 };
 
-// Track custom events to both GA and PostHog
+type Gtag = (command: 'event', name: string, params: Record<string, unknown>) => void;
+const gtag = (): Gtag | undefined =>
+  typeof window === 'undefined' ? undefined : (window as unknown as { gtag?: Gtag }).gtag;
+
+// Track custom events to both GA and PostHog (never from local development)
 export const trackEvent = ({ action, category, label, value }: GTagEvent) => {
-  // Only track events in production
-  if (typeof window === 'undefined') return;
-  const isProduction = window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1';
-  if (!isProduction) return;
+  if (!isTrackedHost()) return;
 
-  // Google Analytics
-  if ((window as any).gtag) {
-    (window as any).gtag('event', action, {
-      event_category: category,
-      event_label: label,
-      value: value,
-    });
+  // Google Analytics exists only once the visitor has allowed it
+  gtag()?.('event', action, { event_category: category, event_label: label, value });
+
+  if (posthog.__loaded) posthog.capture(action, { category, label, value });
+};
+
+/**
+ * A paid report, counted once per Stripe session. Sent to GA as its standard
+ * "purchase" event so it shows as revenue there.
+ */
+export const trackPurchase = ({ id, value, label }: { id: string; value: number; label: string }) => {
+  if (!isTrackedHost()) return;
+  try {
+    const key = `ipd-purchase-${id}`;
+    if (window.sessionStorage.getItem(key)) return; // a reload of the report page
+    window.sessionStorage.setItem(key, '1');
+  } catch {
+    // Storage blocked: count it anyway
   }
-
-  // PostHog
-  if (posthog) {
-    posthog.capture(action, {
-      category,
-      label,
-      value,
-    });
+  gtag()?.('event', 'purchase', {
+    transaction_id: id,
+    value,
+    currency: 'EUR',
+    items: [{ item_id: 'real-price-report', item_name: 'Real Price report', price: value, quantity: 1 }],
+  });
+  if (posthog.__loaded) {
+    posthog.capture('real_price_report_purchased', { value, currency: 'EUR', label });
   }
 };
 
 // Generic track method
-export const track = (eventName: string, properties?: Record<string, any>) => {
+export const track = (eventName: string, properties?: Record<string, unknown>) => {
   trackEvent({
     action: eventName,
     category: 'custom',

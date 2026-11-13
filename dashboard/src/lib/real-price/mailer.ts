@@ -27,7 +27,7 @@ export function resultLink(siteUrl: string, query: Query): string {
     beds: String(query.beds ?? 3),
     asking: String(query.askingPrice),
   });
-  return `${siteUrl}/real-price?${params.toString()}`;
+  return `${siteUrl}/?${params.toString()}`;
 }
 
 /** Send the free result. Returns false if email is not set up or sending failed. */

@@ -8,5 +8,7 @@ blogs
 docs
 data-pipeline
 *.md
+# ...except the blog articles, which the site serves
+!dashboard/public/blog-content/*.md
 # Old daily copies of the dataset: about 700 MB the app never reads
 dashboard/public/data-20*.json

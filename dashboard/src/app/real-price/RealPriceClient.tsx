@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Tier, TypeGroup } from "@/lib/real-price/model";
 import type { PublicResult } from "@/lib/real-price/public";
 import type { AreaOption } from "@/lib/real-price/store";
+import CookieSettingsLink from "@/components/rp/CookieSettingsLink";
 import { trackEvent } from "@/lib/analytics";
 import DotPlot from "./DotPlot";
 import HeroScene from "./HeroScene";
@@ -171,7 +172,7 @@ export default function RealPriceClient({
       beds: String(answeredFor.beds),
       asking: String(answeredFor.askingPrice),
     });
-    const link = `${window.location.origin}/real-price?${params.toString()}`;
+    const link = `${window.location.origin}/?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
@@ -427,7 +428,12 @@ export default function RealPriceClient({
                   ? "Updated from real sales"
                   : "Tap the blue words to describe the home you’re looking at"}
             </p>
-            <h1 className="rp-sentence">
+            {/* The sentence below is also the form, so its text is full of
+                choices; search engines and screen readers get this heading */}
+            <h1 className="rp-visually-hidden">
+              How much over asking will a Dublin home sell for?
+            </h1>
+            <div className="rp-sentence">
               A{" "}
               <span className="rp-field">
                 <span>{form.beds}-bed</span>
@@ -565,7 +571,7 @@ export default function RealPriceClient({
                   {euro(Math.round(shownPrice / 1000) * 1000)}
                 </span>
               </span>
-            </h1>
+            </div>
 
             {error ? (
               <p className="rp-error" role="alert">
@@ -962,8 +968,9 @@ export default function RealPriceClient({
             Sales up to {longDate(dataTo)}. Not a valuation.
           </span>
           <span>
+            <Link href="/blog">Research</Link>
             <Link href="/real-price/privacy">Privacy</Link>
-            <Link href="/">Irish Property Data</Link>
+            <CookieSettingsLink />
           </span>
         </footer>
       </div>

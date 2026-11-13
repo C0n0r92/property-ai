@@ -9,9 +9,10 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Stripe from 'stripe';
-import { buildReport, describeHome, type ReportData } from '@/lib/real-price/report';
+import { buildReport, describeHome, REPORT_PRICE_CENTS, type ReportData } from '@/lib/real-price/report';
 import { checkoutSchema } from '@/lib/real-price/schema';
 import { BACKTEST } from '@/lib/real-price/backtest';
+import TrackPurchase from './TrackPurchase';
 import DotPlot from '../DotPlot';
 import PrintButton from './PrintButton';
 
@@ -155,7 +156,7 @@ export default async function ReportPage({
       <div className="rp-wrap">
         <h1 className="rp-h2">{loaded.problem}</h1>
         <p className="rp-prose" style={{ marginTop: '1rem' }}>
-          <Link className="rp-link" href="/real-price">
+          <Link className="rp-link" href="/">
             Go back to the Real Price Check
           </Link>
         </p>
@@ -177,6 +178,9 @@ export default async function ReportPage({
 
   return (
     <div className="rp-report">
+      {!isSample && session_id && (
+        <TrackPurchase id={session_id} value={REPORT_PRICE_CENTS / 100} label={query.areaKey} />
+      )}
       <div className="rp-report-bar">
         <span>
           {isSample

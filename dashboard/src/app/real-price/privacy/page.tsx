@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import CookieSettingsLink from "@/components/rp/CookieSettingsLink";
 import RealPriceNav from "../RealPriceNav";
 
 export const metadata: Metadata = {
-  title: "Privacy | Real Price Check",
+  title: "Privacy and cookies",
   description:
-    "What Real Price Check collects when you check a price, buy a report or ask for an email, and how to have it deleted.",
+    "What Irish Property Data collects when you check a price, buy a report or ask for an email, which analytics it uses, and how to have your details deleted.",
+  alternates: { canonical: "/real-price/privacy" },
 };
 
 const CONTACT = "hello@irishpropertydata.com";
@@ -27,9 +29,21 @@ export default function RealPricePrivacy() {
           <p>
             The area, home type, bedrooms and asking price you choose are used
             to work out the answer and are kept in the page address so you can
-            share it. We do not store them against you. Like the rest of the
-            site, the page uses analytics to count visits and which areas are
-            checked.
+            share it. We do not store them against you.
+          </p>
+
+          <h2 id="cookies">Analytics and cookies</h2>
+          <p>
+            We count visits, the pages read and which areas are checked with
+            PostHog, set up so that it uses no cookies and stores nothing in
+            your browser. It cannot recognise you from one day to the next.
+          </p>
+          <p>
+            With your permission we also use Google Analytics, which sets
+            cookies to tell new visitors from returning ones. It only loads if
+            you choose Allow in the banner. The only thing we keep in your
+            browser otherwise is that choice. You can change it at any time:{" "}
+            <CookieSettingsLink />.
           </p>
 
           <h2>Buying a report</h2>
@@ -57,8 +71,10 @@ export default function RealPricePrivacy() {
           <h2>Who else handles it</h2>
           <p>
             Our database and website are hosted by DigitalOcean in Frankfurt.
-            Stripe handles payments and an email delivery service sends the
-            emails. We do not sell or share your details with anyone else.
+            Stripe handles payments, an email delivery service sends the
+            emails, and PostHog (in the EU) and Google Analytics count visits
+            as described above. We do not sell or share your details with
+            anyone else.
           </p>
 
           <h2>How long we keep it, and your rights</h2>
@@ -72,7 +88,7 @@ export default function RealPricePrivacy() {
           </p>
 
           <p>
-            <Link href="/real-price">Back to Real Price Check</Link>
+            <Link href="/">Back to the price check</Link>
           </p>
         </div>
       </main>
