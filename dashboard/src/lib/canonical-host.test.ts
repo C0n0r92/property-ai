@@ -26,4 +26,14 @@ describe('canonical address middleware', () => {
     const res = visit('http://localhost:3457/', { host: 'localhost:3457' });
     expect(res.headers.get('location')).toBeNull();
   });
+
+  it('lets the platform health check reach the server directly over http', () => {
+    const res = visit('http://10.244.22.113:8080/api/health', { host: '10.244.22.113:8080' });
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  it('does not redirect requests that did not come through the proxy', () => {
+    const res = visit('http://10.244.22.113:8080/', { host: '10.244.22.113:8080' });
+    expect(res.headers.get('location')).toBeNull();
+  });
 });

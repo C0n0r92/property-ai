@@ -11,10 +11,12 @@ export function middleware(request: NextRequest) {
   const hostname = host.replace(/:\d+$/, '');
   if (!hostname || /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(hostname)) return NextResponse.next();
 
-  // Behind the host's proxy the app itself is reached over plain http, so the
-  // proxy's x-forwarded-proto is what says how the visitor connected
+  // Visitors always arrive through the host's proxy, which says how they
+  // connected in x-forwarded-proto. A request without it came straight to the
+  // server (the platform's health check, by internal IP): leave it alone.
   const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0].trim();
-  const isHttp = forwardedProto ? forwardedProto === 'http' : request.nextUrl.protocol === 'http:';
+  if (!forwardedProto) return NextResponse.next();
+  const isHttp = forwardedProto === 'http';
   const isWww = hostname.startsWith('www.');
   if (!isHttp && !isWww) return NextResponse.next();
 
@@ -24,6 +26,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Static files and images never need the check
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  // Static files, images and the health check never need it
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
