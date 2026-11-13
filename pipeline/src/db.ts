@@ -1,14 +1,11 @@
 import pg from 'pg';
+import { pgConfig } from './pg-config.ts';
 
 const LOCAL = 'postgres://gaff:gaff@localhost:55432/gaff';
 const url = process.env.DATABASE_URL ?? LOCAL;
 
-export const pool = new pg.Pool({
-  connectionString: url,
-  max: 4,
-  // Managed Postgres needs TLS; the local container does not offer it
-  ssl: url === LOCAL || process.env.DATABASE_SSL === 'disable' ? false : { rejectUnauthorized: false },
-});
+// TLS settings come from pgConfig (see there for why not from the URL)
+export const pool = new pg.Pool({ ...pgConfig(url), max: 4 });
 
 /**
  * Insert many rows in chunks. `columns` maps column name to Postgres type;

@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { pgConfig } from './pg-config';
 
 let pool: Pool | null | undefined;
 
@@ -6,13 +7,7 @@ let pool: Pool | null | undefined;
 export function getPool(): Pool | null {
   if (pool !== undefined) return pool;
   const connectionString = process.env.DATABASE_URL;
-  pool = connectionString
-    ? new Pool({
-        connectionString,
-        max: 5,
-        // Managed Postgres requires TLS; DATABASE_SSL=disable is for local development
-        ssl: process.env.DATABASE_SSL === 'disable' ? false : { rejectUnauthorized: false },
-      })
-    : null;
+  // TLS settings come from pgConfig (see there for why not from the URL)
+  pool = connectionString ? new Pool({ ...pgConfig(connectionString), max: 5 }) : null;
   return pool;
 }

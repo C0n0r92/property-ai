@@ -30,11 +30,12 @@ services:
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${db.DATABASE_URL}
+      # The database's certificate authority, so its certificate is checked
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        value: ${db.CA_CERT}
       # Set these in the DigitalOcean dashboard, not in this file
       - key: STRIPE_SECRET_KEY
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-      - key: STRIPE_WEBHOOK_SECRET
         scope: RUN_TIME
         type: SECRET
       - key: SMTP_URL
@@ -74,6 +75,10 @@ jobs:
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${db.DATABASE_URL}
+      # The database's certificate authority, so its certificate is checked
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        value: ${db.CA_CERT}
 
   # Register import, listing collection and matching, once a day
   - name: daily-data
@@ -91,10 +96,18 @@ jobs:
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${db.DATABASE_URL}
+      # The database's certificate authority, so its certificate is checked
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        value: ${db.CA_CERT}
 
 domains:
+  # "zone" lets App Platform create the DNS records itself; the domain's
+  # name servers (set at Namecheap) point at DigitalOcean
   - domain: irishpropertydata.com
     type: PRIMARY
+    zone: irishpropertydata.com
   - domain: www.irishpropertydata.com
     type: ALIAS
+    zone: irishpropertydata.com
 
