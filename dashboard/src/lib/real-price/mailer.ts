@@ -16,6 +16,11 @@ export function emailConfigured(): boolean {
   return Boolean(process.env.SMTP_URL && process.env.EMAIL_FROM);
 }
 
+/** Where replies go: the hello@ inbox (mail is sent from the mail. subdomain, which receives nothing). */
+export function replyAddress(): string {
+  return process.env.EMAIL_REPLY_TO?.trim() || 'hello@irishpropertydata.com';
+}
+
 const euro = (value: number) => `€${Math.round(value).toLocaleString('en-IE')}`;
 const escapeHtml = (text: string) =>
   text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
@@ -69,7 +74,7 @@ export async function sendResultEmail(options: {
 </div></body></html>`;
 
   try {
-    await mailer.sendMail({ from, to, subject: `${euro(prediction.mid)}: what a ${home} will really sell for`, text, html });
+    await mailer.sendMail({ from, to, replyTo: replyAddress(), subject: `${euro(prediction.mid)}: what a ${home} will really sell for`, text, html });
     return true;
   } catch (error) {
     console.error('Result email failed:', error instanceof Error ? error.message : error);
