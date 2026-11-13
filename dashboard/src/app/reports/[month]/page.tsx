@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Bars3D from "@/components/rp/Bars3D";
 import { CountUp, Reveal } from "@/components/rp/motion";
+import ReportStory from "../ReportStory";
 import { areaSlug, TYPE_NAMES } from "@/lib/real-price/area-page";
 import { availableMonths, buildMonthlyReport, type MonthFigures } from "@/lib/real-price/monthly-report";
 import { getSalesStore } from "@/lib/real-price/store";
@@ -99,6 +100,42 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
 
       <section className="rp-report-hero">
         <div className="rp-wrap">
+        <ReportStory
+          title={`${r.label} in four figures`}
+          steps={[
+            {
+              figure: signed(r.medianOverAskingPct),
+              label: "the typical sale against asking",
+              text: `In ${r.label} the typical Dublin home sold for ${signed(r.medianOverAskingPct)} on its asking price${r.previous ? `, against ${signed(r.previous.medianOverAskingPct)} in ${r.previous.label}` : ""}${r.yearAgo ? ` and ${signed(r.yearAgo.medianOverAskingPct)} a year earlier` : ""}.`,
+            },
+            {
+              figure: `${share}%`,
+              label: "sold above asking",
+              text: `${share}% of the ${r.count.toLocaleString("en-IE")} homes we could match went for more than their asking price${r.yearAgo ? `, against ${Math.round(r.yearAgo.shareAboveAsking * 100)}% a year earlier` : ""}. The typical one sold for ${euro(r.medianPrice)}.`,
+            },
+            ...(r.districts[0]
+              ? [
+                  {
+                    figure: signed(r.districts[0].medianOverAskingPct),
+                    label: `in ${r.districts[0].label}, the hottest district`,
+                    text: `${r.districts[0].label} bid hardest: its typical sale went ${signed(r.districts[0].medianOverAskingPct)} on asking, from ${r.districts[0].count} sales. At the other end, ${r.districts[r.districts.length - 1].label} went ${signed(r.districts[r.districts.length - 1].medianOverAskingPct)}.`,
+                  },
+                ]
+              : []),
+            ...(r.biggest[0]
+              ? [
+                  {
+                    figure: signed(r.biggest[0].overAskingPct),
+                    label: "the biggest jump over asking (of up to +50%)",
+                    text: `${r.biggest[0].address}${r.biggest[0].area ? `, ${r.biggest[0].area}` : ""} was advertised at ${euro(r.biggest[0].askingPrice)} and sold for ${euro(r.biggest[0].soldPrice)}.`,
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </div>
+
+      <div className="rp-wrap">
           <nav className="rp-crumbs" aria-label="Breadcrumb">
             <Link href="/reports">Monthly reports</Link>
             <span aria-hidden="true">/</span>
@@ -239,6 +276,10 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
         {r.biggest.length > 0 && (
           <Reveal as="section" className="rp-area-section">
             <h2 className="rp-h2">The biggest jumps over asking.</h2>
+            <p className="rp-prose rp-report-caveat">
+              Sales more than 50% over asking are left out: some are genuine, but some are recording quirks on the
+              register that we cannot check.
+            </p>
             <div className="rp-area-typical rp-report-biggest">
               {r.biggest.map((b) => (
                 <div key={`${b.address}-${b.soldPrice}`} className="rp-area-typical-row">

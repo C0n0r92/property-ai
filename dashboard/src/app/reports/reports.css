@@ -203,3 +203,163 @@
 .rp-reports-index .rp-blog-lead {
   margin-bottom: 1rem;
 }
+
+/* ---------- The month in four figures (scroll story) ---------- */
+
+.rp-story {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 3rem;
+  margin-top: clamp(3rem, 7vw, 5rem);
+}
+
+/* Before the script runs, or with reduced motion: a plain list */
+.rp-story:not(.is-animated) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.rp-story:not(.is-animated) .rp-story-panel {
+  display: none;
+}
+
+.rp-story-panel {
+  position: sticky;
+  top: 18vh;
+  align-self: start;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  min-height: 46vh;
+  padding: clamp(1.6rem, 4vw, 2.6rem);
+  border-radius: 24px;
+  background:
+    radial-gradient(70% 80% at 100% 100%, rgba(196, 184, 238, 0.55), transparent 70%),
+    radial-gradient(60% 70% at 0% 0%, rgba(255, 214, 190, 0.6), transparent 70%),
+    #fdf6ef;
+  border: 1px solid rgba(22, 34, 63, 0.08);
+  box-shadow: 0 30px 60px -40px rgba(22, 34, 63, 0.55);
+}
+
+.rp-story-progress {
+  width: 4px;
+  border-radius: 99px;
+  background: rgba(22, 34, 63, 0.1);
+  overflow: hidden;
+}
+
+.rp-story-progress i {
+  display: block;
+  height: 100%;
+  background: var(--brass-bright);
+  transform-origin: top;
+}
+
+.rp-story-figure {
+  align-self: center;
+  display: grid;
+  gap: 0.6rem;
+  animation: rp-story-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes rp-story-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+    filter: blur(4px);
+  }
+}
+
+.rp-story-figure b {
+  font-size: clamp(3.6rem, 8vw, 6.5rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+}
+
+.rp-story-figure span {
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+
+.rp-story-dots {
+  grid-column: 2;
+  display: flex;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rp-story-dots li {
+  width: 22px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(22, 34, 63, 0.14);
+  transition: background 300ms ease, width 300ms ease;
+}
+
+.rp-story-dots li.is-on {
+  width: 36px;
+  background: var(--ink);
+}
+
+.rp-story-step {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 62vh;
+  font-family: var(--prose);
+  font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.rp-story:not(.is-animated) .rp-story-step {
+  min-height: 0;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.rp-story-step-figure {
+  margin: 0 0 0.4rem;
+  font-family: var(--display);
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+
+.rp-story-step-figure span {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+/* With the panel showing the figure, the paragraph does not repeat it */
+.rp-story.is-animated .rp-story-step-figure {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .rp-story {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .rp-story-panel {
+    top: 76px;
+    z-index: 5;
+    min-height: 0;
+    padding: 1.1rem 1.2rem;
+  }
+
+  .rp-story-figure b {
+    font-size: 3rem;
+  }
+
+  .rp-story-step {
+    min-height: 55vh;
+  }
+}
+
+.rp-report-caveat {
+  margin: 0.4rem 0 1rem;
+  font-size: 0.95rem;
+}

@@ -9,6 +9,12 @@ import type { SalesStore } from './store';
 /** A month needs this many sales with asking and sold prices to be reported. */
 export const MIN_MONTH_SALES = 150;
 const MIN_DISTRICT_SALES = 8;
+/**
+ * The biggest-jumps list leaves out sales more than 50% over asking: some are
+ * real, but some are pairing or register quirks (VAT included, several
+ * properties in one sale) that cannot be checked, and this list gets quoted.
+ */
+export const MAX_LISTED_JUMP = 1.5;
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -160,6 +166,7 @@ function computeMonthlyReport(store: SalesStore, month: string): MonthlyReport |
   });
 
   const biggest = [...sales]
+    .filter((s) => s.ratio <= MAX_LISTED_JUMP)
     .sort((a, b) => b.ratio - a.ratio)
     .slice(0, 5)
     .map((s) => {
