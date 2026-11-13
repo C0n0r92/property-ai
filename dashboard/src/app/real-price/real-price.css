@@ -2570,3 +2570,111 @@
   color: var(--ink);
   font-weight: 600;
 }
+
+/* ---------- Paste a listing link ---------- */
+
+.rp-paste {
+  margin: 0.9rem 0 1.1rem;
+  max-width: 30rem;
+}
+
+.rp-paste-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 5px 5px 5px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(22, 34, 63, 0.12);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 26px -16px rgba(22, 34, 63, 0.4);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.rp-paste-form:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(47, 79, 176, 0.12), 0 8px 26px -16px rgba(22, 34, 63, 0.4);
+}
+
+.rp-paste-icon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: var(--ink-soft);
+}
+
+.rp-paste-form input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.rp-paste-form input::placeholder {
+  color: #7d869a;
+}
+
+.rp-paste-form button {
+  flex: none;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  background: var(--ink);
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, opacity 150ms ease;
+}
+
+.rp-paste-form button:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.rp-paste-form button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.rp-paste-found {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.8rem;
+  margin: 0.6rem 0 0 0.9rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  animation: rp-paste-in 260ms ease both;
+}
+
+.rp-paste-found b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.rp-paste-cut {
+  color: var(--red);
+}
+
+.rp-paste-note {
+  margin: 0.5rem 0 0 0.9rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.rp-paste-note--error {
+  color: var(--red);
+}
+
+@keyframes rp-paste-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

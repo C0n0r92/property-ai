@@ -15,6 +15,8 @@ import RealPriceNav from "./RealPriceNav";
 import EmailResult from "./EmailResult";
 import MarketExplorer from "./MarketExplorer";
 import type { Market } from "@/lib/real-price/market";
+import PasteListing from "./PasteListing";
+import type { ListingAnswer } from "@/lib/real-price/listing-lookup";
 import ReportPreview from "./ReportPreview";
 import SalesBoard, { type BoardSale } from "./SalesBoard";
 
@@ -299,6 +301,25 @@ export default function RealPriceClient({
     check(next, !pricedByVisitor);
   }
 
+  // A pasted listing fills in whatever it tells us; the rest stays as it was
+  function fromListing(
+    home: ListingAnswer["home"],
+    missing: ListingAnswer["missing"],
+  ) {
+    const patch: Partial<FormState> = {};
+    if (home.areaKey) patch.areaKey = home.areaKey;
+    if (home.typeGroup) patch.typeGroup = home.typeGroup;
+    if (home.beds) patch.beds = home.beds;
+    if (home.askingPrice) {
+      patch.askingPrice = home.askingPrice;
+      setPriceText(home.askingPrice.toLocaleString("en-IE"));
+    }
+    if (Object.keys(patch).length) update(patch);
+    if (missing.includes("asking")) {
+      document.getElementById("rp-asking")?.focus();
+    }
+  }
+
   function commitPrice() {
     const value = Number(priceText.replace(/[^0-9]/g, ""));
     if (value < 50_000 || value > 20_000_000)
@@ -443,6 +464,7 @@ export default function RealPriceClient({
                   ? "Updated from real sales"
                   : "Tap the blue words to describe the home you’re looking at"}
             </p>
+            <PasteListing onHome={fromListing} />
             {/* The sentence below is also the form, so its text is full of
                 choices; search engines and screen readers get this heading */}
             <h1 className="rp-visually-hidden">
@@ -559,6 +581,7 @@ export default function RealPriceClient({
               >
                 €
                 <input
+                  id="rp-asking"
                   aria-label="Asking price in euro"
                   inputMode="numeric"
                   value={priceText}
