@@ -35,6 +35,9 @@ services:
       - key: NEXT_PUBLIC_BASE_URL
         scope: RUN_AND_BUILD_TIME
         value: https://irishpropertydata.com
+      - key: NEXT_PUBLIC_SITE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://irishpropertydata.com
       # Housing data (sales, register, listings) and report/email records
       - key: DATABASE_URL
         scope: RUN_TIME

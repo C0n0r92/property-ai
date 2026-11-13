@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertRow } from '@/lib/real-price/db';
+import { clientKey, createLimiter, siteUrl } from '@/lib/real-price/guard';
 import { sendResultEmail } from '@/lib/real-price/mailer';
 import { analyse } from '@/lib/real-price/model';
 import { toPublicResult } from '@/lib/real-price/public';
 import { emailSchema } from '@/lib/real-price/schema';
 import { getSalesStore } from '@/lib/real-price/store';
 
+// Each email goes to an address the caller chose, so keep this tight
+const allow = createLimiter(5, 10 * 60 * 1000);
+
 /** "Email me this result": send the free answer and keep the request. */
 export async function POST(request: NextRequest) {
+  if (!allow(clientKey(request.headers))) {
+    return NextResponse.json({ error: 'too_many_requests' }, { status: 429 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -37,7 +45,7 @@ export async function POST(request: NextRequest) {
       query,
       areaLabel,
       result: toPublicResult(full),
-      siteUrl: process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin,
+      siteUrl: siteUrl(request.nextUrl.origin),
     });
     const saved = await insertRow('real_price_leads', {
       email,

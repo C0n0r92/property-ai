@@ -45,7 +45,9 @@ export default function EmailResult({ query, areaLabel }: Props) {
         setMessage(
           data.error === "invalid_email"
             ? "That email address doesn’t look right. Check it and try again."
-            : "The email couldn’t be sent just now. Try again in a minute.",
+            : data.error === "too_many_requests"
+              ? "That’s a lot of emails in a short time. Try again in ten minutes."
+              : "The email couldn’t be sent just now. Try again in a minute.",
         );
         return;
       }
@@ -71,10 +73,16 @@ export default function EmailResult({ query, areaLabel }: Props) {
       {done ? (
         <div className="rp-prose" role="status">
           <p>
-            <strong>Sent to {email}.</strong>{" "}
-            {alerts
-              ? `We’ll also email you when a similar home sells in ${areaLabel}.`
-              : "The email links straight back to this answer."}
+            <strong>
+              {status === "emailed"
+                ? `Sent to ${email}.`
+                : `Saved for ${email}.`}
+            </strong>{" "}
+            {status === "saved"
+              ? "The email couldn’t go out just now. We’ll send it as soon as it can."
+              : alerts
+                ? `We’ll also email you when a similar home sells in ${areaLabel}.`
+                : "The email links straight back to this answer."}
           </p>
         </div>
       ) : (

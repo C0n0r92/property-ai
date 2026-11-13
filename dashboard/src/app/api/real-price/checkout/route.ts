@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { buildReport, describeHome, REPORT_PRICE_CENTS } from '@/lib/real-price/report';
 import { insertRow } from '@/lib/real-price/db';
+import { clientKey, createLimiter, siteUrl } from '@/lib/real-price/guard';
 import { checkoutSchema } from '@/lib/real-price/schema';
 
 function getStripe() {
@@ -11,11 +12,17 @@ function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-12-15.clover' });
 }
 
+const allow = createLimiter(10, 10 * 60 * 1000);
+
 /**
  * Start a one-off payment for a full report. No account is needed: the paid
  * Stripe session itself is the key that unlocks the report page.
  */
 export async function POST(request: NextRequest) {
+  if (!allow(clientKey(request.headers))) {
+    return NextResponse.json({ error: 'too_many_requests' }, { status: 429 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -36,7 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'not_enough_sales' }, { status: 422 });
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+    const site = siteUrl(request.nextUrl.origin);
     const session = await getStripe().checkout.sessions.create({
       mode: 'payment',
       line_items: [
@@ -52,8 +59,8 @@ export async function POST(request: NextRequest) {
           },
         },
       ],
-      success_url: `${siteUrl}/real-price/report?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/real-price`,
+      success_url: `${site}/real-price/report?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${site}/real-price`,
       metadata: {
         kind: 'real-price-report',
         query: JSON.stringify(query),

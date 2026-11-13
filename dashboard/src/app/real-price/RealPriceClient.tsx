@@ -66,6 +66,8 @@ const ERRORS: Record<string, string> = {
   invalid_request: "Enter an asking price between €50,000 and €20,000,000.",
   checkout_failed:
     "Payment could not be started. Nothing was charged. Try again in a moment.",
+  too_many_requests:
+    "Too many attempts in a short time. Nothing was charged. Try again in ten minutes.",
 };
 
 const euro = (value: number) => `€${Math.round(value).toLocaleString("en-IE")}`;

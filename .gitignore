@@ -56,3 +56,8 @@ nominatim-data/
 # Exception: Allow specific public assets
 !public/*.svg
 !public/*.png
+
+# pipeline
+pipeline/node_modules/
+# register fallback file, rebuilt from open data
+dashboard/public/ppr-dublin.json

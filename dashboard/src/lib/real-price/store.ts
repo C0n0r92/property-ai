@@ -89,20 +89,29 @@ const REFRESH_MS = 60 * 60 * 1000;
 let cached: SalesStore | null = null;
 let loading: Promise<SalesStore> | null = null;
 
+function loadSeedFile(): SalesStore {
+  const parsed = JSON.parse(readFileSync(findDataFile(), 'utf-8'));
+  const rawSales: RawSale[] = Array.isArray(parsed) ? parsed : parsed.properties ?? [];
+  return buildStore(rawSales, Date.now());
+}
+
 async function loadSales(): Promise<SalesStore> {
   const pool = getPool();
-  if (pool) {
+  if (!pool) return loadSeedFile();
+  try {
     const { rows } = await pool.query(
       `SELECT address, sold_date::text AS "soldDate", sold_price AS "soldPrice", asking_price AS "askingPrice",
               beds, property_type AS "propertyType", dublin_postcode AS "dublinPostcode", sqm AS "areaSqm"
          FROM sales`
     );
-    return buildStore(rows as RawSale[], Date.now());
+    if (rows.length > 0) return buildStore(rows as RawSale[], Date.now());
+    console.warn('The sales table is empty; serving the seed file until it is filled.');
+  } catch (error) {
+    // Keep a copy we already have; only a cold start falls back to the file
+    if (cached) throw error;
+    console.error('Sales could not be read from the database; serving the seed file:', error);
   }
-  // No database configured: read the seed file (local development only)
-  const parsed = JSON.parse(readFileSync(findDataFile(), 'utf-8'));
-  const rawSales: RawSale[] = Array.isArray(parsed) ? parsed : parsed.properties ?? [];
-  return buildStore(rawSales, Date.now());
+  return loadSeedFile();
 }
 
 function refresh(): Promise<SalesStore> {
