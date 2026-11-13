@@ -985,6 +985,13 @@ export default function RealPriceClient({
             salesPerDot={dots.salesPerDot}
             askingPrice={asking}
             litUpTo={prediction.medianOverAskingPct}
+            recent={evidence.recent}
+            lockedSales={result.lockedSales}
+            areaLabel={areaLabel}
+            trend={
+              market.areas.find((a) => a.key === answeredFor.areaKey)?.profile
+                .trend
+            }
           />
         </section>
 
