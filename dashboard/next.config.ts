@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     const toHome = [
       '/map', '/insights', '/planning', '/amenities', '/login', '/alerts',
-      '/mortgage-calc', '/mortgage-scenarios', '/property', '/tools',
+      '/mortgage-calc', '/mortgage-scenarios', '/property', '/properties', '/saved', '/tools',
     ];
     return [
       // The price check moved from /real-price to the home page (query kept)
@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
         { source: `${path}/:path*`, destination: '/', permanent: true },
       ]),
       { source: '/auth/:path*', destination: '/', permanent: true },
+      // The old cookie banner linked /privacy; old pricing links go to the offer
+      { source: '/privacy', destination: '/real-price/privacy', permanent: true },
+      { source: '/pricing', destination: '/#report', permanent: true },
     ];
   },
   async rewrites() {
