@@ -2246,9 +2246,6 @@
 }
 
 .rp-keep-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
   max-width: 34rem;
   margin-top: 0.9rem;
   font-size: 0.88rem;
@@ -2257,14 +2254,37 @@
   cursor: pointer;
 }
 
-.rp-keep-alert input {
-  margin-top: 0.2rem;
-  accent-color: var(--ink);
-}
 
 @media (max-width: 560px) {
   .rp-keep-row {
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+/* ---------- Privacy page ---------- */
+
+.rp-privacy {
+  max-width: 46rem;
+  padding-top: clamp(6rem, 12vw, 8rem);
+}
+
+.rp-privacy .rp-prose {
+  margin-top: 1.5rem;
+}
+
+.rp-privacy .rp-prose h2 {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 2em 0 0.4em;
+}
+
+.rp .rp-privacy a,
+.rp .rp-offer-note a,
+.rp .rp-keep-alert a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }

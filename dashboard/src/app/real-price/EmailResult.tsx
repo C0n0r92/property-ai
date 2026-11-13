@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 import type { TypeGroup } from "@/lib/real-price/model";
 import { trackEvent } from "@/lib/analytics";
@@ -11,15 +12,13 @@ interface Props {
     beds: number;
     askingPrice: number;
   };
-  areaLabel: string;
 }
 
 type Status = "idle" | "sending" | "emailed" | "saved" | "error";
 
-/** "Not bidding yet?": email the free answer, with a separate alert opt-in. */
-export default function EmailResult({ query, areaLabel }: Props) {
+/** "Not bidding yet?": email the free answer. */
+export default function EmailResult({ query }: Props) {
   const [email, setEmail] = useState("");
-  const [alerts, setAlerts] = useState(false);
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -35,7 +34,7 @@ export default function EmailResult({ query, areaLabel }: Props) {
         body: JSON.stringify({
           email,
           query,
-          marketingConsent: alerts,
+          marketingConsent: false,
           company,
         }),
       });
@@ -80,9 +79,7 @@ export default function EmailResult({ query, areaLabel }: Props) {
             </strong>{" "}
             {status === "saved"
               ? "The email couldn’t go out just now. We’ll send it as soon as it can."
-              : alerts
-                ? `We’ll also email you when a similar home sells in ${areaLabel}.`
-                : "The email links straight back to this answer."}
+              : "The email links straight back to this answer."}
           </p>
         </div>
       ) : (
@@ -113,15 +110,11 @@ export default function EmailResult({ query, areaLabel }: Props) {
               {status === "sending" ? "Sending…" : "Email it to me"}
             </button>
           </div>
-          <label className="rp-keep-alert">
-            <input
-              type="checkbox"
-              checked={alerts}
-              onChange={(e) => setAlerts(e.target.checked)}
-            />
-            Also tell me when a similar home sells in {areaLabel}. Optional, and
-            every email has a one-click unsubscribe.
-          </label>
+          <p className="rp-keep-alert">
+            One email, no mailing list.{" "}
+            <Link href="/real-price/privacy">How we use your email address</Link>
+            .
+          </p>
           {/* Hidden from people; bots fill it in */}
           <input
             className="rp-email-trap"

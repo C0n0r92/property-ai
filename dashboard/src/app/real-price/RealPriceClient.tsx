@@ -798,7 +798,11 @@ export default function RealPriceClient({
             </div>
             <p className="rp-offer-note">
               One payment, no account and no subscription. The report opens
-              straight after payment and saves as a PDF.
+              straight after payment and saves as a PDF.{" "}
+              <Link href="/real-price/privacy">
+                How we use the address you enter
+              </Link>
+              .
             </p>
           </div>
           <ReportPreview
@@ -816,7 +820,7 @@ export default function RealPriceClient({
           />
         </section>
 
-        <EmailResult query={answeredFor} areaLabel={areaLabel} />
+        <EmailResult query={answeredFor} />
 
         <section className="rp-section">
           <h2 className="rp-h2">How it works, and how often it is right</h2>
