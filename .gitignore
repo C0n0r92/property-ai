@@ -61,3 +61,4 @@ nominatim-data/
 pipeline/node_modules/
 # register fallback file, rebuilt from open data
 dashboard/public/ppr-dublin.json
+pipeline/.cache/

@@ -12,6 +12,7 @@ import {
   selectComparables,
   tidyAddress,
   toTypeGroup,
+  typicalAsking,
   winChance,
   type Sale,
 } from './model';
@@ -438,5 +439,29 @@ describe('areaProfile', () => {
 
   it('leaves price per square metre empty when floor areas are missing', () => {
     expect(areaProfile(spread(30, 1, 1.1), 'd8', null, AS_OF)!.medianPricePerSqm).toBeNull();
+  });
+});
+
+describe('typicalAsking', () => {
+  const lucan = (beds: number, askingPrice: number, n: number, soldDate = '2025-06-01') =>
+    Array.from({ length: n }, () =>
+      sale({ beds, askingPrice, typeGroup: 'semi', areaKeys: ['lucan'], soldDate, t: Date.parse(soldDate) })
+    );
+  const sales = [...lucan(3, 425_000, 12), ...lucan(4, 539_000, 8), ...lucan(2, 380_000, 2)];
+  const home = { areaKey: 'lucan', typeGroup: 'semi' as const };
+
+  it('gives the middle asking price of homes with the same bedrooms, to the nearest 5,000', () => {
+    expect(typicalAsking(sales, { ...home, beds: 3 }, AS_OF)).toBe(425_000);
+    expect(typicalAsking(sales, { ...home, beds: 4 }, AS_OF)).toBe(540_000);
+  });
+
+  it('gives nothing when too few such homes sold', () => {
+    expect(typicalAsking(sales, { ...home, beds: 2 }, AS_OF)).toBeNull();
+    expect(typicalAsking(sales, { ...home, typeGroup: 'apartment', beds: 3 }, AS_OF)).toBeNull();
+  });
+
+  it('looks back two years when the last year is too thin', () => {
+    const older = lucan(5, 700_000, 6, '2024-06-01');
+    expect(typicalAsking(older, { ...home, beds: 5 }, AS_OF)).toBe(700_000);
   });
 });

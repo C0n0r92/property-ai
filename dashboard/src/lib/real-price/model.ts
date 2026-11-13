@@ -278,6 +278,30 @@ export function selectComparables(
   return { comps: [], tier: 'none' };
 }
 
+/**
+ * What a home like this is usually listed for: the middle asking price of
+ * recent sales in the same area with the same type and bedrooms. Null when
+ * too few sold to say.
+ */
+export function typicalAsking(
+  sales: Sale[],
+  home: { areaKey: string; typeGroup: TypeGroup; beds: number },
+  asOf: number,
+  minSales = 5
+): number | null {
+  const alike = sales.filter(
+    (s) => s.t <= asOf && s.typeGroup === home.typeGroup && s.beds === home.beds && s.areaKeys.includes(home.areaKey)
+  );
+  for (const days of [365, 730]) {
+    const asking = alike
+      .filter((s) => s.t >= asOf - days * DAY_MS)
+      .map((s) => s.askingPrice)
+      .sort((a, b) => a - b);
+    if (asking.length >= minSales) return roundTo(quantile(asking, 0.5), 5000);
+  }
+  return null;
+}
+
 export function predict(comps: Sale[], askingPrice: number): Prediction {
   const ratios = sortedRatios(comps);
   const price = (q: number) => roundTo(askingPrice * quantile(ratios, q), 1000);

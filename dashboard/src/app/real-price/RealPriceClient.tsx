@@ -152,6 +152,13 @@ export default function RealPriceClient({
   const [hovered, setHovered] = useState<number | null>(null);
   const [touched, setTouched] = useState(false);
   const [showBar, setShowBar] = useState(false);
+  // Until the visitor gives a price, it follows what is typical for the home
+  const [ownPrice, setOwnPrice] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).has("asking"),
+  );
+  const [autoPriced, setAutoPriced] = useState(false);
   const hero = useRef<HTMLElement>(null);
   const plotBox = useRef<HTMLDivElement>(null);
   const requestId = useRef(0);
@@ -189,13 +196,14 @@ export default function RealPriceClient({
   );
   const hoveredSale = hovered === null ? null : (dioramaSales[hovered] ?? null);
 
-  const check = useCallback(async (next: FormState) => {
+  const check = useCallback(async (asked: FormState, autoAsking = false) => {
     const id = ++requestId.current;
+    let next = asked;
     try {
       const response = await fetch("/api/real-price", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next),
+        body: JSON.stringify({ ...asked, autoAsking }),
       });
       const data = await response.json();
       if (id !== requestId.current) return;
@@ -207,6 +215,15 @@ export default function RealPriceClient({
         return;
       }
       setError(null);
+      const moved =
+        typeof data.askingPrice === "number" &&
+        data.askingPrice !== asked.askingPrice;
+      if (moved) {
+        next = { ...asked, askingPrice: data.askingPrice };
+        setForm((f) => ({ ...f, askingPrice: data.askingPrice }));
+        setPriceText(data.askingPrice.toLocaleString("en-IE"));
+      }
+      setAutoPriced(moved);
       setAnswer(data);
       setAnsweredFor(next);
       // Keep the address bar in step so a result can be shared or bookmarked
@@ -235,7 +252,9 @@ export default function RealPriceClient({
     setTouched(true);
     const next = { ...form, ...patch };
     setForm(next);
-    check(next);
+    const pricedByVisitor = ownPrice || patch.askingPrice !== undefined;
+    if (patch.askingPrice !== undefined) setOwnPrice(true);
+    check(next, !pricedByVisitor);
   }
 
   function commitPrice() {
@@ -380,8 +399,10 @@ export default function RealPriceClient({
                   fill="currentColor"
                 />
               </svg>
-              {touched
-                ? "Updated from real sales"
+              {autoPriced
+                ? "Asking price set to what’s typical for this home. Tap it to enter yours"
+                : touched
+                  ? "Updated from real sales"
                 : "Tap the blue words to describe the home you’re looking at"}
             </p>
             <h1 className="rp-sentence">

@@ -8,6 +8,7 @@
     "import:legacy": "tsx src/import-legacy.ts",
     "ingest:register": "tsx src/ingest-register.ts",
     "ingest:listings": "tsx src/ingest-listings.ts",
+    "ingest:archive": "tsx src/ingest-archive.ts",
     "match": "tsx src/match.ts",
     "bootstrap": "npm run migrate && npm run import:legacy && npm run ingest:register -- --all && npm run ingest:listings && npm run match",
     "daily": "tsx src/daily.ts",
