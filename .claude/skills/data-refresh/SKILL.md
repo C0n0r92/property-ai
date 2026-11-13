@@ -15,8 +15,7 @@ All housing data lives in Postgres. The local copy is a Docker container; produc
 4. `npm run match` twice. The second pass picks up pairs the first one unlocks.
 5. `npm run status` shows row counts and recent runs.
 6. **Accuracy check** (the site quotes these numbers):
-   - Export the sales table to JSON: see the `json_agg` query in this skill's history, or select `address, sold_date, sold_price, asking_price, beds, property_type, dublin_postcode, sqm` with camelCase aliases.
-   - Run `SALES_FILE=<export> node scripts/backtest-real-price.mjs 2025 3`.
+   - Run `pipeline/scripts/export-sales.sh /tmp/sales.json`, then `SALES_FILE=/tmp/sales.json node scripts/backtest-real-price.mjs 2025 3`.
    - Update `dashboard/src/lib/real-price/backtest.ts` if the figures moved.
 7. **Copy to production:**
    - Production's firewall allows only the app. Add your IP first: `doctl databases firewalls append fe40b553-cda8-4a96-82eb-b91eceb0ad2a --rule ip_addr:<ip>`.

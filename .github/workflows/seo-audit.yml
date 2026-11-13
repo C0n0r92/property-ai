@@ -1,0 +1,27 @@
+# Daily SEO audit of the live site. A failed run (any error: a page not
+# returning 200, a missing canonical or share image, a broken link) emails
+# the repository owner through GitHub's normal failure notice.
+name: SEO audit
+
+on:
+  schedule:
+    - cron: "15 7 * * *"
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Crawl the sitemap
+        run: node scripts/seo/audit.mjs https://irishpropertydata.com --json seo-audit.json
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-audit
+          path: seo-audit.json

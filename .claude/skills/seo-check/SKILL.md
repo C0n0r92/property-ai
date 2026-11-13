@@ -10,6 +10,9 @@ Run from the repository root.
 1. `node scripts/seo/audit.mjs https://irishpropertydata.com` crawls every sitemap URL. It exits 1 on errors: non-200 pages, a missing or wrong canonical, a missing og:image, or broken links. Fix errors first. Warnings cover long titles (>70 characters), descriptions (>165), slow pages, thin text and redirecting internal links.
 2. `node scripts/seo/search-console.mjs` shows clicks, queries, sitemap status and per-page index status. It needs gcloud logged in as the owner; it acts as zero-analytics@ipd-2025-481921.iam.gserviceaccount.com.
 3. `node scripts/seo/pagespeed.mjs` shows Lighthouse scores and real-user Core Web Vitals.
+4. After publishing new pages, run `node scripts/seo/indexnow.mjs` to tell Bing and other IndexNow engines straight away. For Google, request indexing in Search Console.
+
+The audit also runs daily on GitHub (`.github/workflows/seo-audit.yml`); a failed run means production has an SEO error.
 
 Conventions in this codebase:
 - Pages that read sales data use `export const dynamic = "force-dynamic"`. The Docker build has no database, so pre-built pages would show seed data.
