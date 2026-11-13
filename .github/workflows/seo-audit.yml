@@ -1,0 +1,67 @@
+# Daily SEO run on the live site.
+#  - audit:  crawl the sitemap; any error (a page not returning 200, a missing
+#            canonical or share image, a broken link) fails the run.
+#  - google: resubmit the sitemap to Google, tell IndexNow (Bing etc.) about
+#            pages changed in the last two days, and check every page's index
+#            status. Fails only on pages with a real problem (404, noindex,
+#            redirect, duplicate); pages Google hasn't reached yet are reported.
+# A failed run emails the repository owner through GitHub's normal notice.
+# Also run by hand after a deploy:  gh workflow run seo-audit.yml
+name: SEO audit
+
+on:
+  schedule:
+    - cron: "15 7 * * *"
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Crawl the sitemap
+        run: node scripts/seo/audit.mjs https://irishpropertydata.com --json seo-audit.json
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-audit
+          path: seo-audit.json
+
+  google:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write # keyless sign-in to Google (Workload Identity Federation)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test the helpers
+        run: node --test scripts/seo/index-lib.test.mjs
+      - name: Sign in to Google as the analytics service account
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/65982009184/locations/global/workloadIdentityPools/github/providers/property-ai
+          service_account: zero-analytics@ipd-2025-481921.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/webmasters
+      - name: Tell IndexNow about changed pages
+        run: node scripts/seo/indexnow.mjs --since-days 2
+      - name: Resubmit the sitemap and check every page's index status
+        env:
+          GOOGLE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: node scripts/seo/index-status.mjs --submit-sitemap --json index-status.json
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: index-status
+          path: index-status.json

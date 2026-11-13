@@ -28,6 +28,59 @@ export interface Article extends ArticleMeta {
 const CONTENT_DIR = join(process.cwd(), 'public/blog-content');
 
 /**
+ * Articles taken off the blog, and where their address now leads:
+ * - guides to tools the site no longer has (the map, comparison, planning);
+ * - placeholder pages with headings but no findings, and short pages whose
+ *   figures contradict themselves. Each goes to the live page or fuller
+ *   article that answers the same question.
+ */
+export const RETIRED: ReadonlyMap<string, string> = new Map([
+  ['compare-properties-complete-guide', '/blog'],
+  ['dublin-planning-permission-tool-guide', '/blog'],
+  ['dublin-property-map-guide', '/areas'],
+  ['geographic-price-intelligence', '/areas'],
+  ['properties-over-asking-dublin', '/areas'],
+  ['over-asking-phenomenon-2024', '/areas'],
+  ['complete-area-rankings', '/areas'],
+  ['dublin-price-per-square-meter', '/areas'],
+  ['fastest-growing-areas-dublin', '/areas'],
+  ['property-types-analysis', '/reports'],
+  ['detached-houses-dominance', '/reports'],
+  ['bedroom-count-analysis', '/blog/bedroom-count-property-values'],
+  ['asking_price_strategy', '/blog/asking-price-strategy-dublin'],
+  ['dublin-bidding-wars-strategy-analysis', '/blog/dublin-bidding-wars-analysis'],
+  ['dublin-rental-yield-analysis', '/blog/rental-yields-buy-to-let-2025'],
+  ['amenities-impact-prices', '/blog'],
+  ['planning-permission-activity', '/blog'],
+]);
+
+export const RETIRED_SLUGS: ReadonlySet<string> = new Set(RETIRED.keys());
+
+/** Readers browse by these topics; each article's category maps to one. */
+export const TOPICS = ['Market', 'Areas', 'Buying', 'Investing and renting', 'Planning'] as const;
+export type Topic = (typeof TOPICS)[number];
+
+const TOPIC_OF_CATEGORY: Record<string, Topic> = {
+  'Market Analysis': 'Market',
+  'Market Trends': 'Market',
+  'Market Guide': 'Areas',
+  'Location Analysis': 'Areas',
+  'Area Analysis': 'Areas',
+  'First-Time Buyers': 'Buying',
+  'Financial Analysis': 'Buying',
+  'Tool Guide': 'Buying',
+  Investment: 'Investing and renting',
+  'Investment Analysis': 'Investing and renting',
+  Renting: 'Investing and renting',
+  'Rental Analysis': 'Investing and renting',
+  Planning: 'Planning',
+};
+
+export function topicOf(category: string): Topic {
+  return TOPIC_OF_CATEGORY[category] ?? 'Market';
+}
+
+/**
  * Read article metadata from JSON file
  * @param slug - Article slug (e.g., 'blog60-d8-value-investor-hotspot')
  * @returns Article metadata or null if not found
@@ -85,7 +138,8 @@ export function getAllSlugs(): string[] {
     // Get unique slugs from .meta.json files
     const slugs = files
       .filter(file => file.endsWith('.meta.json'))
-      .map(file => file.replace('.meta.json', ''));
+      .map(file => file.replace('.meta.json', ''))
+      .filter(slug => !RETIRED_SLUGS.has(slug));
     return slugs;
   } catch (error) {
     return [];

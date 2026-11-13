@@ -120,6 +120,9 @@ export function BottomNav() {
     return null;
   }
 
+  // The Real Price pages carry their own navigation
+  if (pathname.startsWith('/real-price')) return null;
+
   return (
     <>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface)] border-t border-[var(--border)] pb-safe-or-2" suppressHydrationWarning>

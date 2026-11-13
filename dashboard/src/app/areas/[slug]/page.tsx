@@ -1,270 +1,465 @@
-import { getAllAreaSlugs, slugToArea } from '@/lib/areas';
-import AreaClient from './AreaClient';
-import { notFound } from 'next/navigation';
-import { loadProperties } from '@/lib/data';
-import { addressMatchesArea } from '@/lib/areas';
-import type { Property } from '@/types/property';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound, permanentRedirect } from "next/navigation";
+import Bars3D from "@/components/rp/Bars3D";
+import { CountUp, Reveal } from "@/components/rp/motion";
+import AreaMap, { type MapArea } from "@/components/rp/AreaMap";
+import {
+  areaKeyFromSlug,
+  buildAreaIndex,
+  type AreaIndexRow,
+  areaSlug,
+  buildAreaPage,
+  TYPE_NAMES,
+  type AreaLink,
+  type AreaPage,
+} from "@/lib/real-price/area-page";
+import { getSalesStore } from "@/lib/real-price/store";
+import { jsonLd, SITE_URL } from "@/lib/site";
+import SalesBoard from "../../real-price/SalesBoard";
+import { reportPrice } from "@/lib/real-price/pricing";
+import AreaCheck from "../AreaCheck";
+import AreaStreet from "../AreaStreet";
 
-// Generate static params for all area pages
-export async function generateStaticParams() {
-  const slugs = getAllAreaSlugs();
-  return slugs.map((slug) => ({
-    slug: slug,
-  }));
+// Built from the live database on request. Pre-building at deploy time would
+// use the seed file (the build has no database), showing old figures.
+export const dynamic = "force-dynamic";
+
+type Params = Promise<{ slug: string }>;
+
+const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
+const pct = (v: number) => `${Math.abs(v).toFixed(1)}%`;
+const signed = (v: number) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(1)}%`;
+const overUnder = (v: number) => `${pct(v)} ${v >= 0 ? "over" : "under"} asking`;
+const longDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-IE", { day: "numeric", month: "long", year: "numeric" });
+const quarterLabel = (q: string) => {
+  const [year, quarter] = q.split(" ");
+  return `${quarter} ’${year.slice(2)}`;
+};
+const checkLink = (key: string, extra: Record<string, string | number> = {}) =>
+  `/?${new URLSearchParams({ area: key, ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, String(v)])) })}`;
+
+const mapAreas = (rows: AreaIndexRow[]): MapArea[] =>
+  rows
+    .filter((r) => r.lat !== null && r.lng !== null)
+    .map((r) => ({
+      key: r.key,
+      slug: r.slug,
+      label: r.label,
+      kind: r.kind,
+      lat: r.lat!,
+      lng: r.lng!,
+      value: r.medianOverAskingPct,
+      shareAbove: r.shareAboveAsking,
+      price: r.medianPrice,
+    }));
+
+async function load(slug: string): Promise<AreaPage | null> {
+  const key = areaKeyFromSlug(slug);
+  if (!key) return null;
+  const store = await getSalesStore();
+  return buildAreaPage(store, key);
 }
 
-// Calculate area statistics
-function calculateAreaStats(properties: Property[]) {
-  // Filter out properties below €50,000 to exclude non-residential or erroneous data
-  const validProperties = properties.filter(p => p.soldPrice >= 50000);
-  const prices = validProperties.map(p => p.soldPrice).sort((a, b) => a - b);
-  const medianPrice = prices[Math.floor(prices.length / 2)];
-  const avgPrice = Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length);
-
-  const withSqm = properties.filter(p => p.pricePerSqm && p.pricePerSqm > 0);
-  const avgPricePerSqm = withSqm.length > 0
-    ? Math.round(withSqm.reduce((sum, p) => sum + (p.pricePerSqm || 0), 0) / withSqm.length)
-    : 0;
-
-  const overAsking = properties.filter(p => p.overUnderPercent > 0);
-  const pctOverAsking = Math.round((overAsking.length / properties.length) * 100);
-
-  const avgOverUnderPercent = Math.round(
-    (properties.reduce((sum, p) => sum + p.overUnderPercent, 0) / properties.length) * 10
-  ) / 10;
-
-  // Calculate average euro over/under
-  const withAskingPrice = properties.filter(p => p.askingPrice && p.askingPrice > 0);
-  const avgOverUnderEuro = withAskingPrice.length > 0
-    ? Math.round(withAskingPrice.reduce((sum, p) => sum + (p.soldPrice - p.askingPrice), 0) / withAskingPrice.length)
-    : 0;
-
-  // Calculate 6-month change
-  const now = new Date();
-  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-  const recent = properties.filter(p => new Date(p.soldDate) >= sixMonthsAgo);
-  const older = properties.filter(p => {
-    const d = new Date(p.soldDate);
-    return d < sixMonthsAgo && d >= new Date(sixMonthsAgo.getFullYear(), sixMonthsAgo.getMonth() - 6, 1);
-  });
-
-  let change6m = 0;
-  if (recent.length > 3 && older.length > 3) {
-    const recentMedian = recent.map(p => p.soldPrice).sort((a, b) => a - b)[Math.floor(recent.length / 2)];
-    const olderMedian = older.map(p => p.soldPrice).sort((a, b) => a - b)[Math.floor(older.length / 2)];
-    change6m = Math.round(((recentMedian - olderMedian) / olderMedian) * 1000) / 10;
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const page = await load((await params).slug);
+  if (!page) return { title: "Area not found", robots: { index: false } };
+  const p = page.profile;
+  // Short enough to show in full in search results: keywords first, then the year
+  const title = `${page.label} House Prices: Sold vs Asking (${page.dataTo.slice(0, 4)})`;
+  const parts = [
+    `Homes in ${page.label} sold a typical ${overUnder(p.medianOverAskingPct)} in the last 12 months.`,
+    `${Math.round(p.shareAboveAsking * 100)}% went above asking.`,
+    `Typical sale ${euro(p.medianPrice)}.`,
+    `From ${p.count} sales.`,
+  ];
+  let description = parts.join(" ");
+  while (description.length > 155 && parts.length > 2) {
+    parts.pop();
+    description = parts.join(" ");
   }
-
+  const url = `/areas/${page.slug}`;
   return {
-    totalSales: properties.length,
-    medianPrice,
-    avgPrice,
-    avgPricePerSqm,
-    pctOverAsking,
-    avgOverUnderPercent,
-    avgOverUnderEuro,
-    change6m,
-    minPrice: prices[0],
-    maxPrice: prices[prices.length - 1],
+    title: { absolute: title },
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, type: "website" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
-// Calculate monthly trend for chart
-function calculateMonthlyTrend(properties: Property[]) {
-  const monthMap = new Map<string, { prices: number[]; count: number }>();
-
-  properties.forEach(p => {
-    const month = p.soldDate.substring(0, 7); // "2025-01"
-    if (!monthMap.has(month)) {
-      monthMap.set(month, { prices: [], count: 0 });
-    }
-    const data = monthMap.get(month)!;
-    data.prices.push(p.soldPrice);
-    data.count++;
-  });
-
-  const trend = Array.from(monthMap.entries())
-    .map(([month, data]) => {
-      const sortedPrices = data.prices.sort((a, b) => a - b);
-      const median = sortedPrices[Math.floor(sortedPrices.length / 2)];
-      return {
-        month,
-        median,
-        count: data.count,
-      };
-    })
-    .sort((a, b) => a.month.localeCompare(b.month))
-    .slice(-24); // Last 24 months
-
-  return trend;
+function AreaCard({ area }: { area: AreaLink }) {
+  return (
+    <Link href={`/areas/${area.slug}`} className="rp-area-card">
+      <span className="rp-area-card-name">{area.label}</span>
+      <span className="rp-area-card-figure">{signed(area.medianOverAskingPct)}</span>
+      <span className="rp-area-card-sub">typical sale {euro(area.medianPrice)}</span>
+    </Link>
+  );
 }
 
-// Calculate property types breakdown
-function calculatePropertyTypes(properties: Property[]) {
-  const typeMap = new Map<string, number>();
+export default async function AreaPageView({ params }: { params: Params }) {
+  const { slug } = await params;
+  const key = areaKeyFromSlug(slug);
+  // Old spellings ("dublin8") move to the readable address
+  if (key && areaSlug(key) !== slug) permanentRedirect(`/areas/${areaSlug(key)}`);
+  const page = await load(slug);
+  if (!page) {
+    if (key) permanentRedirect("/areas");
+    notFound();
+  }
 
-  properties.forEach(p => {
-    const type = p.propertyType || 'Unknown';
-    typeMap.set(type, (typeMap.get(type) || 0) + 1);
-  });
+  const p = page.profile;
+  const trend = p.trend;
+  const first = trend[0];
+  const last = trend[trend.length - 1];
+  const moved = first && last && trend.length >= 4 ? last.medianOverAskingPct - first.medianOverAskingPct : null;
+  const aboveDublin = p.medianOverAskingPct - page.dublin.medianOverAskingPct;
+  const share = Math.round(p.shareAboveAsking * 100);
+  const url = `${SITE_URL}/areas/${page.slug}`;
 
-  return Array.from(typeMap.entries())
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count);
-}
-
-// Calculate price distribution for histogram
-function calculatePriceDistribution(properties: Property[]) {
-  const buckets = [
-    { range: '< €200k', min: 0, max: 200000, count: 0 },
-    { range: '€200k-€300k', min: 200000, max: 300000, count: 0 },
-    { range: '€300k-€400k', min: 300000, max: 400000, count: 0 },
-    { range: '€400k-€500k', min: 400000, max: 500000, count: 0 },
-    { range: '€500k-€600k', min: 500000, max: 600000, count: 0 },
-    { range: '€600k-€800k', min: 600000, max: 800000, count: 0 },
-    { range: '€800k-€1M', min: 800000, max: 1000000, count: 0 },
-    { range: '> €1M', min: 1000000, max: Infinity, count: 0 },
+  const faq = [
+    {
+      q: `How much over asking do homes sell for in ${page.label}?`,
+      a: `In the last 12 months the typical home in ${page.label} sold for ${overUnder(p.medianOverAskingPct)}. Half of sales finished between ${signed(p.p25OverAskingPct)} and ${signed(p.p75OverAskingPct)} of their asking price. Across Dublin the typical sale was ${overUnder(page.dublin.medianOverAskingPct)}.`,
+    },
+    {
+      q: `What share of homes in ${page.label} sell above the asking price?`,
+      a: `${share}% of the ${p.count} homes sold in ${page.label} in the last 12 months went for more than their asking price, against ${Math.round(page.dublin.shareAboveAsking * 100)}% across Dublin.`,
+    },
+    {
+      q: `What is the typical sale price in ${page.label}?`,
+      a: `The typical home sold for ${euro(p.medianPrice)}${p.medianPricePerSqm ? `, about ${euro(p.medianPricePerSqm)} per square metre` : ""}. Prices depend heavily on the type and size of home; check a specific home for an answer built from similar sales.`,
+    },
   ];
 
-  properties.forEach(p => {
-    const bucket = buckets.find(b => p.soldPrice >= b.min && p.soldPrice < b.max);
-    if (bucket) bucket.count++;
-  });
-
-  return buckets.filter(b => b.count > 0);
-}
-
-// Calculate average price by bedroom count
-function calculateBedroomBreakdown(properties: Property[]) {
-  const bedroomMap = new Map<number, number[]>();
-
-  properties.forEach(p => {
-    if (p.beds && p.beds > 0 && p.beds <= 6) {
-      if (!bedroomMap.has(p.beds)) {
-        bedroomMap.set(p.beds, []);
-      }
-      bedroomMap.get(p.beds)!.push(p.soldPrice);
-    }
-  });
-
-  return Array.from(bedroomMap.entries())
-    .map(([bedrooms, prices]) => {
-      const sortedPrices = prices.sort((a, b) => a - b);
-      const median = sortedPrices[Math.floor(sortedPrices.length / 2)];
-      return {
-        bedrooms,
-        count: prices.length,
-        medianPrice: median,
-      };
-    })
-    .sort((a, b) => a.bedrooms - b.bedrooms);
-}
-
-// Calculate rental yield data from yieldEstimate
-function calculateYieldData(properties: Property[]) {
-  const withYield = properties.filter(p => p.yieldEstimate && p.yieldEstimate.grossYield > 0);
-
-  if (withYield.length === 0) {
-    return null;
-  }
-
-  const yields = withYield.map(p => p.yieldEstimate!.grossYield);
-  const rents = withYield.map(p => p.yieldEstimate!.monthlyRent);
-
-  const avgYield = Math.round((yields.reduce((sum, y) => sum + y, 0) / yields.length) * 10) / 10;
-  const medianRent = rents.sort((a, b) => a - b)[Math.floor(rents.length / 2)];
-  const minRent = Math.min(...rents);
-  const maxRent = Math.max(...rents);
-
-  // Count by confidence level
-  const highConfidence = withYield.filter(p => p.yieldEstimate!.confidence === 'high').length;
-  const mediumConfidence = withYield.filter(p => p.yieldEstimate!.confidence === 'medium').length;
-
-  return {
-    avgYield,
-    medianRent,
-    rentRange: { min: minRent, max: maxRent },
-    propertiesWithData: withYield.length,
-    totalProperties: properties.length,
-    coverage: Math.round((withYield.length / properties.length) * 100),
-    confidence: highConfidence > mediumConfidence ? 'high' : 'medium',
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+          { "@type": "ListItem", position: 2, name: "Areas", item: `${SITE_URL}/areas` },
+          { "@type": "ListItem", position: 3, name: page.label, item: url },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faq.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
   };
-}
 
-// Server component wrapper - load data directly and pass to client
-export default async function AreaPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+  return (
+    <main className="rp-area">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
 
-  const areaName = slugToArea(slug);
-  if (!areaName) {
-    notFound();
-  }
+      <section className="rp-area-hero">
+        <div className="rp-wrap rp-area-hero-grid">
+          <div className="rp-area-hero-copy">
+            <nav className="rp-crumbs" aria-label="Breadcrumb">
+              <Link href="/areas">Areas</Link>
+              <span aria-hidden="true">/</span>
+              <span>{page.label}</span>
+            </nav>
+            <p className="rp-eyebrow">
+              Last 12 months · {p.count.toLocaleString("en-IE")} sales
+            </p>
+            <h1 className="rp-area-title">
+              Homes in {page.label} sell for{" "}
+              <span className="rp-area-title-figure">
+                <CountUp value={Math.abs(p.medianOverAskingPct)} format="pct" /> {p.medianOverAskingPct >= 0 ? "over" : "under"} asking
+              </span>
+            </h1>
+            <p className="rp-area-lede">
+              {share}% went above asking. The typical home sold for <strong>{euro(p.medianPrice)}</strong>
+              {p.medianPricePerSqm ? <>, about {euro(p.medianPricePerSqm)} per m²</> : null}. That is{" "}
+              {Math.abs(aboveDublin) < 0.3
+                ? "in line with Dublin as a whole"
+                : `${pct(aboveDublin)} ${aboveDublin > 0 ? "hotter" : "cooler"} than Dublin as a whole`}
+              .
+            </p>
+            <AreaCheck
+              areaKey={page.key}
+              areaLabel={page.label}
+              priceLabel={reportPrice().label}
+              defaults={
+                page.typical[0]
+                  ? { typeGroup: page.typical[0].type, beds: page.typical[0].beds, askingPrice: page.typical[0].asking }
+                  : {
+                      typeGroup: page.street.type,
+                      beds: page.street.beds,
+                      askingPrice: Math.round(page.profile.medianPrice / 1.08 / 5000) * 5000,
+                    }
+              }
+            />
+            <p className="rp-area-more">
+              <Link href="/areas" className="rp-link">
+                Compare every area
+              </Link>
+            </p>
+          </div>
 
-  try {
-    // Load all properties directly (same as API route)
-    const allProperties = await loadProperties();
+          <AreaStreet sales={page.street.sales} type={page.street.type} beds={page.street.beds}>
+            {page.rank && (
+              <div className="rp-glass rp-glass--b">
+                <b>
+                  #{page.rank.position}
+                  <small> of {page.rank.of}</small>
+                </b>
+                <span>districts for bidding</span>
+              </div>
+            )}
+            <div className="rp-glass rp-glass--a">
+              <b>{share}%</b>
+              <span>sold above asking</span>
+            </div>
+          </AreaStreet>
+        </div>
+      </section>
 
-    // Filter to this specific area
-    const areaProperties = allProperties.filter(p =>
-      addressMatchesArea(p.address, areaName)
-    );
+      <div className="rp-wrap">
+        {trend.length >= 3 && (
+          <Reveal as="section" className="rp-area-section">
+            <div className="rp-area-section-head">
+              <h2 className="rp-h2">Quarter by quarter.</h2>
+              <p className="rp-prose">
+                How far over asking the typical {page.label} sale went, each quarter.
+                {moved !== null && Math.abs(moved) >= 0.5 && (
+                  <>
+                    {" "}
+                    Bidding has {moved > 0 ? "heated up" : "cooled"} from{" "}
+                    <strong>{signed(first.medianOverAskingPct)}</strong> in {first.quarter} to{" "}
+                    <strong>{signed(last.medianOverAskingPct)}</strong> in {last.quarter}.
+                  </>
+                )}
+              </p>
+            </div>
+            <Bars3D
+              ariaLabel={`Typical sale price against asking in ${page.label}, by quarter`}
+              valueHeading="Typical sale vs asking"
+              bars={trend.map((q, i) => ({
+                label: quarterLabel(q.quarter),
+                value: q.medianOverAskingPct,
+                highlight: i === trend.length - 1,
+                detail: `${q.count} sales, typical price ${euro(q.medianPrice)}`,
+              }))}
+            />
+          </Reveal>
+        )}
 
-    if (areaProperties.length === 0) {
-      notFound();
-    }
+        {page.byType.length >= 2 && (
+          <Reveal as="section" className="rp-area-section">
+            <div className="rp-area-section-head">
+              <h2 className="rp-h2">By type of home.</h2>
+              <p className="rp-prose">The same area bids differently for a flat and a family house.</p>
+            </div>
+            <div className="rp-area-types">
+              {page.byType.map(({ type, profile }) => (
+                <div key={type} className="rp-area-type">
+                  <span className="rp-area-type-name">{TYPE_NAMES[type].plural}</span>
+                  <span className="rp-area-type-figure">
+                    <CountUp value={profile.medianOverAskingPct} format="signedPct" />
+                  </span>
+                  <span className="rp-area-type-bar" aria-hidden="true">
+                    <i style={{ width: `${Math.round(profile.shareAboveAsking * 100)}%` }} />
+                  </span>
+                  <span className="rp-area-type-sub">
+                    {Math.round(profile.shareAboveAsking * 100)}% above asking · typical {euro(profile.medianPrice)} ·{" "}
+                    {profile.count} sales
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        )}
 
-    // Calculate stats
-    const stats = calculateAreaStats(areaProperties);
+        {page.typical.length > 0 && (
+          <Reveal as="section" className="rp-area-section">
+            <div className="rp-area-section-head">
+              <h2 className="rp-h2">What a typical home asks here, and gets.</h2>
+              <p className="rp-prose">
+                Typical asking prices in {page.label}, and what similar homes went on to sell for. Each row opens
+                the full check.
+              </p>
+            </div>
+            <div className="rp-area-typical">
+              {page.typical.map((t) => (
+                <Link
+                  key={`${t.type}-${t.beds}`}
+                  className="rp-area-typical-row"
+                  href={checkLink(page.key, { type: t.type, beds: t.beds, asking: t.asking })}
+                >
+                  <span className="rp-area-typical-home">
+                    {t.beds}-bed {TYPE_NAMES[t.type].single}
+                  </span>
+                  <span className="rp-area-typical-asks">
+                    <small>asks</small> {euro(t.asking)}
+                  </span>
+                  <span className="rp-area-typical-arrow" aria-hidden="true">
+                    →
+                  </span>
+                  <span className="rp-area-typical-gets">
+                    <small>likely sells for</small> {euro(t.likely)}
+                  </span>
+                  <span className={`rp-area-typical-pct${t.overPct >= 0 ? " is-over" : ""}`}>{signed(t.overPct)}</span>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
+        )}
 
-    // Get recent sales (last 30, sorted by date)
-    const recentSales = areaProperties
-      .sort((a, b) => new Date(b.soldDate).getTime() - new Date(a.soldDate).getTime())
-      .slice(0, 30)
-      .map(p => ({
-        address: p.address,
-        askingPrice: p.askingPrice,
-        soldPrice: p.soldPrice,
-        soldDate: p.soldDate,
-        overUnderPercent: p.overUnderPercent,
-        propertyType: p.propertyType,
-        bedrooms: p.beds || null,
-        floorArea: p.areaSqm,
-        berRating: null, // Not available in sold properties data
-        latitude: p.latitude,
-        longitude: p.longitude,
-      }));
+        <Reveal as="section" className="rp-area-section">
+          <div className="rp-area-section-head">
+            <h2 className="rp-h2">How far the bidding spreads.</h2>
+            <p className="rp-prose">
+              Half of {page.label} sales finished between <strong>{signed(p.p25OverAskingPct)}</strong> and{" "}
+              <strong>{signed(p.p75OverAskingPct)}</strong> of asking. One in four went further than that.
+            </p>
+          </div>
+          <div className="rp-spread" aria-hidden="true">
+            {(() => {
+              const lo = Math.min(-10, Math.floor(Math.min(...page.dots.values) / 5) * 5);
+              const hi = Math.max(25, Math.ceil(Math.max(...page.dots.values) / 5) * 5);
+              const at = (v: number) => `${((Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo)) * 100}%`;
+              const ticks: number[] = [];
+              for (let t = lo; t <= hi; t += 5) ticks.push(t);
+              return (
+                <>
+                  <div className="rp-spread-band" style={{ left: at(p.p25OverAskingPct), right: `calc(100% - ${at(p.p75OverAskingPct)})` }} />
+                  {(() => {
+                    // Stacked in a column per 1% over asking, so height shows how common an outcome was
+                    const stacks = new Map<number, number>();
+                    const tallest = Math.max(
+                      1,
+                      ...Object.values(
+                        page.dots.values.reduce<Record<number, number>>((acc, v) => {
+                          const bin = Math.round(Math.min(hi, Math.max(lo, v)));
+                          acc[bin] = (acc[bin] ?? 0) + 1;
+                          return acc;
+                        }, {}),
+                      ),
+                    );
+                    const step = Math.min(9, 170 / tallest);
+                    return page.dots.values.map((v, i) => {
+                      const bin = Math.round(Math.min(hi, Math.max(lo, v)));
+                      const level = stacks.get(bin) ?? 0;
+                      stacks.set(bin, level + 1);
+                      return (
+                        <i
+                          key={i}
+                          className={v > 0 ? "is-over" : ""}
+                          style={{ left: at(bin), bottom: `${14 + level * step}px`, animationDelay: `${level * 25}ms` }}
+                        />
+                      );
+                    });
+                  })()}
+                  <div className="rp-spread-median" style={{ left: at(p.medianOverAskingPct) }}>
+                    <span>typical {signed(p.medianOverAskingPct)}</span>
+                  </div>
+                  <div className="rp-spread-asking" style={{ left: at(0) }}>
+                    <span>asking price</span>
+                  </div>
+                  <div className="rp-spread-axis">
+                    {ticks.map((t) => (
+                      <span key={t} style={{ left: at(t) }}>
+                        {t > 0 ? `+${t}` : t}%
+                      </span>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+          <p className="rp-spread-note">
+            Each dot is {page.dots.salesPerDot === 1 ? "one sale" : `about ${page.dots.salesPerDot} sales`} in the last
+            12 months.
+          </p>
+        </Reveal>
 
-    // Get monthly trend (last 24 months)
-    const monthlyTrend = calculateMonthlyTrend(areaProperties);
+        <Reveal as="section" className="rp-area-section">
+          <div className="rp-area-section-head">
+            <h2 className="rp-h2">{page.label} on the map.</h2>
+            <p className="rp-prose">
+              Every area as a column, as tall and as warm as its homes bid over asking. {page.label} is in navy.
+            </p>
+          </div>
+          <AreaMap areas={mapAreas(buildAreaIndex(await getSalesStore()))} focusKey={page.key} />
+        </Reveal>
 
-    // Get property types breakdown
-    const propertyTypes = calculatePropertyTypes(areaProperties);
+        {page.recent.length > 0 && (
+          <Reveal as="section" className="rp-board-section">
+            <div className="rp-board-intro">
+              <h2 className="rp-h2">Latest sales in {page.label}.</h2>
+              <p className="rp-prose">
+                The price on the sign, and the price the buyer paid. The public register only shows the second.
+              </p>
+            </div>
+            <SalesBoard sales={page.recent} />
+          </Reveal>
+        )}
 
-    // Get price distribution
-    const priceDistribution = calculatePriceDistribution(areaProperties);
+        {(page.nearby.length > 0 || page.similar.length > 0) && (
+          <Reveal as="section" className="rp-area-section">
+            {page.nearby.length > 0 && (
+              <>
+                <h2 className="rp-h2">
+                  {page.kind === "district" ? `Neighbourhoods in ${page.label}.` : "Around here."}
+                </h2>
+                <div className="rp-area-cards">
+                  {page.nearby.map((a) => (
+                    <AreaCard key={a.key} area={a} />
+                  ))}
+                </div>
+              </>
+            )}
+            {page.similar.length > 0 && (
+              <>
+                <h3 className="rp-area-subhead">Where similar money buys a home</h3>
+                <div className="rp-area-cards">
+                  {page.similar.map((a) => (
+                    <AreaCard key={a.key} area={a} />
+                  ))}
+                </div>
+              </>
+            )}
+          </Reveal>
+        )}
 
-    // Get bedroom breakdown
-    const bedroomBreakdown = calculateBedroomBreakdown(areaProperties);
+        <Reveal as="section" className="rp-area-section rp-area-faq">
+          <h2 className="rp-h2">Questions about {page.label}.</h2>
+          {faq.map((f) => (
+            <details key={f.q}>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </Reveal>
 
-    // Get rental yield data
-    const yieldData = calculateYieldData(areaProperties);
+        <aside className="rp-blog-cta rp-area-cta">
+          <div>
+            <h2 className="rp-h2">Bidding in {page.label}?</h2>
+            <p className="rp-prose">
+              Put in the home&apos;s type, size and asking price, or paste its listing link, and see what similar
+              homes here really sold for.
+            </p>
+          </div>
+          <a href="#check" className="rp-button rp-button--ink">
+            Check the home, free
+          </a>
+        </aside>
 
-    const data = {
-      area: areaName,
-      slug,
-      stats,
-      recentSales,
-      monthlyTrend,
-      propertyTypes,
-      priceDistribution,
-      bedroomBreakdown,
-      yieldData,
-      nearbyComparison: [], // Skip for static generation - can be loaded client-side if needed
-    };
-
-    return <AreaClient slug={slug} initialData={data} />;
-  } catch (error) {
-    console.error('Error loading area data:', error);
-    notFound();
-  }
+        <p className="rp-area-source">
+          From {p.count.toLocaleString("en-IE")} {page.label} sales in the 12 months to {longDate(page.dataTo)}, each with
+          its asking price and its sale price from the Property Price Register. Not a valuation.
+        </p>
+      </div>
+    </main>
+  );
 }

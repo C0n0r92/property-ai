@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { AuthButtons } from "@/components/auth/AuthButtons";
 import { LoginModal } from "@/components/auth/LoginModal";
@@ -9,6 +10,7 @@ import { RecentlyViewedDropdown } from "@/components/RecentlyViewedDropdown";
 
 export function Navigation() {
   const { user } = useAuth();
+  const pathname = usePathname();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
   const toolsDropdownRef = useRef<HTMLDivElement>(null);
@@ -26,6 +28,9 @@ export function Navigation() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // The Real Price pages carry their own navigation
+  if (pathname?.startsWith('/real-price')) return null;
 
   return (
     <>
@@ -62,6 +67,12 @@ export function Navigation() {
             </div>
 
             <div className="hidden md:flex items-center gap-1">
+              <Link
+                href="/real-price"
+                className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium text-sm"
+              >
+                Real Price Check
+              </Link>
               <Link
                 href="/map"
                 className="px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium text-sm"

@@ -1,0 +1,20 @@
+# Local Postgres for development. Production uses a managed database.
+#   docker compose up -d db
+#   DATABASE_URL=postgres://gaff:gaff@localhost:55432/gaff  DATABASE_SSL=disable
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: gaff
+      POSTGRES_PASSWORD: gaff
+      POSTGRES_DB: gaff
+    ports:
+      - "55432:5432"
+    volumes:
+      - gaff-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gaff"]
+      interval: 5s
+      retries: 10
+volumes:
+  gaff-db:

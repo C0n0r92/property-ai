@@ -1,65 +1,31 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { updateSession } from './src/lib/supabase/middleware';
 
-export async function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  const hostname = request.headers.get('host') || '';
-  
-  // Check protocol - handle both direct and proxied requests
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttp = request.nextUrl.protocol === 'http:' || forwardedProto === 'http';
-  
-  // Check if www redirect is needed
-  const needsWwwRedirect = hostname.startsWith('www.');
-  
-  // Handle auth session first (important for cookie management)
-  // This ensures cookies are properly set/refreshed before any redirects
-  const supabaseResponse = await updateSession(request);
-  
-  // Determine the final canonical URL (https, non-www)
-  const needsRedirect = isHttp || needsWwwRedirect;
-  
-  if (needsRedirect) {
-    // Build the canonical URL: https://irishpropertydata.com
-    if (isHttp) {
-      url.protocol = 'https:';
-    }
-    if (needsWwwRedirect) {
-      const nonWwwHostname = hostname.replace('www.', '');
-      url.hostname = nonWwwHostname;
-    }
-    
-    // Create redirect response
-    const redirectResponse = NextResponse.redirect(url, 301);
-    
-    // Preserve cookies from Supabase session by copying Set-Cookie headers
-    // This is critical to maintain authentication across redirects
-    const setCookieHeaders = supabaseResponse.headers.getSetCookie();
-    setCookieHeaders.forEach(cookie => {
-      redirectResponse.headers.append('Set-Cookie', cookie);
-    });
-    
-    return redirectResponse;
-  }
-  
-  // No redirect needed, return the Supabase response
-  return supabaseResponse;
+/**
+ * One canonical address for every page: https, without "www". Requests for
+ * anything else are sent there permanently, keeping the path and query.
+ */
+export function middleware(request: NextRequest) {
+  // The address the visitor used. request.nextUrl holds the server's own
+  // internal address (e.g. 0.0.0.0:8080), so it cannot be used to redirect.
+  const host = (request.headers.get('x-forwarded-host') || request.headers.get('host') || '').split(',')[0].trim();
+  const hostname = host.replace(/:\d+$/, '');
+  if (!hostname || /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(hostname)) return NextResponse.next();
+
+  // Visitors always arrive through the host's proxy, which says how they
+  // connected in x-forwarded-proto. A request without it came straight to the
+  // server (the platform's health check, by internal IP): leave it alone.
+  const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0].trim();
+  if (!forwardedProto) return NextResponse.next();
+  const isHttp = forwardedProto === 'http';
+  const isWww = hostname.startsWith('www.');
+  if (!isHttp && !isWww) return NextResponse.next();
+
+  const canonicalHost = isWww ? hostname.slice(4) : hostname;
+  const { pathname, search } = request.nextUrl;
+  return NextResponse.redirect(`https://${canonicalHost}${pathname}${search}`, 301);
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  // Static files, images and the health check never need it
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
-
-
-
-
-

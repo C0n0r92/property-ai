@@ -6,38 +6,45 @@ services:
       repo: C0n0r92/property-ai
       branch: main
       deploy_on_push: true
-    source_dir: /dashboard
-    build_command: npm run build
-    run_command: npm run start
-    environment_slug: node-js
+    # Built from the repository's Dockerfile: the app is a standalone Next.js
+    # server (output: 'standalone'), which "next start" cannot run
+    dockerfile_path: Dockerfile
+    source_dir: /
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
-    http_port: 3000
+    http_port: 8080
     envs:
-      - key: NEXT_PUBLIC_MAPBOX_TOKEN
-        scope: RUN_AND_BUILD_TIME
-        value: pk.eyJ1IjoiYzBuMHI5IiwiYSI6ImNtajZiaXZzdDBrOHMzZXF5dnFnMmZ6Ym4ifQ.Np14DcYGtlYDP8yBPUp_JQ
       - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
         scope: RUN_AND_BUILD_TIME
         value: G-43FMLL1ZG0
-      - key: NEXTAUTH_SECRET
-        scope: RUN_AND_BUILD_TIME
-        value: 402kbrR3CT3PBkuq6LSPFHMDwCqKdbrpdbiOpEMzXiY=
-      - key: NEXTAUTH_URL
-        scope: RUN_AND_BUILD_TIME
-        value: https://irishpropertydata.com
       - key: NODE_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
-      - key: NEXT_PUBLIC_SUPABASE_URL
-        scope: RUN_AND_BUILD_TIME
-        value: your_supabase_project_url_here
-      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
-        scope: RUN_AND_BUILD_TIME
-        value: your_supabase_anon_key_here
       - key: NEXT_PUBLIC_BASE_URL
         scope: RUN_AND_BUILD_TIME
         value: https://irishpropertydata.com
+      - key: NEXT_PUBLIC_SITE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://irishpropertydata.com
+      # Housing data (sales, register, listings) and report/email records
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+      # The database's certificate authority, so its certificate is checked
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        value: ${db.CA_CERT}
+      # Set these in the DigitalOcean dashboard, not in this file
+      - key: STRIPE_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      # Resend (EU, domain mail.irishpropertydata.com): smtps://resend:<sending key>@smtp.resend.com:465
+      - key: SMTP_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: EMAIL_FROM
+        scope: RUN_TIME
+        value: Irish Property Data <hello@mail.irishpropertydata.com>
     routes:
       - path: /
     health_check:
@@ -46,9 +53,63 @@ services:
       period_seconds: 10
       timeout_seconds: 5
       failure_threshold: 3
+databases:
+  # A production database must name an existing Managed Postgres cluster:
+  # create "gaff-db" (PostgreSQL 16, Frankfurt) first, then fill it with
+  # pipeline/scripts/copy-to-remote.sh
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+    cluster_name: gaff-db
+
+jobs:
+  # Apply db/*.sql before each deploy
+  - name: migrate
+    kind: PRE_DEPLOY
+    dockerfile_path: Dockerfile.pipeline
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
+    run_command: npm run migrate
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+      # The database's certificate authority, so its certificate is checked
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        value: ${db.CA_CERT}
+
+  # Register import, listing collection and matching, once a day
+  - name: daily-data
+    kind: SCHEDULED
+    schedule:
+      cron: "30 5 * * *"
+      time_zone: Europe/Dublin
+    dockerfile_path: Dockerfile.pipeline
+    github:
+      repo: C0n0r92/property-ai
+      branch: main
+    run_command: npm run daily
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+      # The database's certificate authority, so its certificate is checked
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        value: ${db.CA_CERT}
+
 domains:
+  # "zone" lets App Platform create the DNS records itself; the domain's
+  # name servers (set at Namecheap) point at DigitalOcean
   - domain: irishpropertydata.com
     type: PRIMARY
+    zone: irishpropertydata.com
   - domain: www.irishpropertydata.com
     type: ALIAS
+    zone: irishpropertydata.com
 
