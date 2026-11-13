@@ -704,18 +704,8 @@ export default function RealPriceClient({
             </a>
           ))}
         </div>
-      </div>
+        <MarketExplorer initial={market} homeArea={answeredFor.areaKey} />
 
-      {/* Full-width bands in the hero's language */}
-      <EmailResult
-        query={answeredFor}
-        areaLabel={areaLabel}
-        likelyPrice={prediction.mid}
-        homeLabel={`${answeredFor.beds}-bed ${type.label} in ${areaLabel}`}
-      />
-      <MarketExplorer initial={market} homeArea={answeredFor.areaKey} />
-
-      <div className="rp-wrap">
         <section className="rp-board-section">
           <div className="rp-board-intro">
             <h2 className="rp-h2">Asked, then sold.</h2>
@@ -823,6 +813,8 @@ export default function RealPriceClient({
             litUpTo={prediction.medianOverAskingPct}
           />
         </section>
+
+        <EmailResult query={answeredFor} areaLabel={areaLabel} />
 
         <section className="rp-section">
           <h2 className="rp-h2">How it works, and how often it is right</h2>

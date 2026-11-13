@@ -12,22 +12,12 @@ interface Props {
     askingPrice: number;
   };
   areaLabel: string;
-  /** The answer, so the email preview shows exactly what will arrive. */
-  likelyPrice: number;
-  homeLabel: string;
 }
 
 type Status = "idle" | "sending" | "emailed" | "saved" | "error";
 
-const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
-
-/** "Email this answer to …": the same sentence-as-form as the hero. */
-export default function EmailResult({
-  query,
-  areaLabel,
-  likelyPrice,
-  homeLabel,
-}: Props) {
+/** "Not bidding yet?": email the free answer, with a separate alert opt-in. */
+export default function EmailResult({ query, areaLabel }: Props) {
   const [email, setEmail] = useState("");
   const [alerts, setAlerts] = useState(false);
   const [company, setCompany] = useState("");
@@ -72,142 +62,75 @@ export default function EmailResult({
   }
 
   return (
-    <section className="rp-band rp-band--mail" aria-labelledby="rp-mail-title">
-      <div className="rp-band-inner rp-mail-grid">
-        <div>
-          <p className="rp-hint">Not bidding yet?</p>
-          {done ? (
-            <>
-              <h2 className="rp-sentence rp-band-sentence" id="rp-mail-title">
-                Sent to <span className="rp-mail-sent">{email}</span>
-              </h2>
-              <p className="rp-lede rp-band-lede">
-                {alerts
-                  ? `We’ll also tell you when a similar home sells in ${areaLabel}.`
-                  : "The email links straight back to this answer."}
-              </p>
-            </>
-          ) : (
-            <form onSubmit={onSubmit}>
-              <h2 className="rp-sentence rp-band-sentence" id="rp-mail-title">
-                Email this answer to{" "}
-                <span
-                  className="rp-field rp-field--price rp-field--email"
-                  style={
-                    {
-                      "--chars": `${Math.max(9, email.length) * 0.62}em`,
-                    } as React.CSSProperties
-                  }
-                >
-                  <input
-                    type="email"
-                    required
-                    autoComplete="email"
-                    aria-label="Your email address"
-                    placeholder="your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <svg
-                    className="rp-field-icon"
-                    viewBox="0 0 12 12"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M8.2 1.8 10.2 3.8 4 10 1.6 10.4 2 8z"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.3"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-              </h2>
-
-              <div className="rp-mail-actions">
-                <button
-                  className="rp-button rp-button--ink"
-                  type="submit"
-                  disabled={status === "sending"}
-                >
-                  {status === "sending" ? "Sending…" : "Send it"}
-                </button>
-                <label
-                  className={`rp-glass rp-alert${alerts ? " rp-alert--on" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    checked={alerts}
-                    onChange={(e) => setAlerts(e.target.checked)}
-                  />
-                  <span className="rp-switch-track" aria-hidden="true">
-                    <span />
-                  </span>
-                  Tell me when a similar home sells in {areaLabel}
-                </label>
-              </div>
-              <p className="rp-mail-small">
-                The alert is optional. Every email has a one-click unsubscribe.
-              </p>
-
-              {/* Hidden from people; bots fill it in */}
-              <input
-                className="rp-email-trap"
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                name="company"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-              />
-              {status === "error" && (
-                <p className="rp-offer-error" role="alert">
-                  {message}
-                </p>
-              )}
-            </form>
-          )}
-        </div>
-
-        {/* What will arrive, as a floating glass card */}
-        <div className="rp-mail-stage" aria-hidden="true">
-          <div className="rp-glass rp-mail-card">
-            <div className="rp-mail-from">
-              <span className="rp-mail-avatar">
-                <svg viewBox="0 0 28 28" width="16" height="16">
-                  <path d="M4 25V12l10-8 10 8v13z" fill="currentColor" />
-                </svg>
-              </span>
-              <span>
-                <b>Real Price</b>
-                <small>to {email.trim() || "you"}</small>
-              </span>
-            </div>
-            <p className="rp-mail-line">
-              A {homeLabel} asking {euro(query.askingPrice)} will really sell
-              for about
-            </p>
-            <p className="rp-mail-price">{euro(likelyPrice)}</p>
-            <span className="rp-mail-cta">See it again and try a bid</span>
-          </div>
-          {alerts && (
-            <div className="rp-glass rp-mail-card rp-mail-card--alert">
-              <span className="rp-mail-avatar">
-                <svg viewBox="0 0 28 28" width="16" height="16">
-                  <path d="M4 25V12l10-8 10 8v13z" fill="currentColor" />
-                </svg>
-              </span>
-              <span>
-                <b>A similar home just sold in {areaLabel}</b>
-                <small>
-                  What it asked, what it got, and what it means for you
-                </small>
-              </span>
-            </div>
-          )}
-        </div>
+    <section className="rp-section rp-keep" aria-labelledby="rp-keep-title">
+      <div>
+        <h2 className="rp-h2" id="rp-keep-title">
+          Not bidding yet? Keep this answer.
+        </h2>
       </div>
+      {done ? (
+        <div className="rp-prose" role="status">
+          <p>
+            <strong>Sent to {email}.</strong>{" "}
+            {alerts
+              ? `We’ll also email you when a similar home sells in ${areaLabel}.`
+              : "The email links straight back to this answer."}
+          </p>
+        </div>
+      ) : (
+        <form onSubmit={onSubmit} className="rp-keep-form">
+          <div className="rp-prose">
+            <p>
+              We’ll email you this result with a link back to it, ready for when
+              the right home comes up.
+            </p>
+          </div>
+          <div className="rp-keep-row">
+            <label className="rp-home-field">
+              <span>Your email address</span>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="you@example.ie"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+            <button
+              className="rp-button rp-button--ink"
+              type="submit"
+              disabled={status === "sending"}
+            >
+              {status === "sending" ? "Sending…" : "Email it to me"}
+            </button>
+          </div>
+          <label className="rp-keep-alert">
+            <input
+              type="checkbox"
+              checked={alerts}
+              onChange={(e) => setAlerts(e.target.checked)}
+            />
+            Also tell me when a similar home sells in {areaLabel}. Optional, and
+            every email has a one-click unsubscribe.
+          </label>
+          {/* Hidden from people; bots fill it in */}
+          <input
+            className="rp-email-trap"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            name="company"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+          />
+          {status === "error" && (
+            <p className="rp-offer-error" role="alert">
+              {message}
+            </p>
+          )}
+        </form>
+      )}
     </section>
   );
 }

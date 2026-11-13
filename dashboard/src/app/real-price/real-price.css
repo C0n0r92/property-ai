@@ -2139,596 +2139,132 @@
 }
 
 /* =====================================================================
-   Full-width bands (email, area comparison) in the hero's language:
-   dusk gradient, sentence-as-form, frosted glass, ink pills
+   Areas chart and the keep-this-answer row: same language as the bid chart
    ===================================================================== */
 
-.rp {
-  /* Validated categorical slots (dataviz reference palette, first three) */
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --series-3: #1baf7a;
+.rp-areas {
+  margin-top: clamp(4rem, 9vw, 7rem);
 }
 
-.rp-band {
-  position: relative;
-  overflow: hidden;
-  padding: clamp(4rem, 9vw, 7rem) clamp(1.1rem, 4vw, 2.5rem);
-  background:
-    radial-gradient(60% 70% at 85% 30%, rgba(255, 214, 190, 0.7), transparent 70%),
-    radial-gradient(55% 60% at 10% 100%, rgba(196, 184, 238, 0.55), transparent 70%),
-    linear-gradient(180deg, var(--paper) 0%, #fdf6ef 100%);
-}
-
-.rp-band--market {
-  background:
-    radial-gradient(60% 60% at 12% 20%, rgba(196, 184, 238, 0.55), transparent 70%),
-    radial-gradient(60% 70% at 92% 85%, rgba(255, 214, 190, 0.75), transparent 70%),
-    linear-gradient(180deg, #fdf6ef 0%, var(--paper) 100%);
-}
-
-.rp-band-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.rp-band .rp-sentence.rp-band-sentence {
-  font-size: clamp(1.9rem, 3.6vw, 3.1rem);
-  line-height: 1.22;
-  max-width: 22em;
-  text-align: left;
-  margin: 0;
-}
-
-.rp-band .rp-field {
-  border-bottom: 0;
-  padding: 0 0.32em 0.04em 0.22em;
-  margin: 0.04em 0;
-  border-radius: 0.28em;
-  background: rgba(47, 79, 176, 0.09);
-  box-shadow: inset 0 -0.06em 0 rgba(47, 79, 176, 0.45);
-  cursor: pointer;
-  transition: background 160ms ease, box-shadow 160ms ease;
-}
-
-.rp-band .rp-field:hover,
-.rp-band .rp-field:focus-within {
-  background: rgba(47, 79, 176, 0.16);
-  box-shadow: inset 0 -0.06em 0 var(--accent);
-}
-
-/* Area chips carry their series colour as a dot */
-.rp-field--series > i {
-  display: inline-block;
-  width: 0.28em;
-  height: 0.28em;
-  border-radius: 50%;
-  background: var(--series);
-  margin-right: 0.18em;
-  vertical-align: 0.2em;
-}
-
-.rp-band .rp-band-lede {
-  text-align: left;
-  margin: 1.2rem 0 0;
-  max-width: 34em;
-}
-
-/* ---------- Email band ---------- */
-
-.rp-mail-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(2rem, 5vw, 4rem);
-  align-items: center;
-}
-
-.rp-field--email input {
-  width: var(--chars, 6em);
-  max-width: 100%;
-  text-align: left;
-}
-
-.rp-field--email input::placeholder {
-  color: rgba(47, 79, 176, 0.45);
-  font-style: italic;
-}
-
-.rp-mail-sent {
-  font-family: var(--prose);
-  font-style: italic;
-  color: var(--accent);
-  word-break: break-all;
-}
-
-.rp-mail-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.8rem 1rem;
-  margin-top: 1.8rem;
-}
-
-.rp-band .rp-button {
-  border-radius: 999px;
-}
-
-.rp-alert {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.6rem 1rem 0.6rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.92rem;
-  color: var(--ink);
-  cursor: pointer;
-  animation: none;
-}
-
-.rp-alert input {
-  position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
-}
-
-.rp-switch-track {
-  flex: none;
-  position: relative;
-  width: 36px;
-  height: 22px;
-  border-radius: 999px;
-  background: rgba(22, 34, 63, 0.18);
-  transition: background 180ms ease;
-}
-
-.rp-switch-track span {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(22, 34, 63, 0.3);
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.rp-alert input:checked + .rp-switch-track {
-  background: var(--accent);
-}
-
-.rp-alert input:checked + .rp-switch-track span {
-  transform: translateX(14px);
-}
-
-.rp-alert input:focus-visible + .rp-switch-track {
-  outline: 3px solid var(--brass-bright);
-  outline-offset: 2px;
-}
-
-.rp-mail-small {
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-  margin: 0.9rem 0 0;
-}
-
-.rp-mail-stage {
-  position: relative;
-  display: grid;
-  gap: 0.9rem;
-  justify-items: end;
-}
-
-.rp-mail-card {
-  position: relative;
-  width: min(100%, 360px);
-  padding: 1.2rem 1.3rem 1.35rem;
-  transform: rotate(-2deg);
-  background: rgba(255, 255, 255, 0.55);
-}
-
-.rp-mail-from,
-.rp-mail-card--alert {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.rp-mail-from > span:last-child,
-.rp-mail-card--alert > span:last-child {
-  display: grid;
-  line-height: 1.25;
-  min-width: 0;
-}
-
-.rp-mail-from b,
-.rp-mail-card--alert b {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.rp-mail-from small,
-.rp-mail-card--alert small {
-  font-size: 0.75rem;
-  color: #3b4566;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.rp-mail-avatar {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--brass-bright);
-}
-
-.rp-mail-line {
-  font-size: 0.85rem;
-  color: #3b4566;
-  margin: 1rem 0 0;
-  line-height: 1.4;
-}
-
-.rp-mail-price {
-  font-size: 2.4rem;
-  font-weight: 500;
-  letter-spacing: -0.045em;
-  line-height: 1.05;
-  margin: 0.2rem 0 0.9rem;
-}
-
-.rp-mail-cta {
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--paper);
-  background: var(--ink);
-  border-radius: 999px;
-  padding: 0.5rem 0.9rem;
-}
-
-.rp-mail-card--alert {
-  width: min(100%, 340px);
-  padding: 0.85rem 1rem;
-  transform: rotate(1.5deg) translateX(-1.5rem);
-}
-
-/* ---------- Area comparison band ---------- */
-
-.rp-tiles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(0.8rem, 2vw, 1.4rem);
-  margin-top: clamp(2rem, 4vw, 3rem);
+.rp-areas-plot {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
   transition: opacity 200ms ease;
 }
 
-.rp-tiles--loading {
-  opacity: 0.5;
+.rp-areas-plot--loading {
+  opacity: 0.45;
 }
 
-.rp-band .rp-glass.rp-tile {
-  position: relative;
-  inset: auto;
-  padding: 1.2rem 1.3rem 1.3rem;
-  background: rgba(255, 255, 255, 0.5);
+.rp-areas-plot svg {
+  touch-action: auto;
 }
 
-.rp-tile-name {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-weight: 600;
-  font-size: 0.95rem;
+.rp-area {
+  cursor: pointer;
+  outline: none;
 }
 
-.rp-tile-name i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--series);
+.rp-area circle {
+  fill: var(--ink);
+  transition: fill 140ms ease;
 }
 
-.rp-band .rp-tile b {
-  display: block;
-  font-size: clamp(2.2rem, 4vw, 3rem);
-  font-weight: 500;
-  letter-spacing: -0.045em;
-  line-height: 1;
-  margin-top: 0.7rem;
-}
-
-.rp-band .rp-tile .rp-tile-caption {
-  display: block;
-  font-size: 0.85rem;
-  color: #3b4566;
-  margin-top: 0.35rem;
-}
-
-.rp-tile dl {
-  display: grid;
-  gap: 0.35rem;
-  margin: 1rem 0 0;
-  padding-top: 0.8rem;
-  border-top: 1px solid rgba(22, 34, 63, 0.1);
-}
-
-.rp-tile dl div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  font-size: 0.88rem;
-}
-
-.rp-tile dt {
-  color: #3b4566;
-}
-
-.rp-tile dd {
-  margin: 0;
-  font-weight: 500;
-}
-
-.rp-tile--empty {
-  display: grid;
-  place-items: center;
-  min-height: 12rem;
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-}
-
-.rp-band .rp-glass.rp-trend-card {
-  position: relative;
-  inset: auto;
-  margin-top: clamp(0.8rem, 2vw, 1.4rem);
-  padding: 1rem 0.5rem 0.6rem;
-  background: rgba(255, 255, 255, 0.42);
-  animation: rp-tile-in 900ms ease backwards;
-}
-
-.rp-trend-card svg {
-  display: block;
-  overflow: visible;
-}
-
-.rp-trend-grid line {
-  stroke: rgba(22, 34, 63, 0.08);
-}
-
-.rp-trend-grid .rp-trend-zero {
-  stroke: rgba(22, 34, 63, 0.4);
-  stroke-dasharray: 2 4;
-}
-
-.rp-trend-grid text,
-.rp-trend-q {
-  fill: #3b4566;
-  font-size: 11px;
-}
-
-.rp-trend-line {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.5;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.rp-trend-end {
-  fill: currentColor;
-  stroke: #fff;
-  stroke-width: 2;
-}
-
-.rp-trend-label {
+.rp-area text {
+  fill: var(--paper);
   font-size: 12px;
   font-weight: 600;
-  fill: var(--ink);
-}
-
-.rp-trend-cross {
-  stroke: rgba(22, 34, 63, 0.35);
-}
-
-.rp-trend-tip {
-  position: absolute;
-  top: 0.6rem;
-  display: grid;
-  gap: 0.25rem;
-  min-width: 12rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 12px;
-  background: var(--ink);
-  color: var(--paper);
-  font-size: 0.78rem;
   pointer-events: none;
 }
 
-.rp-trend-tip span {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+.rp-area--home circle {
+  fill: var(--brass-bright);
 }
 
-.rp-trend-tip i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.rp-area--home text {
+  fill: var(--ink);
 }
 
-.rp-trend-tip em {
-  font-style: normal;
-  margin-left: auto;
-  padding-left: 0.8rem;
-  color: #c5cddb;
+.rp-area .rp-area-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
 }
 
-/* Hottest-to-coolest strip of district chips */
-.rp-strip {
-  margin-top: clamp(1.6rem, 3vw, 2.4rem);
+.rp-area:focus-visible .rp-area-ring {
+  stroke: var(--brass-bright);
+  stroke-width: 3;
 }
 
-.rp-strip-title {
-  font-size: 0.9rem;
-  color: #3b4566;
-  margin: 0 0 0.8rem;
+.rp-key i.rp-key--home {
+  background: var(--brass-bright);
 }
 
-.rp-strip-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.rp-strip-chip {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4rem;
+/* A select that reads as part of the sentence */
+.rp-inline-select select {
   font: inherit;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--ink);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 999px;
-  padding: 0.4rem 0.8rem;
+  font-style: italic;
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed currentColor;
+  border-radius: 0;
+  padding: 0 0.1em;
   cursor: pointer;
-  /* Brass warmth scales with rank */
-  background: color-mix(
-    in srgb,
-    rgba(201, 153, 47, 0.55) calc(var(--heat) * 100%),
-    rgba(255, 255, 255, 0.5)
-  );
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  /* Hug the chosen option instead of the longest one */
+  field-sizing: content;
 }
 
-.rp-strip-chip span {
-  font-weight: 400;
-  font-size: 0.8rem;
-  color: #3b4566;
+/* Keep-this-answer row */
+.rp-keep {
+  padding-top: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid var(--ink);
 }
 
-.rp-strip-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(22, 34, 63, 0.12);
+.rp-keep-form .rp-prose p {
+  margin-bottom: 1.2rem;
 }
 
-.rp-strip-chip--on {
-  box-shadow: inset 0 0 0 2px var(--series);
-}
-
-@media (max-width: 900px) {
-  .rp-mail-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .rp-mail-stage {
-    justify-items: start;
-  }
-
-  .rp-tiles {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rp-band .rp-glass {
-    animation: none;
-  }
-}
-
-/* The hero's .rp-glass span/b rules are for its stat tiles; reset them here */
-.rp-band .rp-glass span,
-.rp-band .rp-glass b {
-  margin-top: 0;
-  font-size: inherit;
-  letter-spacing: normal;
-  line-height: inherit;
-  color: inherit;
-}
-
-.rp-band .rp-mail-card .rp-mail-avatar {
-  display: grid;
-  color: var(--brass-bright);
-}
-
-.rp-band .rp-mail-card .rp-mail-cta {
-  display: inline-block;
-  font-size: 0.8rem;
-  color: var(--paper);
-  margin-top: 0;
-}
-
-.rp-band .rp-mail-from > span:last-child,
-.rp-band .rp-mail-card--alert > span:last-child {
-  display: grid;
-}
-
-.rp-band .rp-mail-from b,
-.rp-band .rp-mail-card--alert b {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.rp-band .rp-mail-from small,
-.rp-band .rp-mail-card--alert small {
-  font-size: 0.75rem;
-  color: #3b4566;
-}
-
-.rp-band .rp-tile .rp-tile-name {
+.rp-keep-row {
   display: flex;
-  font-size: 0.95rem;
-  font-weight: 600;
+  align-items: flex-end;
+  gap: 0.8rem;
+  max-width: 34rem;
 }
 
-.rp-band .rp-tile .rp-tile-name i {
-  display: inline-block;
-  flex: none;
+.rp-keep-row .rp-home-field {
+  flex: 1;
+  min-width: 0;
 }
 
-.rp-band .rp-tile b {
-  font-size: clamp(2.2rem, 4vw, 3rem);
-  letter-spacing: -0.045em;
-  line-height: 1;
-  margin-top: 0.7rem;
+.rp-keep-row .rp-home-field input {
+  background: #fff;
 }
 
-.rp-band .rp-tile .rp-tile-caption {
-  font-size: 0.85rem;
-  color: #3b4566;
-  margin-top: 0.35rem;
-}
-
-.rp-nowrap {
+.rp-keep-row .rp-button {
   white-space: nowrap;
+  padding: 0.78rem 1.3rem;
 }
 
-@media (max-width: 900px) {
-  /* Stat tiles become a swipeable row on phones */
-  .rp-tiles {
-    display: flex;
-    grid-template-columns: none;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding: 0.5rem 0 1rem;
-    scrollbar-width: none;
-  }
+.rp-keep-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  max-width: 34rem;
+  margin-top: 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
 
-  .rp-tiles::-webkit-scrollbar {
-    display: none;
-  }
+.rp-keep-alert input {
+  margin-top: 0.2rem;
+  accent-color: var(--ink);
+}
 
-  .rp-band .rp-glass.rp-tile {
-    flex: 0 0 78%;
-    scroll-snap-align: start;
+@media (max-width: 560px) {
+  .rp-keep-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
