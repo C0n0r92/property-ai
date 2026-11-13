@@ -34,6 +34,16 @@ npm run daily                    # register + listings + match
 npm run status                   # row counts and recent runs
 ```
 
+## Filling a new database
+
+```bash
+DATABASE_URL="postgres://..." npm run bootstrap
+```
+
+This applies the schema, loads the existing records, imports the whole
+register, collects current listings and pairs them. It takes about 15 minutes
+and can be re-run safely.
+
 `DATABASE_URL` selects the database; without it the jobs use the local
 container. Set `DATABASE_SSL=disable` for a database without TLS.
 

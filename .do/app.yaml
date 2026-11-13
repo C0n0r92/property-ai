@@ -41,7 +41,7 @@ services:
         value: ${db.DATABASE_URL}
       # Set these three in the DigitalOcean dashboard, not in this file
       - key: STRIPE_SECRET_KEY
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
       - key: SMTP_URL
         scope: RUN_TIME

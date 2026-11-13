@@ -1397,7 +1397,7 @@
 .rp-board-head,
 .rp-board-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 6.5rem 12.5rem;
+  grid-template-columns: minmax(0, 1fr) 7.5rem 12.5rem;
   align-items: center;
   gap: 1rem;
 }
