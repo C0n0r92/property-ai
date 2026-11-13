@@ -33,6 +33,9 @@ export interface Sale {
   areaKeys: string[];
   /** Floor area in square metres, when known. */
   sqm?: number | null;
+  /** Where the home is, when known (for the map) */
+  lat?: number | null;
+  lng?: number | null;
 }
 
 export interface RawSale {
@@ -44,6 +47,11 @@ export interface RawSale {
   propertyType?: string | null;
   dublinPostcode?: string | null;
   areaSqm?: number | null;
+  lat?: number | null;
+  lng?: number | null;
+  /** The seed file's names for the same */
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface Query {
@@ -221,7 +229,17 @@ export function cleanSale(raw: RawSale, now: number): Sale | null {
     typeGroup: toTypeGroup(raw.propertyType),
     areaKeys: extractAreas(address, raw.dublinPostcode).map((a) => a.key),
     sqm: typeof raw.areaSqm === 'number' && raw.areaSqm >= 20 && raw.areaSqm <= 1000 ? raw.areaSqm : null,
+    ...inDublin(raw.lat ?? raw.latitude, raw.lng ?? raw.longitude),
   };
+}
+
+/** Coordinates only when they fall in and around County Dublin. */
+function inDublin(lat: unknown, lng: unknown): { lat: number | null; lng: number | null } {
+  const la = Number(lat);
+  const ln = Number(lng);
+  return Number.isFinite(la) && Number.isFinite(ln) && la > 53.1 && la < 53.65 && ln > -6.6 && ln < -5.9
+    ? { lat: la, lng: ln }
+    : { lat: null, lng: null };
 }
 
 /** Quantile of an ascending-sorted list, with linear interpolation. */

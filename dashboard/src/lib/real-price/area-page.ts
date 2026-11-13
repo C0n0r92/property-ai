@@ -261,6 +261,9 @@ export function buildAreaPage(store: SalesStore, key: string): AreaPage | null {
 
 export interface AreaIndexRow extends AreaLink {
   kind: 'district' | 'locality';
+  /** The area's centre: the middle of its recent sales' positions */
+  lat: number | null;
+  lng: number | null;
   shareAboveAsking: number;
   medianPricePerSqm: number | null;
   count: number;
@@ -270,10 +273,24 @@ export interface AreaIndexRow extends AreaLink {
 export function buildAreaIndex(store: SalesStore): AreaIndexRow[] {
   const rows: AreaIndexRow[] = [];
   const profiles = areaProfiles(store);
+  const from = store.asOf - 730 * DAY_MS;
+  const points = new Map<string, { lat: number[]; lng: number[] }>();
+  for (const s of store.sales) {
+    if (s.t < from || s.lat == null || s.lng == null) continue;
+    for (const k of s.areaKeys) {
+      const p = points.get(k) ?? { lat: [], lng: [] };
+      p.lat.push(s.lat);
+      p.lng.push(s.lng);
+      points.set(k, p);
+    }
+  }
   for (const area of store.areas) {
     const p = profiles.get(area.key);
     if (!p) continue;
+    const pts = points.get(area.key);
     rows.push({
+      lat: pts && pts.lat.length >= 5 ? median(pts.lat) : null,
+      lng: pts && pts.lng.length >= 5 ? median(pts.lng) : null,
       ...link(store, area.key, p),
       kind: area.kind,
       shareAboveAsking: p.shareAboveAsking,

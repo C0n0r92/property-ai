@@ -3,8 +3,11 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import Bars3D from "@/components/rp/Bars3D";
 import { CountUp, Reveal } from "@/components/rp/motion";
+import AreaMap, { type MapArea } from "@/components/rp/AreaMap";
 import {
   areaKeyFromSlug,
+  buildAreaIndex,
+  type AreaIndexRow,
   areaSlug,
   buildAreaPage,
   TYPE_NAMES,
@@ -36,6 +39,21 @@ const quarterLabel = (q: string) => {
 };
 const checkLink = (key: string, extra: Record<string, string | number> = {}) =>
   `/?${new URLSearchParams({ area: key, ...Object.fromEntries(Object.entries(extra).map(([k, v]) => [k, String(v)])) })}`;
+
+const mapAreas = (rows: AreaIndexRow[]): MapArea[] =>
+  rows
+    .filter((r) => r.lat !== null && r.lng !== null)
+    .map((r) => ({
+      key: r.key,
+      slug: r.slug,
+      label: r.label,
+      kind: r.kind,
+      lat: r.lat!,
+      lng: r.lng!,
+      value: r.medianOverAskingPct,
+      shareAbove: r.shareAboveAsking,
+      price: r.medianPrice,
+    }));
 
 async function load(slug: string): Promise<AreaPage | null> {
   const key = areaKeyFromSlug(slug);
@@ -363,6 +381,16 @@ export default async function AreaPageView({ params }: { params: Params }) {
             Each dot is {page.dots.salesPerDot === 1 ? "one sale" : `about ${page.dots.salesPerDot} sales`} in the last
             12 months.
           </p>
+        </Reveal>
+
+        <Reveal as="section" className="rp-area-section">
+          <div className="rp-area-section-head">
+            <h2 className="rp-h2">{page.label} on the map.</h2>
+            <p className="rp-prose">
+              Every area as a column, as tall and as warm as its homes bid over asking. {page.label} is in navy.
+            </p>
+          </div>
+          <AreaMap areas={mapAreas(buildAreaIndex(await getSalesStore()))} focusKey={page.key} />
         </Reveal>
 
         {page.recent.length > 0 && (

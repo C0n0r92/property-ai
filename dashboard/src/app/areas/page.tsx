@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Bars3D from "@/components/rp/Bars3D";
 import { Reveal } from "@/components/rp/motion";
-import { buildAreaIndex } from "@/lib/real-price/area-page";
+import AreaMap, { type MapArea } from "@/components/rp/AreaMap";
+import { buildAreaIndex, type AreaIndexRow } from "@/lib/real-price/area-page";
 import { getSalesStore } from "@/lib/real-price/store";
 import { jsonLd, SITE_URL } from "@/lib/site";
 
@@ -22,6 +23,21 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+const mapAreas = (rows: AreaIndexRow[]): MapArea[] =>
+  rows
+    .filter((r) => r.lat !== null && r.lng !== null)
+    .map((r) => ({
+      key: r.key,
+      slug: r.slug,
+      label: r.label,
+      kind: r.kind,
+      lat: r.lat!,
+      lng: r.lng!,
+      value: r.medianOverAskingPct,
+      shareAbove: r.shareAboveAsking,
+      price: r.medianPrice,
+    }));
 
 const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
 const signed = (v: number) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(1)}%`;
@@ -98,6 +114,10 @@ export default async function AreasIndex() {
             tower is a district: the taller it stands, the further over asking its homes go.
           </p>
         )}
+      </section>
+
+      <section className="rp-wrap rp-areas-map">
+        <AreaMap areas={mapAreas(rows)} />
       </section>
 
       <section className="rp-areas-skyline">

@@ -101,7 +101,7 @@ async function loadSales(): Promise<SalesStore> {
   try {
     const { rows } = await pool.query(
       `SELECT address, sold_date::text AS "soldDate", sold_price AS "soldPrice", asking_price AS "askingPrice",
-              beds, property_type AS "propertyType", dublin_postcode AS "dublinPostcode", sqm AS "areaSqm"
+              beds, property_type AS "propertyType", dublin_postcode AS "dublinPostcode", sqm AS "areaSqm", lat, lng
          FROM sales`
     );
     if (rows.length > 0) return buildStore(rows as RawSale[], Date.now());

@@ -713,3 +713,8 @@
   margin: 1rem 0 0;
   font-size: 0.9rem;
 }
+
+.rp-areas-map {
+  padding-top: 0;
+  padding-bottom: clamp(2rem, 5vw, 3rem);
+}

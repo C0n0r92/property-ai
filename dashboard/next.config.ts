@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   // Trace from this folder so the standalone server lands at a fixed path

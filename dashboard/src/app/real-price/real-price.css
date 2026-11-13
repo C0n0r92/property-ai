@@ -3351,3 +3351,78 @@
 .rp .rp-notfound-links a:hover {
   color: var(--accent);
 }
+
+/* ---------- 3D map of Dublin ---------- */
+
+.rp-map {
+  margin: 0;
+}
+
+.rp-map-stage {
+  position: relative;
+  height: clamp(380px, 58vw, 640px);
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  box-shadow: 0 30px 60px -40px rgba(22, 34, 63, 0.55);
+  background: #f3f1ec;
+}
+
+.rp-map-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1.4rem;
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.rp-map-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rp-map-legend i {
+  width: 120px;
+  height: 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, rgb(236, 226, 214), rgb(226, 186, 104) 40%, rgb(201, 153, 47) 66%, rgb(180, 35, 42));
+}
+
+.rp-map-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--rule);
+}
+
+.rp-map-toggle button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.rp-map-toggle button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* MapLibre's own controls, in the site's style */
+.rp-map .maplibregl-ctrl-group {
+  border-radius: 12px;
+  box-shadow: 0 8px 20px -12px rgba(22, 34, 63, 0.5);
+}
+
+.rp-map .maplibregl-ctrl-attrib {
+  font-size: 10px;
+}
