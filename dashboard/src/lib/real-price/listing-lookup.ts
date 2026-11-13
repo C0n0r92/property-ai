@@ -64,19 +64,24 @@ async function findRow(link: ListingLink): Promise<Row | null> {
     );
     if (rows[0]) return rows[0];
   }
-  // The same home is usually listed on both sites: match on the address
-  if (!/\d/.test(link.streetKey)) return null;
-  const { rows } = await db.query<Row>(
-    `SELECT ${COLUMNS} FROM listings
-      WHERE address_key = $1 AND last_seen >= CURRENT_DATE - 60
-      ORDER BY last_seen DESC LIMIT 10`,
-    [link.streetKey]
+  // The same home is usually listed on both sites: match on the address.
+  // MyHome writes flats as "Apt 89 Rath Gael", so the flat prefix is ignored.
+  if (!link.streetKeys.length) return null;
+  const { rows } = await db.query<Row & { street: string }>(
+    `SELECT ${COLUMNS}, regexp_replace(address_key, '^(APT|UNIT|FLAT|NO) ', '') AS street FROM listings
+      WHERE regexp_replace(address_key, '^(APT|UNIT|FLAT|NO) ', '') = ANY($1)
+        AND last_seen >= CURRENT_DATE - 60
+      ORDER BY last_seen DESC LIMIT 20`,
+    [link.streetKeys]
   );
-  return (
-    rows.find((r) =>
-      link.district && r.district ? r.district === link.district : sameArea(r.address, link.address)
-    ) ?? null
-  );
+  const sameDistrict = (r: Row) =>
+    link.district && r.district ? r.district === link.district : sameArea(r.address, link.address);
+  // The longest (most specific) street name that matches wins
+  for (const key of link.streetKeys) {
+    const found = rows.find((r) => r.street === key && sameDistrict(r));
+    if (found) return found;
+  }
+  return null;
 }
 
 async function priceHistory(row: Row): Promise<Array<{ date: string; price: number }>> {

@@ -8,11 +8,15 @@ const display = Bricolage_Grotesque({
   display: "swap",
 });
 
+// "optional": the font is preloaded and used if it arrives within ~100 ms;
+// otherwise the page keeps the stand-in for that visit instead of swapping
+// mid-read. The hero sentence's italic fields have no size-matched stand-in,
+// so a late swap re-wrapped the sentence and made the hero jump on phones.
 const prose = Source_Serif_4({
   subsets: ["latin"],
   style: ["normal", "italic"],
   variable: "--font-rp-prose",
-  display: "swap",
+  display: "optional",
 });
 
 /**

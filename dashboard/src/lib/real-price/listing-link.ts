@@ -15,6 +15,12 @@ export interface ListingLink {
   address: string;
   /** Normalised house number and street, as stored in listings.address_key */
   streetKey: string;
+  /**
+   * Possible normalised streets, longest first. A street with no Road, Park
+   * or similar ("89 Rath Gael Clondalkin") cannot be split from its locality,
+   * so the lookup tries each in turn. Empty without a house number.
+   */
+  streetKeys: string[];
   district: string | null;
   /** Home type named in a Daft link */
   typeHint: TypeGroup | null;
@@ -111,5 +117,16 @@ export function parseListingLink(input: string): ListingLink | null {
 
   const address = slugToAddress(slug);
   const key = addressKey(address);
-  return { site, id, address, streetKey: key.key, district: key.district, typeHint };
+
+  // The words before the district, starting with a house number
+  const words = slug.replace(/-(?:co-)?dublin(?:-\d{1,2}w?)?$/, '').split('-').filter(Boolean);
+  const streetKeys: string[] = [];
+  if (/^\d+[a-z]?$/.test(words[0] ?? '')) {
+    // At least the number and two words, so "89 Rath" never stands for a street
+    for (let n = words.length; n >= 3; n--) {
+      const candidate = addressKey(words.slice(0, n).join(' ')).key;
+      if (!streetKeys.includes(candidate)) streetKeys.push(candidate);
+    }
+  }
+  return { site, id, address, streetKey: key.key, streetKeys, district: key.district, typeHint };
 }

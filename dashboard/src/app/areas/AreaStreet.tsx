@@ -6,7 +6,11 @@ import type { StreetSale } from "@/lib/real-price/area-page";
 import type { TypeGroup } from "@/lib/real-price/model";
 import HeroScene from "../real-price/HeroScene";
 
-const Diorama = dynamic(() => import("../real-price/Diorama"), { ssr: false });
+// Holds the street's space while its code loads, so nothing below moves when it arrives
+const Diorama = dynamic(() => import("../real-price/Diorama"), {
+  ssr: false,
+  loading: () => <div className="rp-diorama rp-diorama--loading" aria-hidden="true" />,
+});
 
 const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
 const signed = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;

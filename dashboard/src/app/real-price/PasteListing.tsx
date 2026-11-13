@@ -21,8 +21,11 @@ const MISSING_WORDS: Record<ListingAnswer["missing"][number], string> = {
  */
 export default function PasteListing({
   onHome,
+  autoFocus = false,
 }: {
   onHome: (home: ListingAnswer["home"], missing: ListingAnswer["missing"]) => void;
+  /** Focus the box when it appears (it opens from the hint) */
+  autoFocus?: boolean;
 }) {
   const [url, setUrl] = useState("");
   const [state, setState] = useState<"idle" | "busy" | "error">("idle");
@@ -95,11 +98,12 @@ export default function PasteListing({
         </label>
         <input
           id="rp-paste-url"
+          autoFocus={autoFocus}
           type="url"
           inputMode="url"
           autoComplete="off"
           spellCheck={false}
-          placeholder="Or paste a MyHome or Daft link"
+          placeholder="Paste a MyHome or Daft link"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onPaste={(e) => {

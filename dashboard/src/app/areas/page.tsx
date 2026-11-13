@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Bars3D from "@/components/rp/Bars3D";
+import { Reveal } from "@/components/rp/motion";
 import { buildAreaIndex } from "@/lib/real-price/area-page";
 import { getSalesStore } from "@/lib/real-price/store";
 import { jsonLd, SITE_URL } from "@/lib/site";
@@ -119,15 +120,15 @@ export default async function AreasIndex() {
       </section>
 
       <div className="rp-wrap">
-        <section className="rp-area-section">
+        <Reveal as="section" className="rp-area-section">
           <h2 className="rp-h2">Postal districts</h2>
           {table(districts, "Dublin postal districts")}
-        </section>
+        </Reveal>
         {localities.length > 0 && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             <h2 className="rp-h2">Neighbourhoods and towns</h2>
             {table(localities, "Dublin neighbourhoods and towns")}
-          </section>
+          </Reveal>
         )}
         <p className="rp-area-source">
           From sales in the 12 months to {dataTo} where both the asking price and the sale price are known. Areas

@@ -20,7 +20,11 @@ import type { ListingAnswer } from "@/lib/real-price/listing-lookup";
 import ReportPreview from "./ReportPreview";
 import SalesBoard, { type BoardSale } from "./SalesBoard";
 
-const Diorama = dynamic(() => import("./Diorama"), { ssr: false });
+// Holds the street's space while its code loads, so nothing below moves when it arrives
+const Diorama = dynamic(() => import("./Diorama"), {
+  ssr: false,
+  loading: () => <div className="rp-diorama rp-diorama--loading" aria-hidden="true" />,
+});
 
 export interface Answer {
   areaLabel: string;
@@ -181,6 +185,7 @@ export default function RealPriceClient({
   );
   const [autoPriced, setAutoPriced] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [pasteOpen, setPasteOpen] = useState(false);
 
   async function copyLink() {
     const params = new URLSearchParams({
@@ -458,13 +463,28 @@ export default function RealPriceClient({
                   fill="currentColor"
                 />
               </svg>
-              {autoPriced
-                ? "Typical asking price shown. Tap it to enter the real one"
-                : touched
-                  ? "Updated from real sales"
-                  : "Tap the blue words to describe the home you’re looking at"}
+              <span>
+                {autoPriced
+                  ? "Typical asking price shown. Tap it to enter the real one"
+                  : touched
+                    ? "Updated from real sales"
+                    : "Tap the blue words to describe the home"}
+                {/* In one span with the text, so it wraps as a sentence */}
+                {!pasteOpen && !autoPriced && (
+                  <span>
+                    , or{" "}
+                    <button
+                      type="button"
+                      className="rp-hint-paste"
+                      onClick={() => setPasteOpen(true)}
+                    >
+                      paste a listing link
+                    </button>
+                  </span>
+                )}
+              </span>
             </p>
-            <PasteListing onHome={fromListing} />
+            {pasteOpen && <PasteListing onHome={fromListing} autoFocus />}
             {/* The sentence below is also the form, so its text is full of
                 choices; search engines and screen readers get this heading */}
             <h1 className="rp-visually-hidden">
@@ -575,7 +595,10 @@ export default function RealPriceClient({
                 className="rp-field rp-field--price"
                 style={
                   {
-                    "--chars": `${priceText.length * 0.92}ch`,
+                    // In em, not ch: ch follows the font, so the box would
+                    // narrow when the web font replaces its stand-in and the
+                    // sentence would re-wrap (a visible jump on phones)
+                    "--chars": `${(priceText.length * 0.54).toFixed(2)}em`,
                   } as React.CSSProperties
                 }
               >
@@ -605,8 +628,50 @@ export default function RealPriceClient({
               </span>{" "}
               <span className="rp-answer">
                 {autoPriced ? "and" : ""} will really sell for about
-                <span className="rp-answer-price" aria-live="polite">
-                  {euro(Math.round(shownPrice / 1000) * 1000)}
+                <span className="rp-answer-row">
+                  <span className="rp-answer-price" aria-live="polite">
+                    {euro(Math.round(shownPrice / 1000) * 1000)}
+                  </span>
+                  <button
+                    type="button"
+                    className="rp-copy-icon"
+                    onClick={copyLink}
+                    aria-label={
+                      copied ? "Link copied" : "Copy a link to this answer"
+                    }
+                    title={
+                      copied ? "Link copied" : "Copy a link to this answer"
+                    }
+                  >
+                    <svg
+                      viewBox="0 0 16 16"
+                      width="13"
+                      height="13"
+                      aria-hidden="true"
+                    >
+                      {copied ? (
+                        <path
+                          d="M3 8.5 6.5 12 13 4.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      ) : (
+                        <path
+                          d="M6.8 9.2a2.6 2.6 0 0 0 3.7 0l2.2-2.2a2.6 2.6 0 0 0-3.7-3.7l-.8.8M9.2 6.8a2.6 2.6 0 0 0-3.7 0L3.3 9a2.6 2.6 0 0 0 3.7 3.7l.8-.8"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.4"
+                          strokeLinecap="round"
+                        />
+                      )}
+                    </svg>
+                    {copied && (
+                      <span className="rp-copy-done">Link copied</span>
+                    )}
+                  </button>
                 </span>
               </span>
             </div>
@@ -641,55 +706,16 @@ export default function RealPriceClient({
                   ? "Opening payment…"
                   : `Get the full report for ${price.label}`}
               </button>
-              <a className="rp-link" href="#bid">
-                Try a bid first
-              </a>
               <Link className="rp-link" href="/real-price/report?sample=1">
                 See a sample report
               </Link>
-              <button
-                type="button"
-                className="rp-link rp-copy"
-                onClick={copyLink}
-              >
-                <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
-                  {copied ? (
-                    <path
-                      d="M3 8.5 6.5 12 13 4.5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  ) : (
-                    <path
-                      d="M6.8 9.2a2.6 2.6 0 0 0 3.7 0l2.2-2.2a2.6 2.6 0 0 0-3.7-3.7l-.8.8M9.2 6.8a2.6 2.6 0 0 0-3.7 0L3.3 9a2.6 2.6 0 0 0 3.7 3.7l.8-.8"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.4"
-                      strokeLinecap="round"
-                    />
-                  )}
-                </svg>
-                <span aria-live="polite">
-                  {copied ? "Link copied" : "Copy link to this answer"}
-                </span>
-              </button>
             </div>
-            <PriceLine price={price} />
-            <ul className="rp-proof" aria-label="Where the answer comes from">
-              <li>
-                <b>{salesCount.toLocaleString("en-IE")}</b> Dublin sales with
-                both asking and sold price
-              </li>
-              <li>
-                Tested on <b>{backtest.salesTested.toLocaleString("en-IE")}</b>{" "}
-                unseen sales: typically <b>{backtest.medianErrorModelPct}%</b> from
-                the final price
-              </li>
-              <li>Sales to {longDate(dataTo)}</li>
-            </ul>
+            <p className="rp-price-quiet">
+              {price.isLaunch
+                ? `Launch price · ${price.regularLabel} from 1 January · `
+                : ""}
+              {REFUND_DAYS}-day money-back guarantee
+            </p>
           </div>
 
           <div
@@ -779,6 +805,22 @@ export default function RealPriceClient({
           </div>
         </div>
       </section>
+
+      {/* Where the answer comes from: just under the hero, out of its way */}
+      <div className="rp-proof-band">
+        <ul className="rp-proof" aria-label="Where the answer comes from">
+          <li>
+            <b>{salesCount.toLocaleString("en-IE")}</b> Dublin sales with both
+            asking and sold price
+          </li>
+          <li>
+            Tested on <b>{backtest.salesTested.toLocaleString("en-IE")}</b>{" "}
+            unseen sales: typically <b>{backtest.medianErrorModelPct}%</b> from
+            the final price
+          </li>
+          <li>Sales to {longDate(dataTo)}</li>
+        </ul>
+      </div>
 
       <div className="rp-wrap">
         <h2 className="rp-h2" id="bid">
@@ -885,9 +927,11 @@ export default function RealPriceClient({
               Here, an even-odds bid and one that is rarely beaten are{" "}
               <strong>{euro(result.gapToRarelyBeaten)} apart</strong>. The
               report shows every comparable sale in that range, so you know
-              where to stop. Going even €5,000 further than you needed to
-              costs about{" "}
-              {(Math.round(5000 / (price.cents / 100) / 10) * 10).toLocaleString("en-IE")}{" "}
+              where to stop. Going even €5,000 further than you needed to costs
+              about{" "}
+              {(
+                Math.round(5000 / (price.cents / 100) / 10) * 10
+              ).toLocaleString("en-IE")}{" "}
               times what the report does.
             </p>
             <ul className="rp-offer-list">
@@ -1027,9 +1071,7 @@ export default function RealPriceClient({
         </section>
 
         <footer className="rp-footer">
-          <span>
-            Sales up to {longDate(dataTo)}. Not a valuation.
-          </span>
+          <span>Sales up to {longDate(dataTo)}. Not a valuation.</span>
           <span>
             <Link href="/areas">Areas</Link>
             <Link href="/reports">Monthly report</Link>

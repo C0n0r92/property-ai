@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import Bars3D from "@/components/rp/Bars3D";
+import { CountUp, Reveal } from "@/components/rp/motion";
 import {
   areaKeyFromSlug,
   areaSlug,
@@ -152,7 +153,9 @@ export default async function AreaPageView({ params }: { params: Params }) {
             </p>
             <h1 className="rp-area-title">
               Homes in {page.label} sell for{" "}
-              <span className="rp-area-title-figure">{overUnder(p.medianOverAskingPct)}</span>
+              <span className="rp-area-title-figure">
+                <CountUp value={Math.abs(p.medianOverAskingPct)} format="pct" /> {p.medianOverAskingPct >= 0 ? "over" : "under"} asking
+              </span>
             </h1>
             <p className="rp-area-lede">
               {share}% went above asking. The typical home sold for <strong>{euro(p.medianPrice)}</strong>
@@ -192,7 +195,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
 
       <div className="rp-wrap">
         {trend.length >= 3 && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">Quarter by quarter.</h2>
               <p className="rp-prose">
@@ -217,11 +220,11 @@ export default async function AreaPageView({ params }: { params: Params }) {
                 detail: `${q.count} sales, typical price ${euro(q.medianPrice)}`,
               }))}
             />
-          </section>
+          </Reveal>
         )}
 
         {page.byType.length >= 2 && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">By type of home.</h2>
               <p className="rp-prose">The same area bids differently for a flat and a family house.</p>
@@ -230,7 +233,9 @@ export default async function AreaPageView({ params }: { params: Params }) {
               {page.byType.map(({ type, profile }) => (
                 <div key={type} className="rp-area-type">
                   <span className="rp-area-type-name">{TYPE_NAMES[type].plural}</span>
-                  <span className="rp-area-type-figure">{signed(profile.medianOverAskingPct)}</span>
+                  <span className="rp-area-type-figure">
+                    <CountUp value={profile.medianOverAskingPct} format="signedPct" />
+                  </span>
                   <span className="rp-area-type-bar" aria-hidden="true">
                     <i style={{ width: `${Math.round(profile.shareAboveAsking * 100)}%` }} />
                   </span>
@@ -241,11 +246,11 @@ export default async function AreaPageView({ params }: { params: Params }) {
                 </div>
               ))}
             </div>
-          </section>
+          </Reveal>
         )}
 
         {page.typical.length > 0 && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">What a typical home asks here, and gets.</h2>
               <p className="rp-prose">
@@ -276,10 +281,10 @@ export default async function AreaPageView({ params }: { params: Params }) {
                 </Link>
               ))}
             </div>
-          </section>
+          </Reveal>
         )}
 
-        <section className="rp-area-section">
+        <Reveal as="section" className="rp-area-section">
           <div className="rp-area-section-head">
             <h2 className="rp-h2">How far the bidding spreads.</h2>
             <p className="rp-prose">
@@ -345,10 +350,10 @@ export default async function AreaPageView({ params }: { params: Params }) {
             Each dot is {page.dots.salesPerDot === 1 ? "one sale" : `about ${page.dots.salesPerDot} sales`} in the last
             12 months.
           </p>
-        </section>
+        </Reveal>
 
         {page.recent.length > 0 && (
-          <section className="rp-board-section">
+          <Reveal as="section" className="rp-board-section">
             <div className="rp-board-intro">
               <h2 className="rp-h2">Latest sales in {page.label}.</h2>
               <p className="rp-prose">
@@ -356,11 +361,11 @@ export default async function AreaPageView({ params }: { params: Params }) {
               </p>
             </div>
             <SalesBoard sales={page.recent} />
-          </section>
+          </Reveal>
         )}
 
         {(page.nearby.length > 0 || page.similar.length > 0) && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             {page.nearby.length > 0 && (
               <>
                 <h2 className="rp-h2">
@@ -383,10 +388,10 @@ export default async function AreaPageView({ params }: { params: Params }) {
                 </div>
               </>
             )}
-          </section>
+          </Reveal>
         )}
 
-        <section className="rp-area-section rp-area-faq">
+        <Reveal as="section" className="rp-area-section rp-area-faq">
           <h2 className="rp-h2">Questions about {page.label}.</h2>
           {faq.map((f) => (
             <details key={f.q}>
@@ -394,7 +399,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
               <p>{f.a}</p>
             </details>
           ))}
-        </section>
+        </Reveal>
 
         <aside className="rp-blog-cta rp-area-cta">
           <div>

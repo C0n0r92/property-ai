@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Bars3D from "@/components/rp/Bars3D";
+import { CountUp, Reveal } from "@/components/rp/motion";
 import { areaSlug, TYPE_NAMES } from "@/lib/real-price/area-page";
 import { availableMonths, buildMonthlyReport, type MonthFigures } from "@/lib/real-price/monthly-report";
 import { getSalesStore } from "@/lib/real-price/store";
@@ -105,7 +106,9 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
           </nav>
           <p className="rp-eyebrow">Dublin over-asking report · {r.label}</p>
           <h1 className="rp-area-title">
-            Dublin homes sold for <span className="rp-area-title-figure">{signed(r.medianOverAskingPct)}</span> on
+            Dublin homes sold for <span className="rp-area-title-figure">
+              <CountUp value={r.medianOverAskingPct} format="signedPct" />
+            </span> on
             their asking price in {r.label}.
           </h1>
           <p className="rp-area-lede">
@@ -116,25 +119,33 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
           <div className="rp-report-tiles">
             <div className="rp-report-tile">
               <span>Typical sale vs asking</span>
-              <b>{signed(r.medianOverAskingPct)}</b>
+              <b>
+                <CountUp value={r.medianOverAskingPct} format="signedPct" />
+              </b>
               <Change now={r.medianOverAskingPct} then={r.previous} label={r.previous?.label ?? ""} />
               <Change now={r.medianOverAskingPct} then={r.yearAgo} label={r.yearAgo?.label ?? ""} />
             </div>
             <div className="rp-report-tile">
               <span>Sold above asking</span>
-              <b>{share}%</b>
+              <b>
+                <CountUp value={share} format="pct" decimals={0} />
+              </b>
               <Change now={r.shareAboveAsking * 100} then={r.previous} label={r.previous?.label ?? ""} unit="share" />
               <Change now={r.shareAboveAsking * 100} then={r.yearAgo} label={r.yearAgo?.label ?? ""} unit="share" />
             </div>
             <div className="rp-report-tile">
               <span>Typical sale price</span>
-              <b>{euro(r.medianPrice)}</b>
+              <b>
+                <CountUp value={r.medianPrice} format="euro" />
+              </b>
               <Change now={r.medianPrice} then={r.previous} label={r.previous?.label ?? ""} unit="euro" />
               <Change now={r.medianPrice} then={r.yearAgo} label={r.yearAgo?.label ?? ""} unit="euro" />
             </div>
             <div className="rp-report-tile">
               <span>Sales measured</span>
-              <b>{r.count.toLocaleString("en-IE")}</b>
+              <b>
+                <CountUp value={r.count} />
+              </b>
               <span className="rp-change">
                 <small>with asking and sale price</small>
               </span>
@@ -145,7 +156,7 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
 
       <div className="rp-wrap">
         {r.trend.length >= 3 && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">The last year.</h2>
               <p className="rp-prose">Typical sale against asking price, month by month. Months with too few matched sales are left out.</p>
@@ -160,11 +171,11 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
                 detail: `${t.count} sales, ${Math.round(t.shareAboveAsking * 100)}% above asking, typical ${euro(t.medianPrice)}`,
               }))}
             />
-          </section>
+          </Reveal>
         )}
 
         {r.districts.length >= 3 && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">District by district.</h2>
               <p className="rp-prose">
@@ -185,10 +196,10 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
                 detail: `${signed(d.medianOverAskingPct)} · ${Math.round(d.shareAboveAsking * 100)}% above asking · ${d.count} sales`,
               }))}
             />
-          </section>
+          </Reveal>
         )}
 
-        <section className="rp-area-section rp-report-split">
+        <Reveal as="section" className="rp-area-section rp-report-split">
           <div>
             <h2 className="rp-h2">By type of home.</h2>
             <ul className="rp-hbars">
@@ -223,10 +234,10 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
               ))}
             </ul>
           </div>
-        </section>
+        </Reveal>
 
         {r.biggest.length > 0 && (
-          <section className="rp-area-section">
+          <Reveal as="section" className="rp-area-section">
             <h2 className="rp-h2">The biggest jumps over asking.</h2>
             <div className="rp-area-typical rp-report-biggest">
               {r.biggest.map((b) => (
@@ -248,10 +259,10 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
                 </div>
               ))}
             </div>
-          </section>
+          </Reveal>
         )}
 
-        <section className="rp-area-section rp-report-method">
+        <Reveal as="section" className="rp-area-section rp-report-method">
           <div>
             <h2 className="rp-h2">How it is worked out.</h2>
             <div className="rp-prose">
@@ -274,7 +285,7 @@ export default async function MonthlyReportPage({ params }: { params: Params }) 
               <a href="mailto:hello@irishpropertydata.com">hello@irishpropertydata.com</a>.
             </p>
           </aside>
-        </section>
+        </Reveal>
 
         <nav className="rp-report-pager" aria-label="Other months">
           {older ? <Link href={`/reports/${older}`}>← {shortMonth(older)}</Link> : <span />}
