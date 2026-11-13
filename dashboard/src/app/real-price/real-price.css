@@ -2678,3 +2678,186 @@
     transform: translateY(-4px);
   }
 }
+
+/* ---------- 3D bar charts ---------- */
+
+.rp-bars3d {
+  position: relative;
+  margin: 0;
+}
+
+.rp-bars3d-stage {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: clamp(300px, 42vw, 480px);
+  touch-action: pan-y;
+}
+
+.rp-bars3d--grid .rp-bars3d-stage {
+  height: clamp(360px, 52vw, 620px);
+}
+
+.rp-bars3d-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rp-bars3d-value,
+.rp-bars3d-name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.rp-bars3d-value {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 14px -6px rgba(22, 34, 63, 0.35);
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.rp-bars3d-value em {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+}
+
+.rp-bars3d-value.is-hi {
+  background: var(--ink);
+  color: #ffd98a;
+}
+
+.rp-bars3d-value.is-hi em {
+  color: #c9cfe0;
+}
+
+.rp-bars3d-value.is-on {
+  background: var(--accent);
+  color: #fff;
+}
+
+.rp-bars3d-value.is-on em {
+  color: #dfe5ff;
+}
+
+.rp-bars3d-name {
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  transform-origin: center;
+}
+
+.rp-bars3d-tip {
+  position: absolute;
+  left: 50%;
+  bottom: 0.4rem;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.5rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px -14px rgba(22, 34, 63, 0.45);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.rp-bars3d-tip b {
+  color: var(--ink);
+}
+
+/* Without 3D: the same numbers as flat bars */
+.rp-bars-flat {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  height: 260px;
+  padding: 1rem 0;
+}
+
+.rp-bars-flat-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  height: 100%;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.rp-bars-flat-bar {
+  width: 100%;
+  max-width: 2.4rem;
+  border-radius: 6px 6px 2px 2px;
+  background: var(--ink);
+}
+
+.rp-bars-flat-col.is-hi .rp-bars-flat-bar {
+  background: var(--brass-bright);
+}
+
+.rp-bars-flat-value {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Narrow screens: label only the gold bars and the one being pointed at */
+@media (max-width: 640px) {
+  .rp-bars3d--grid .rp-bars3d-value:not(.is-hi):not(.is-on) {
+    display: none;
+  }
+
+  .rp-bars3d--row .rp-bars3d-value,
+  .rp-bars3d--row .rp-bars3d-name {
+    font-size: 0.62rem;
+  }
+
+  .rp-bars3d--row .rp-bars3d-value {
+    padding: 0.12rem 0.3rem;
+  }
+
+  /* Nav: brand, Areas, Research and the report button on one line */
+  .rp-nav {
+    padding: 5px 5px 5px 10px;
+    gap: 0;
+  }
+
+  .rp-nav-brand {
+    font-size: 0.92rem;
+    white-space: nowrap;
+  }
+
+  .rp-nav-link {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .rp-nav-cta {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 400px) {
+  .rp-nav-brand svg {
+    display: none;
+  }
+}

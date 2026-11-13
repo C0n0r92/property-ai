@@ -19,6 +19,9 @@ export default function RealPriceNav({
         </svg>
         Real Price
       </Link>
+      <Link href="/areas" className="rp-nav-link">
+        Areas
+      </Link>
       <Link href="/blog" className="rp-nav-link">
         Research
       </Link>

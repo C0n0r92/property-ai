@@ -14,16 +14,14 @@ const nextConfig: NextConfig = {
   // blog. Old addresses are kept alive so links and search rankings carry over.
   async redirects() {
     const toHome = [
-      '/map', '/areas', '/insights', '/planning', '/amenities', '/login', '/alerts',
+      '/map', '/insights', '/planning', '/amenities', '/login', '/alerts',
       '/mortgage-calc', '/mortgage-scenarios', '/property', '/tools',
     ];
     return [
       // The price check moved from /real-price to the home page (query kept)
       { source: '/real-price', destination: '/', permanent: true },
-      // An area page opens the check for that area
-      { source: '/areas/dublin-:n(\\d{1,2}[wW]?)', destination: '/?area=d:n', permanent: true },
-      { source: '/areas/dublin:n(\\d{1,2}[wW]?)', destination: '/?area=d:n', permanent: true },
-      { source: '/areas/:slug', destination: '/?area=:slug', permanent: true },
+      // Area pages live at /areas/dublin-8; the old site also used "dublin8"
+      { source: '/areas/dublin:n(\\d{1,2}[wW]?)', destination: '/areas/dublin-:n', permanent: true },
       { source: '/research', destination: '/blog', permanent: true },
       { source: '/research/:path*', destination: '/blog', permanent: true },
       { source: '/insights', destination: '/blog', permanent: true },

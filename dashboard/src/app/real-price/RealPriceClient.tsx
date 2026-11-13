@@ -1024,6 +1024,7 @@ export default function RealPriceClient({
             Sales up to {longDate(dataTo)}. Not a valuation.
           </span>
           <span>
+            <Link href="/areas">Areas</Link>
             <Link href="/blog">Research</Link>
             <Link href="/real-price/privacy">Privacy</Link>
             <CookieSettingsLink />
