@@ -55,9 +55,11 @@ export default function PasteListing({
       onHome(result.home, result.missing);
       const still = result.missing.map((m) => MISSING_WORDS[m]);
       setMessage(
-        still.length
-          ? `Filled in what the link says. Add ${still.join(" and ")} above.`
-          : null,
+        result.inferredFrom
+          ? `We don't have this listing's details yet, so the type and size come from ${result.inferredFrom.count} homes for sale on ${result.inferredFrom.street}, with a typical asking price. Check them, and enter its asking price in the sentence below.`
+          : still.length
+            ? `Filled in what the link says. Add ${still.join(" and ")} in the sentence below${result.missing.includes("asking") ? " (a typical asking price is shown for now)" : ""}.`
+            : null,
       );
       trackEvent({
         action: "real_price_paste_listing",

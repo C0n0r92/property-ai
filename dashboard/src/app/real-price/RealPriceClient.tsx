@@ -302,11 +302,14 @@ export default function RealPriceClient({
     }
   }, []);
 
-  function update(patch: Partial<FormState>) {
+  function update(patch: Partial<FormState>, options: { typicalAsking?: boolean } = {}) {
     setTouched(true);
     const next = { ...form, ...patch };
     setForm(next);
-    const pricedByVisitor = ownPrice || patch.askingPrice !== undefined;
+    // A pasted listing without its asking price starts from the typical one,
+    // never from whatever price was in the sentence before
+    if (options.typicalAsking) setOwnPrice(false);
+    const pricedByVisitor = !options.typicalAsking && (ownPrice || patch.askingPrice !== undefined);
     if (patch.askingPrice !== undefined) setOwnPrice(true);
     check(next, !pricedByVisitor);
   }
@@ -324,8 +327,9 @@ export default function RealPriceClient({
       patch.askingPrice = home.askingPrice;
       setPriceText(home.askingPrice.toLocaleString("en-IE"));
     }
-    if (Object.keys(patch).length) update(patch);
-    if (missing.includes("asking")) {
+    const noPrice = missing.includes("asking");
+    if (Object.keys(patch).length || noPrice) update(patch, { typicalAsking: noPrice });
+    if (noPrice) {
       document.getElementById("rp-asking")?.focus();
     }
   }

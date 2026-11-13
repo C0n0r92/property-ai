@@ -27,6 +27,11 @@ export interface ListingAnswer {
   };
   /** What the visitor still has to tell us */
   missing: Array<'area' | 'type' | 'beds' | 'asking'>;
+  /**
+   * When the listing itself is not in our records: the type and size were
+   * taken from other homes for sale on the same street
+   */
+  inferredFrom?: { street: string; count: number };
 }
 
 interface Row {
@@ -96,6 +101,38 @@ async function priceHistory(row: Row): Promise<Array<{ date: string; price: numb
   return rows.filter((r, i) => i === 0 || r.price !== rows[i - 1].price);
 }
 
+/**
+ * Homes for sale now on the same street (same district or area), for when
+ * the pasted listing itself is not in our records: what type and size they
+ * mostly are.
+ */
+async function streetNeighbours(link: ListingLink): Promise<{ street: string; rows: Row[] } | null> {
+  const db = getPool();
+  const shortest = link.streetKeys[link.streetKeys.length - 1];
+  if (!db || !shortest) return null;
+  const street = shortest.replace(/^\d+[A-Z]?\s+/, '');
+  if (street.split(' ').length < 2) return null;
+  const { rows } = await db.query<Row>(
+    `SELECT ${COLUMNS} FROM listings
+      WHERE regexp_replace(address_key, '^(APT|UNIT|FLAT|NO) ', '') ~ ('^[0-9]+[A-Z]? ' || $1 || '$')
+        AND last_seen >= CURRENT_DATE - 120
+      ORDER BY last_seen DESC LIMIT 40`,
+    [street.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')]
+  );
+  const here = rows.filter((r) =>
+    link.district && r.district ? r.district === link.district : sameArea(r.address, link.address)
+  );
+  // One row per home (a listing can be collected more than once)
+  const homes = [...new Map(here.map((r) => [`${r.source}:${r.source_id}`, r])).values()];
+  return homes.length ? { street: street.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase()), rows: homes } : null;
+}
+
+function mostCommon<T>(values: T[]): T | undefined {
+  const counts = new Map<T, number>();
+  for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1);
+  return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0];
+}
+
 export async function lookUpListing(link: ListingLink, store: SalesStore): Promise<ListingAnswer> {
   const row = await findRow(link).catch((error) => {
     console.error('Listing lookup failed:', error);
@@ -122,11 +159,33 @@ export async function lookUpListing(link: ListingLink, store: SalesStore): Promi
     if (link.typeHint) home.typeGroup = link.typeHint;
   }
 
+  // Not in our records: take the type and size from the street's other homes for sale
+  let inferredFrom: ListingAnswer['inferredFrom'];
+  if (!row && (!home.typeGroup || !home.beds)) {
+    const neighbours = await streetNeighbours(link).catch(() => null);
+    if (neighbours) {
+      const types = neighbours.rows.map((r) => typeFor(r.property_type)).filter((t): t is TypeGroup => t !== null);
+      const beds = neighbours.rows.map((r) => r.beds).filter((b): b is number => !!b && b >= 1 && b <= 10);
+      const type = home.typeGroup ?? mostCommon(types);
+      // Bedrooms only from homes of the same type
+      const sameTypeBeds = neighbours.rows
+        .filter((r) => typeFor(r.property_type) === type && r.beds)
+        .map((r) => r.beds as number);
+      const bed = mostCommon(sameTypeBeds.length ? sameTypeBeds : beds);
+      if (type || bed) {
+        if (!home.typeGroup && type) home.typeGroup = type;
+        if (!home.beds && bed) home.beds = bed;
+        home.areaKey ??= areaFor(neighbours.rows[0].address, neighbours.rows[0].district, store);
+        inferredFrom = { street: neighbours.street, count: neighbours.rows.length };
+      }
+    }
+  }
+
   const missing: ListingAnswer['missing'] = [];
   if (!home.areaKey) missing.push('area');
   if (!home.typeGroup) missing.push('type');
   if (!home.beds) missing.push('beds');
   if (!home.askingPrice) missing.push('asking');
 
-  return { status: row ? 'found' : 'partial', home, listing, missing };
+  return { status: row ? 'found' : 'partial', home, listing, missing, inferredFrom };
 }

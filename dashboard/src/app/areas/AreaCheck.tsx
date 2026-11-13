@@ -84,16 +84,21 @@ export default function AreaCheck({
     return () => window.clearTimeout(timer);
   }, [text, areaKey, address]);
 
-  async function check(next: Home, label: string | null) {
+  async function check(next: Home, label: string | null, typicalAsking = false) {
     setBusy(true);
-    setMessage(null);
+    if (!typicalAsking) setMessage(null);
     try {
       const res = await fetch("/api/real-price", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next),
+        body: JSON.stringify({ ...next, autoAsking: typicalAsking }),
       });
       const data = await res.json();
+      // The typical asking price for this home, when the listing gave none
+      if (typicalAsking && typeof data.askingPrice === "number") {
+        next = { ...next, askingPrice: data.askingPrice };
+        setHome(next);
+      }
       if (!res.ok) {
         setAnswer(null);
         setMessage(
@@ -117,7 +122,7 @@ export default function AreaCheck({
     }
   }
 
-  function applyHome(found: Partial<Home>, label: string | null) {
+  function applyHome(found: Partial<Home>, label: string | null, typicalAsking = false) {
     const next: Home = {
       areaKey: found.areaKey ?? home.areaKey,
       typeGroup: found.typeGroup ?? home.typeGroup,
@@ -128,7 +133,7 @@ export default function AreaCheck({
     setAddress(label);
     if (label) setText(label);
     setSuggestions([]);
-    check(next, label);
+    check(next, label, typicalAsking);
   }
 
   async function readLink(link: string) {
@@ -144,9 +149,14 @@ export default function AreaCheck({
         return;
       }
       const result = data as ListingAnswer;
-      applyHome(result.home as Partial<Home>, result.listing?.address ?? null);
-      if (result.missing.includes("asking")) {
-        setMessage("The listing’s asking price isn’t in our records: enter it below.");
+      const noPrice = result.missing.includes("asking");
+      applyHome(result.home as Partial<Home>, result.listing?.address ?? null, noPrice);
+      if (result.inferredFrom) {
+        setMessage(
+          `We don't have this listing's details yet: the type and size come from ${result.inferredFrom.count} homes for sale on ${result.inferredFrom.street}, with a typical asking price. Check them and enter its asking price below.`,
+        );
+      } else if (noPrice) {
+        setMessage("The listing’s asking price isn’t in our records: a typical one is shown; enter the real one below.");
       }
     } catch {
       setBusy(false);
