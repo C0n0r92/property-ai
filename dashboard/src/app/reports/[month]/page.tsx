@@ -29,9 +29,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { report: r } = await load(month);
   if (!r) return { title: "Report not found", robots: { index: false } };
   const title = `Dublin homes sold ${signed(r.medianOverAskingPct)} over asking in ${r.label}`;
-  const description = `${Math.round(r.shareAboveAsking * 100)}% of Dublin homes sold above asking in ${r.label}; typical sale ${euro(r.medianPrice)}.${r.districts[0] ? ` Hottest district: ${r.districts[0].label} (${signed(r.districts[0].medianOverAskingPct)}).` : ""} Monthly over-asking report from ${r.count} matched sales.`;
+  const top = r.districts[0] ? ` Hottest: ${r.districts[0].label} (${signed(r.districts[0].medianOverAskingPct)}).` : "";
+  const description = `${Math.round(r.shareAboveAsking * 100)}% of Dublin homes sold above asking in ${r.label}; typical sale ${euro(r.medianPrice)}.${top} From ${r.count} matched sales.`;
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: `/reports/${r.month}` },
     openGraph: { title, description, url: `/reports/${r.month}`, type: "article" },

@@ -44,11 +44,22 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const page = await load((await params).slug);
   if (!page) return { title: "Area not found", robots: { index: false } };
   const p = page.profile;
-  const title = `${page.label} House Prices: How Much Over Asking Homes Sell For`;
-  const description = `Homes in ${page.label} sold for a typical ${overUnder(p.medianOverAskingPct)} in the last 12 months, and ${Math.round(p.shareAboveAsking * 100)}% went above asking. Typical sale ${euro(p.medianPrice)}. From ${p.count} sales to ${longDate(page.dataTo)}.`;
+  // Short enough to show in full in search results: keywords first, then the year
+  const title = `${page.label} House Prices: Sold vs Asking (${page.dataTo.slice(0, 4)})`;
+  const parts = [
+    `Homes in ${page.label} sold a typical ${overUnder(p.medianOverAskingPct)} in the last 12 months.`,
+    `${Math.round(p.shareAboveAsking * 100)}% went above asking.`,
+    `Typical sale ${euro(p.medianPrice)}.`,
+    `From ${p.count} sales.`,
+  ];
+  let description = parts.join(" ");
+  while (description.length > 155 && parts.length > 2) {
+    parts.pop();
+    description = parts.join(" ");
+  }
   const url = `/areas/${page.slug}`;
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: { title, description, url, type: "website" },

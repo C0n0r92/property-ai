@@ -6,7 +6,7 @@ import { getSalesStore } from "@/lib/real-price/store";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Dublin Over-Asking Report: Monthly Figures",
+  title: { absolute: "Dublin Over-Asking Report | Irish Property Data" },
   description:
     "Each month: how far over asking Dublin homes sold, the share above asking, the hottest districts and the biggest overbids. From matched asking and sale prices.",
   alternates: { canonical: "/reports" },

@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   const url = `/blog/${slug}`;
   return {
-    title: article.title,
+    // The article title alone: with the site name added most would be cut off
+    title: { absolute: article.title },
     description: article.excerpt,
     alternates: { canonical: url },
     openGraph: {
@@ -46,7 +47,7 @@ export default async function ArticlePage({ params }: { params: Params }) {
   const article = readArticle(slug);
   if (!article) notFound();
 
-  const { segments, headings } = renderArticle(article.content);
+  const { segments, headings } = renderArticle(article.content, RETIRED);
   const topic = topicOf(article.category);
   const related = (article.relatedArticles ?? [])
     .filter((s) => s !== slug && !RETIRED_SLUGS.has(s))

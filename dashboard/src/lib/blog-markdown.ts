@@ -45,11 +45,15 @@ export function slugify(text: string): string {
  * /mortgage-calc, ...). Those now redirect to the price check, so link
  * straight there instead of through a redirect.
  */
-export function rewriteHref(href: string): string {
+export function rewriteHref(href: string, redirects?: ReadonlyMap<string, string>): string {
   if (!href.startsWith("/")) return href;
+  const retired = href.match(/^\/blog\/([^/?#]+)/);
+  if (retired && redirects?.has(retired[1])) return redirects.get(retired[1])!;
   if (href === "/" || href.startsWith("/blog") || href.startsWith("/real-price/")) return href;
   return "/";
 }
+
+let activeRedirects: ReadonlyMap<string, string> | undefined;
 
 function inline(text: string): string {
   return text
@@ -58,14 +62,14 @@ function inline(text: string): string {
     .replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<em>$2</em>")
     .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label: string, href: string) => {
-      const target = rewriteHref(href);
+      const target = rewriteHref(href, activeRedirects);
       const external = /^https?:\/\//.test(target);
       return external
         ? `<a href="${target}" rel="noopener" target="_blank">${label}</a>`
         : `<a href="${target}">${label}</a>`;
     })
     // Raw HTML links in older articles get the same treatment
-    .replace(/<a\s+href="(\/[^"]*)"/g, (_, href: string) => `<a href="${rewriteHref(href)}"`);
+    .replace(/<a\s+href="(\/[^"]*)"/g, (_, href: string) => `<a href="${rewriteHref(href, activeRedirects)}"`);
 }
 
 const isTableRow = (line: string) => /^\|.*\|$/.test(line);
@@ -80,9 +84,11 @@ const cells = (line: string) =>
 /**
  * Render an article. The page prints the title as its h1, so an opening
  * `# Title` line (which every article starts with) is dropped, and any later
- * h1 becomes an h2.
+ * h1 becomes an h2. `redirects` (retired slug -> new address) sends links to
+ * retired articles straight to where they now lead.
  */
-export function renderArticle(markdown: string): RenderedArticle {
+export function renderArticle(markdown: string, redirects?: ReadonlyMap<string, string>): RenderedArticle {
+  activeRedirects = redirects;
   const lines = markdown.replace(/\r\n?/g, "\n").split("\n");
   const segments: Segment[] = [];
   const headings: Heading[] = [];

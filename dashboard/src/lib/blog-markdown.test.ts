@@ -76,4 +76,10 @@ describe("helpers", () => {
   it("wordCount ignores chart tags", () => {
     expect(wordCount("Three little words\n\n<OverAskingChart />")).toBe(3);
   });
+
+  it("rewriteHref sends links to retired articles to their new address", () => {
+    const retired = new Map([["old-post", "/areas"]]);
+    expect(rewriteHref("/blog/old-post", retired)).toBe("/areas");
+    expect(rewriteHref("/blog/live-post", retired)).toBe("/blog/live-post");
+  });
 });

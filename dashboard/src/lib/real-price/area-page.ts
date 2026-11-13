@@ -87,6 +87,25 @@ export interface AreaPage {
   similar: AreaLink[];
 }
 
+/**
+ * Every area's last-12-months profile, worked out once per loaded store (the
+ * store is replaced when new data loads, which drops the cache with it).
+ * Area pages, the index and share images all read from here.
+ */
+const profileCache = new WeakMap<SalesStore, Map<string, AreaProfile>>();
+export function areaProfiles(store: SalesStore): Map<string, AreaProfile> {
+  let profiles = profileCache.get(store);
+  if (!profiles) {
+    profiles = new Map();
+    for (const area of store.areas) {
+      const p = areaProfile(store.sales, area.key, null, store.asOf);
+      if (p) profiles.set(area.key, p);
+    }
+    profileCache.set(store, profiles);
+  }
+  return profiles;
+}
+
 function lastYear(store: SalesStore): Sale[] {
   const from = store.asOf - 365 * DAY_MS;
   return store.sales.filter((s) => s.t >= from && s.t <= store.asOf);
@@ -109,7 +128,8 @@ function link(store: SalesStore, key: string, profile: AreaProfile): AreaLink {
 export function buildAreaPage(store: SalesStore, key: string): AreaPage | null {
   const option = store.areas.find((a) => a.key === key);
   if (!option) return null;
-  const profile = areaProfile(store.sales, key, null, store.asOf);
+  const profiles = areaProfiles(store);
+  const profile = profiles.get(key);
   if (!profile) return null;
 
   const year = lastYear(store);
@@ -120,12 +140,6 @@ export function buildAreaPage(store: SalesStore, key: string): AreaPage | null {
     return p ? [{ type, profile: p }] : [];
   });
 
-  // Every area with enough sales, profiled once, for rank and comparisons
-  const profiles = new Map<string, AreaProfile>();
-  for (const area of store.areas) {
-    const p = area.key === key ? profile : areaProfile(store.sales, area.key, null, store.asOf);
-    if (p) profiles.set(area.key, p);
-  }
   const isDistrict = (k: string) => /^d\d{1,2}w?$/.test(k);
 
   let rank: AreaPage['rank'] = null;
@@ -255,8 +269,9 @@ export interface AreaIndexRow extends AreaLink {
 /** Every area with a profile, for the /areas index. */
 export function buildAreaIndex(store: SalesStore): AreaIndexRow[] {
   const rows: AreaIndexRow[] = [];
+  const profiles = areaProfiles(store);
   for (const area of store.areas) {
-    const p = areaProfile(store.sales, area.key, null, store.asOf);
+    const p = profiles.get(area.key);
     if (!p) continue;
     rows.push({
       ...link(store, area.key, p),

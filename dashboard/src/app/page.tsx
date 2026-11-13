@@ -28,10 +28,10 @@ import RealPriceClient from "./real-price/RealPriceClient";
 const BASE_METADATA: Metadata = {
   // The site name is part of this title already, so skip the layout's suffix
   title: {
-    absolute: "How Much Over Asking? Dublin Sold vs Asking Price Checker | Irish Property Data",
+    absolute: "Dublin Sold vs Asking Price Checker | Irish Property Data",
   },
   description:
-    "Enter any Dublin home's asking price and see what similar homes really sold for, how far over asking they went, and what bid has won. Free, from 47,000+ Dublin sales.",
+    "How much over asking will a Dublin home sell for? Enter its asking price and see what similar homes really sold for. Free, from 49,000 Dublin sales.",
   // Answers for a shared home all point at the one page
   alternates: { canonical: "/" },
   openGraph: {

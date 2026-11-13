@@ -8,9 +8,9 @@ import { jsonLd, SITE_URL } from "@/lib/site";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Dublin Areas Ranked: How Much Over Asking Homes Sell For",
+  title: { absolute: "Dublin Areas Ranked by Over-Asking | Irish Property Data" },
   description:
-    "Every Dublin postal district and neighbourhood ranked by how far over asking homes sell, with the share sold above asking, typical sale prices and price per m². Updated from real sales.",
+    "Every Dublin district and neighbourhood ranked by how far over asking homes sell, with the share above asking, typical prices and price per m².",
   alternates: { canonical: "/areas" },
   openGraph: {
     title: "Dublin areas ranked by how far over asking homes sell",
