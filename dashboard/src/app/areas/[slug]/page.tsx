@@ -15,8 +15,9 @@ import { jsonLd, SITE_URL } from "@/lib/site";
 import SalesBoard from "../../real-price/SalesBoard";
 import AreaStreet from "../AreaStreet";
 
-// Rendered on first visit and kept for an hour, so pages follow the nightly data
-export const revalidate = 3600;
+// Built from the live database on request. Pre-building at deploy time would
+// use the seed file (the build has no database), showing old figures.
+export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
 

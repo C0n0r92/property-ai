@@ -5,6 +5,10 @@ import { availableMonths } from "@/lib/real-price/monthly-report";
 import { getSalesStore } from "@/lib/real-price/store";
 import { SITE_URL } from "@/lib/site";
 
+// Built from the live database on request. Pre-building at deploy time would
+// use the seed file (the build has no database), showing old figures.
+export const dynamic = "force-dynamic";
+
 /** Every page worth indexing: the price check, area pages, the blog and its articles. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const store = await getSalesStore();

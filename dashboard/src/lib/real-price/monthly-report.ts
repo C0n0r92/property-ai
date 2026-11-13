@@ -88,7 +88,17 @@ export function availableMonths(store: SalesStore): string[] {
     .reverse();
 }
 
+const reportCache = new WeakMap<SalesStore, Map<string, MonthlyReport | null>>();
+
+/** A month's report, worked out once per loaded store. */
 export function buildMonthlyReport(store: SalesStore, month: string): MonthlyReport | null {
+  let cache = reportCache.get(store);
+  if (!cache) reportCache.set(store, (cache = new Map()));
+  if (!cache.has(month)) cache.set(month, computeMonthlyReport(store, month));
+  return cache.get(month) ?? null;
+}
+
+function computeMonthlyReport(store: SalesStore, month: string): MonthlyReport | null {
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return null;
   const months = byMonth(store);
   const sales = months.get(month);

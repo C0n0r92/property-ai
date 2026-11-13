@@ -7,7 +7,9 @@ import { availableMonths, buildMonthlyReport, type MonthFigures } from "@/lib/re
 import { getSalesStore } from "@/lib/real-price/store";
 import { jsonLd, SITE_NAME, SITE_URL } from "@/lib/site";
 
-export const revalidate = 3600;
+// Built from the live database on request. Pre-building at deploy time would
+// use the seed file (the build has no database), showing old figures.
+export const dynamic = "force-dynamic";
 
 type Params = Promise<{ month: string }>;
 

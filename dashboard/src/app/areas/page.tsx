@@ -5,7 +5,9 @@ import { buildAreaIndex } from "@/lib/real-price/area-page";
 import { getSalesStore } from "@/lib/real-price/store";
 import { jsonLd, SITE_URL } from "@/lib/site";
 
-export const revalidate = 3600;
+// Built from the live database on request. Pre-building at deploy time would
+// use the seed file (the build has no database), showing old figures.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: { absolute: "Dublin Areas Ranked by Over-Asking | Irish Property Data" },
