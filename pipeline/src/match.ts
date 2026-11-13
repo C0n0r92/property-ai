@@ -15,7 +15,9 @@ export async function matchSales(since = '2025-06-01') {
     `SELECT r.id AS register_id, r.sold_date::text, r.address AS register_address, r.price, r.district AS r_district,
             r.eircode AS register_eircode,
             l.source, l.source_id, l.address AS listing_address, l.asking_price, l.property_type, l.beds, l.baths,
-            l.sqm, l.lat, l.lng, l.first_seen::text, l.last_seen::text
+            l.sqm, l.lat, l.lng, l.first_seen::text, l.last_seen::text, l.sale_agreed,
+            COUNT(*) OVER (PARTITION BY l.address_key) AS key_rows,
+            COUNT(*) OVER (PARTITION BY r.id) AS listings_for_sale
        FROM register_sales r
        JOIN listings l ON l.address_key = r.address_key
       WHERE r.sold_date >= $1 AND NOT r.new_build
@@ -36,10 +38,17 @@ export async function matchSales(since = '2025-06-01') {
     const key = addressKey(row.register_address);
     const sold = Date.parse(row.sold_date);
     const ratio = row.price / row.asking_price;
+    // A "sale agreed" listing stays on the site for months after the sale
+    // closes, so its sale can pre-date the day we first saw it
+    const lead = row.sale_agreed ? 240 : 14;
+    // The two sources often name neighbouring areas for the same home
+    // ("Saggart" and "Citywest"). When the house and street appear only once
+    // on each side, that is accepted as the same home.
+    const onlyCandidate = Number(row.key_rows) === 1 && Number(row.listings_for_sale) === 1;
     const ok =
       key.specific &&
-      sameArea(row.listing_address, row.register_address) &&
-      sold >= Date.parse(row.first_seen) - 14 * DAY &&
+      (sameArea(row.listing_address, row.register_address) || onlyCandidate) &&
+      sold >= Date.parse(row.first_seen) - lead * DAY &&
       sold <= Date.parse(row.last_seen) + 400 * DAY &&
       ratio >= 0.6 &&
       ratio <= 1.8 &&

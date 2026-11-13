@@ -23,6 +23,17 @@ const validDate = (v: unknown): string | null => {
   return new Date(t).toISOString().slice(0, 10);
 };
 
+/**
+ * The old scraper sometimes ran the bedroom count onto the end of the asking
+ * price: a 5-bed asking 1,595,000 was stored as 15950005. Real asking prices
+ * end in a zero, so a large price ending in the bedroom count is repaired.
+ */
+export function repairAsking(price: number, beds: unknown): number {
+  const value = Math.round(Number(price));
+  const last = value % 10;
+  return value > 1_000_000 && last !== 0 && last === Number(beds) ? Math.floor(value / 10) : value;
+}
+
 await runJob('import-legacy', async () => {
   const data = JSON.parse(readFileSync(file, 'utf-8'));
 
@@ -39,7 +50,7 @@ await runJob('import-legacy', async () => {
       beds: rooms(p.beds),
       baths: rooms(p.baths),
       sqm: area(p.areaSqm),
-      asking_price: int(p.askingPrice),
+      asking_price: int(repairAsking(p.askingPrice, p.beds)),
       sold_price: int(p.soldPrice),
       sold_date: soldDate,
       lat: p.latitude ?? null,
@@ -74,7 +85,7 @@ await runJob('import-legacy', async () => {
       eircode: null, // legacy listing Eircodes came from geocoding and are unreliable
       property_type: l.propertyType || null, beds: rooms(l.beds), baths: rooms(l.baths),
       sqm: area(l.areaSqm),
-      lat: l.latitude ?? null, lng: l.longitude ?? null, asking_price: int(l.askingPrice),
+      lat: l.latitude ?? null, lng: l.longitude ?? null, asking_price: int(repairAsking(l.askingPrice, l.beds)),
       sale_agreed: false, url: l.sourceUrl ?? null, first_seen: first, last_seen: last,
     });
     const byDay = new Map<string, number>();

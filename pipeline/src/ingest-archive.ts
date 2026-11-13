@@ -89,7 +89,8 @@ async function listCommonCrawl(from: string): Promise<Capture[]> {
     let text = '';
     for (let attempt = 0; attempt < 3 && !text; attempt++) {
       const response = await fetch(address, { headers }).catch(() => null);
-      if (response?.ok) text = await response.text();
+      // A dropped connection mid-download counts as a failed attempt
+      if (response?.ok) text = await response.text().catch(() => '');
       else if (response?.status === 404) break; // nothing held for this crawl
       else await sleep(15_000);
     }
@@ -267,6 +268,7 @@ export async function ingestArchive(from: string, max: number) {
   let read = 0;
   let empty = 0;
   let failed = 0;
+  let stoppedEarly = false;
 
   for (const capture of captures) {
     const day = `${capture.timestamp.slice(0, 4)}-${capture.timestamp.slice(4, 6)}-${capture.timestamp.slice(6, 8)}`;
@@ -277,7 +279,12 @@ export async function ingestArchive(from: string, max: number) {
       if (read % 100 === 0) console.log(`${read}/${captures.length} copies read, ${listings.size} listings so far`);
       if (fetched) await sleep(DELAY_MS);
     } catch (error) {
-      if (String(error).includes('slow down')) throw error;
+      if (String(error).includes('slow down')) {
+        // Keep what has been read; the rest is picked up on the next run
+        console.warn(`Stopped early after ${read} copies: the archive asked us to slow down.`);
+        stoppedEarly = true;
+        break;
+      }
       failed++;
       await sleep(DELAY_MS * 4);
     }
@@ -315,7 +322,7 @@ export async function ingestArchive(from: string, max: number) {
   const after = Number((await pool.query("SELECT COUNT(*) FROM listings WHERE source = 'myhome'")).rows[0].count);
 
   return {
-    from, copiesListed: captures.length, copiesRead: read, copiesWithoutListings: empty, copiesFailed: failed,
+    from, stoppedEarly, copiesListed: captures.length, copiesRead: read, copiesWithoutListings: empty, copiesFailed: failed,
     listingsFound: rows.length, newListings: after - before, pricePoints: pricePoints.length,
   };
 }
