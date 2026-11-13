@@ -8,8 +8,6 @@ import {
 } from './model';
 import { getRegister, getSalesStore } from './store';
 
-export const REPORT_PRICE_CENTS = 1900;
-
 export const TYPE_LABELS: Record<TypeGroup, { single: string; plural: string }> = {
   apartment: { single: 'apartment', plural: 'apartments' },
   terraced: { single: 'terraced house', plural: 'terraced houses' },

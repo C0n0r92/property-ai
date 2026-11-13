@@ -18,7 +18,8 @@ import {
 } from "@/lib/real-price/model";
 import { getMarket } from "@/lib/real-price/market";
 import { toPublicResult } from "@/lib/real-price/public";
-import { describeHome, REPORT_PRICE_CENTS } from "@/lib/real-price/report";
+import { reportPrice } from "@/lib/real-price/pricing";
+import { describeHome } from "@/lib/real-price/report";
 import { querySchema } from "@/lib/real-price/schema";
 import { getSalesStore, type SalesStore } from "@/lib/real-price/store";
 import { jsonLd, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -155,6 +156,7 @@ export default async function RealPricePage({
       };
     });
 
+  const price = reportPrice();
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -171,7 +173,7 @@ export default async function RealPricePage({
       {
         "@type": "Offer",
         name: "Full report (PDF)",
-        price: (REPORT_PRICE_CENTS / 100).toFixed(2),
+        price: (price.cents / 100).toFixed(2),
         priceCurrency: "EUR",
       },
     ],
@@ -187,7 +189,7 @@ export default async function RealPricePage({
       areas={store.areas}
       dataTo={new Date(store.asOf).toISOString().slice(0, 10)}
       salesCount={store.sales.length}
-      reportPriceEuro={REPORT_PRICE_CENTS / 100}
+      price={price}
       backtest={BACKTEST}
       boardSales={boardSales}
       market={await getMarket("all")}

@@ -9,7 +9,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Stripe from 'stripe';
-import { buildReport, describeHome, REPORT_PRICE_CENTS, type ReportData } from '@/lib/real-price/report';
+import { buildReport, describeHome, type ReportData } from '@/lib/real-price/report';
 import { checkoutSchema } from '@/lib/real-price/schema';
 import { BACKTEST } from '@/lib/real-price/backtest';
 import TrackPurchase from './TrackPurchase';
@@ -35,7 +35,7 @@ const longDate = (iso: string) =>
 const shortDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: '2-digit' });
 
-type Loaded = { report: ReportData; sample: boolean } | { problem: string };
+type Loaded = { report: ReportData; sample: boolean; paidCents?: number } | { problem: string };
 
 async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> {
   if (sample === '1') {
@@ -83,7 +83,7 @@ async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> 
 
   const report = await buildReport(parsed.data.query, parsed.data.address);
   return report
-    ? { report, sample: false }
+    ? { report, sample: false, paidCents: session.amount_total ?? 0 }
     : { problem: 'There is no longer enough sales data for this home. Reply to your receipt email and we will sort it out.' };
 }
 
@@ -179,7 +179,7 @@ export default async function ReportPage({
   return (
     <div className="rp-report">
       {!isSample && session_id && (
-        <TrackPurchase id={session_id} value={REPORT_PRICE_CENTS / 100} label={query.areaKey} />
+        <TrackPurchase id={session_id} value={(loaded.paidCents ?? 0) / 100} label={query.areaKey} />
       )}
       <div className="rp-report-bar">
         <span>

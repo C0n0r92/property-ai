@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { buildReport, describeHome, REPORT_PRICE_CENTS } from '@/lib/real-price/report';
+import { reportPrice } from '@/lib/real-price/pricing';
+import { buildReport, describeHome } from '@/lib/real-price/report';
 import { insertRow } from '@/lib/real-price/db';
 import { clientKey, createLimiter, siteUrl } from '@/lib/real-price/guard';
 import { checkoutSchema } from '@/lib/real-price/schema';
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
           price_data: {
             currency: 'eur',
-            unit_amount: REPORT_PRICE_CENTS,
+            unit_amount: reportPrice().cents,
             product_data: {
               name: 'Real Price Report',
               description: `Bidding report for a ${describeHome(query, report.areaLabel)}`,
@@ -60,7 +61,13 @@ export async function POST(request: NextRequest) {
         },
       ],
       success_url: `${site}/real-price/report?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${site}/real-price`,
+      // Back to the same answer, at the offer
+      cancel_url: `${site}/?${new URLSearchParams({
+        area: query.areaKey,
+        type: query.typeGroup,
+        ...(query.beds ? { beds: String(query.beds) } : {}),
+        asking: String(query.askingPrice),
+      }).toString()}#report`,
       metadata: {
         kind: 'real-price-report',
         query: JSON.stringify(query),

@@ -8,6 +8,7 @@ import type { PublicResult } from "@/lib/real-price/public";
 import type { AreaOption } from "@/lib/real-price/store";
 import CookieSettingsLink from "@/components/rp/CookieSettingsLink";
 import { trackEvent } from "@/lib/analytics";
+import { REFUND_DAYS, type ReportPrice } from "@/lib/real-price/pricing";
 import DotPlot from "./DotPlot";
 import HeroScene from "./HeroScene";
 import RealPriceNav from "./RealPriceNav";
@@ -35,7 +36,7 @@ interface Props {
   areas: AreaOption[];
   dataTo: string;
   salesCount: number;
-  reportPriceEuro: number;
+  price: ReportPrice;
   initial: { form: FormState; answer: Answer };
   boardSales: BoardSale[];
   market: Market;
@@ -129,11 +130,25 @@ function useTween(target: number, duration = 700): number {
   return value;
 }
 
+/** The launch price, when it ends, and the refund promise, said plainly. */
+function PriceLine({ price }: { price: ReportPrice }) {
+  return (
+    <p className="rp-price-line">
+      {price.isLaunch && (
+        <span className="rp-price-badge">
+          Launch price until {price.launchEndsLabel}, then {price.regularLabel}
+        </span>
+      )}
+      <span>{REFUND_DAYS}-day money-back guarantee</span>
+    </p>
+  );
+}
+
 export default function RealPriceClient({
   areas,
   dataTo,
   salesCount,
-  reportPriceEuro,
+  price,
   initial,
   backtest,
   boardSales,
@@ -601,7 +616,7 @@ export default function RealPriceClient({
               >
                 {buying
                   ? "Opening payment…"
-                  : `Get the full report for €${reportPriceEuro}`}
+                  : `Get the full report for ${price.label}`}
               </button>
               <a className="rp-link" href="#bid">
                 Try a bid first
@@ -639,6 +654,19 @@ export default function RealPriceClient({
                 </span>
               </button>
             </div>
+            <PriceLine price={price} />
+            <ul className="rp-proof" aria-label="Where the answer comes from">
+              <li>
+                <b>{salesCount.toLocaleString("en-IE")}</b> Dublin sales with
+                both asking and sold price
+              </li>
+              <li>
+                Tested on <b>{backtest.salesTested.toLocaleString("en-IE")}</b>{" "}
+                unseen sales: typically <b>{backtest.medianErrorModelPct}%</b> from
+                the final price
+              </li>
+              <li>Sales to {longDate(dataTo)}</li>
+            </ul>
           </div>
 
           <div
@@ -834,7 +862,10 @@ export default function RealPriceClient({
               Here, an even-odds bid and one that is rarely beaten are{" "}
               <strong>{euro(result.gapToRarelyBeaten)} apart</strong>. The
               report shows every comparable sale in that range, so you know
-              where to stop.
+              where to stop. Going even €5,000 further than you needed to
+              costs about{" "}
+              {(Math.round(5000 / (price.cents / 100) / 10) * 10).toLocaleString("en-IE")}{" "}
+              times what the report does.
             </p>
             <ul className="rp-offer-list">
               <li>
@@ -892,6 +923,7 @@ export default function RealPriceClient({
                 {offerError}
               </p>
             )}
+            <PriceLine price={price} />
             <div className="rp-offer-actions">
               <button
                 type="button"
@@ -901,7 +933,7 @@ export default function RealPriceClient({
               >
                 {buying
                   ? "Opening payment…"
-                  : `Get the report for €${reportPriceEuro}`}
+                  : `Get the report for ${price.label}`}
               </button>
               <Link className="rp-link" href="/real-price/report?sample=1">
                 See a sample report
@@ -910,7 +942,8 @@ export default function RealPriceClient({
             <p className="rp-offer-note">
               One click to pay by card, Apple Pay or Google Pay. No account and
               no subscription. The report opens straight after payment and saves
-              as a PDF.{" "}
+              as a PDF. If it doesn&apos;t help, reply to your receipt within{" "}
+              {REFUND_DAYS} days for a full refund.{" "}
               <Link href="/real-price/privacy">
                 How we use an address if you add one
               </Link>
@@ -992,7 +1025,7 @@ export default function RealPriceClient({
           disabled={buying}
           tabIndex={showBar ? 0 : -1}
         >
-          {buying ? "Opening payment…" : `Full report €${reportPriceEuro}`}
+          {buying ? "Opening payment…" : `Full report ${price.label}`}
         </button>
       </div>
     </>
