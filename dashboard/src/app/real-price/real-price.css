@@ -2714,6 +2714,8 @@
 }
 
 .rp-bars3d-value {
+  opacity: 0;
+  transition: opacity 300ms ease, background 150ms ease, color 150ms ease;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -3425,4 +3427,12 @@
 
 .rp-map .maplibregl-ctrl-attrib {
   font-size: 10px;
+}
+
+/* Phones: a row of ten bars has no room for both lines of labels; the
+   values stay, and tapping a bar gives its name and figures */
+@media (max-width: 640px) {
+  .rp-bars3d--row .rp-bars3d-name {
+    display: none;
+  }
 }
