@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { createPostFx, type PostFx } from "@/components/rp/postfx";
 
 export interface DioramaSale {
   address: string;
@@ -169,6 +170,9 @@ export default function Diorama({
 
     const world = new THREE.Group();
     scene.add(world);
+
+    // Soft occlusion where walls meet the pavement, a glow on lit windows
+    const fx: PostFx | null = createPostFx(renderer, scene, camera, { aoRadius: 1.1, aoIntensity: 2.8, bloom: 0.2, bloomThreshold: 1.05 });
 
     const materials = new Map<string, THREE.MeshStandardMaterial>();
     const mat = (
@@ -1033,6 +1037,7 @@ export default function Diorama({
       const { clientWidth: width, clientHeight: height } = el;
       if (!width || !height) return;
       renderer.setSize(width, height);
+      fx?.setSize(width, height);
       const aspect = width / height;
       baseHalf = Math.max(6.1, 10.4 / aspect);
       camera.left = -baseHalf * aspect;
@@ -1146,7 +1151,8 @@ export default function Diorama({
         tag.scale.y += (1.17 * s - tag.scale.y) * 0.2;
       });
 
-      renderer.render(scene, camera);
+      if (fx) fx.render();
+      else renderer.render(scene, camera);
     };
     frame = requestAnimationFrame(draw);
 
@@ -1169,6 +1175,7 @@ export default function Diorama({
         tag.material.map?.dispose();
         tag.material.dispose();
       });
+      fx?.dispose();
       environment.dispose();
       pmrem.dispose();
       renderer.dispose();

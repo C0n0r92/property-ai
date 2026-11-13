@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { createPostFx, type PostFx } from "./postfx";
 
 export interface Bar3D {
   /** Short name under (or on) the bar, e.g. "Q3 '25" or "D8" */
@@ -121,6 +122,9 @@ export default function Bars3D({
     const world = new THREE.Group();
     scene.add(world);
 
+    // Soft occlusion between bars and plinth, a glow on the gold bars
+    const fx: PostFx | null = createPostFx(renderer, scene, camera, { aoRadius: 1.4, aoIntensity: 3.4, bloom: 0.35, bloomThreshold: 0.95 });
+
     // The plinth the bars stand on, in the hero's layered pink
     const padX = cols * SPACING + 0.9;
     const padZ = rows * SPACING + 0.9;
@@ -185,6 +189,7 @@ export default function Bars3D({
       const { clientWidth: width, clientHeight: height } = el;
       if (!width || !height) return;
       renderer.setSize(width, height);
+      fx?.setSize(width, height);
       camera.left = -1;
       camera.right = 1;
       camera.top = 1;
@@ -288,7 +293,8 @@ export default function Bars3D({
           place(names.current[i], new THREE.Vector3(spots[i].x, -0.05, spots[i].z + WIDTH / 2 + 0.55));
         }
       });
-      renderer.render(scene, camera);
+      if (fx) fx.render();
+      else renderer.render(scene, camera);
     };
     frame = requestAnimationFrame(draw);
 
@@ -300,6 +306,7 @@ export default function Bars3D({
       el.removeEventListener("pointerleave", onLeave);
       el.removeEventListener("click", onClick);
       disposables.forEach((d) => d.dispose());
+      fx?.dispose();
       environment.dispose();
       pmrem.dispose();
       renderer.dispose();
