@@ -223,7 +223,7 @@ export default function RealPriceClient({
         setForm((f) => ({ ...f, askingPrice: data.askingPrice }));
         setPriceText(data.askingPrice.toLocaleString("en-IE"));
       }
-      setAutoPriced(moved);
+      setAutoPriced(Boolean(data.typicalUsed));
       setAnswer(data);
       setAnsweredFor(next);
       // Keep the address bar in step so a result can be shared or bookmarked
@@ -400,7 +400,7 @@ export default function RealPriceClient({
                 />
               </svg>
               {autoPriced
-                ? "Asking price set to what’s typical for this home. Tap it to enter yours"
+                ? "Typical asking price shown. Tap it to enter the real one"
                 : touched
                   ? "Updated from real sales"
                 : "Tap the blue words to describe the home you’re looking at"}
@@ -505,7 +505,7 @@ export default function RealPriceClient({
                   </optgroup>
                 </select>
               </span>{" "}
-              asking{" "}
+              {autoPriced ? "typically asks" : "asking"}{" "}
               <span
                 className="rp-field rp-field--price"
                 style={
@@ -538,7 +538,7 @@ export default function RealPriceClient({
                 </svg>
               </span>{" "}
               <span className="rp-answer">
-                will really sell for about
+                {autoPriced ? "and" : ""} will really sell for about
                 <span className="rp-answer-price" aria-live="polite">
                   {euro(Math.round(shownPrice / 1000) * 1000)}
                 </span>
@@ -598,14 +598,14 @@ export default function RealPriceClient({
 
             <div className="rp-glass rp-glass--a">
               <b>{Math.round(prediction.shareAboveAsking * 100)}%</b>
-              <span>sold above asking</span>
+              <span>of similar homes sold above asking</span>
             </div>
             <div
               className="rp-glass rp-glass--b"
               style={{ animationDelay: "-3s, 150ms" }}
             >
               <b>{signed(prediction.medianOverAskingPct)}</b>
-              <span>typical result on asking</span>
+              <span>typical sale price vs asking</span>
             </div>
 
             {hoveredSale?.locked ? (

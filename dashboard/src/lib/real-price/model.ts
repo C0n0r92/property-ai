@@ -279,9 +279,13 @@ export function selectComparables(
 }
 
 /**
- * What a home like this is usually listed for: the middle asking price of
- * recent sales in the same area with the same type and bedrooms. Null when
- * too few sold to say.
+ * What a home like this is usually listed for. Uses the most specific recent
+ * sales that have enough to go on:
+ *   1. same area, type and bedrooms;
+ *   2. same area and bedrooms, any type;
+ *   3. the area's typical asking price, scaled by how that type and size
+ *      prices against all homes across Dublin.
+ * Null only when the area itself has too few sales.
  */
 export function typicalAsking(
   sales: Sale[],
@@ -289,17 +293,27 @@ export function typicalAsking(
   asOf: number,
   minSales = 5
 ): number | null {
-  const alike = sales.filter(
-    (s) => s.t <= asOf && s.typeGroup === home.typeGroup && s.beds === home.beds && s.areaKeys.includes(home.areaKey)
-  );
-  for (const days of [365, 730]) {
-    const asking = alike
-      .filter((s) => s.t >= asOf - days * DAY_MS)
-      .map((s) => s.askingPrice)
-      .sort((a, b) => a - b);
-    if (asking.length >= minSales) return roundTo(quantile(asking, 0.5), 5000);
-  }
-  return null;
+  const median = (list: Sale[]): number | null => {
+    if (list.length < minSales) return null;
+    return quantile(list.map((s) => s.askingPrice).sort((a, b) => a - b), 0.5);
+  };
+  const within = (days: number) => sales.filter((s) => s.t <= asOf && s.t >= asOf - days * DAY_MS);
+  const alike = (s: Sale) => s.typeGroup === home.typeGroup && s.beds === home.beds;
+  const inArea = (s: Sale) => s.areaKeys.includes(home.areaKey);
+  const twoYears = within(730);
+
+  const exact =
+    median(within(365).filter((s) => inArea(s) && alike(s))) ?? median(twoYears.filter((s) => inArea(s) && alike(s)));
+  if (exact) return roundTo(exact, 5000);
+
+  const sameBeds = median(twoYears.filter((s) => inArea(s) && s.beds === home.beds));
+  if (sameBeds) return roundTo(sameBeds, 5000);
+
+  const area = median(twoYears.filter(inArea));
+  const kind = median(twoYears.filter(alike));
+  const all = median(twoYears);
+  if (area && kind && all) return roundTo((area * kind) / all, 5000);
+  return area ? roundTo(area, 5000) : null;
 }
 
 export function predict(comps: Sale[], askingPrice: number): Prediction {

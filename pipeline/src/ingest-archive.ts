@@ -110,17 +110,61 @@ async function listCommonCrawl(from: string): Promise<Capture[]> {
   return captures;
 }
 
-/** Pull the search results out of a page's embedded data. Empty if there are none. */
+const decode = (text: string) =>
+  text
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * Pages archived before late 2025 carry no embedded data, only the listing
+ * cards themselves: a link to the home, its price, address, a strip of
+ * beds / baths / size, and the home type.
+ */
+export function parseCards(html: string): ArchivedResult[] {
+  const results: ArchivedResult[] = [];
+  const card =
+    /href="(\/residential\/brochure\/[^"\/]+\/(\d+))"[^>]*>\s*<h2 class="card-title[^"]*"[^>]*>([^<]*)<\/h2>\s*<h3[^>]*>([^<]*)<\/h3>([\s\S]{0,3000}?)<\/a>/g;
+  // Drop the framework's own markers so the cards read as plain HTML
+  const plain = html.replace(/\s_ng(?:content|host)-[\w-]+=""/g, '').replace(/<!--[\s\S]*?-->/g, '').replace(/<svg[\s\S]*?<\/svg>/g, '');
+  for (const m of plain.matchAll(card)) {
+    const rest = m[5];
+    const strip = (label: string) => {
+      const found = rest.match(new RegExp(`aria-label="${label}"[^>]*>(?:\\s*<[^>]+>)*\\s*([\\d.]+)`));
+      return found ? Number(found[1]) : undefined;
+    };
+    const type = [...rest.matchAll(/<span[^>]*>([^<]+)<\/span>\s*<br/g)].pop()?.[1];
+    results.push({
+      PropertyId: Number(m[2]),
+      BrochureUrl: m[1],
+      PriceAsString: decode(m[3]),
+      DisplayAddress: decode(m[4]),
+      NumberOfBeds: strip('Beds'),
+      NumberOfBathrooms: strip('Bath'),
+      SizeStringMeters: strip('Size'),
+      PropertyType: type ? decode(type) : undefined,
+      IsSaleAgreed: /sale agreed/i.test(rest),
+    });
+  }
+  return results;
+}
+
+/** Pull the search results out of a page, whichever layout it has. Empty if there are none. */
 export function parseSearchPage(html: string): ArchivedResult[] {
   const state = html.match(/<script id="ng-state" type="application\/json">([\s\S]*?)<\/script>/);
-  if (!state) return [];
-  try {
-    const parsed = JSON.parse(state[1]) as Record<string, { SearchResults?: ArchivedResult[] }>;
-    const key = Object.keys(parsed).find((k) => k.startsWith('SEARCH_RESOLVER'));
-    return key ? (parsed[key].SearchResults ?? []) : [];
-  } catch {
-    return [];
+  if (state) {
+    try {
+      const parsed = JSON.parse(state[1]) as Record<string, { SearchResults?: ArchivedResult[] }>;
+      const key = Object.keys(parsed).find((k) => k.startsWith('SEARCH_RESOLVER'));
+      if (key && parsed[key].SearchResults?.length) return parsed[key].SearchResults!;
+    } catch {
+      // fall through to the cards
+    }
   }
+  return parseCards(html);
 }
 
 /** One archived page's results, from the local cache or the archive. */

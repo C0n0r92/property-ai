@@ -95,6 +95,8 @@ export async function matchSales(since = '2025-06-01') {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  await runJob('match', () => matchSales());
+  // --since YYYY-MM-DD widens the window, e.g. after importing older archived listings
+  const since = process.argv.indexOf('--since');
+  await runJob('match', () => matchSales(since > 0 ? process.argv[since + 1] : undefined));
   await pool.end();
 }

@@ -29,9 +29,13 @@ export async function POST(request: NextRequest) {
     }
 
     const { autoAsking, ...query } = parsed.data;
+    let typicalUsed = false;
     if (autoAsking && query.beds !== undefined) {
       const typical = typicalAsking(store.sales, { ...query, beds: query.beds }, store.asOf);
-      if (typical) query.askingPrice = typical;
+      if (typical) {
+        query.askingPrice = typical;
+        typicalUsed = true;
+      }
     }
 
     const result = analyse(store.sales, query, store.asOf);
@@ -40,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // The full analysis is for the paid report; the page gets the public part
-    return NextResponse.json({ areaLabel, askingPrice: query.askingPrice, result: toPublicResult(result) });
+    return NextResponse.json({ areaLabel, askingPrice: query.askingPrice, typicalUsed, result: toPublicResult(result) });
   } catch (error) {
     console.error('Real price check failed:', error);
     return NextResponse.json({ error: 'server_error' }, { status: 500 });

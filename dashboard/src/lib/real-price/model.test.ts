@@ -455,13 +455,39 @@ describe('typicalAsking', () => {
     expect(typicalAsking(sales, { ...home, beds: 4 }, AS_OF)).toBe(540_000);
   });
 
-  it('gives nothing when too few such homes sold', () => {
-    expect(typicalAsking(sales, { ...home, beds: 2 }, AS_OF)).toBeNull();
-    expect(typicalAsking(sales, { ...home, typeGroup: 'apartment', beds: 3 }, AS_OF)).toBeNull();
+  it('falls back to the area when too few such homes sold', () => {
+    expect(typicalAsking(sales, { ...home, beds: 2 }, AS_OF)).toBe(425_000);
+    expect(typicalAsking(sales, { areaKey: 'nowhere', typeGroup: 'semi', beds: 3 }, AS_OF)).toBeNull();
   });
 
   it('looks back two years when the last year is too thin', () => {
     const older = lucan(5, 700_000, 6, '2024-06-01');
     expect(typicalAsking(older, { ...home, beds: 5 }, AS_OF)).toBe(700_000);
+  });
+});
+
+describe('typicalAsking when few such homes sold', () => {
+  const some = (n: number, o: Partial<Sale>) => Array.from({ length: n }, () => sale(o));
+  const sales = [
+    // Foxrock: dear, mostly detached; no 4-bed terraces at all
+    ...some(10, { areaKeys: ['foxrock'], typeGroup: 'detached', beds: 4, askingPrice: 1_200_000 }),
+    ...some(6, { areaKeys: ['foxrock'], typeGroup: 'detached', beds: 5, askingPrice: 1_600_000 }),
+    // The rest of Dublin
+    ...some(30, { areaKeys: ['d8'], typeGroup: 'terraced', beds: 2, askingPrice: 400_000 }),
+    ...some(10, { areaKeys: ['d8'], typeGroup: 'terraced', beds: 4, askingPrice: 600_000 }),
+    ...some(10, { areaKeys: ['d8'], typeGroup: 'apartment', beds: 1, askingPrice: 300_000 }),
+  ];
+
+  it('uses homes with the same bedrooms in the area, whatever their type', () => {
+    expect(typicalAsking(sales, { areaKey: 'foxrock', typeGroup: 'terraced', beds: 4 }, AS_OF)).toBe(1_200_000);
+  });
+
+  it('otherwise scales the area by how that kind of home prices across Dublin', () => {
+    // Foxrock median 1.2m; Dublin 1-bed apartments ask 300k against 400k overall
+    expect(typicalAsking(sales, { areaKey: 'foxrock', typeGroup: 'apartment', beds: 1 }, AS_OF)).toBe(900_000);
+  });
+
+  it('gives nothing for an area with no sales', () => {
+    expect(typicalAsking(sales, { areaKey: 'nowhere', typeGroup: 'apartment', beds: 1 }, AS_OF)).toBeNull();
   });
 });
