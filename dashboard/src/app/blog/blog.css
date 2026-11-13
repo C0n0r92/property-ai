@@ -492,3 +492,19 @@
 .rp-related .rp-h2 {
   margin-bottom: 0.5rem;
 }
+
+.rp-article-dated {
+  margin: 0 0 2rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  background: #f6f4ef;
+  border-left: 3px solid var(--brass-bright);
+  font-family: var(--display);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.rp .rp-article-dated a {
+  color: var(--ink);
+}

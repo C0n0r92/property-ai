@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getAllSlugs, readArticle, readArticleMeta, RETIRED_SLUGS, topicOf } from "@/lib/blog";
+import { getAllSlugs, readArticle, readArticleMeta, RETIRED, RETIRED_SLUGS, topicOf } from "@/lib/blog";
+import { areaSlug } from "@/lib/real-price/area-page";
 import { renderArticle } from "@/lib/blog-markdown";
 import { jsonLd, SITE_NAME, SITE_URL } from "@/lib/site";
 import ArticleChart from "./ArticleChart";
@@ -40,7 +41,8 @@ const longDate = (iso: string) =>
 
 export default async function ArticlePage({ params }: { params: Params }) {
   const { slug } = await params;
-  if (RETIRED_SLUGS.has(slug)) permanentRedirect("/blog");
+  const retiredTo = RETIRED.get(slug);
+  if (retiredTo) permanentRedirect(retiredTo);
   const article = readArticle(slug);
   if (!article) notFound();
 
@@ -51,6 +53,11 @@ export default async function ArticlePage({ params }: { params: Params }) {
     .map((s) => ({ slug: s, meta: readArticleMeta(s) }))
     .filter((r): r is { slug: string; meta: NonNullable<typeof r.meta> } => r.meta !== null)
     .slice(0, 3);
+
+  // An article about one district links to that district's live page
+  const districtMatch = `${slug} ${article.title}`.match(/\b(?:d|dublin[\s-]?)(\d{1,2}w?)\b/i);
+  const district = districtMatch ? `d${districtMatch[1].toLowerCase()}` : null;
+  const districtLabel = district ? `Dublin ${district.slice(1).toUpperCase()}` : "";
 
   const url = `${SITE_URL}/blog/${slug}`;
   const structuredData = {
@@ -115,6 +122,20 @@ export default async function ArticlePage({ params }: { params: Params }) {
         )}
 
         <article className="rp-article">
+          <aside className="rp-article-dated">
+            Written {longDate(article.date)}, from the sales data available then.{" "}
+            {district ? (
+              <>
+                For today&apos;s figures see the <Link href={`/areas/${areaSlug(district)}`}>{districtLabel} page</Link>{" "}
+                and the <Link href="/reports">monthly report</Link>.
+              </>
+            ) : (
+              <>
+                For today&apos;s figures see the <Link href="/reports">monthly report</Link> and the{" "}
+                <Link href="/areas">area pages</Link>.
+              </>
+            )}
+          </aside>
           {segments.map((segment, i) =>
             segment.type === "chart" ? (
               <ArticleChart key={i} name={segment.name} />

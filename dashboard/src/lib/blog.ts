@@ -28,15 +28,33 @@ export interface Article extends ArticleMeta {
 const CONTENT_DIR = join(process.cwd(), 'public/blog-content');
 
 /**
- * Guides to tools the site no longer has (the map, the comparison tool, the
- * planning tool). They are left out of the blog and their addresses
- * redirect to it.
+ * Articles taken off the blog, and where their address now leads:
+ * - guides to tools the site no longer has (the map, comparison, planning);
+ * - placeholder pages with headings but no findings, and short pages whose
+ *   figures contradict themselves. Each goes to the live page or fuller
+ *   article that answers the same question.
  */
-export const RETIRED_SLUGS = new Set([
-  'compare-properties-complete-guide',
-  'dublin-planning-permission-tool-guide',
-  'dublin-property-map-guide',
+export const RETIRED: ReadonlyMap<string, string> = new Map([
+  ['compare-properties-complete-guide', '/blog'],
+  ['dublin-planning-permission-tool-guide', '/blog'],
+  ['dublin-property-map-guide', '/areas'],
+  ['geographic-price-intelligence', '/areas'],
+  ['properties-over-asking-dublin', '/areas'],
+  ['over-asking-phenomenon-2024', '/areas'],
+  ['complete-area-rankings', '/areas'],
+  ['dublin-price-per-square-meter', '/areas'],
+  ['fastest-growing-areas-dublin', '/areas'],
+  ['property-types-analysis', '/reports'],
+  ['detached-houses-dominance', '/reports'],
+  ['bedroom-count-analysis', '/blog/bedroom-count-property-values'],
+  ['asking_price_strategy', '/blog/asking-price-strategy-dublin'],
+  ['dublin-bidding-wars-strategy-analysis', '/blog/dublin-bidding-wars-analysis'],
+  ['dublin-rental-yield-analysis', '/blog/rental-yields-buy-to-let-2025'],
+  ['amenities-impact-prices', '/blog'],
+  ['planning-permission-activity', '/blog'],
 ]);
+
+export const RETIRED_SLUGS: ReadonlySet<string> = new Set(RETIRED.keys());
 
 /** Readers browse by these topics; each article's category maps to one. */
 export const TOPICS = ['Market', 'Areas', 'Buying', 'Investing and renting', 'Planning'] as const;
