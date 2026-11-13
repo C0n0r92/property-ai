@@ -151,7 +151,12 @@ export default function AreaCheck({
       const result = data as ListingAnswer;
       const noPrice = result.missing.includes("asking");
       applyHome(result.home as Partial<Home>, result.listing?.address ?? null, noPrice);
-      if (result.inferredFrom) {
+      const est = result.estimatedAsking;
+      if (est) {
+        setMessage(
+          `Estimated: ${result.inferredFrom ? `this listing isn't in our records, so its details and ` : ""}its asking price come from ${est.count} similar homes on the same street (${euro(est.low)} to ${euro(est.high)}). Change the price below if you know it.`,
+        );
+      } else if (result.inferredFrom) {
         setMessage(
           `We don't have this listing's details yet: the type and size come from ${result.inferredFrom.count} homes for sale on ${result.inferredFrom.street}, with a typical asking price. Check them and enter its asking price below.`,
         );

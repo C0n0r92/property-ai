@@ -32,6 +32,12 @@ export interface ListingAnswer {
    * taken from other homes for sale on the same street
    */
   inferredFrom?: { street: string; count: number };
+  /**
+   * An estimated asking price, when the listing's own is unknown: the middle
+   * of what homes of the same type and size on the same street ask (for sale
+   * now) or asked (sold in the last two years)
+   */
+  estimatedAsking?: { value: number; count: number; low: number; high: number; basis: 'for-sale' | 'sold' };
 }
 
 interface Row {
@@ -127,6 +133,27 @@ async function streetNeighbours(link: ListingLink): Promise<{ street: string; ro
   return homes.length ? { street: street.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase()), rows: homes } : null;
 }
 
+function middle(values: number[]): number {
+  const s = [...values].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+/** Asking prices of homes like this one on the same street that sold in the last two years. */
+async function streetSoldAskings(street: string, link: ListingLink, type: TypeGroup | undefined, beds: number | undefined): Promise<number[]> {
+  const db = getPool();
+  if (!db || !type || !beds) return [];
+  const { rows } = await db.query<{ address: string; asking_price: number; property_type: string | null; beds: number | null }>(
+    `SELECT address, asking_price, property_type, beds FROM sales
+      WHERE lower(address) LIKE $1 AND sold_date >= CURRENT_DATE - 730 AND beds = $2
+      LIMIT 60`,
+    [`%${street.toLowerCase()}%`, beds]
+  );
+  return rows
+    .filter((r) => typeFor(r.property_type) === type && sameArea(r.address, link.address))
+    .map((r) => r.asking_price);
+}
+
 function mostCommon<T>(values: T[]): T | undefined {
   const counts = new Map<T, number>();
   for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1);
@@ -181,11 +208,32 @@ export async function lookUpListing(link: ListingLink, store: SalesStore): Promi
     }
   }
 
+  // No asking price: estimate it from homes of the same type and size on the same street
+  let estimatedAsking: ListingAnswer['estimatedAsking'];
+  if (!home.askingPrice && home.typeGroup && home.beds) {
+    const neighbours = await streetNeighbours(link).catch(() => null);
+    const forSale = (neighbours?.rows ?? [])
+      .filter((r) => typeFor(r.property_type) === home.typeGroup && r.beds === home.beds)
+      .map((r) => r.asking_price)
+      .filter((p) => p >= 50_000 && p <= 20_000_000);
+    let basis: 'for-sale' | 'sold' = 'for-sale';
+    let prices = forSale;
+    if (prices.length < 2 && neighbours) {
+      prices = await streetSoldAskings(neighbours.street, link, home.typeGroup, home.beds).catch(() => []);
+      basis = 'sold';
+    }
+    if (prices.length >= 2) {
+      const value = Math.round(middle(prices) / 5000) * 5000;
+      home.askingPrice = value;
+      estimatedAsking = { value, count: prices.length, low: Math.min(...prices), high: Math.max(...prices), basis };
+    }
+  }
+
   const missing: ListingAnswer['missing'] = [];
   if (!home.areaKey) missing.push('area');
   if (!home.typeGroup) missing.push('type');
   if (!home.beds) missing.push('beds');
   if (!home.askingPrice) missing.push('asking');
 
-  return { status: row ? 'found' : 'partial', home, listing, missing, inferredFrom };
+  return { status: row ? 'found' : 'partial', home, listing, missing, inferredFrom, estimatedAsking };
 }
