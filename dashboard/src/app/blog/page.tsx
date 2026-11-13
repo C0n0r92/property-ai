@@ -7,7 +7,7 @@ import BlogIndex, { type IndexArticle } from "./BlogIndex";
 export const metadata: Metadata = {
   title: "Dublin Property Market Research",
   description:
-    "Data-led research on the Dublin property market: how far over asking homes sell, area by area analysis, timing, mortgages and rental yields, drawn from real Dublin sales.",
+    "Research on the Dublin property market from real sales: how far over asking homes sell, area by area, plus timing, mortgages and rental yields.",
   alternates: { canonical: "/blog" },
   openGraph: {
     title: "Dublin property market research",

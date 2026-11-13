@@ -18,7 +18,16 @@ export interface ArticleMeta {
   author: string;
   views: number;
   relatedArticles: string[];
+  /** A shorter title for search results (≤60 characters) when the headline is long */
+  seoTitle?: string;
+  /** A shorter description for search results (≤155 characters) when the excerpt is long */
+  seoDescription?: string;
 }
+
+/** The title search engines show: the short version if there is one. */
+export const searchTitle = (meta: ArticleMeta) => meta.seoTitle ?? meta.title;
+/** The description search engines show: the short version if there is one. */
+export const searchDescription = (meta: ArticleMeta) => meta.seoDescription ?? meta.excerpt;
 
 export interface Article extends ArticleMeta {
   content: string;
@@ -90,7 +99,7 @@ export function readArticleMeta(slug: string): ArticleMeta | null {
     const metaPath = join(CONTENT_DIR, `${slug}.meta.json`);
     const content = readFileSync(metaPath, 'utf-8');
     return JSON.parse(content);
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -104,7 +113,7 @@ export function readArticleContent(slug: string): string | null {
   try {
     const contentPath = join(CONTENT_DIR, `${slug}.md`);
     return readFileSync(contentPath, 'utf-8');
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -141,7 +150,7 @@ export function getAllSlugs(): string[] {
       .map(file => file.replace('.meta.json', ''))
       .filter(slug => !RETIRED_SLUGS.has(slug));
     return slugs;
-  } catch (error) {
+  } catch {
     return [];
   }
 }
