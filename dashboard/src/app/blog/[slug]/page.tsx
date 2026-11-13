@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getAllSlugs, readArticle, readArticleMeta, RETIRED, RETIRED_SLUGS, topicOf } from "@/lib/blog";
+import { getAllSlugs, readArticle, readArticleMeta, RETIRED, RETIRED_SLUGS, searchDescription, searchTitle, topicOf } from "@/lib/blog";
 import { areaSlug } from "@/lib/real-price/area-page";
 import { renderArticle } from "@/lib/blog-markdown";
 import { jsonLd, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -31,21 +31,23 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!article) return { title: "Article not found", robots: { index: false } };
 
   const url = `/blog/${slug}`;
+  const title = searchTitle(article);
+  const description = searchDescription(article);
   return {
-    // The article title alone: with the site name added most would be cut off
-    title: { absolute: article.title },
-    description: article.excerpt,
+    // The article title alone (a short version for long headlines): with the site name added most would be cut off
+    title: { absolute: title },
+    description,
     alternates: { canonical: url },
     openGraph: {
-      title: article.title,
-      description: article.excerpt,
+      title,
+      description,
       url,
       type: "article",
       publishedTime: article.date,
       section: article.category,
       tags: article.tags,
     },
-    twitter: { card: "summary_large_image", title: article.title, description: article.excerpt },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
