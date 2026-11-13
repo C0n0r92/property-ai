@@ -159,6 +159,29 @@ export default function RealPriceClient({
       new URLSearchParams(window.location.search).has("asking"),
   );
   const [autoPriced, setAutoPriced] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function copyLink() {
+    const params = new URLSearchParams({
+      area: answeredFor.areaKey,
+      type: answeredFor.typeGroup,
+      beds: String(answeredFor.beds),
+      asking: String(answeredFor.askingPrice),
+    });
+    const link = `${window.location.origin}/real-price?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2200);
+      trackEvent({
+        action: "real_price_share",
+        category: "tools",
+        label: answeredFor.areaKey,
+      });
+    } catch {
+      // Clipboard blocked: the address bar already holds the same link
+    }
+  }
   const hero = useRef<HTMLElement>(null);
   const plotBox = useRef<HTMLDivElement>(null);
   const requestId = useRef(0);
@@ -344,12 +367,6 @@ export default function RealPriceClient({
   }, [no3d]);
 
   async function buyReport() {
-    if (address.trim().length < 6) {
-      setOfferError(
-        "Add the address of the home you’re bidding on. It goes on the cover.",
-      );
-      return;
-    }
     setBuying(true);
     setOfferError(null);
     trackEvent({
@@ -363,7 +380,7 @@ export default function RealPriceClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: answeredFor,
-          address: address.trim(),
+          address: address.trim() || undefined,
           eircode: eircode.trim() || undefined,
         }),
       });
@@ -374,13 +391,15 @@ export default function RealPriceClient({
       }
       setOfferError(
         data.error === "invalid_request"
-          ? "Check the address and Eircode. An Eircode looks like D08 TW8P."
+          ? "Check the address and Eircode, or leave them out. An Eircode looks like D08 TW8P."
           : (ERRORS[data.error] ?? ERRORS.checkout_failed),
       );
     } catch {
       setOfferError(ERRORS.checkout_failed);
     }
     setBuying(false);
+    // The message shows beside the offer, wherever the button was pressed
+    document.getElementById("report")?.scrollIntoView({ behavior: "smooth" });
   }
 
   const beaten = dots.values.filter((v) => v <= bidPct).length;
@@ -403,7 +422,7 @@ export default function RealPriceClient({
                 ? "Typical asking price shown. Tap it to enter the real one"
                 : touched
                   ? "Updated from real sales"
-                : "Tap the blue words to describe the home you’re looking at"}
+                  : "Tap the blue words to describe the home you’re looking at"}
             </p>
             <h1 className="rp-sentence">
               A{" "}
@@ -565,12 +584,48 @@ export default function RealPriceClient({
               </p>
             )}
             <div className="rp-hero-actions">
-              <a className="rp-button rp-button--ink" href="#report">
-                Get the full bidding report
-              </a>
+              <button
+                type="button"
+                className="rp-button rp-button--ink"
+                onClick={buyReport}
+                disabled={buying}
+              >
+                {buying
+                  ? "Opening payment…"
+                  : `Get the full report for €${reportPriceEuro}`}
+              </button>
               <a className="rp-link" href="#bid">
                 Try a bid first
               </a>
+              <button
+                type="button"
+                className="rp-link rp-copy"
+                onClick={copyLink}
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  {copied ? (
+                    <path
+                      d="M3 8.5 6.5 12 13 4.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  ) : (
+                    <path
+                      d="M6.8 9.2a2.6 2.6 0 0 0 3.7 0l2.2-2.2a2.6 2.6 0 0 0-3.7-3.7l-.8.8M9.2 6.8a2.6 2.6 0 0 0-3.7 0L3.3 9a2.6 2.6 0 0 0 3.7 3.7l.8-.8"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                    />
+                  )}
+                </svg>
+                <span aria-live="polite">
+                  {copied ? "Link copied" : "Copy link to this answer"}
+                </span>
+              </button>
             </div>
           </div>
 
@@ -591,6 +646,7 @@ export default function RealPriceClient({
               <Diorama
                 sales={dioramaSales}
                 type={answeredFor.typeGroup}
+                beds={answeredFor.beds}
                 onHover={setHovered}
                 onUnavailable={() => setNo3d(true)}
               />
@@ -728,7 +784,14 @@ export default function RealPriceClient({
             </a>
           ))}
         </div>
-        <MarketExplorer initial={market} homeArea={answeredFor.areaKey} />
+        <MarketExplorer
+          initial={market}
+          homeArea={answeredFor.areaKey}
+          onCheck={(areaKey) => {
+            update({ areaKey });
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
 
         <section className="rp-board-section">
           <div className="rp-board-intro">
@@ -773,31 +836,34 @@ export default function RealPriceClient({
                 national Property Price Register.
               </li>
             </ul>
-            <div className="rp-home-fields">
-              <label className="rp-home-field rp-home-field--address">
-                <span>Address of the home you’re bidding on</span>
-                <input
-                  value={address}
-                  maxLength={120}
-                  autoComplete="street-address"
-                  placeholder="14 Rialto Street, Dublin 8"
-                  onChange={(e) => {
-                    setAddress(e.target.value);
-                    setOfferError(null);
-                  }}
-                />
-              </label>
-              <label className="rp-home-field">
-                <span>Eircode (optional)</span>
-                <input
-                  value={eircode}
-                  maxLength={8}
-                  autoComplete="postal-code"
-                  placeholder="D08 TW8P"
-                  onChange={(e) => setEircode(e.target.value.toUpperCase())}
-                />
-              </label>
-            </div>
+            <details className="rp-home-optional">
+              <summary>Put the home’s address on the cover (optional)</summary>
+              <div className="rp-home-fields">
+                <label className="rp-home-field rp-home-field--address">
+                  <span>Address of the home you’re bidding on</span>
+                  <input
+                    value={address}
+                    maxLength={120}
+                    autoComplete="street-address"
+                    placeholder="14 Rialto Street, Dublin 8"
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      setOfferError(null);
+                    }}
+                  />
+                </label>
+                <label className="rp-home-field">
+                  <span>Eircode (optional)</span>
+                  <input
+                    value={eircode}
+                    maxLength={8}
+                    autoComplete="postal-code"
+                    placeholder="D08 TW8P"
+                    onChange={(e) => setEircode(e.target.value.toUpperCase())}
+                  />
+                </label>
+              </div>
+            </details>
             {offerError && (
               <p className="rp-offer-error" role="alert">
                 {offerError}
@@ -819,10 +885,11 @@ export default function RealPriceClient({
               </Link>
             </div>
             <p className="rp-offer-note">
-              One payment, no account and no subscription. The report opens
-              straight after payment and saves as a PDF.{" "}
+              One click to pay by card, Apple Pay or Google Pay. No account and
+              no subscription. The report opens straight after payment and saves
+              as a PDF.{" "}
               <Link href="/real-price/privacy">
-                How we use the address you enter
+                How we use an address if you add one
               </Link>
               .
             </p>
@@ -872,6 +939,16 @@ export default function RealPriceClient({
             </p>
           </div>
         </section>
+
+        <footer className="rp-footer">
+          <span>
+            Sales up to {longDate(dataTo)}, refreshed daily. Not a valuation.
+          </span>
+          <span>
+            <Link href="/real-price/privacy">Privacy</Link>
+            <Link href="/">Irish Property Data</Link>
+          </span>
+        </footer>
       </div>
 
       <div
@@ -884,13 +961,15 @@ export default function RealPriceClient({
             {answeredFor.beds}-bed in {areaLabel}
           </small>
         </span>
-        <a
+        <button
+          type="button"
           className="rp-button rp-button--ink"
-          href="#report"
+          onClick={buyReport}
+          disabled={buying}
           tabIndex={showBar ? 0 : -1}
         >
-          Full report €{reportPriceEuro}
-        </a>
+          {buying ? "Opening payment…" : `Full report €${reportPriceEuro}`}
+        </button>
       </div>
     </>
   );

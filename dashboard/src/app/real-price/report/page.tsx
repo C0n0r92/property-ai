@@ -69,7 +69,7 @@ async function loadReport(sessionId?: string, sample?: string): Promise<Loaded> 
     stored = {
       query: JSON.parse(session.metadata.query ?? ''),
       // Older sessions stored the cover text as "label"
-      address: session.metadata.address || session.metadata.label || '',
+      address: session.metadata.address || session.metadata.label || undefined,
       eircode: session.metadata.eircode || undefined,
     };
   } catch {

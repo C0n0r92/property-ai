@@ -7,6 +7,8 @@ interface Props {
   initial: Market;
   /** The area in the visitor's search: drawn in gold and described first. */
   homeArea: string;
+  /** Switch the price check at the top of the page to this area. */
+  onCheck?: (areaKey: string) => void;
 }
 
 const TYPES: Array<{ value: MarketType; label: string }> = [
@@ -29,7 +31,7 @@ const shortName = (area: MarketArea) =>
  * far over asking homes typically sell there. Same form as the bid chart
  * above it, so it reads the same way.
  */
-export default function MarketExplorer({ initial, homeArea }: Props) {
+export default function MarketExplorer({ initial, homeArea, onCheck }: Props) {
   const [type, setType] = useState<MarketType>(initial.type);
   const [markets, setMarkets] = useState<Partial<Record<MarketType, Market>>>({
     [initial.type]: initial,
@@ -160,6 +162,17 @@ export default function MarketExplorer({ initial, homeArea }: Props) {
           . From {p.count.toLocaleString("en-IE")} sales in the last year of our
           records.
         </p>
+        {onCheck && active.key !== homeArea && (
+          <p className="rp-statement-sub">
+            <button
+              type="button"
+              className="rp-link rp-check-area"
+              onClick={() => onCheck(active.key)}
+            >
+              Check a home in {active.label}
+            </button>
+          </p>
+        )}
       </>
     );
   }

@@ -29,8 +29,15 @@ const eircode = z
 
 export const checkoutSchema = z.object({
   query: querySchema,
-  // The home being bid on: printed on the report cover
-  address: z.string().trim().min(6).max(120),
+  // The home being bid on, printed on the report cover. Optional, so that
+  // buying takes one click; blank means the cover names the kind of home.
+  address: z
+    .string()
+    .trim()
+    .max(120)
+    .transform((v) => (v === '' ? undefined : v))
+    .refine((v) => v === undefined || v.length >= 6, { message: 'invalid_address' })
+    .optional(),
   eircode,
 });
 

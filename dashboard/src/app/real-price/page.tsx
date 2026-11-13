@@ -10,12 +10,12 @@ import { BACKTEST } from "@/lib/real-price/backtest";
 import { analyse, extractAreas, tidyAddress } from "@/lib/real-price/model";
 import { getMarket } from "@/lib/real-price/market";
 import { toPublicResult } from "@/lib/real-price/public";
-import { REPORT_PRICE_CENTS } from "@/lib/real-price/report";
+import { describeHome, REPORT_PRICE_CENTS } from "@/lib/real-price/report";
 import { querySchema } from "@/lib/real-price/schema";
 import { getSalesStore } from "@/lib/real-price/store";
 import RealPriceClient from "./RealPriceClient";
 
-export const metadata: Metadata = {
+const BASE_METADATA: Metadata = {
   title:
     "What Will It Really Sell For? Dublin Asking Price Checker | Irish Property Data",
   description:
@@ -56,6 +56,49 @@ function fromLink(params: Params) {
   });
   if (!parsed.success || parsed.data.beds === undefined) return null;
   return { ...parsed.data, beds: parsed.data.beds };
+}
+
+/** A shared link gets its own title and a preview picture of its answer. */
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Params>;
+}): Promise<Metadata> {
+  const linked = fromLink(await searchParams);
+  const store = await getSalesStore();
+  const query =
+    linked && store.areaLabels.has(linked.areaKey) ? linked : EXAMPLE;
+  const result = analyse(store.sales, query, store.asOf);
+  const image = `/api/real-price/og?${new URLSearchParams({
+    area: query.areaKey,
+    type: query.typeGroup,
+    beds: String(query.beds),
+    asking: String(query.askingPrice),
+  }).toString()}`;
+  const images = [{ url: image, width: 1200, height: 630 }];
+  if (!linked || query === EXAMPLE || !result) {
+    return {
+      ...BASE_METADATA,
+      openGraph: { ...BASE_METADATA.openGraph, images },
+      twitter: { card: "summary_large_image", images: [image] },
+    };
+  }
+  const home = describeHome(query, store.areaLabels.get(query.areaKey)!);
+  const price = `€${result.prediction.mid.toLocaleString("en-IE")}`;
+  const title = `${price}: what a ${home} will really sell for`;
+  const description = `Asking €${query.askingPrice.toLocaleString("en-IE")}. ${Math.round(result.prediction.shareAboveAsking * 100)}% of ${result.evidence.count} similar homes sold above asking. Check any Dublin home.`;
+  return {
+    ...BASE_METADATA,
+    title,
+    description,
+    openGraph: { title, description, type: "website", images },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
 }
 
 export default async function RealPricePage({

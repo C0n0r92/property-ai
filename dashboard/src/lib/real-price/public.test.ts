@@ -76,8 +76,10 @@ describe('isEircode', () => {
 describe('checkoutSchema', () => {
   const query = { areaKey: 'd8', typeGroup: 'terraced', beds: 2, askingPrice: 395_000 };
 
-  it('requires the address of the home', () => {
-    expect(checkoutSchema.safeParse({ query }).success).toBe(false);
+  it('takes the address of the home when given, and works without one', () => {
+    expect(checkoutSchema.safeParse({ query }).success).toBe(true);
+    const blank = checkoutSchema.safeParse({ query, address: '  ' });
+    expect(blank.success && blank.data.address).toBeUndefined();
     expect(checkoutSchema.safeParse({ query, address: 'abc' }).success).toBe(false);
     expect(checkoutSchema.safeParse({ query, address: '14 Rialto Street, Dublin 8' }).success).toBe(true);
   });

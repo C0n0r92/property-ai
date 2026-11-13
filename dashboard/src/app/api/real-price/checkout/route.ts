@@ -64,14 +64,14 @@ export async function POST(request: NextRequest) {
       metadata: {
         kind: 'real-price-report',
         query: JSON.stringify(query),
-        address,
+        address: address ?? '',
         eircode: eircode ?? '',
       },
     });
 
     // Keep the home and its asking price: it is matched later against the
     // Property Price Register to learn what it sold for
-    await insertRow('real_price_homes', {
+    if (address) await insertRow('real_price_homes', {
       address,
       eircode: eircode ?? null,
       area_key: query.areaKey,

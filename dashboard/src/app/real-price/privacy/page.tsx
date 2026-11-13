@@ -34,9 +34,10 @@ export default function RealPricePrivacy() {
 
           <h2>Buying a report</h2>
           <p>
-            We store the address you enter, the Eircode if you give one, and
-            the home type, bedrooms and asking price. The address is printed on
-            your report. Later we compare it with the public Property Price
+            Adding the home’s address is optional. If you add one, we store it
+            with the Eircode if you give one, and the home type, bedrooms and
+            asking price. The address is printed on your report. Later we
+            compare it with the public Property Price
             Register to see what the home sold for, which is how we check and
             improve our estimates. We do not store your name or email with it.
           </p>

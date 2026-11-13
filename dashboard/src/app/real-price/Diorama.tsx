@@ -20,6 +20,8 @@ interface Props {
   sales: DioramaSale[];
   /** What kind of home the street is built from. */
   type: "apartment" | "terraced" | "semi" | "detached";
+  /** Bedrooms: bigger homes get an extra storey, a dormer or an extension. */
+  beds: number;
   /** Index of the house under the pointer, or null. */
   onHover?: (index: number | null) => void;
   onUnavailable?: () => void;
@@ -87,13 +89,14 @@ function tagTexture(
 export default function Diorama({
   sales,
   type,
+  beds,
   onHover,
   onUnavailable,
 }: Props) {
   const mount = useRef<HTMLDivElement>(null);
   const api = useRef<{
     setSales: (sales: DioramaSale[]) => void;
-    setType: (type: Props["type"]) => void;
+    setHome: (type: Props["type"], beds: number) => void;
   } | null>(null);
   const hoverCallback = useRef(onHover);
 
@@ -258,10 +261,31 @@ export default function Diorama({
       geometry.translate(0, 0, -run / 2);
       return geometry;
     };
-    const glass = (lit: boolean) =>
-      lit
-        ? mat(0xffd98a, 0.4, { emissive: 0xffb84a, emissiveIntensity: 0.9 })
+    // Windows that come on, house by house, once the answer has landed
+    const DARK = new THREE.Color(0x34406a);
+    const WARM = new THREE.Color(0xffd98a);
+    const waveMats = Array.from(
+      { length: HOUSE_COUNT + 1 },
+      () =>
+        new THREE.MeshStandardMaterial({
+          color: DARK.clone(),
+          roughness: 0.2,
+          emissive: 0xffb84a,
+          emissiveIntensity: 0,
+        }),
+    );
+    let building = 0; // index of the house being built
+    let panes = 0;
+    const glass = (lit: boolean) => {
+      if (lit)
+        return mat(0xffd98a, 0.4, {
+          emissive: 0xffb84a,
+          emissiveIntensity: 0.9,
+        });
+      return panes++ % 2 === 0
+        ? waveMats[building]
         : mat(0x34406a, 0.12, { metalness: 0.1 });
+    };
     const isLit = (i: number, floor: number, side: number) =>
       (i * 3 + floor * 2 + (side > 0 ? 1 : 0)) % 4 === 0;
     const sash = (
@@ -371,12 +395,13 @@ export default function Diorama({
       d: number;
     }
 
-    /** Three-storey brick terrace with a parapet: the Dublin city street. */
-    const terraced = (i: number): Built => {
+    /** Brick terrace with a parapet: the Dublin city street. Two to four storeys. */
+    const terraced = (i: number, size: number): Built => {
       const house = new THREE.Group();
       const w = 2.3;
       const d = 2.6;
-      const h = 3.6 + (i % 2 === 1 ? 0.35 : 0);
+      const floors = 2 + size;
+      const h = 0.3 + floors * 1.1 + (i % 2 === 1 ? 0.35 : 0);
       const front = d / 2;
       house.position.set((i - 2) * 2.42, GROUND, -0.9);
       add(house, box(w, h, d, 0.12), mat(BRICKS[i], 0.72), 0, h / 2, 0);
@@ -408,7 +433,7 @@ export default function Diorama({
       );
       const doorX = i % 2 === 0 ? -0.55 : 0.55;
       frontDoor(house, doorX, front, DOORS[i]);
-      for (let floor = 0; floor < 3; floor++) {
+      for (let floor = 0; floor < floors; floor++) {
         for (const side of [-0.55, 0.55]) {
           if (floor === 0 && side === doorX) continue;
           sash(house, side, 0.9 + floor * 1.1, front, isLit(i, floor, side));
@@ -418,33 +443,35 @@ export default function Diorama({
     };
 
     /** Two-storey pairs under a shared roof, with bay windows: the suburbs. */
-    const semi = (i: number): Built => {
+    const semi = (i: number, size: number): Built => {
       const house = new THREE.Group();
       const w = 1.8;
       const d = 2.6;
-      const h = 2.45;
+      const h = size === 0 ? 1.4 : 2.45;
       const rise = 1.15;
       const front = d / 2;
       const pair = Math.floor(i / 2);
       const outer = i % 2 === 0 ? -1 : 1; // which side faces away from the neighbour
       house.position.set((pair - 1) * 4.75 + (outer * w) / 2, GROUND, -0.9);
       // Brick below, painted render above; both halves of a pair match
+      const brick = size === 0 ? h : 1.25;
       add(
         house,
-        box(w, 1.25, d, 0.1),
+        box(w, brick, d, 0.1),
         mat(BRICKS[pair * 2], 0.72),
         0,
-        0.625,
+        brick / 2,
         0,
       );
-      add(
-        house,
-        box(w, h - 1.2, d, 0.1),
-        mat(pair === 1 ? 0xf3ead9 : 0xefe2cf, 0.8),
-        0,
-        1.2 + (h - 1.2) / 2,
-        0,
-      );
+      if (size > 0)
+        add(
+          house,
+          box(w, h - 1.2, d, 0.1),
+          mat(pair === 1 ? 0xf3ead9 : 0xefe2cf, 0.8),
+          0,
+          1.2 + (h - 1.2) / 2,
+          0,
+        );
       const roof = add(
         house,
         pitched(d + 0.36, rise, w + 0.1),
@@ -482,8 +509,30 @@ export default function Diorama({
         front + 0.14,
       );
       frontDoor(house, outer * 0.48, front, DOORS[i % DOORS.length]);
-      sash(house, bayX, 1.9, front, isLit(i, 1, 0), 0.7, 0.7);
-      sash(house, outer * 0.48, 1.95, front, isLit(i, 2, 1), 0.48, 0.6);
+      if (size > 0) {
+        sash(house, bayX, 1.9, front, isLit(i, 1, 0), 0.7, 0.7);
+        sash(house, outer * 0.48, 1.95, front, isLit(i, 2, 1), 0.48, 0.6);
+      }
+      if (size > 1) {
+        // Attic conversion: a dormer on the front of the roof
+        add(
+          house,
+          box(0.7, 0.55, 0.7, 0.05),
+          mat(TRIM, 0.55),
+          0,
+          h + 0.5,
+          0.62,
+        );
+        add(house, box(0.5, 0.36, 0.1, 0.03), glass(false), 0, h + 0.5, 0.95);
+        add(
+          house,
+          box(0.82, 0.08, 0.8, 0.03),
+          mat(SLATE, 0.5),
+          0,
+          h + 0.8,
+          0.64,
+        );
+      }
       // A hedge down the gap between pairs
       if (outer === 1 && pair < 2)
         hedge(house.position.x + w / 2 + 0.57, -0.3, 2.4);
@@ -491,11 +540,11 @@ export default function Diorama({
     };
 
     /** Stand-alone gable-fronted houses, each on its own plot. */
-    const detached = (i: number): Built => {
+    const detached = (i: number, size: number): Built => {
       const house = new THREE.Group();
       const w = 1.8;
       const d = 2.5;
-      const h = 2.4;
+      const h = size === 0 ? 1.4 : 2.4;
       const rise = 1.2;
       const front = d / 2;
       const flip = i % 2 === 0 ? 1 : -1;
@@ -553,19 +602,42 @@ export default function Diorama({
         1.6,
         front + 0.22,
       );
-      sash(house, -0.42, 1.95, front, isLit(i, 1, 0), 0.52, 0.6);
-      sash(house, 0.42, 1.95, front, isLit(i, 2, 1), 0.52, 0.6);
+      if (size > 0) {
+        sash(house, -0.42, 1.95, front, isLit(i, 1, 0), 0.52, 0.6);
+        sash(house, 0.42, 1.95, front, isLit(i, 2, 1), 0.52, 0.6);
+      }
+      if (size > 1) {
+        // A side extension with a garage door
+        const sideX = -(w / 2 + 0.34);
+        add(
+          house,
+          box(0.74, 1.3, 1.7, 0.08),
+          mat(BRICKS[i], 0.75),
+          sideX,
+          0.65,
+          0.3,
+        );
+        add(house, box(0.84, 0.1, 1.8, 0.04), mat(TRIM, 0.5), sideX, 1.33, 0.3);
+        add(
+          house,
+          box(0.54, 0.86, 0.08, 0.03),
+          mat(TRIM, 0.45),
+          sideX,
+          0.46,
+          1.16,
+        );
+      }
       chimney(house, -flip * (w / 2 - 0.3), h + 0.35, -0.7);
-      if (i < 4) hedge(house.position.x + 1.39, -0.3, 2.4);
+      if (i < 4 && size < 2) hedge(house.position.x + 1.39, -0.3, 2.4);
       return { house, top: h + rise - 0.2, w, d };
     };
 
     /** One block of flats, five stacks wide, with glass balconies. */
-    const apartment = (i: number): Built => {
+    const apartment = (i: number, size: number): Built => {
       const house = new THREE.Group();
       const w = 2.42;
       const d = 2.8;
-      const floors = 4;
+      const floors = 3 + size;
       const h = 0.35 + floors * 1.02;
       const front = d / 2;
       house.position.set((i - 2) * 2.42, GROUND, -0.9);
@@ -657,7 +729,10 @@ export default function Diorama({
 
     const BUILDERS = { terraced, semi, detached, apartment } as const;
     type StreetType = keyof typeof BUILDERS;
-    let streetType: StreetType | null = null;
+    let street: { type: StreetType; size: number } | null = null;
+    // Up to 2 beds, 3 beds, 4 or more
+    const sizeOf = (bedrooms: number) =>
+      bedrooms <= 2 ? 0 : bedrooms === 3 ? 1 : 2;
 
     const clearStreet = () => {
       for (const object of [...houses, ...hitBoxes, ...extras]) {
@@ -672,12 +747,14 @@ export default function Diorama({
     };
 
     /** Replace the buildings on the block with a street of the given type. */
-    const buildStreet = (type: StreetType) => {
+    const buildStreet = (type: StreetType, size: number) => {
       clearStreet();
-      streetType = type;
+      street = { type, size };
       const count = type === "semi" ? 6 : HOUSE_COUNT;
       for (let i = 0; i < count; i++) {
-        const { house, top, w, d } = BUILDERS[type](i);
+        building = i;
+        panes = i;
+        const { house, top, w, d } = BUILDERS[type](i, size);
         house.userData.baseY = GROUND;
         house.scale.y = 0.001;
         world.add(house);
@@ -699,7 +776,7 @@ export default function Diorama({
         hitBoxes.push(hit);
         // Halves of a pair sit close together: stagger their tags
         tags[i].userData.offsetY =
-          top + 2.05 + (type === "semi" && i % 2 === 1 ? 0.75 : 0);
+          top + 2.05 + (type === "semi" && i % 2 === 1 ? 1.3 : 0);
       }
     };
 
@@ -716,7 +793,7 @@ export default function Diorama({
       world.add(tag);
       tags.push(tag);
     }
-    buildStreet(type);
+    buildStreet(type, sizeOf(beds));
 
     // Street furniture: trees, lamps, railings, a sale board and parked cars
     const tree = (x: number, z: number, s: number) => {
@@ -802,22 +879,48 @@ export default function Diorama({
       GROUND + 0.8,
       1.45,
     );
-    add(
-      world,
-      box(1.0, 0.62, 0.07, 0.04),
-      mat(0xb4232a, 0.4),
-      -1.25,
-      GROUND + 1.55,
-      1.45,
+    // The board itself: "For sale" on the front, "Sold" on the back. It
+    // swings round once the houses are up.
+    const boardFace = (text: string, background: string, ink: string) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 320;
+      canvas.height = 200;
+      const ctx = canvas.getContext("2d")!;
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, 320, 200);
+      ctx.fillStyle = ink;
+      ctx.font =
+        '700 84px system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, 160, 106, 290);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 4;
+      return texture;
+    };
+    const boardTextures = [
+      boardFace("For sale", "#b4232a", "#ffffff"),
+      boardFace("Sold", "#16223f", "#e8c46a"),
+    ];
+    const boardEdge = new THREE.MeshStandardMaterial({
+      color: 0xf6efe6,
+      roughness: 0.5,
+    });
+    const boardFaces = boardTextures.map(
+      (map) => new THREE.MeshStandardMaterial({ map, roughness: 0.45 }),
     );
-    add(
-      world,
-      box(0.72, 0.1, 0.08, 0.02),
-      mat(0xffffff, 0.5),
-      -1.25,
-      GROUND + 1.55,
-      1.47,
-    );
+    const board = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.68, 0.07), [
+      boardEdge,
+      boardEdge,
+      boardEdge,
+      boardEdge,
+      boardFaces[0],
+      boardFaces[1],
+    ]);
+    board.position.set(-1.25, GROUND + 1.6, 1.45);
+    board.castShadow = true;
+    world.add(board);
 
     const car = (x: number, color: number) => {
       const g = new THREE.Group();
@@ -863,7 +966,10 @@ export default function Diorama({
 
     let playStart = performance.now();
     // Set while the old street is coming down, before the new one goes up
-    let swap: { at: number; to: StreetType } | null = null;
+    let swap: {
+      at: number;
+      to: { type: StreetType; size: number };
+    } | null = null;
     let hovered: number | null = null;
     let currentSales: DioramaSale[] = [];
 
@@ -887,13 +993,15 @@ export default function Diorama({
         tags.forEach((_, i) => paintTag(i));
         if (!swap) playStart = performance.now();
       },
-      setType(next) {
-        if (next === (swap?.to ?? streetType)) return;
+      setHome(nextType, bedrooms) {
+        const size = sizeOf(bedrooms);
+        const target = swap?.to ?? street;
+        if (target?.type === nextType && target.size === size) return;
         if (reduceMotion) {
-          buildStreet(next);
+          buildStreet(nextType, size);
           return;
         }
-        swap = { at: performance.now(), to: next };
+        swap = { at: performance.now(), to: { type: nextType, size } };
       },
     };
     api.current.setSales(sales);
@@ -991,7 +1099,7 @@ export default function Diorama({
       if (swap) {
         drop = 1 - easeOutCubic(clamp01((now - swap.at) / 320));
         if (drop <= 0.001) {
-          buildStreet(swap.to);
+          buildStreet(swap.to.type, swap.to.size);
           swap = null;
           playStart = now;
           return;
@@ -1003,6 +1111,15 @@ export default function Diorama({
       } else {
         driver.position.x = 1.6;
       }
+
+      // The answer has landed: the board swings to "Sold" and lights come on
+      board.rotation.y =
+        Math.PI * easeOutBack(clamp01((sincePlay - 1.5) / 0.7)) * drop;
+      waveMats.forEach((material, i) => {
+        const on = clamp01((sincePlay - 1.7 - i * 0.16) / 0.5) * drop;
+        material.color.lerpColors(DARK, WARM, on);
+        material.emissiveIntensity = 0.9 * on;
+      });
 
       houses.forEach((house, i) => {
         const grow = clamp01((sincePlay - 0.15 - i * 0.13) / 0.75);
@@ -1044,6 +1161,10 @@ export default function Diorama({
         if (object instanceof THREE.Mesh) object.geometry.dispose();
       });
       materials.forEach((m) => m.dispose());
+      waveMats.forEach((m) => m.dispose());
+      boardTextures.forEach((t) => t.dispose());
+      boardFaces.forEach((m) => m.dispose());
+      boardEdge.dispose();
       tags.forEach((tag) => {
         tag.material.map?.dispose();
         tag.material.dispose();
@@ -1058,8 +1179,8 @@ export default function Diorama({
   }, []);
 
   useEffect(() => {
-    api.current?.setType(type);
-  }, [type]);
+    api.current?.setHome(type, beds);
+  }, [type, beds]);
 
   useEffect(() => {
     api.current?.setSales(sales);
