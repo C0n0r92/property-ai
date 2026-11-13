@@ -19,6 +19,7 @@ The app (`irish-property-data`, id `6bf616a8-5bef-45c4-b458-c45331aedf05`) build
    - `curl` the changed pages for status 200.
    - `node scripts/seo/audit.mjs https://irishpropertydata.com` (the seo-check skill).
    - `node scripts/visual-check.mjs https://irishpropertydata.com /changed/path` (the visual-check skill).
+   - If pages were added or changed: `gh workflow run seo-audit.yml`, which resubmits the sitemap to Google, sends changed pages to IndexNow and checks every page's index status. It also runs daily at 07:15 UTC.
 
 Lessons from past deploys:
 - **Health check redirects.** The platform's health check calls the container by internal IP over plain http. Middleware must not redirect requests without `x-forwarded-proto`, and `/api/health` is excluded.

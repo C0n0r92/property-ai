@@ -5,19 +5,34 @@
  * Google does not use IndexNow; it reads the sitemap submitted in Search Console.
  *
  *   node scripts/seo/indexnow.mjs [path ...]   (no paths: the whole sitemap)
+ *   node scripts/seo/indexnow.mjs --since-days 2   (sitemap URLs changed lately;
+ *                                                  for the daily run, as IndexNow
+ *                                                  asks not to resend unchanged pages)
  *
  * The key is public by design: dashboard/public/<key>.txt proves the site
  * owns it.
  */
+import { changedSince, parseSitemap } from './index-lib.mjs';
+
 const HOST = 'irishpropertydata.com';
 const KEY = 'f9eebf1e32e6e59a9fb8acee7c3ca949';
 const ORIGIN = `https://${HOST}`;
 
-const paths = process.argv.slice(2).filter((a) => a.startsWith('/'));
+const args = process.argv.slice(2);
+const sinceIndex = args.indexOf('--since-days');
+const sinceDays = sinceIndex >= 0 ? Number(args[sinceIndex + 1]) : null;
+const paths = args.filter((a) => a.startsWith('/'));
 let urls = paths.map((p) => ORIGIN + p);
 if (!urls.length) {
-  const xml = await (await fetch(`${ORIGIN}/sitemap.xml`)).text();
-  urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  const entries = parseSitemap(await (await fetch(`${ORIGIN}/sitemap.xml`)).text());
+  urls =
+    sinceDays != null && Number.isFinite(sinceDays)
+      ? changedSince(entries, new Date(Date.now() - sinceDays * 86_400_000))
+      : entries.map((e) => e.loc);
+}
+if (!urls.length) {
+  console.log('IndexNow: nothing changed, nothing sent');
+  process.exit(0);
 }
 const res = await fetch('https://api.indexnow.org/indexnow', {
   method: 'POST',
