@@ -11,6 +11,7 @@ export default function SiteFooter() {
       <span>
         <Link href="/">Check a home</Link>
         <Link href="/areas">Areas</Link>
+        <Link href="/reports">Monthly report</Link>
         <Link href="/blog">Research</Link>
         <Link href="/real-price/privacy">Privacy</Link>
         <CookieSettingsLink />

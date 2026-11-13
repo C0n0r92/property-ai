@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getArticleIndex } from "@/lib/blog";
 import { buildAreaIndex } from "@/lib/real-price/area-page";
+import { availableMonths } from "@/lib/real-price/monthly-report";
 import { getSalesStore } from "@/lib/real-price/store";
 import { SITE_URL } from "@/lib/site";
 
@@ -29,6 +30,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: dataDate,
       changeFrequency: "daily" as const,
       priority: area.kind === "district" ? 0.8 : 0.7,
+    })),
+    {
+      url: `${SITE_URL}/reports`,
+      lastModified: dataDate,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...availableMonths(store).map((month, i) => ({
+      url: `${SITE_URL}/reports/${month}`,
+      lastModified: dataDate,
+      changeFrequency: (i === 0 ? "weekly" : "monthly") as "weekly" | "monthly",
+      priority: i === 0 ? 0.8 : 0.5,
     })),
     {
       url: `${SITE_URL}/blog`,

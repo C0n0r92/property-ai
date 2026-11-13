@@ -145,7 +145,10 @@
 .rp-area-type-name {
   font-size: 0.92rem;
   color: var(--ink-soft);
-  text-transform: capitalize;
+}
+
+.rp-area-type-name::first-letter {
+  text-transform: uppercase;
 }
 
 .rp-area-type-figure {

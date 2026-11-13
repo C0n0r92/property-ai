@@ -61,7 +61,9 @@ export default function BlogPage() {
         <p className="rp-blog-lede">
           {articles.length} pieces on how Dublin homes really sell: how far
           over asking, where, for which homes, and when. Each one starts from
-          recorded sales, not opinion.
+          recorded sales, not opinion. For the latest figures, see the{" "}
+          <Link href="/reports">monthly over-asking report</Link> and{" "}
+          <Link href="/areas">every area&apos;s page</Link>.
         </p>
       </header>
 
