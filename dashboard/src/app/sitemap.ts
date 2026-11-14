@@ -60,6 +60,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     })),
     {
+      url: `${SITE_URL}/compare`,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${SITE_URL}/track-record`,
       lastModified: dataDate,
       changeFrequency: "weekly",
