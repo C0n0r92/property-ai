@@ -2181,38 +2181,38 @@
   touch-action: auto;
 }
 
-.rp-area {
+g.rp-area {
   cursor: pointer;
   outline: none;
 }
 
-.rp-area circle {
+g.rp-area circle {
   fill: var(--ink);
   transition: fill 140ms ease;
 }
 
-.rp-area text {
+g.rp-area text {
   fill: var(--paper);
   font-size: 12px;
   font-weight: 600;
   pointer-events: none;
 }
 
-.rp-area--home circle {
+g.rp-area--home circle {
   fill: var(--brass-bright);
 }
 
-.rp-area--home text {
+g.rp-area--home text {
   fill: var(--ink);
 }
 
-.rp-area .rp-area-ring {
+g.rp-area .rp-area-ring {
   fill: none;
   stroke: var(--ink);
   stroke-width: 1.5;
 }
 
-.rp-area:focus-visible .rp-area-ring {
+g.rp-area:focus-visible .rp-area-ring {
   stroke: var(--brass-bright);
   stroke-width: 3;
 }

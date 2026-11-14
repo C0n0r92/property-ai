@@ -825,7 +825,8 @@ export default function RealPriceClient({
           <li>
             Tested on <b>{backtest.salesTested.toLocaleString("en-IE")}</b>{" "}
             unseen sales: typically <b>{backtest.medianErrorModelPct}%</b> from
-            the final price
+            the final price.{" "}
+            <a href="/track-record">Track record</a>
           </li>
           <li>Sales to {longDate(dataTo)}</li>
         </ul>
@@ -1117,7 +1118,8 @@ export default function RealPriceClient({
               </strong>{" "}
               Our middle estimate was typically {backtest.medianErrorModelPct}%
               away from the sale price; the asking price on its own was{" "}
-              {backtest.medianErrorAskingPct}% away.
+              {backtest.medianErrorAskingPct}% away.{" "}
+              <a href="/track-record">See the track record, month by month</a>.
             </p>
             <p>
               It cannot see a home&apos;s condition or the mood of one bidding
