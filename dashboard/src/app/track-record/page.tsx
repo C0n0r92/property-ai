@@ -6,6 +6,7 @@ import { TYPE_NAMES } from "@/lib/real-price/area-page";
 import { getSalesStore } from "@/lib/real-price/store";
 import { trackRecord } from "@/lib/real-price/track-record";
 import { jsonLd, SITE_URL } from "@/lib/site";
+import { reportPrice } from "@/lib/real-price/pricing";
 
 // Worked out from the live database (the build has no database)
 export const dynamic = "force-dynamic";
@@ -87,6 +88,9 @@ export default async function TrackRecordPage() {
             <p className="rp-area-more">
               <Link href="/#check" className="rp-button rp-button--ink">
                 Check a home, free
+              </Link>{" "}
+              <Link href="/#report" className="rp-link">
+                See what&apos;s in the {reportPrice().label} report
               </Link>
             </p>
           </div>

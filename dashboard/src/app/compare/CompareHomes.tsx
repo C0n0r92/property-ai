@@ -111,9 +111,12 @@ function HomeInput({
 export default function CompareHomes({
   areas,
   initial,
+  priceLabel,
 }: {
   areas: Area[];
   initial: [CompareHome, CompareHome];
+  /** The report's price, e.g. "€9.99" */
+  priceLabel: string;
 }) {
   const [slots, setSlots] = useState<[Slot, Slot]>([
     { home: initial[0], link: "", address: null, note: null },
@@ -122,6 +125,29 @@ export default function CompareHomes({
   const [results, setResults] = useState<[CompareResult, CompareResult] | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [buying, setBuying] = useState<0 | 1 | null>(null);
+
+  /** The full bidding report for one of the two homes */
+  async function buy(i: 0 | 1) {
+    setBuying(i);
+    trackEvent({ action: "real_price_report_checkout", category: "tools", label: `${slots[i].home.areaKey}:compare` });
+    try {
+      const res = await fetch("/api/real-price/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: slots[i].home, address: slots[i].address ?? undefined }),
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      setMessage("Payment could not be opened just now. Try again in a moment.");
+    } catch {
+      setMessage("Payment could not be opened just now. Try again in a moment.");
+    }
+    setBuying(null);
+  }
 
   const setSlot = (i: 0 | 1, next: Partial<Slot>) =>
     setSlots((s) => (i === 0 ? [{ ...s[0], ...next }, s[1]] : [s[0], { ...s[1], ...next }]));
@@ -280,6 +306,25 @@ export default function CompareHomes({
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="rp-compare-buy">
+            <p>
+              <strong>Bidding on one of them?</strong> The full report has every comparable sale, a bid-by-bid plan and
+              how the area is moving.
+            </p>
+            <div className="rp-compare-buy-actions">
+              {([0, 1] as const).map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="rp-button rp-button--ink"
+                  onClick={() => buy(i)}
+                  disabled={buying !== null}
+                >
+                  {buying === i ? "Opening payment…" : `Report for ${names[i]}, ${priceLabel}`}
+                </button>
+              ))}
+            </div>
           </div>
           <p className="rp-compare-foot">
             Likely prices come from recent sales of similar homes in each area, relative to their asking prices. Not a

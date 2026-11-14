@@ -114,6 +114,13 @@ export default async function AreasIndex() {
             tower is a district: the taller it stands, the further over asking its homes go.
           </p>
         )}
+        <p className="rp-area-more">
+          <Link href="/streets" className="rp-link">Street by street</Link>
+          {" · "}
+          <Link href="/compare" className="rp-link">Compare two homes</Link>
+          {" · "}
+          <Link href="/track-record" className="rp-link">How accurate we are</Link>
+        </p>
       </section>
 
       <section className="rp-wrap rp-areas-map">
