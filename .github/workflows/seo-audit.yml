@@ -5,8 +5,9 @@
 #  - google: resubmit the sitemap to Google, tell IndexNow (Bing etc.) about
 #            pages changed in the last two days, and check the index status of
 #            the key pages and a rotating slice of street pages (Google allows
-#            2,000 inspections a day). Fails only on pages with a real problem (404, noindex,
-#            redirect, duplicate); pages Google hasn't reached yet are reported.
+#            2,000 inspections a day; 1,500 leaves room for checks by hand).
+#            Fails only on pages with a real problem (404, noindex, redirect,
+#            duplicate); pages Google hasn't reached yet are reported.
 # A failed run emails the repository owner through GitHub's normal notice.
 # Also run by hand after a deploy:  gh workflow run seo-audit.yml
 name: SEO audit
@@ -60,7 +61,7 @@ jobs:
       - name: Resubmit the sitemap and check every page's index status
         env:
           GOOGLE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: node scripts/seo/index-status.mjs --submit-sitemap --budget 1800 --json index-status.json
+        run: node scripts/seo/index-status.mjs --submit-sitemap --budget 1500 --json index-status.json
       - name: Keep the report
         if: always()
         uses: actions/upload-artifact@v4
