@@ -1088,6 +1088,26 @@ export default function RealPriceClient({
 
         <EmailResult query={answeredFor} />
 
+        <section className="rp-section rp-tools" aria-labelledby="rp-tools-title">
+          <h2 className="rp-h2" id="rp-tools-title">
+            More, free.
+          </h2>
+          <div className="rp-area-cards">
+            <Link href="/worth" className="rp-area-card">
+              <span className="rp-area-card-name">Look up any home</span>
+              <span className="rp-area-card-sub">Every sale, what it&apos;s worth today, its listings and planning.</span>
+            </Link>
+            <Link href="/streets" className="rp-area-card">
+              <span className="rp-area-card-name">Street by street</span>
+              <span className="rp-area-card-sub">Every sold price on 13,500 streets, in Dublin and every county.</span>
+            </Link>
+            <Link href="/compare" className="rp-area-card">
+              <span className="rp-area-card-name">Compare two homes</span>
+              <span className="rp-area-card-sub">Which will really cost more once the bidding is done.</span>
+            </Link>
+          </div>
+        </section>
+
         <section className="rp-section">
           <h2 className="rp-h2">How it works</h2>
           <ul className="rp-how">
@@ -1111,7 +1131,7 @@ export default function RealPriceClient({
           <span>
             <Link href="/areas">Areas</Link>
             <Link href="/streets">Streets</Link>
-            <Link href="/worth">What is it worth?</Link>
+            <Link href="/worth">Look up a home</Link>
             <Link href="/compare">Compare two homes</Link>
             <Link href="/reports">Monthly report</Link>
             <Link href="/track-record">Track record</Link>

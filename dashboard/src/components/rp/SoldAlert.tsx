@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { homeTitle } from "@/lib/real-price/home-title";
 
 interface Props {
   /** The home's address, with its house number */
@@ -23,7 +24,7 @@ export default function SoldAlert({ address, askingPrice, predictedMid, county, 
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
-  const home = address.split(",")[0].trim();
+  const home = homeTitle(address);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();

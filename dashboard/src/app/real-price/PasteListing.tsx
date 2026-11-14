@@ -35,11 +35,20 @@ export default function PasteListing({
   const [state, setState] = useState<"idle" | "busy" | "error">("idle");
   const [answer, setAnswer] = useState<ListingAnswer | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  // The home's own page, when the link resolves to one we know
+  const [homeSlug, setHomeSlug] = useState<string | null>(null);
 
   async function read(link: string) {
     if (!link.trim()) return;
     setState("busy");
     setMessage(null);
+    setHomeSlug(null);
+    fetch(`/api/home/search?q=${encodeURIComponent(link.trim())}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.kind === "homes" && d.homes?.length === 1) setHomeSlug(d.homes[0].slug);
+      })
+      .catch(() => {});
     try {
       const response = await fetch(
         `/api/real-price/listing?url=${encodeURIComponent(link.trim())}`,
@@ -148,6 +157,11 @@ export default function PasteListing({
               Asking {last.price < first.price ? "cut" : "raised"} from{" "}
               {euro(first.price)} to {euro(last.price)}
             </span>
+          )}
+          {homeSlug && (
+            <a href={`/home/${homeSlug}`} className="rp-link">
+              Its history and planning
+            </a>
           )}
         </p>
       )}

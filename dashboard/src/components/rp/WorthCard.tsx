@@ -13,6 +13,7 @@ export interface WorthHome {
   extended: { year: number; work: string } | null;
   accuracy: { medianAbs: number; within10: number; tested: number } | null;
   streetSlug: string | null;
+  slug?: string | null;
 }
 
 const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
@@ -60,6 +61,11 @@ export default function WorthCard({ home, showStreetLink = true }: { home: Worth
         {dublin && (
           <Link href="/#check" className="rp-button rp-button--ink">
             Buying it? See what it will sell for
+          </Link>
+        )}
+        {home.slug && (
+          <Link href={`/home/${home.slug}`} className="rp-link">
+            Its full history
           </Link>
         )}
         {showStreetLink && home.streetSlug && (

@@ -89,7 +89,8 @@ export function streetSlug(streetKey: string, areaKey: string): string {
 export function displayStreetName(firstPart: string): string {
   let s = firstPart.replace(EIRCODE, '').trim();
   // "Apt 4 Rath Gael", "Apartment 40 7 Chamber Street"
-  for (let i = 0; i < 3; i++) s = s.replace(UNIT, '').replace(NUMBERS, '').trim();
+  // Punctuation between the number and the street ("Apt 26b - Emmet Lodge") goes too
+  for (let i = 0; i < 3; i++) s = s.replace(UNIT, '').replace(NUMBERS, '').replace(/^[\s\-–—/:.,]+/, '').trim();
   return s
     .toLowerCase()
     .replace(/\s+/g, ' ')

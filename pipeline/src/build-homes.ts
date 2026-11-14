@@ -141,6 +141,15 @@ async function rebuildHomes(): Promise<number> {
          ) everything
         GROUP BY home_id`
     );
+    // Web addresses: house and street, area, and a short hash of the id so two homes never share one
+    await client.query(
+      `UPDATE homes SET slug = trim(both '-' from lower(regexp_replace(
+         address_key || ' ' ||
+         CASE WHEN area_key ~ '^d[0-9]' THEN 'dublin ' || substr(area_key, 2)
+              WHEN area_key LIKE 'county:%' THEN 'co ' || split_part(area_key, ':', 2)
+              ELSE area_key END,
+         '[^A-Za-z0-9]+', '-', 'g'))) || '-' || substr(md5(home_id), 1, 5)`
+    );
     await client.query('COMMIT');
     return rowCount ?? 0;
   } catch (error) {

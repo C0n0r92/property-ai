@@ -1,34 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { worthAccuracy } from "@/lib/real-price/worth-data";
-import WorthLookup from "./WorthLookup";
+import HomeSearch from "@/components/rp/HomeSearch";
 
 // Accuracy from the live database (the build has no database)
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "What Is My House Worth? Free Estimate, Any County",
+  title: "Look Up Any Home: Sold Prices and What It's Worth",
   description:
-    "A free estimate for any home in Ireland that has sold since 2010: its last sale price, brought to today with how prices moved in its area.",
+    "Any home in Ireland: every sale since 2010, what it's likely worth today, its listings and planning. Free.",
   alternates: { canonical: "/worth" },
 };
 
-type Search = Promise<{ address?: string }>;
-
-export default async function WorthPage({ searchParams }: { searchParams: Search }) {
-  const { address } = await searchParams;
+export default async function WorthPage() {
   const accuracy = await worthAccuracy();
   const all = accuracy?.all;
   return (
     <main className="rp-area">
       <section className="rp-wrap rp-areas-head">
         <p className="rp-eyebrow">Every county · free</p>
-        <h1 className="rp-blog-title">What is it worth?</h1>
+        <h1 className="rp-blog-title">Look up any home.</h1>
         <p className="rp-blog-lede">
-          Any home in Ireland that has sold since 2010: its last sale price, brought to today with how prices moved
-          around it.
+          Every sale since 2010, what it&apos;s likely worth today, and if it&apos;s for sale in Dublin, what it will
+          really sell for.
         </p>
-        <WorthLookup initial={typeof address === "string" ? address.slice(0, 200) : ""} />
+        <HomeSearch />
         <ul className="rp-how rp-worth-how">
           <li>
             <strong>From the Property Price Register.</strong> The home&apos;s last sale, and every resale in its area

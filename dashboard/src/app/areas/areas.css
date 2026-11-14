@@ -352,47 +352,6 @@
   color: var(--ink-soft);
 }
 
-/* ---------- Links to other areas ---------- */
-
-.rp-area-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-  gap: 0.9rem;
-  margin-top: 1.2rem;
-}
-
-.rp .rp-area-card {
-  display: grid;
-  gap: 0.25rem;
-  padding: 1.1rem 1.2rem;
-  border-radius: 16px;
-  background: var(--sheet);
-  border: 1px solid var(--rule);
-  color: var(--ink);
-  text-decoration: none;
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-}
-
-.rp .rp-area-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(47, 79, 176, 0.4);
-  box-shadow: 0 16px 34px -22px rgba(22, 34, 63, 0.45);
-}
-
-.rp-area-card-name {
-  font-weight: 600;
-}
-
-.rp-area-card-figure {
-  font-size: 1.6rem;
-  letter-spacing: -0.03em;
-}
-
-.rp-area-card-sub {
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-}
-
 /* ---------- FAQ ---------- */
 
 .rp-area-faq details {

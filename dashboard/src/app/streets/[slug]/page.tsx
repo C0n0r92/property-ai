@@ -257,7 +257,7 @@ export default async function StreetPageView({ params, searchParams }: { params:
                   <tr key={`${s.date}-${s.address}-${i}`}>
                     <td>{monthYear(s.date)}</td>
                     <th scope="row">
-                      {s.address}
+                      {s.home_slug ? <Link href={`/home/${s.home_slug}`}>{s.address}</Link> : s.address}
                       {s.new_build && <small> · new</small>}
                       {s.beds && s.property_type ? (
                         <small>

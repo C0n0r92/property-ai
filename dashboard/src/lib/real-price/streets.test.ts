@@ -198,3 +198,10 @@ describe('outside Dublin', () => {
     expect(streetIdentity('54 Castlegate Crescent, Adamstown, Lucan', 'Dublin')?.slug).toBe('castlegate-crescent-lucan');
   });
 });
+
+describe('punctuation around the house number', () => {
+  it('a dash or slash after the flat number is not part of the street', () => {
+    expect(displayStreetName('Apt 26b - Emmet Lodge')).toBe('Emmet Lodge');
+    expect(displayStreetName('12 – Rialto Street')).toBe('Rialto Street');
+  });
+});
