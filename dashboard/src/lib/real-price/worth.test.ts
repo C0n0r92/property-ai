@@ -111,3 +111,11 @@ describe('helpers', async () => {
     expect(Math.log(r.high / 200_000)).toBeCloseTo(Math.log(200_000 / r.low), 5);
   });
 });
+
+describe('flats count as homes', async () => {
+  const { isHomeKey } = await import('./worth');
+  it('APT n STREET and APT n n STREET', () => {
+    expect(isHomeKey('APT 83 THE POPLAR')).toBe(true);
+    expect(isHomeKey('APT 4 12 MAIN ST')).toBe(true);
+  });
+});

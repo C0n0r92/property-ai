@@ -42,7 +42,7 @@ export function kindsOf(description: string | null | undefined): string[] {
   return KINDS.filter(([, pattern]) => pattern.test(text)).map(([kind]) => kind);
 }
 
-const HOME = /^(?:(?:APT|UNIT|FLAT) \d+[A-Z]? )?\d+[A-Z]? [A-Z]/;
+const HOME = /^(?:(?:APT|UNIT|FLAT) \d+[A-Z]?(?: \d+[A-Z]?)? [A-Z]|\d+[A-Z]? [A-Z])/;
 
 /** The home (house and street) and street page an application belongs to. */
 export function planningSite(address: string): { homeKey: string | null; district: string | null; streetSlug: string | null } {

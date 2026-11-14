@@ -6,6 +6,7 @@
  */
 import { addressKey, sameArea } from './address';
 import { tidyAddress } from './model';
+import { resolveHomes } from './home-lookup';
 import { getPool } from './pool';
 import { streetIdentity } from './streets';
 import { alikeNeighbours, blendWithStreet, bringForward, indexArea, isHomeKey, rangeAround, yearOf, type ErrorBands, type PriceIndex } from './worth';
@@ -83,34 +84,44 @@ export async function worthFor(address: string): Promise<{ homes: HomeWorth[]; r
   const m = await model();
   if (!db || !m) return { homes: [], reason: 'unavailable' };
 
-  const { rows } = await db.query<{
-    address: string;
-    county: string;
-    district: string | null;
-    date: string;
-    price: number;
-    new_build: boolean;
-    street_slug: string | null;
-  }>(
-    `SELECT address, county, district, sold_date::text AS date, price, new_build, street_slug
-       FROM register_sales WHERE address_key = $1 AND price >= ${MARKET_PRICE}
-      ORDER BY sold_date DESC LIMIT 200`,
-    [key.key]
-  );
-  if (!rows.length) return { homes: [], reason: 'not_found' };
+  type SaleRow = { address: string; county: string; district: string | null; date: string; price: number; new_build: boolean; street_slug: string | null };
+  const groups: Array<{ county: string; area: string; homeId: string | null; streetSlug: string | null; sales: SaleRow[] }> = [];
 
-  // One home per county and area
-  const homes = new Map<string, typeof rows>();
-  for (const r of rows) {
-    const area = indexArea(r.county, r.county === 'Dublin' ? r.district : null, streetIdentity(r.address, r.county)?.areaKey ?? null);
-    const id = `${r.county}|${area}`;
-    homes.set(id, [...(homes.get(id) ?? []), r]);
+  // The homes the address is (one identity across every dataset), with their sales
+  const resolved = (await resolveHomes(address)).filter((h) => h.sales > 0);
+  if (resolved.length) {
+    const { rows } = await db.query<SaleRow & { home_id: string }>(
+      `SELECT home_id, address, county, district, sold_date::text AS date, price, new_build, street_slug
+         FROM register_sales WHERE home_id = ANY($1) AND price >= ${MARKET_PRICE} ORDER BY sold_date DESC`,
+      [resolved.map((h) => h.home_id)]
+    );
+    for (const h of resolved) {
+      const sales = rows.filter((r) => r.home_id === h.home_id);
+      if (sales.length) groups.push({ county: h.county, area: h.area_key, homeId: h.home_id, streetSlug: h.street_slug, sales });
+    }
+  } else {
+    // Before the homes table is built: group the register's rows by county and area
+    const { rows } = await db.query<SaleRow>(
+      `SELECT address, county, district, sold_date::text AS date, price, new_build, street_slug
+         FROM register_sales WHERE address_key = $1 AND price >= ${MARKET_PRICE}
+        ORDER BY sold_date DESC LIMIT 200`,
+      [key.key]
+    );
+    const byArea = new Map<string, SaleRow[]>();
+    for (const r of rows) {
+      const area = indexArea(r.county, r.county === 'Dublin' ? r.district : null, streetIdentity(r.address, r.county)?.areaKey ?? null);
+      byArea.set(`${r.county}|${area}`, [...(byArea.get(`${r.county}|${area}`) ?? []), r]);
+    }
+    for (const [id, sales] of byArea) {
+      const [county, area] = id.split('|');
+      groups.push({ county, area, homeId: null, streetSlug: sales[0].street_slug, sales });
+    }
   }
+  if (!groups.length) return { homes: [], reason: 'not_found' };
 
   const now = yearOf(new Date().toISOString().slice(0, 10));
   const out: HomeWorth[] = [];
-  for (const [id, sales] of homes) {
-    const [county, area] = id.split('|');
+  for (const { county, area, homeId, streetSlug, sales } of groups) {
     const index = m.indexes.get(`${county}|${area}`) ?? m.indexes.get(`${county}|county:${county}`);
     if (!index) continue;
     const last = sales[0];
@@ -119,12 +130,13 @@ export async function worthFor(address: string): Promise<{ homes: HomeWorth[]; r
 
     // Neighbours: other homes on the street sold in the last three years, brought to today
     let neighbours: number[] = [];
-    if (last.street_slug) {
+    const street = streetSlug ?? last.street_slug;
+    if (street) {
       const { rows: near } = await db.query<{ price: number; date: string; new_build: boolean }>(
         `SELECT price, sold_date::text AS date, new_build FROM register_sales
           WHERE street_slug = $1 AND address_key <> $2 AND price >= ${MARKET_PRICE}
             AND sold_date >= CURRENT_DATE - INTERVAL '3 years'`,
-        [last.street_slug, key.key]
+        [street, key.key]
       );
       neighbours = near.map((n) => bringForward(index, n.new_build ? n.price * NEW_BUILD_VAT : n.price, yearOf(n.date), now));
     }
@@ -133,11 +145,16 @@ export async function worthFor(address: string): Promise<{ homes: HomeWorth[]; r
     if (county === 'Dublin') {
       const { rows: plans } = await db
         .query<{ decided: string; kinds: string[] }>(
-          `SELECT decision_date::text AS decided, kinds FROM planning_applications
-            WHERE home_key = $1 AND decision IN ('granted','part') AND decision_date > $2::date
-              AND kinds && ARRAY['extension','attic'] AND ($3::text IS NULL OR district IS NULL OR district = $3)
-            ORDER BY decision_date LIMIT 1`,
-          [key.key, last.date, last.district]
+          homeId
+            ? `SELECT decision_date::text AS decided, kinds FROM planning_applications
+                WHERE home_id = $1 AND decision IN ('granted','part') AND decision_date > $2::date
+                  AND kinds && ARRAY['extension','attic']
+                ORDER BY decision_date LIMIT 1`
+            : `SELECT decision_date::text AS decided, kinds FROM planning_applications
+                WHERE home_key = $1 AND decision IN ('granted','part') AND decision_date > $2::date
+                  AND kinds && ARRAY['extension','attic'] AND ($3::text IS NULL OR district IS NULL OR district = $3)
+                ORDER BY decision_date LIMIT 1`,
+          homeId ? [homeId, last.date] : [key.key, last.date, last.district]
         )
         .catch(() => ({ rows: [] as Array<{ decided: string; kinds: string[] }> }));
       if (plans[0]) {
@@ -165,11 +182,11 @@ export async function worthFor(address: string): Promise<{ homes: HomeWorth[]; r
       },
       extended,
       accuracy: acc ? { medianAbs: acc.medianAbs, within10: acc.within10, tested: acc.tested } : null,
-      streetSlug: last.street_slug,
+      streetSlug: street,
     });
   }
-  // When the visitor names a place (a district or town), only homes there
-  const named = address.includes(',') || /dublin\s*\d/i.test(address);
+  // When the visitor names a place (a district or town), only homes there (resolveHomes has done this already)
+  const named = !resolved.length && (address.includes(',') || /dublin\s*\d/i.test(address));
   const here = named ? out.filter((h) => sameArea(h.address, address) || h.areaName.toLowerCase().split(',')[0].trim() === address.split(',').slice(1).join(' ').trim().toLowerCase()) : out;
   here.sort((a, b) => b.lastSale.date.localeCompare(a.lastSale.date));
   return { homes: here.slice(0, 8), reason: here.length ? undefined : 'not_found' };

@@ -128,7 +128,10 @@ const COUNTY_PART = /^(?:co\.?|county)\s+/i;
 
 /** Towns in an address, nearest the street first: no districts, no "Co. Kildare". */
 function townsOf(address: string, county: string | null): Array<{ key: string; label: string }> {
-  const towns = extractAreas(address).filter((a) => !/^d\d/.test(a.key) && !COUNTY_PART.test(a.label) && !/^(?:co|county)-/.test(a.key));
+  // Not a district, and not the county: "Co. Kildare", "County Dublin", or a bare "Co." ("Rathcoole, Co., Dublin")
+  const towns = extractAreas(address).filter(
+    (a) => !/^d\d/.test(a.key) && !COUNTY_PART.test(a.label) && !/^(?:co|county)(?:-|$)/.test(a.key)
+  );
   // A bare county name ("…, Douglas, Cork") is the county unless it is the only place given (Cork city)
   return county && towns.length > 1 ? towns.filter((t) => t.key !== county) : towns;
 }

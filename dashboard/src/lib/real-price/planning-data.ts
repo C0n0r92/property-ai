@@ -4,6 +4,7 @@
  */
 import { addressKey } from './address';
 import { tidyAddress } from './model';
+import { resolveHome } from './home-lookup';
 import { getPool } from './pool';
 
 export interface PlanningRow {
@@ -70,6 +71,18 @@ export async function homePlanning(address: string): Promise<PlanningRow[]> {
   const db = getPool();
   const key = addressKey(address);
   if (!db || !key.specific) return [];
+  // One home (homes table): its applications exactly
+  const home = await resolveHome(address, 'Dublin');
+  if (home) {
+    const { rows } = await db
+      .query<Raw>(
+        `SELECT ${COLUMNS} FROM planning_applications
+          WHERE home_id = $1 AND decision <> 'invalid' ORDER BY received_date DESC NULLS LAST LIMIT 20`,
+        [home.home_id]
+      )
+      .catch(() => ({ rows: [] as Raw[] }));
+    return rows.map(toRow);
+  }
   try {
     const { rows } = await db.query<Raw & { district: string | null }>(
       `SELECT ${COLUMNS}, district FROM planning_applications
