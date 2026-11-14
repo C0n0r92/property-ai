@@ -113,10 +113,7 @@ function InsightsPage({ report, ribbon, page, total }: { report: ReportData; rib
     <section className="rp-page">
       {ribbon}
       <h2>What else the sales show</h2>
-      <p>
-        From every Dublin sale on the Property Price Register since 2010, and the asking prices we have collected
-        for the same homes.
-      </p>
+      <p>From the Property Price Register since 2010, with the asking prices we hold.</p>
 
       <div className="rp-insights">
         <div className="rp-insight rp-insight--wide">
@@ -197,22 +194,20 @@ function InsightsPage({ report, ribbon, page, total }: { report: ReportData; rib
                 </p>
               ) : null}
               <p>
-                Homes that cut their asking price (by {m.cuts.averageCutPct.toFixed(1)}% on average) sold for a typical{' '}
-                <strong>{pct(m.cuts.cutMedianOverAskingPct)}</strong> on the reduced price, and{' '}
-                {Math.round(m.cuts.cutShareAbove * 100)}% went above it. Homes that never changed it sold{' '}
-                {pct(m.cuts.unchangedMedianOverAskingPct)}, with {Math.round(m.cuts.unchangedShareAbove * 100)}% above.
+                After a cut (typically {m.cuts.averageCutPct.toFixed(1)}%), homes sold{' '}
+                <strong>{pct(m.cuts.cutMedianOverAskingPct)}</strong> on the new price ({Math.round(m.cuts.cutShareAbove * 100)}%
+                above it). Uncut: {pct(m.cuts.unchangedMedianOverAskingPct)} ({Math.round(m.cuts.unchangedShareAbove * 100)}%).
               </p>
-              <p className="rp-muted">From {m.cuts.cutCount} cut and {m.cuts.unchangedCount.toLocaleString('en-IE')} unchanged sales. Indicative: the number of cuts is still small.</p>
+              <p className="rp-muted">{m.cuts.cutCount} cut and {m.cuts.unchangedCount.toLocaleString('en-IE')} uncut sales; few cuts so far, so indicative.</p>
             </div>
 
             <div className="rp-insight">
               <h3>Round and just-under asking prices</h3>
               <p>
-                Since 2024, homes asking just under a round figure (such as €395,000) sold a typical{' '}
-                <strong>{pct(m.roundPricing.underMedianOverAskingPct)}</strong> over, with{' '}
-                {Math.round(m.roundPricing.underShareAbove * 100)}% above asking. Homes asking a round figure (such as
-                €400,000) sold {pct(m.roundPricing.roundMedianOverAskingPct)}, with{' '}
-                {Math.round(m.roundPricing.roundShareAbove * 100)}% above.
+                Since 2024, just under a round figure (€395,000) sold{' '}
+                <strong>{pct(m.roundPricing.underMedianOverAskingPct)}</strong> ({Math.round(m.roundPricing.underShareAbove * 100)}%
+                above asking). A round figure (€400,000): {pct(m.roundPricing.roundMedianOverAskingPct)} (
+                {Math.round(m.roundPricing.roundShareAbove * 100)}%).
               </p>
               <p className="rp-muted">
                 {band === 'round'
@@ -220,28 +215,24 @@ function InsightsPage({ report, ribbon, page, total }: { report: ReportData; rib
                   : band === 'under'
                     ? `This home asks ${euro(asking)}, just under a round figure.`
                     : `This home asks ${euro(asking)}, neither round nor just under.`}{' '}
-                The two go together; the price is not shown to cause the bidding.
+                A pattern, not proof the price causes it.
               </p>
             </div>
 
             <div className="rp-insight">
               <h3>How long it takes</h3>
               <p className="rp-insight-figure">
-                <strong>{m.timeline.median} days</strong> from first listed to the sale completing, typically.
+                <strong>{m.timeline.median} days</strong> from listed to completed, typically.
               </p>
-              <p>
-                Half of homes took between {m.timeline.p25} and {m.timeline.p75} days. The register records the date
-                the sale completed, so this includes conveyancing.
-              </p>
+              <p>Half took {m.timeline.p25} to {m.timeline.p75} days, conveyancing included.</p>
               <p className="rp-muted">From {m.timeline.count.toLocaleString('en-IE')} Dublin sales.</p>
             </div>
 
             <div className="rp-insight">
               <h3>Homes that sold before</h3>
               <p>
-                {Math.round((m.repeat.withEarlier / m.repeat.matched) * 100)}% of the homes we have matched had sold
-                before since 2010. The typical one sold again {m.repeat.medianYears.toFixed(1)} years later for{' '}
-                <strong>{pct(m.repeat.medianGainPct)}</strong> more.
+                {Math.round((m.repeat.withEarlier / m.repeat.matched) * 100)}% of matched homes had sold before. Typical
+                gain: <strong>{pct(m.repeat.medianGainPct)}</strong> after {m.repeat.medianYears.toFixed(1)} years.
               </p>
               <p className="rp-muted">
                 Across Dublin, {m.repeat.homesSoldTwice.toLocaleString('en-IE')} homes have sold more than once since
@@ -442,9 +433,8 @@ export default async function ReportPage({
 
         <h3>Before you bid</h3>
         <p>
-          Decide your ceiling before the first round, not during it. If the bidding passes the
-          “rarely beaten” level, the home is going for more than almost every comparable sale: ask
-          what it has that they did not.
+          Set your ceiling before the first round. Past “rarely beaten”, the home is going for more than almost every
+          comparable sale: ask what it has that they didn&apos;t.
         </p>
         <Folio page={2} total={total} report={report} />
       </section>
@@ -511,10 +501,7 @@ export default async function ReportPage({
         <h3>What sold most recently, from the Property Price Register</h3>
         {report.register.sales.length > 0 ? (
           <>
-            <p>
-              Final prices declared to Revenue, second-hand homes only. The register does not
-              record asking prices. Updated {longDate(report.register.updated)}.
-            </p>
+            <p>Second-hand homes; the register has no asking prices. Updated {longDate(report.register.updated)}.</p>
             <table className="rp-table">
               <thead>
                 <tr>
@@ -547,33 +534,27 @@ export default async function ReportPage({
         {ribbon}
         <h2>How this report was made</h2>
         <p>
-          We hold the asking price and the final sale price of tens of thousands of Dublin homes.
-          For this report we found the most similar recent sales to a {home}: the same area, the
-          same type of home, a similar number of bedrooms and a similar asking price, widening the
-          search only where too few sales matched. We then applied how those sales finished,
-          relative to their own asking prices, to an asking price of {euro(query.askingPrice)}.
+          We found the recent sales most like a {home} (same area, type, bedrooms and asking price, widening only
+          where too few matched) and applied how they finished against their asking prices to{' '}
+          {euro(query.askingPrice)}.
         </p>
         <h3>How often it is right</h3>
         <p>
-          We replayed {accuracy.salesTested.toLocaleString('en-IE')} sales from {accuracy.period}, each from
-          the sales before it. The sale price landed inside the full range{' '}
-          <strong>{accuracy.insideFullRangePct}% of the time</strong>, and inside the most likely range{' '}
-          {accuracy.insideLikelyRangePct}% of the time. The middle estimate was typically{' '}
-          {accuracy.medianErrorModelPct}% from the sale price, against {accuracy.medianErrorAskingPct}% for the
-          asking price alone.
+          Replayed on {accuracy.salesTested.toLocaleString('en-IE')} sales from {accuracy.period}: inside the full
+          range <strong>{accuracy.insideFullRangePct}%</strong> of the time, the likely range{' '}
+          {accuracy.insideLikelyRangePct}%. Typically {accuracy.medianErrorModelPct}% off, against{' '}
+          {accuracy.medianErrorAskingPct}% for the asking price.
         </p>
         <h3>What it cannot see</h3>
         <p>
-          The condition and finish of the home, its garden and aspect, how many people are bidding,
-          and anything that has happened in the market since our asking-price records end on{' '}
-          {longDate(report.dataTo)}. This report is not a valuation and is not financial advice.
-          Use it alongside a viewing, a survey and your mortgage approval.
+          Condition and finish, garden and aspect, how many are bidding, and the market since{' '}
+          {longDate(report.dataTo)}. Not a valuation or financial advice: use it with a viewing, a survey and your
+          mortgage approval.
         </p>
         <h3>Sources</h3>
         <p>
-          Asking and sale prices: Irish Property Data sales records to {longDate(report.dataTo)}.
-          Recent sale prices: the Property Price Register, published by the Property Services
-          Regulatory Authority.
+          Asking and sale prices: Irish Property Data, to {longDate(report.dataTo)}. Sale prices: the Property Price
+          Register (Property Services Regulatory Authority). Planning: Department of Housing.
         </p>
         <Folio page={total} total={total} report={report} />
       </section>
