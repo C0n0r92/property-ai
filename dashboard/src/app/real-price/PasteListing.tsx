@@ -26,6 +26,7 @@ export default function PasteListing({
   onHome: (
     home: ListingAnswer["home"],
     missing: ListingAnswer["missing"],
+    address: string | null,
   ) => void;
   /** Focus the box when it appears (it opens from the hint) */
   autoFocus?: boolean;
@@ -57,7 +58,7 @@ export default function PasteListing({
       const result = data as ListingAnswer;
       setAnswer(result);
       setState("idle");
-      onHome(result.home, result.missing);
+      onHome(result.home, result.missing, result.listing?.address ?? null);
       const still = result.missing.map((m) => MISSING_WORDS[m]);
       const est = result.estimatedAsking;
       const euroText = (v: number) =>

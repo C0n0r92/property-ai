@@ -6,7 +6,7 @@ import RealPriceNav from "../RealPriceNav";
 export const metadata: Metadata = {
   title: "Privacy and cookies",
   description:
-    "What Irish Property Data collects when you check a price, buy a report or ask for an email, which analytics it uses, and how to have your details deleted.",
+    "What Irish Property Data collects when you check a price, buy a report or ask for an email or alert, which analytics it uses, and how to have your details deleted.",
   alternates: { canonical: "/real-price/privacy" },
 };
 
@@ -68,6 +68,17 @@ export default function RealPricePrivacy() {
             to send that one email. We do not add you to a mailing list.
           </p>
 
+          <h2>Asking what a home sold for</h2>
+          <p>
+            If you ask us to tell you what a home sells for, we store your email
+            address with that home&apos;s address, its asking price and our
+            estimate, and use them to send a confirmation and then one email
+            when the sale appears in the Property Price Register. Once that is
+            sent we delete your email address. An alert that hasn&apos;t been
+            sent is deleted after 18 months, and you can stop it any time with
+            the link in the confirmation email.
+          </p>
+
           <h2>Who else handles it</h2>
           <p>
             Our database and website are hosted by DigitalOcean in Frankfurt.
@@ -79,7 +90,8 @@ export default function RealPricePrivacy() {
 
           <h2>How long we keep it, and your rights</h2>
           <p>
-            We keep these records until you ask us to delete them. You can ask
+            Apart from alerts (above), we keep these records until you ask us
+            to delete them. You can ask
             for a copy, a correction or deletion at any time by writing to{" "}
             <a href={`mailto:${CONTACT}`}>{CONTACT}</a>, and we will answer
             within a month. If you are unhappy with how we handle your details
