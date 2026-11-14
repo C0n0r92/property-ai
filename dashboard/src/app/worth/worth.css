@@ -1,0 +1,76 @@
+/* What is it worth? */
+
+.rp-worth {
+  margin-top: 1.6rem;
+  max-width: 44rem;
+}
+
+.rp-worth-search {
+  max-width: 40rem;
+}
+
+.rp-worth-message {
+  margin: 0.9rem 0 0;
+  color: var(--ink-soft);
+}
+
+.rp-worth-results {
+  display: grid;
+  gap: 1.2rem;
+  margin-top: 1.4rem;
+}
+
+.rp-worth-card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.4rem 1.5rem;
+  border-radius: 20px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.rp-worth-card p {
+  margin: 0;
+}
+
+.rp-worth-home {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.rp-worth-figure {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  letter-spacing: -0.03em;
+}
+
+.rp-worth-figure strong {
+  font-weight: 600;
+}
+
+.rp-worth-range {
+  color: var(--ink-soft);
+}
+
+.rp-worth-why {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.rp-worth-accuracy {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.rp-worth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-top: 0.4rem;
+}
+
+.rp-worth-how {
+  margin-top: 2.2rem;
+}

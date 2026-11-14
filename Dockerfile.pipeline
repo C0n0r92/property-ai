@@ -8,7 +8,7 @@ RUN cd pipeline && npm ci
 COPY pipeline pipeline
 COPY db db
 # The address and pricing helpers are shared with the web app
-COPY dashboard/src/lib/real-price/address.ts dashboard/src/lib/real-price/model.ts dashboard/src/lib/real-price/streets.ts dashboard/src/lib/real-price/planning.ts dashboard/src/lib/real-price/
+COPY dashboard/src/lib/real-price/address.ts dashboard/src/lib/real-price/model.ts dashboard/src/lib/real-price/streets.ts dashboard/src/lib/real-price/planning.ts dashboard/src/lib/real-price/worth.ts dashboard/src/lib/real-price/
 WORKDIR /app/pipeline
 USER node
 CMD ["npm", "run", "daily"]
