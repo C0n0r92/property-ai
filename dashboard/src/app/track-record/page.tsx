@@ -58,7 +58,7 @@ export default async function TrackRecordPage() {
       { mark: "line", key: "model", name: "Our middle estimate" },
       { mark: "line", key: "asking", name: "The asking price" },
     ],
-    caption: "How far each guess typically was from the sale price, month by month (lower is better). Whole months with at least 30 sales.",
+    caption: "Typical miss against the sale price, by month.",
   };
 
   const structuredData = {
@@ -80,10 +80,9 @@ export default async function TrackRecordPage() {
             </p>
             <h1 className="rp-area-title">How close we get.</h1>
             <p className="rp-area-lede">
-              We took every Dublin sale of the last 12 months where we know the asking price, and predicted it the way the
-              price check does today, using only sales that had closed before it. Then we checked what it really sold
-              for. Our middle estimate was typically <strong>{pct(o.medianModelErrorPct, 1)}</strong> from the sale price;
-              the asking price was typically <strong>{pct(o.medianAskingErrorPct, 1)}</strong> out.
+              Every Dublin sale of the last year, replayed through the price check using only earlier sales. Our
+              estimate was typically <strong>{pct(o.medianModelErrorPct, 1)}</strong> off. The asking price:{" "}
+              <strong>{pct(o.medianAskingErrorPct, 1)}</strong>.
             </p>
             <p className="rp-area-more">
               <Link href="/#check" className="rp-button rp-button--ink">
@@ -124,9 +123,7 @@ export default async function TrackRecordPage() {
           <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">Month by month.</h2>
-              <p className="rp-prose">
-                The asking price is a guess too. Here is how far each typically was from what the home sold for.
-              </p>
+              <p className="rp-prose">Lower is better.</p>
             </div>
             <PlotChart spec={chart} name="Typical miss by month" />
           </Reveal>
@@ -135,9 +132,7 @@ export default async function TrackRecordPage() {
         <Reveal as="section" className="rp-area-section">
           <div className="rp-area-section-head">
             <h2 className="rp-h2">The latest sales we tested.</h2>
-            <p className="rp-prose">
-              What each home asked, what we would have said the day before it sold, and what it got.
-            </p>
+            <p className="rp-prose">What we&apos;d have said the day before each sold.</p>
           </div>
           <div className="rp-area-table">
             <table>

@@ -3493,3 +3493,38 @@ g.rp-area:focus-visible .rp-area-ring {
   font-size: 0.8rem;
   color: var(--ink-soft);
 }
+
+/* ---------- How it works: three short lines ---------- */
+
+.rp-how {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 46rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rp-how li {
+  padding-left: 1.4rem;
+  position: relative;
+  font-family: var(--prose);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.rp-how li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--brass);
+}
+
+.rp-how strong {
+  color: var(--ink);
+}

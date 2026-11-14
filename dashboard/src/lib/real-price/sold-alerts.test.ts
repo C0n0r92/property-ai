@@ -11,6 +11,7 @@ const alert: OpenAlert = {
   predicted_mid: 610_000,
   token: 'tok_abcdefghijklmnopqrstuvwxyz',
   created_at: '2026-06-01T10:00:00Z',
+  county: 'Dublin',
 };
 
 describe('alertTarget', () => {
@@ -22,12 +23,13 @@ describe('alertTarget', () => {
 });
 
 describe('matchSale', () => {
-  const sale = (date: string, address: string, price: number, district: string | null = 'd14') => ({
+  const sale = (date: string, address: string, price: number, district: string | null = 'd14', county = 'Dublin') => ({
     id: `${date}-${price}`,
     date,
     address,
     price,
     district,
+    county,
   });
 
   it('the first sale of the home after the alert was set', () => {
@@ -46,6 +48,14 @@ describe('matchSale', () => {
     expect(matchSale(alert, [sale('2025-01-01', '12 Butterfield Avenue, Dublin 14', 500_000)])).toBeNull();
     expect(matchSale(alert, [sale('2026-09-14', '12 Butterfield Avenue, Dublin 16', 612_000, 'd16')])).toBeNull();
     expect(matchSale(alert, [sale('2026-09-14', '12 Butterfield Avenue, Dublin 14', 30_000)])).toBeNull();
+  });
+
+  it('outside Dublin: the same county and town', () => {
+    const kildare = { ...alert, address: '12 Station Walk, Newbridge, Co. Kildare', address_key: '12 STATION WALK', district: null, county: 'Kildare' };
+    expect(matchSale(kildare, [sale('2026-09-14', '12 Station Walk, Rickardstown, Newbridge', 410_000, null, 'Kildare')])?.price).toBe(410_000);
+    // The same street and town name in another county is another home
+    const wicklow = { ...alert, address: '1 Main Street, Newcastle, Co. Wicklow', address_key: '1 MAIN ST', district: null, county: 'Wicklow' };
+    expect(matchSale(wicklow, [sale('2026-09-14', '1 Main Street, Newcastle, Co. Dublin', 500_000, null, 'Dublin')])).toBeNull();
   });
 
   it('with no district on one side, the town must agree', () => {

@@ -321,7 +321,7 @@ export default function AreaCheck({
           </p>
           <div className="rp-areacheck-actions">
             <button type="button" className="rp-button rp-button--ink" onClick={buy} disabled={buying}>
-              {buying ? "Opening payment…" : `Get the full report for ${priceLabel}`}
+              {buying ? "Opening payment…" : `Get the report · ${priceLabel}`}
             </button>
             <Link className="rp-link" href={fullAnswer}>
               See the full breakdown

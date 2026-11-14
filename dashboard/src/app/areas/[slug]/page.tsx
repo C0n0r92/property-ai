@@ -287,8 +287,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
             <div className="rp-area-section-head">
               <h2 className="rp-h2">What a typical home asks here, and gets.</h2>
               <p className="rp-prose">
-                Typical asking prices in {page.label}, and what similar homes went on to sell for. Each row opens
-                the full check.
+                Typical asking prices here, and what they sold for. Tap a row for the full check.
               </p>
             </div>
             <div className="rp-area-typical">
@@ -389,7 +388,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
           <div className="rp-area-section-head">
             <h2 className="rp-h2">{page.label} on the map.</h2>
             <p className="rp-prose">
-              Every area as a column, as tall and as warm as its homes bid over asking. {page.label} is in navy.
+              Taller and warmer means further over asking. {page.label} is in navy.
             </p>
           </div>
           <AreaMap areas={mapAreas(buildAreaIndex(await getSalesStore()))} focusKey={page.key} />
@@ -438,9 +437,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
           <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">Street by street.</h2>
-              <p className="rp-prose">
-                Every sold price on the busiest streets in {page.label}, from the Property Price Register.
-              </p>
+              <p className="rp-prose">Every sold price, street by street.</p>
             </div>
             <ul className="rp-area-streets">
               {[...streets]
@@ -477,10 +474,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
         <aside className="rp-blog-cta rp-area-cta">
           <div>
             <h2 className="rp-h2">Bidding in {page.label}?</h2>
-            <p className="rp-prose">
-              Put in the home&apos;s type, size and asking price, or paste its listing link, and see what similar
-              homes here really sold for.
-            </p>
+            <p className="rp-prose">See what it will really sell for. Free.</p>
           </div>
           <a href="#check" className="rp-button rp-button--ink">
             Check the home, free

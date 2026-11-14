@@ -12,6 +12,8 @@ import Stripe from 'stripe';
 import { buildReport, describeHome, type ReportData } from '@/lib/real-price/report';
 import { checkoutSchema } from '@/lib/real-price/schema';
 import { BACKTEST } from '@/lib/real-price/backtest';
+import { getSalesStore } from '@/lib/real-price/store';
+import { accuracyFigures } from '@/lib/real-price/track-record';
 import { decisionWord, workSummary } from '@/lib/real-price/planning-data';
 import TrackPurchase from './TrackPurchase';
 import DotPlot from '../DotPlot';
@@ -317,6 +319,8 @@ export default async function ReportPage({
 }) {
   const { session_id, sample } = await searchParams;
   const loaded = await loadReport(session_id, sample);
+  // The same accuracy figures as the rest of the site, from the live track record
+  const accuracy = accuracyFigures(await getSalesStore(), BACKTEST);
 
   if ('problem' in loaded) {
     return (
@@ -551,13 +555,12 @@ export default async function ReportPage({
         </p>
         <h3>How often it is right</h3>
         <p>
-          We tested the method on {BACKTEST.salesTested.toLocaleString('en-IE')} sales from{' '}
-          {BACKTEST.testYear} that it had never seen. The sale price landed inside the full range
-          (the “rarely beaten” level and its mirror below asking){' '}
-          <strong>{BACKTEST.insideFullRangePct}% of the time</strong>, and inside the most likely
-          range {BACKTEST.insideLikelyRangePct}% of the time. The middle estimate was typically{' '}
-          {BACKTEST.medianErrorModelPct}% from the sale price, against {BACKTEST.medianErrorAskingPct}%
-          for the asking price alone.
+          We replayed {accuracy.salesTested.toLocaleString('en-IE')} sales from {accuracy.period}, each from
+          the sales before it. The sale price landed inside the full range{' '}
+          <strong>{accuracy.insideFullRangePct}% of the time</strong>, and inside the most likely range{' '}
+          {accuracy.insideLikelyRangePct}% of the time. The middle estimate was typically{' '}
+          {accuracy.medianErrorModelPct}% from the sale price, against {accuracy.medianErrorAskingPct}% for the
+          asking price alone.
         </p>
         <h3>What it cannot see</h3>
         <p>

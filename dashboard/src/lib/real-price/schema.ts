@@ -50,12 +50,20 @@ export const emailSchema = z.object({
   company: z.string().max(200).optional(),
 });
 
+/** The register's 26 counties */
+export const COUNTIES = [
+  'Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Wexford',
+  'Kilkenny', 'Carlow', 'Laois', 'Offaly', 'Westmeath', 'Longford', 'Cavan', 'Monaghan', 'Donegal', 'Sligo',
+  'Leitrim', 'Roscommon', 'Mayo', 'Clare', 'Tipperary', 'Kerry',
+] as const;
+
 export const soldAlertSchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
   // The home, as found by address search or a listing link
   address: z.string().trim().min(6).max(200),
   askingPrice: price.optional(),
   predictedMid: price.optional(),
+  county: z.enum(COUNTIES).default('Dublin'),
   // Hidden field: real visitors leave it empty
   company: z.string().max(200).optional(),
 });
