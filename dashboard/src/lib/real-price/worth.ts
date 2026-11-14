@@ -240,7 +240,7 @@ export const yearOf = (iso: string) => {
   return d.getUTCFullYear() + (d.getTime() - start) / (end - start);
 };
 
-const HOME_KEY = /^(?:(?:APT|UNIT|FLAT) \d+[A-Z]? )?\d+[A-Z]? [A-Z]/;
+const HOME_KEY = /^(?:(?:APT|UNIT|FLAT) \d+[A-Z]?(?: \d+[A-Z]?)? [A-Z]|\d+[A-Z]? [A-Z])/;
 
 /** A key that names one home (a house or flat number, then the street). */
 export const isHomeKey = (key: string) => HOME_KEY.test(key);

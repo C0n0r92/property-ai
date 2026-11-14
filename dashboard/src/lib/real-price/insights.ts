@@ -9,6 +9,7 @@
  * empty without a database, so pages still render from the seed file.
  */
 import { addressKey, sameArea } from './address';
+import { resolveHome } from './home-lookup';
 import { getPool } from './pool';
 
 export interface MarketInsights {
@@ -178,6 +179,26 @@ export async function homeAndStreetHistory(
   const key = addressKey(address);
   const street = key.specific ? streetOf(key.key) : key.key.trim() || null;
   if (!street || street.split(' ').length < 2) return null;
+
+  // One home (homes table): its sales and its street's, exactly
+  const home = key.specific ? await resolveHome(address, 'Dublin') : null;
+  if (home) {
+    const [own, onStreet] = await Promise.all([
+      db.query<RegisterEntry>(
+        `SELECT sold_date::text date, address, price FROM register_sales
+          WHERE home_id = $1 AND price >= 50000 ORDER BY sold_date DESC`,
+        [home.home_id]
+      ),
+      home.street_slug
+        ? db.query<RegisterEntry>(
+            `SELECT sold_date::text date, address, price FROM register_sales
+              WHERE street_slug = $1 AND price >= 50000 ORDER BY sold_date DESC LIMIT 400`,
+            [home.street_slug]
+          )
+        : Promise.resolve({ rows: [] as RegisterEntry[] }),
+    ]);
+    if (onStreet.rows.length) return { streetName: street, specific: true, home: own.rows, street: onStreet.rows };
+  }
 
   const { rows } = await db.query<{ date: string; address: string; price: number; address_key: string; district: string | null }>(
     `SELECT sold_date::text date, address, price, address_key, district FROM register_sales
