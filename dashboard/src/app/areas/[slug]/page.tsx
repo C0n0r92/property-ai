@@ -451,7 +451,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
                   <li key={s.slug}>
                     <Link href={`/streets/${s.slug}`}>
                       {s.name}
-                      {s.areaLabel.includes(", ") ? `, ${s.areaLabel.split(", ")[0]}` : ""}
+                      {s.areaLabel !== s.areaName ? `, ${s.areaLabel.split(", ")[0]}` : ""}
                     </Link>
                   </li>
                 ))}

@@ -160,7 +160,7 @@ export async function getRegister(): Promise<{ updated: string; sales: RegisterS
     rows = (
       await pool.query(
         `SELECT sold_date::text AS date, address, price FROM register_sales
-          WHERE NOT new_build AND sold_date >= CURRENT_DATE - INTERVAL '18 months'
+          WHERE NOT new_build AND county = 'Dublin' AND sold_date >= CURRENT_DATE - INTERVAL '18 months'
           ORDER BY sold_date DESC`
       )
     ).rows;

@@ -24,7 +24,7 @@ async function load(slug: string) {
   if (!key) return null;
   const streets = await streetsInArea(key);
   if (!streets.length) return null;
-  const label = /^d\d/.test(key) ? `Dublin ${key.slice(1).toUpperCase()}` : streets[0].areaLabel.split(", ").pop()!;
+  const label = /^d\d/.test(key) ? `Dublin ${key.slice(1).toUpperCase()}` : streets[0].areaName;
   return { key, slug, label, streets };
 }
 
@@ -73,7 +73,7 @@ export default async function StreetsInArea({ params }: { params: Params }) {
             <li key={s.slug}>
               <Link href={`/streets/${s.slug}`}>
                 {s.name}
-                {s.areaLabel.includes(", ") ? `, ${s.areaLabel.split(", ")[0]}` : ""}
+                {s.areaLabel !== s.areaName ? `, ${s.areaLabel.split(", ")[0]}` : ""}
               </Link>
               <span>{s.medianRecent ? short(s.medianRecent) : `${s.sales} sales`}</span>
             </li>

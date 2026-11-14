@@ -33,8 +33,8 @@ const typeName = (raw: string) => {
 function titleFor(page: StreetPage): string {
   const options = [
     `${page.name}, ${page.areaLabel}: House Prices & Sales`,
-    `${page.name}, ${page.areaLabel} House Prices`,
-    `${page.name} House Prices, ${page.areaLabel.split(", ").pop()}`,
+    `${page.name}, ${page.areaName} House Prices`,
+    `${page.name} House Prices, ${page.areaName.split(", ")[0]}`,
     `${page.name} House Prices`,
   ];
   return options.find((t) => t.length <= 60) ?? options[options.length - 1].slice(0, 60);
@@ -83,7 +83,7 @@ export default async function StreetPageView({ params }: { params: Params }) {
   const store = await getSalesStore();
   const checkable = store.areas.some((a) => a.key === page.areaKey);
   const hasAreaPage = checkable;
-  const areaName = page.areaLabel.split(", ").pop()!;
+  const areaName = page.areaName;
 
   const chart: ChartSpec = {
     kind: "bar",

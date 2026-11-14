@@ -98,3 +98,26 @@
   min-width: 16rem;
   max-width: 34rem;
 }
+
+.rp-street-counties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin: 1.4rem 0 0;
+  font-size: 0.9rem;
+}
+
+.rp .rp-street-counties a {
+  color: var(--ink-soft);
+}
+
+.rp-street-county {
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+.rp-street-county h2 small {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+  letter-spacing: 0;
+}

@@ -165,3 +165,36 @@ describe('isBulkSale', () => {
     expect(isBulkSale('Apt 3, 2 Some Road, Dublin 4', 600_000, 450_000)).toBe(false);
   });
 });
+
+describe('outside Dublin', () => {
+  it('the town and county are the area', () => {
+    const id = streetIdentity('17 The Avenue, Walshestown Park, Newbridge', 'Kildare');
+    expect(id?.areaKey).toBe('newbridge-kildare');
+    expect(id?.areaLabel).toBe('Newbridge, Co. Kildare');
+    expect(id?.slug).toBe('the-avenue-newbridge-kildare');
+  });
+
+  it('a county named in the address is not the town', () => {
+    expect(streetIdentity('5 Main Street, Naas, Co. Kildare', 'Kildare')?.slug).toBe('main-street-naas-kildare');
+    expect(streetIdentity('5 Main Street, Naas, County Kildare', 'Kildare')?.slug).toBe('main-street-naas-kildare');
+    expect(streetIdentity('12 Douglas Road, Douglas, Cork', 'Cork')?.areaKey).toBe('douglas-cork');
+  });
+
+  it('a city that shares its county’s name', () => {
+    const id = streetIdentity('8 Shop Street, Galway', 'Galway');
+    expect(id?.areaKey).toBe('galway');
+    expect(id?.areaLabel).toBe('Galway');
+  });
+
+  it('the same town name in two counties stays apart', () => {
+    const wicklow = streetIdentity('3 Main Street, Newcastle', 'Wicklow');
+    const dublin = streetIdentity('3 Main Street, Newcastle, Co. Dublin');
+    expect(wicklow?.slug).toBe('main-street-newcastle-wicklow');
+    expect(dublin?.slug).toBe('main-street-newcastle');
+  });
+
+  it('Dublin addresses are unchanged when the county is given', () => {
+    expect(streetIdentity('12 Butterfield Avenue, Rathfarnham, Dublin 14', 'Dublin')?.slug).toBe('butterfield-avenue-dublin-14');
+    expect(streetIdentity('54 Castlegate Crescent, Adamstown, Lucan', 'Dublin')?.slug).toBe('castlegate-crescent-lucan');
+  });
+});
