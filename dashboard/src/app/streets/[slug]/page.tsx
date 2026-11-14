@@ -8,6 +8,7 @@ import { toTypeGroup } from "@/lib/real-price/model";
 import { reportPrice } from "@/lib/real-price/pricing";
 import { getSalesStore } from "@/lib/real-price/store";
 import { loadStreetPage, type StreetPage } from "@/lib/real-price/street-page";
+import { decisionWord, streetPlanning, workSummary } from "@/lib/real-price/planning-data";
 import { jsonLd, SITE_URL } from "@/lib/site";
 import AreaCheck from "../../areas/AreaCheck";
 
@@ -72,6 +73,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function StreetPageView({ params }: { params: Params }) {
   const page = await loadStreetPage((await params).slug);
   if (!page) notFound();
+
+  const planning = await streetPlanning(page.slug);
+  const extensions = planning.rows.filter(
+    (r) => (r.decision === "granted" || r.decision === "part") && r.kinds.some((k) => k === "extension" || k === "attic"),
+  ).length;
 
   // The price check needs an area the model knows
   const store = await getSalesStore();
@@ -316,6 +322,49 @@ export default async function StreetPageView({ params }: { params: Params }) {
           </div>
         </Reveal>
 
+        {planning.rows.length > 0 && (
+          <Reveal as="section" className="rp-area-section">
+            <div className="rp-area-section-head">
+              <h2 className="rp-h2">Planning on {page.name}.</h2>
+              <p className="rp-prose">
+                {planning.total} planning application{planning.total === 1 ? "" : "s"} on this street since{" "}
+                {planning.rows[planning.rows.length - 1]?.received?.slice(0, 4) ?? "2012"}
+                {extensions > 0
+                  ? `, ${extensions} of them extensions or attic conversions that were granted`
+                  : ""}
+                . From the councils&apos; planning registers.
+              </p>
+            </div>
+            <div className="rp-area-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Lodged</th>
+                    <th scope="col">Home</th>
+                    <th scope="col">The work</th>
+                    <th scope="col">Decision</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {planning.rows.map((r) => (
+                    <tr key={`${r.authority}-${r.appNumber}`}>
+                      <td>{r.received ? monthYear(r.received) : ""}</td>
+                      <th scope="row">{r.address.split(",")[0]}</th>
+                      <td className="rp-street-work" title={r.description}>
+                        {workSummary(r)}
+                      </td>
+                      <td>{decisionWord(r.decision)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {planning.total > planning.rows.length && (
+              <p className="rp-area-source">The latest {planning.rows.length} are shown.</p>
+            )}
+          </Reveal>
+        )}
+
         {faq.length > 0 && (
           <Reveal as="section" className="rp-area-section rp-area-faq">
             <h2 className="rp-h2">Questions about {page.name}.</h2>
@@ -374,7 +423,8 @@ export default async function StreetPageView({ params }: { params: Params }) {
         )}
 
         <p className="rp-area-source">
-          From the Property Price Register, which records the price of every home sold in Ireland. Sales under €50,000
+          Planning applications are from the national planning applications database (Department of Housing, CC BY
+          4.0). From the Property Price Register, which records the price of every home sold in Ireland. Sales under €50,000
           (usually part-shares and family transfers) are left out. Addresses are as registered; asking prices are from
           our own records of listings. Not a valuation.
         </p>

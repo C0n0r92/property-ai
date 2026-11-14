@@ -16,7 +16,8 @@
     "daily": "tsx src/daily.ts",
     "status": "tsx src/status.ts",
     "build-streets": "tsx src/build-streets.ts",
-    "migrate:streets": "npm run migrate && (npm run build-streets || echo \"build-streets failed; the daily job will retry\")"
+    "migrate:streets": "npm run migrate && (npm run build-streets || echo \"build-streets failed; the daily job will retry\") && (npx tsx src/ingest-planning.ts --if-empty || echo \"ingest-planning failed; the daily job will retry\")",
+    "ingest:planning": "tsx src/ingest-planning.ts"
   },
   "dependencies": {
     "pg": "^8.13.0"
