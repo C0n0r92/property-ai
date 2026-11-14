@@ -2,7 +2,9 @@
   "name": "pipeline",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "migrate": "tsx src/migrate.ts",
     "import:legacy": "tsx src/import-legacy.ts",
@@ -12,7 +14,9 @@
     "match": "tsx src/match.ts",
     "bootstrap": "npm run migrate && npm run import:legacy && npm run ingest:register -- --all && npm run ingest:listings && npm run match",
     "daily": "tsx src/daily.ts",
-    "status": "tsx src/status.ts"
+    "status": "tsx src/status.ts",
+    "build-streets": "tsx src/build-streets.ts",
+    "migrate:streets": "npm run migrate && (npm run build-streets || echo \"build-streets failed; the daily job will retry\")"
   },
   "dependencies": {
     "pg": "^8.13.0"
