@@ -12,6 +12,7 @@ export default function SiteFooter() {
         <Link href="/">Check a home</Link>
         <Link href="/areas">Areas</Link>
         <Link href="/reports">Monthly report</Link>
+        <Link href="/track-record">Track record</Link>
         <Link href="/blog">Research</Link>
         <Link href="/real-price/privacy">Privacy</Link>
         <CookieSettingsLink />
