@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { decodeHome, type CompareHome } from "@/lib/real-price/compare";
 import { getSalesStore } from "@/lib/real-price/store";
+import { reportPrice } from "@/lib/real-price/pricing";
 import CompareHomes from "./CompareHomes";
 
 // Area list from the live database (the build has no database)
@@ -38,13 +39,13 @@ export default async function ComparePage({ searchParams }: { searchParams: Sear
     <main className="rp-area">
       <section className="rp-wrap rp-areas-head">
         <p className="rp-eyebrow">Compare two homes</p>
-        <h1 className="rp-area-title">Which will really cost more?</h1>
-        <p className="rp-area-lede">
+        <h1 className="rp-blog-title">Which will really cost more?</h1>
+        <p className="rp-blog-lede">
           A lower asking price isn&apos;t always the cheaper home. Put two side by side, paste their listing links or
           describe them, and see what each will likely sell for once the bidding is done, from recent sales of similar
           homes in each area.
         </p>
-        <CompareHomes areas={areas} initial={initial} />
+        <CompareHomes areas={areas} initial={initial} priceLabel={reportPrice().label} />
       </section>
     </main>
   );

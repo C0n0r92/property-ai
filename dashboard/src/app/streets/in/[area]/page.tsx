@@ -54,8 +54,8 @@ export default async function StreetsInArea({ params }: { params: Params }) {
           <span aria-hidden="true">/</span>
           <span>{page.label}</span>
         </nav>
-        <h1 className="rp-area-title">Streets in {page.label}.</h1>
-        <p className="rp-area-lede">
+        <h1 className="rp-blog-title">Streets in {page.label}.</h1>
+        <p className="rp-blog-lede">
           {page.streets.length} streets with at least ten sales since 2010, with the middle sale price of the last three
           years.
           {hasAreaPage && (

@@ -121,3 +121,15 @@
   color: var(--ink-soft);
   letter-spacing: 0;
 }
+
+.rp-street-scope {
+  max-width: 34rem;
+  margin: 1.4rem 0 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--brass);
+  background: var(--sheet);
+  border-radius: 0 12px 12px 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}

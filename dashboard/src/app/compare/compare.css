@@ -70,6 +70,27 @@
 
 .rp-compare-note,
 .rp-compare-message,
+.rp-compare-buy {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 18px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.rp-compare-buy p {
+  margin: 0;
+  max-width: 44rem;
+}
+
+.rp-compare-buy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
 .rp-compare-foot {
   color: var(--ink-soft);
 }
@@ -97,6 +118,27 @@
 
 .rp-compare .rp-area-table td {
   font-variant-numeric: tabular-nums;
+}
+
+.rp-compare-buy {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 18px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.rp-compare-buy p {
+  margin: 0;
+  max-width: 44rem;
+}
+
+.rp-compare-buy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
 .rp-compare-foot {

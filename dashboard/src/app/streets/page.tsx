@@ -33,8 +33,8 @@ export default async function StreetsIndex() {
           <span aria-hidden="true">/</span>
           <span>Streets</span>
         </nav>
-        <h1 className="rp-area-title">House prices, street by street.</h1>
-        <p className="rp-area-lede">
+        <h1 className="rp-blog-title">House prices, street by street.</h1>
+        <p className="rp-blog-lede">
           {total.toLocaleString("en-IE")} streets in Dublin and every county with at least ten sales since 2010, each
           with every sold price from the Property Price Register, the typical price now and homes that sold more than
           once. Pick an area.

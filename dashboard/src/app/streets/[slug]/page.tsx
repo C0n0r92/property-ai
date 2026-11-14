@@ -96,7 +96,9 @@ export default async function StreetPageView({ params, searchParams }: { params:
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Areas", item: `${SITE_URL}/areas` },
+      page.county === "Dublin"
+        ? { "@type": "ListItem", position: 1, name: "Areas", item: `${SITE_URL}/areas` }
+        : { "@type": "ListItem", position: 1, name: "Streets", item: `${SITE_URL}/streets` },
       {
         "@type": "ListItem",
         position: 2,
@@ -130,7 +132,7 @@ export default async function StreetPageView({ params, searchParams }: { params:
         <div className="rp-wrap rp-street-hero">
           <div className="rp-area-hero-copy">
             <nav className="rp-crumbs" aria-label="Breadcrumb">
-              <Link href="/areas">Areas</Link>
+              {page.county === "Dublin" ? <Link href="/areas">Areas</Link> : <Link href="/streets">Streets</Link>}
               <span aria-hidden="true">/</span>
               <Link href={hasAreaPage ? `/areas/${page.areaSlug}` : `/streets/in/${page.areaSlug}`}>{areaName}</Link>
               <span aria-hidden="true">/</span>
@@ -163,6 +165,22 @@ export default async function StreetPageView({ params, searchParams }: { params:
                 </>
               )}
             </p>
+            {!checkable && (
+              <p className="rp-street-scope">
+                {page.county === "Dublin" ? (
+                  <>
+                    Too few homes here have sold with a known asking price for our price check.{" "}
+                    <Link href="/#check" className="rp-link">Check a home elsewhere in Dublin</Link>.
+                  </>
+                ) : (
+                  <>
+                    Our price check and bidding report cover Dublin, where we know homes&apos; asking prices. Here you
+                    can see every sold price on {page.name}.{" "}
+                    <Link href="/streets" className="rp-link">Streets in other areas</Link>.
+                  </>
+                )}
+              </p>
+            )}
             {checkable && (
               <AreaCheck
                 areaKey={page.areaKey}
