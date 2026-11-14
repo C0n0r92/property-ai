@@ -7,7 +7,7 @@ import CompareHomes from "./CompareHomes";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Compare Two Dublin Homes: Which Will Really Cost More?",
+  title: "Compare Two Dublin Homes: Which Costs More?",
   description:
     "Put two Dublin homes side by side. See what each will likely sell for once the bidding is done, and whether the cheaper asking price is really cheaper.",
   alternates: { canonical: "/compare" },

@@ -42,3 +42,20 @@ export function summarise(results) {
   const sorted = Object.fromEntries(Object.entries(byState).sort((a, b) => b[1] - a[1]));
   return { checked: results.length, indexed, byState: sorted, problems, failed };
 }
+
+/**
+ * Every "key" URL, plus `share` of the bulk URLs (street pages), a different
+ * slice each day so all are covered over ceil(bulk / share) days.
+ */
+export function dailySlice(urls, isBulk, share, day = Math.floor(Date.now() / 86_400_000)) {
+  const key = urls.filter((u) => !isBulk(u));
+  const bulk = urls.filter(isBulk).sort();
+  if (bulk.length <= share) return [...key, ...bulk];
+  const start = (day * share) % bulk.length;
+  const slice = bulk.slice(start, start + share);
+  if (slice.length < share) slice.push(...bulk.slice(0, share - slice.length));
+  return [...key, ...slice];
+}
+
+/** Street pages and street listings: the bulk of the sitemap. */
+export const isStreetPage = (url) => /\/streets\/.+/.test(url);

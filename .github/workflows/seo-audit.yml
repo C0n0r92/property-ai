@@ -1,9 +1,11 @@
 # Daily SEO run on the live site.
-#  - audit:  crawl the sitemap; any error (a page not returning 200, a missing
+#  - audit:  crawl the sitemap (every page outside /streets/, and 400 street
+#            pages a day in rotation); any error (a page not returning 200, a missing
 #            canonical or share image, a broken link) fails the run.
 #  - google: resubmit the sitemap to Google, tell IndexNow (Bing etc.) about
-#            pages changed in the last two days, and check every page's index
-#            status. Fails only on pages with a real problem (404, noindex,
+#            pages changed in the last two days, and check the index status of
+#            the key pages and a rotating slice of street pages (Google allows
+#            2,000 inspections a day). Fails only on pages with a real problem (404, noindex,
 #            redirect, duplicate); pages Google hasn't reached yet are reported.
 # A failed run emails the repository owner through GitHub's normal notice.
 # Also run by hand after a deploy:  gh workflow run seo-audit.yml
@@ -17,14 +19,14 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Crawl the sitemap
-        run: node scripts/seo/audit.mjs https://irishpropertydata.com --json seo-audit.json
+        run: node scripts/seo/audit.mjs https://irishpropertydata.com --sample 400 --json seo-audit.json
       - name: Keep the report
         if: always()
         uses: actions/upload-artifact@v4
@@ -34,7 +36,7 @@ jobs:
 
   google:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     permissions:
       contents: read
       id-token: write # keyless sign-in to Google (Workload Identity Federation)
@@ -58,7 +60,7 @@ jobs:
       - name: Resubmit the sitemap and check every page's index status
         env:
           GOOGLE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: node scripts/seo/index-status.mjs --submit-sitemap --json index-status.json
+        run: node scripts/seo/index-status.mjs --submit-sitemap --budget 1800 --json index-status.json
       - name: Keep the report
         if: always()
         uses: actions/upload-artifact@v4

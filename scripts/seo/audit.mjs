@@ -3,7 +3,11 @@
  * SEO audit: crawls every URL in the sitemap and checks what a search engine
  * would. No dependencies.
  *
- *   node scripts/seo/audit.mjs [baseUrl] [--json report.json] [--limit N]
+ *   node scripts/seo/audit.mjs [baseUrl] [--json report.json] [--limit N] [--sample N]
+ *
+ * --sample N: check every page outside /streets/ and N of the street pages (a
+ * different N each day, so all are covered over the days). The sitemap has
+ * about 15,000 street pages: all of them every day would take hours.
  *
  * baseUrl defaults to https://irishpropertydata.com. Exits 1 if any error is
  * found (warnings alone do not fail), so it can run in CI.
@@ -17,6 +21,8 @@
  * (they waste crawl budget and dilute ranking signals).
  */
 
+import { dailySlice, isStreetPage } from './index-lib.mjs';
+
 const args = process.argv.slice(2);
 const flag = (name) => {
   const i = args.indexOf(name);
@@ -25,6 +31,7 @@ const flag = (name) => {
 const base = (args.find((a) => /^https?:\/\//.test(a)) ?? 'https://irishpropertydata.com').replace(/\/+$/, '');
 const jsonOut = flag('--json');
 const limit = Number(flag('--limit') ?? Infinity);
+const sample = flag('--sample') ? Number(flag('--sample')) : null;
 const CONCURRENCY = 6;
 const UA = 'IPD-SEO-Audit/1.0 (+https://irishpropertydata.com)';
 
@@ -104,7 +111,8 @@ async function main() {
     return finish([]);
   }
   const urls = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => decode(m[1]).trim());
-  const local = urls.map((u) => u.replace(/^https?:\/\/[^/]+/, base)).slice(0, limit);
+  const all = urls.map((u) => u.replace(/^https?:\/\/[^/]+/, base));
+  const local = (sample !== null ? dailySlice(all, isStreetPage, sample) : all).slice(0, limit);
   if (urls.some((u) => !u.startsWith('https://irishpropertydata.com'))) {
     issue('warning', '/sitemap.xml', 'sitemap', 'contains URLs outside https://irishpropertydata.com');
   }
@@ -204,8 +212,9 @@ async function main() {
     if (res.status !== 200) issue('error', path, 'open graph', `og:image ${img.replace(base, '')} returns ${res.status}`);
   });
 
-  // Every internal link, once
-  const inSitemap = new Set(local.map((u) => normalise(u)));
+  // Every internal link, once. Links to sitemap pages aren't fetched again: the
+  // sitemap is built from the database, and checked pages are checked above.
+  const inSitemap = new Set(all.map((u) => normalise(u)));
   const toCheck = [...links].filter(([u]) => !inSitemap.has(normalise(u)));
   await pool(toCheck, async ([link, from]) => {
     const res = await get(link);

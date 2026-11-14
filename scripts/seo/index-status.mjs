@@ -7,7 +7,9 @@
  * --submit-sitemap  resubmit sitemap.xml in Search Console first, so Google
  *                   rereads it (the closest thing to "request indexing" the API allows)
  * --json            write every page's result to a file
- * --limit           inspect only the first N pages (quota: 2,000 a day)
+ * --limit           inspect only the first N pages
+ * --budget N        inspect every page outside /streets/ and a rotating slice of
+ *                   street pages, N in all (Google allows 2,000 a day)
  *
  * Inspects each URL with the URL Inspection API and prints how many are
  * indexed, the count per coverage state, and the pages with a real problem
@@ -18,7 +20,7 @@
  */
 import { appendFileSync, writeFileSync } from 'node:fs';
 import { googleJson, googleToken } from './google-token.mjs';
-import { parseSitemap, summarise } from './index-lib.mjs';
+import { dailySlice, isStreetPage, parseSitemap, summarise } from './index-lib.mjs';
 
 const SITE = 'sc-domain:irishpropertydata.com';
 const ORIGIN = 'https://irishpropertydata.com';
@@ -31,6 +33,7 @@ const opt = (name) => {
   return i >= 0 ? args[i + 1] : undefined;
 };
 const limit = Number(opt('--limit') ?? Infinity);
+const budget = opt('--budget') ? Number(opt('--budget')) : null;
 const jsonOut = opt('--json');
 
 const token = googleToken(['https://www.googleapis.com/auth/webmasters']);
@@ -51,7 +54,10 @@ if (!entries.length) {
   console.error(`No URLs in ${SITEMAP} (HTTP ${sitemapRes.status})`);
   process.exit(1);
 }
-const urls = entries.map((e) => e.loc).slice(0, limit);
+const every = entries.map((e) => e.loc);
+const keyCount = every.filter((u) => !isStreetPage(u)).length;
+const urls = (budget !== null ? dailySlice(every, isStreetPage, Math.max(0, budget - keyCount)) : every).slice(0, limit);
+if (urls.length < every.length) console.log(`Inspecting ${urls.length} of ${every.length} pages today (key pages and a rotating slice of street pages)`);
 
 async function inspect(url) {
   try {
@@ -83,7 +89,7 @@ for (let i = 0; i < urls.length; i += 4) {
 const s = summarise(results);
 const path = (u) => u.replace(ORIGIN, '') || '/';
 const lines = [
-  `## Google index: ${s.indexed} of ${s.checked} pages indexed`,
+  `## Google index: ${s.indexed} of ${s.checked} pages checked today are indexed (sitemap: ${every.length})`,
   '',
   '| Coverage state | Pages |',
   '| --- | ---: |',
