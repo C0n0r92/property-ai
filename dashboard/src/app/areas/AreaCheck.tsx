@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import SoldAlert from "@/components/rp/SoldAlert";
 import { useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
 import type { ListingAnswer } from "@/lib/real-price/listing-lookup";
@@ -326,6 +327,9 @@ export default function AreaCheck({
               See the full breakdown
             </Link>
           </div>
+          {address && /\d/.test(address.split(",")[0] ?? "") && (
+            <SoldAlert address={address} askingPrice={home.askingPrice} predictedMid={answer.mid} compact />
+          )}
         </div>
       )}
     </div>

@@ -3436,3 +3436,50 @@ g.rp-area:focus-visible .rp-area-ring {
     display: none;
   }
 }
+
+/* ---------- "Tell me what it sold for" ---------- */
+
+.rp-soldalert {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 40rem;
+  padding: 1.2rem 1.3rem;
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  background: var(--sheet);
+}
+
+.rp-soldalert--compact {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.rp-soldalert p {
+  margin: 0;
+}
+
+.rp-soldalert-title {
+  line-height: 1.45;
+}
+
+.rp-soldalert-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.rp-soldalert-row input {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.rp-soldalert-small {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}

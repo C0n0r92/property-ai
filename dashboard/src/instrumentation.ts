@@ -14,4 +14,15 @@ export async function register() {
       return getMarket('all');
     })
     .catch((error) => console.error('Warming the sales data failed:', error));
+
+  // "Tell me what it sold for": check the register for alerts' homes every six hours
+  const { runSoldAlerts } = await import('./lib/real-price/sold-alerts');
+  const { siteUrl } = await import('./lib/real-price/guard');
+  const site = siteUrl('https://irishpropertydata.com');
+  const check = () =>
+    runSoldAlerts(site).then((r) => {
+      if (r.sent || r.expired) console.log('Sold alerts:', JSON.stringify(r));
+    });
+  setTimeout(check, 10 * 60 * 1000).unref?.();
+  setInterval(check, 6 * 60 * 60 * 1000).unref?.();
 }

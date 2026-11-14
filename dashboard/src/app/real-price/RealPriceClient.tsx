@@ -13,6 +13,7 @@ import DotPlot from "./DotPlot";
 import HeroScene from "./HeroScene";
 import RealPriceNav from "./RealPriceNav";
 import EmailResult from "./EmailResult";
+import SoldAlert from "@/components/rp/SoldAlert";
 import MarketExplorer from "./MarketExplorer";
 import type { Market } from "@/lib/real-price/market";
 import type { MarketInsights } from "@/lib/real-price/insights";
@@ -176,6 +177,8 @@ export default function RealPriceClient({
   const [plotPlay, setPlotPlay] = useState<string | undefined>(undefined);
   const [no3d, setNo3d] = useState(false);
   const [address, setAddress] = useState("");
+  // The home from a pasted listing, for "tell me what it sold for"
+  const [listingAddress, setListingAddress] = useState<string | null>(null);
   const [eircode, setEircode] = useState("");
   const [offerError, setOfferError] = useState<string | null>(null);
   const [buying, setBuying] = useState(false);
@@ -304,6 +307,8 @@ export default function RealPriceClient({
 
   function update(patch: Partial<FormState>, options: { typicalAsking?: boolean } = {}) {
     setTouched(true);
+    // Changing the home by hand means it is no longer the pasted listing
+    setListingAddress(null);
     const next = { ...form, ...patch };
     setForm(next);
     // A pasted listing without its asking price starts from the typical one,
@@ -318,6 +323,7 @@ export default function RealPriceClient({
   function fromListing(
     home: ListingAnswer["home"],
     missing: ListingAnswer["missing"],
+    listingAddress: string | null,
   ) {
     const patch: Partial<FormState> = {};
     if (home.areaKey) patch.areaKey = home.areaKey;
@@ -329,6 +335,7 @@ export default function RealPriceClient({
     }
     const noPrice = missing.includes("asking");
     if (Object.keys(patch).length || noPrice) update(patch, { typicalAsking: noPrice });
+    setListingAddress(listingAddress);
     if (noPrice) {
       document.getElementById("rp-asking")?.focus();
     }
@@ -1096,6 +1103,16 @@ export default function RealPriceClient({
             }
           />
         </section>
+
+        {(() => {
+          // A home with a house number: from the pasted listing, or the address typed for the report cover
+          const home = listingAddress ?? (/\d/.test(address.split(",")[0] ?? "") ? address.trim() : null);
+          return home && home.length >= 6 ? (
+            <section className="rp-section">
+              <SoldAlert address={home} askingPrice={answeredFor.askingPrice} predictedMid={prediction.mid} />
+            </section>
+          ) : null;
+        })()}
 
         <EmailResult query={answeredFor} />
 

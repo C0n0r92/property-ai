@@ -49,3 +49,17 @@ export const emailSchema = z.object({
   // Hidden field: real visitors leave it empty
   company: z.string().max(200).optional(),
 });
+
+export const soldAlertSchema = z.object({
+  email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
+  // The home, as found by address search or a listing link
+  address: z.string().trim().min(6).max(200),
+  askingPrice: price.optional(),
+  predictedMid: price.optional(),
+  // Hidden field: real visitors leave it empty
+  company: z.string().max(200).optional(),
+});
+
+export const stopAlertSchema = z.object({
+  token: z.string().regex(/^[A-Za-z0-9_-]{20,64}$/),
+});

@@ -81,3 +81,17 @@ export async function sendResultEmail(options: {
     return false;
   }
 }
+
+/** Send one email. Returns false if email is not set up or sending failed; never throws. */
+export async function sendMail(message: { to: string; subject: string; text: string; html: string }): Promise<boolean> {
+  const mailer = getTransport();
+  const from = process.env.EMAIL_FROM;
+  if (!mailer || !from) return false;
+  try {
+    await mailer.sendMail({ from, replyTo: replyAddress(), ...message });
+    return true;
+  } catch (error) {
+    console.error('Email failed:', error instanceof Error ? error.message : error);
+    return false;
+  }
+}
