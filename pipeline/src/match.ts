@@ -20,7 +20,7 @@ export async function matchSales(since = '2025-06-01') {
             COUNT(*) OVER (PARTITION BY r.id) AS listings_for_sale
        FROM register_sales r
        JOIN listings l ON l.address_key = r.address_key
-      WHERE r.sold_date >= $1 AND NOT r.new_build
+      WHERE r.sold_date >= $1 AND NOT r.new_build AND r.county = 'Dublin'
         AND NOT EXISTS (SELECT 1 FROM sales s WHERE s.register_id = r.id)`,
     [since]
   );

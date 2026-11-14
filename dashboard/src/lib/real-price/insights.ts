@@ -50,17 +50,18 @@ async function loadMarketInsights(): Promise<MarketInsights | null> {
     WITH s AS (
       SELECT s.id, s.sold_date, s.sold_price, r.address_key k, r.district d
         FROM sales s JOIN register_sales r ON r.id = s.register_id
-       WHERE r.address_key ~ '^[0-9]'),
+       WHERE r.address_key ~ '^[0-9]' AND r.county = 'Dublin'),
     p AS (
       SELECT DISTINCT ON (s.id) s.id, s.sold_price, s.sold_date, r2.price prev_price, r2.sold_date prev_date
         FROM s JOIN register_sales r2
           ON r2.address_key = s.k AND coalesce(r2.district, '') = coalesce(s.d, '') AND r2.sold_date < s.sold_date - 180
+         AND r2.county = 'Dublin'
        ORDER BY s.id, r2.sold_date DESC)
     SELECT (SELECT count(*) FROM sales WHERE register_id IS NOT NULL) matched,
            count(*) with_earlier,
            percentile_cont(0.5) WITHIN GROUP (ORDER BY sold_price::numeric / prev_price) gain,
            percentile_cont(0.5) WITHIN GROUP (ORDER BY (sold_date - prev_date) / 365.25) years,
-           (SELECT count(*) FROM (SELECT 1 FROM register_sales WHERE address_key ~ '^[0-9]'
+           (SELECT count(*) FROM (SELECT 1 FROM register_sales WHERE address_key ~ '^[0-9]' AND county = 'Dublin'
               GROUP BY address_key, district HAVING count(*) > 1) t) twice
       FROM p`);
 
@@ -182,7 +183,7 @@ export async function homeAndStreetHistory(
     `SELECT sold_date::text date, address, price, address_key, district FROM register_sales
       WHERE regexp_replace(address_key, '^(APT|UNIT|FLAT|NO) ', '') ~ ('^[0-9]+[A-Z]? ' || $1 || '$')
         -- Part-shares and other non-market transfers, as the price model leaves out
-        AND price >= 50000
+        AND price >= 50000 AND county = 'Dublin'
         AND ($2::text IS NULL OR district = $2 OR district IS NULL)
       ORDER BY sold_date DESC LIMIT 400`,
     [street.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), key.district]
@@ -213,7 +214,7 @@ export async function earlierSales(
   const keyed = sales.map((s) => ({ ...s, key: addressKey(s.address) })).filter((s) => s.key.specific);
   if (!keyed.length) return {};
   const { rows } = await db.query<{ address_key: string; district: string | null; date: string; price: number }>(
-    `SELECT address_key, district, sold_date::text date, price FROM register_sales WHERE address_key = ANY($1)`,
+    `SELECT address_key, district, sold_date::text date, price FROM register_sales WHERE address_key = ANY($1) AND county = 'Dublin'`,
     [[...new Set(keyed.map((s) => s.key.key))]]
   );
   const out: Record<string, { date: string; price: number }> = {};

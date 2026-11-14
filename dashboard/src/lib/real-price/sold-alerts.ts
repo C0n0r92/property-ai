@@ -139,7 +139,7 @@ export async function runSoldAlerts(site: string): Promise<{ open: number; sent:
       const { rows } = await db.query<RegisterRow & { street_slug: string | null }>(
         `SELECT r.id, r.sold_date::text AS date, r.address, r.price, r.district, s.slug AS street_slug
            FROM register_sales r LEFT JOIN streets s ON s.slug = r.street_slug
-          WHERE r.address_key = $1 AND r.sold_date >= ($2::timestamptz - INTERVAL '${GRACE_DAYS} days')::date`,
+          WHERE r.address_key = $1 AND r.county = 'Dublin' AND r.sold_date >= ($2::timestamptz - INTERVAL '${GRACE_DAYS} days')::date`,
         [alert.address_key, alert.created_at]
       );
       const sale = matchSale(alert, rows);

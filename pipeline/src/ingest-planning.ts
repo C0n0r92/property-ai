@@ -123,7 +123,7 @@ export async function ingestPlanning(): Promise<Record<string, unknown>> {
   const matched = await pool.query(
     `UPDATE planning_applications p SET street_slug = r.street_slug
        FROM (SELECT DISTINCT ON (address_key, district) address_key, district, street_slug
-               FROM register_sales WHERE street_slug IS NOT NULL ORDER BY address_key, district, sold_date DESC) r
+               FROM register_sales WHERE street_slug IS NOT NULL AND county = 'Dublin' ORDER BY address_key, district, sold_date DESC) r
       WHERE p.home_key = r.address_key AND (p.district IS NOT DISTINCT FROM r.district OR p.district IS NULL)
         AND p.street_slug IS DISTINCT FROM r.street_slug`
   );

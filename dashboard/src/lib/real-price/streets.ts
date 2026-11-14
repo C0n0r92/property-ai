@@ -118,8 +118,24 @@ function rawStreetPart(address: string): string {
  * Which street an address is on, or null when it can't be told: no house
  * number (a named house), a one-word name, or no district or town.
  */
-export function streetIdentity(address: string): StreetIdentity | null {
+/** "Kildare" -> "kildare"; null for Dublin, whose streets keep their district or town alone. */
+export function countySlug(county: string | null | undefined): string | null {
+  const c = (county ?? '').trim().toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
+  return c && c !== 'dublin' ? c : null;
+}
+
+const COUNTY_PART = /^(?:co\.?|county)\s+/i;
+
+/** Towns in an address, nearest the street first: no districts, no "Co. Kildare". */
+function townsOf(address: string, county: string | null): Array<{ key: string; label: string }> {
+  const towns = extractAreas(address).filter((a) => !/^d\d/.test(a.key) && !COUNTY_PART.test(a.label) && !/^(?:co|county)-/.test(a.key));
+  // A bare county name ("…, Douglas, Cork") is the county unless it is the only place given (Cork city)
+  return county && towns.length > 1 ? towns.filter((t) => t.key !== county) : towns;
+}
+
+export function streetIdentity(address: string, county?: string | null): StreetIdentity | null {
   if (!address) return null;
+  const outside = countySlug(county);
   const key = addressKey(address);
   if (!key.specific) return null;
   const streetKey = key.key.replace(UNIT, '').replace(NUMBERS, '').trim();
@@ -131,15 +147,22 @@ export function streetIdentity(address: string): StreetIdentity | null {
 
   let areaKey: string;
   let areaLabel: string;
-  if (key.district) {
+  if (key.district && !outside) {
     areaKey = key.district;
     areaLabel = `Dublin ${key.district.slice(1).toUpperCase()}`;
   } else {
-    const towns = extractAreas(address).filter((a) => !/^d\d/.test(a.key));
+    const towns = townsOf(address, outside);
     const town = towns[towns.length - 1];
     if (!town) return null;
-    areaKey = town.key;
-    areaLabel = displayStreetName(town.label);
+    const label = displayStreetName(town.label);
+    // Outside Dublin the county goes with the town: Newcastle, Co. Wicklow is not Newcastle, Co. Dublin
+    if (outside && town.key !== outside) {
+      areaKey = `${town.key}-${outside}`;
+      areaLabel = `${label}, Co. ${displayStreetName(county!)}`;
+    } else {
+      areaKey = town.key;
+      areaLabel = label;
+    }
   }
   const name = displayStreetName(rawStreetPart(address));
   if (!name) return null;
@@ -172,9 +195,9 @@ const MIN_PLACE_SHARE = 0.25;
 const isDistrict = (areaKey: string) => /^d\d/.test(areaKey);
 const districtLabel = (areaKey: string) => `Dublin ${areaKey.slice(1).toUpperCase()}`;
 
-/** The town or estate nearest the street in the address, other than its area. */
-function nearestPlace(address: string, areaKey: string): { key: string; label: string } | null {
-  const place = extractAreas(address).find((a) => !isDistrict(a.key) && a.key !== areaKey);
+/** The town or estate nearest the street in the address, other than its area (or its town and county). */
+function nearestPlace(address: string, areaKey: string, county: string | null): { key: string; label: string } | null {
+  const place = townsOf(address, county).find((a) => a.key !== areaKey && !areaKey.startsWith(`${a.key}-`));
   return place ? { key: place.key, label: displayStreetName(place.label) } : null;
 }
 
@@ -188,8 +211,9 @@ function nearestPlace(address: string, areaKey: string): { key: string; label: s
  *   is split by the nearest town or estate in the address. A sale naming none
  *   joins the dominant one, or no street when that is unclear.
  */
-export function assignStreets(addresses: string[]): Array<StreetAssignment | null> {
-  const ids: Array<StreetIdentity | null> = addresses.map(streetIdentity);
+export function assignStreets(addresses: string[], county?: string | null): Array<StreetAssignment | null> {
+  const outside = countySlug(county);
+  const ids: Array<StreetIdentity | null> = addresses.map((a) => streetIdentity(a, county));
 
   // (street, town) -> district votes, from addresses that state both
   const votes = new Map<string, Map<string, number>>();
@@ -226,7 +250,7 @@ export function assignStreets(addresses: string[]): Array<StreetAssignment | nul
   const places = new Map<string, Map<string, { label: string; n: number }>>();
   const nearest: Array<{ key: string; label: string } | null> = ids.map((id, i) => {
     if (!id || !generic(id)) return null;
-    const place = nearestPlace(addresses[i], id.areaKey);
+    const place = nearestPlace(addresses[i], id.areaKey, outside);
     if (!place) return null;
     const k = `${id.streetKey}|${id.areaKey}`;
     const v = places.get(k) ?? new Map<string, { label: string; n: number }>();

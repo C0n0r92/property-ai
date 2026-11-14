@@ -13,6 +13,9 @@ export interface StreetRow {
   name: string;
   area_key: string;
   area_label: string;
+  /** The area alone ('Dublin 14', 'Naas, Co. Kildare'); null on rows built before counties */
+  area_name?: string | null;
+  county?: string;
   sales: number;
   first_sale: string;
   last_sale: string;
@@ -35,6 +38,7 @@ export interface StreetLink {
   slug: string;
   name: string;
   areaLabel: string;
+  areaName: string;
   sales: number;
   medianRecent: number | null;
 }
@@ -53,6 +57,9 @@ export interface StreetPage {
   areaKey: string;
   areaSlug: string;
   areaLabel: string;
+  /** The area alone, for links and breadcrumbs */
+  areaName: string;
+  county: string;
   /** Sales at EUR 50k and over, newest first, without blocks of homes sold together */
   sales: Array<StreetSaleRow & { overAskingPct: number | null }>;
   count: number;
@@ -174,6 +181,8 @@ export function buildStreetPage(street: StreetRow, rows: StreetSaleRow[], nearby
     areaKey: street.area_key,
     areaSlug: areaSlugOf(street.area_key),
     areaLabel: street.area_label,
+    areaName: street.area_name ?? street.area_label.split(', ').pop()!,
+    county: street.county ?? 'Dublin',
     sales,
     count: sales.length,
     firstYear: years[0]?.year ?? Number(street.first_sale.slice(0, 4)),
@@ -192,6 +201,7 @@ const toLink = (r: StreetRow): StreetLink => ({
   slug: r.slug,
   name: r.name,
   areaLabel: r.area_label,
+  areaName: r.area_name ?? r.area_label.split(', ').pop()!,
   sales: r.sales,
   medianRecent: r.median_recent,
 });
@@ -202,7 +212,7 @@ export async function loadStreetPage(slug: string): Promise<StreetPage | null> {
   if (!db || !/^[a-z0-9-]{3,120}$/.test(slug)) return null;
   const street = (
     await db.query<StreetRow>(
-      `SELECT slug, name, area_key, area_label, sales, first_sale::text, last_sale::text, median_recent, recent_sales
+      `SELECT slug, name, area_key, area_label, area_name, county, sales, first_sale::text, last_sale::text, median_recent, recent_sales
          FROM streets WHERE slug = $1`,
       [slug]
     )
@@ -211,13 +221,17 @@ export async function loadStreetPage(slug: string): Promise<StreetPage | null> {
 
   const [sales, nearby] = await Promise.all([
     db.query<StreetSaleRow>(
-      // Asking price from our records: the same sale has the same date and price
+      // Asking price from our records (Dublin only): the matched sale, or an older record of the
+      // same sale, which has the same date, price and house number
       `SELECT r.sold_date::text AS date, r.address, r.price, r.new_build,
               m.asking_price AS asking, m.beds, m.property_type
          FROM register_sales r
          LEFT JOIN LATERAL (
            SELECT asking_price, beds, property_type FROM sales s
-            WHERE s.sold_date = r.sold_date AND s.sold_price = r.price
+            WHERE r.county = 'Dublin'
+              AND (s.register_id = r.id
+                   OR (s.register_id IS NULL AND s.sold_date = r.sold_date AND s.sold_price = r.price
+                       AND split_part(upper(s.address), ' ', 1) = split_part(upper(r.address), ' ', 1)))
             ORDER BY (s.register_id = r.id) DESC NULLS LAST LIMIT 1
          ) m ON TRUE
         WHERE r.street_slug = $1
@@ -225,7 +239,7 @@ export async function loadStreetPage(slug: string): Promise<StreetPage | null> {
       [slug]
     ),
     db.query<StreetRow>(
-      `SELECT slug, name, area_key, area_label, sales, first_sale::text, last_sale::text, median_recent, recent_sales
+      `SELECT slug, name, area_key, area_label, area_name, county, sales, first_sale::text, last_sale::text, median_recent, recent_sales
          FROM streets WHERE area_key = $1 AND slug <> $2
         ORDER BY sales DESC LIMIT 12`,
       [street.area_key, slug]
@@ -239,29 +253,37 @@ export async function streetsInArea(areaKey: string): Promise<StreetLink[]> {
   const db = getPool();
   if (!db) return [];
   const { rows } = await db.query<StreetRow>(
-    `SELECT slug, name, area_key, area_label, sales, first_sale::text, last_sale::text, median_recent, recent_sales
+    `SELECT slug, name, area_key, area_label, area_name, county, sales, first_sale::text, last_sale::text, median_recent, recent_sales
        FROM streets WHERE area_key = $1 ORDER BY name`,
     [areaKey]
   );
   return rows.map(toLink);
 }
 
+export interface StreetArea {
+  areaKey: string;
+  areaSlug: string;
+  areaName: string;
+  county: string;
+  streets: number;
+}
+
 /** Areas that have street pages, with counts, for the streets index. */
-export async function streetAreas(): Promise<Array<{ areaKey: string; areaSlug: string; areaLabel: string; streets: number }>> {
+export async function streetAreas(): Promise<StreetArea[]> {
   const db = getPool();
   if (!db) return [];
-  const { rows } = await db.query<{ area_key: string; streets: number }>(
-    `SELECT area_key, COUNT(*)::int AS streets FROM streets GROUP BY area_key ORDER BY area_key`
+  const { rows } = await db.query<{ area_key: string; area_name: string | null; county: string; streets: number }>(
+    `SELECT area_key, MIN(COALESCE(area_name, area_label)) AS area_name, MIN(county) AS county, COUNT(*)::int AS streets
+       FROM streets GROUP BY area_key`
   );
   return rows.map((r) => ({
     areaKey: r.area_key,
     areaSlug: areaSlugOf(r.area_key),
-    areaLabel: /^d\d/.test(r.area_key) ? `Dublin ${r.area_key.slice(1).toUpperCase()}` : labelOfTown(r.area_key),
+    areaName: /^d\d/.test(r.area_key) ? `Dublin ${r.area_key.slice(1).toUpperCase()}` : r.area_name ?? r.area_key,
+    county: r.county,
     streets: r.streets,
   }));
 }
-
-const labelOfTown = (key: string) => key.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
 /** Every street page, for the sitemap. */
 export async function allStreets(): Promise<Array<{ slug: string; lastSale: string }>> {
