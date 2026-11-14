@@ -143,27 +143,35 @@ export function computeTrackRecord(sales: Sale[], asOf: number, months = 12, eve
   };
 }
 
-/** Every second sale: about 2,600 tests, half the work on the one-CPU server */
-const EVERY = 2;
+/** Every second sale: about 2,600 tests (the pipeline and the fallback below use the same) */
+export const TRACK_EVERY = 2;
 const cache = new WeakMap<SalesStore, TrackRecord>();
 let latest: TrackRecord | null = null;
+/** The record the pipeline worked out (pipeline/src/build-track-record.ts), loaded by track-record-store.ts */
+let stored: TrackRecord | null = null;
+
+export function setStoredTrackRecord(record: TrackRecord | null) {
+  stored = record;
+}
 
 /**
- * The track record for the current data, worked out once per copy of the
- * data (a few seconds). When the data refreshes, the previous record is
- * served while the new one is worked out.
+ * The track record. Normally the one the pipeline worked out overnight, so
+ * the web server does no work for it. Until that exists (a new database),
+ * it is worked out here once per copy of the data, serving the previous one
+ * while a refresh is worked out.
  */
 export function trackRecord(store: SalesStore): TrackRecord {
+  if (stored?.overall.tested) return stored;
   const cached = cache.get(store);
   if (cached) return cached;
   if (latest) {
     const stale = latest;
     setTimeout(() => {
-      if (!cache.has(store)) cache.set(store, (latest = computeTrackRecord(store.sales, store.asOf, 12, EVERY)));
+      if (!cache.has(store)) cache.set(store, (latest = computeTrackRecord(store.sales, store.asOf, 12, TRACK_EVERY)));
     }, 0);
     return stale;
   }
-  latest = computeTrackRecord(store.sales, store.asOf, 12, EVERY);
+  latest = computeTrackRecord(store.sales, store.asOf, 12, TRACK_EVERY);
   cache.set(store, latest);
   return latest;
 }

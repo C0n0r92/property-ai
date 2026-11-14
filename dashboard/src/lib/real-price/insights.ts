@@ -134,14 +134,29 @@ async function loadMarketInsights(): Promise<MarketInsights | null> {
   };
 }
 
+let reloading: Promise<MarketInsights | null> | null = null;
+
+function reload(): Promise<MarketInsights | null> {
+  reloading ??= loadMarketInsights()
+    .then((value) => {
+      cached = { at: Date.now(), value };
+      return value;
+    })
+    .catch((error) => {
+      console.error('Market insights failed:', error);
+      cached = { at: Date.now(), value: cached?.value ?? null };
+      return cached.value;
+    })
+    .finally(() => {
+      reloading = null;
+    });
+  return reloading;
+}
+
+/** Served from memory; when six hours old, refreshed in the background so no visitor waits on it. */
 export async function getMarketInsights(): Promise<MarketInsights | null> {
-  if (cached && Date.now() - cached.at < SIX_HOURS) return cached.value;
-  try {
-    cached = { at: Date.now(), value: await loadMarketInsights() };
-  } catch (error) {
-    console.error('Market insights failed:', error);
-    cached = { at: Date.now(), value: cached?.value ?? null };
-  }
+  if (!cached) return reload();
+  if (Date.now() - cached.at > SIX_HOURS) void reload();
   return cached.value;
 }
 

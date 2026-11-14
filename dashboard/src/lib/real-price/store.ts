@@ -152,8 +152,25 @@ let registerCache: { updated: string; sales: RegisterSale[]; loadedAt: number } 
  * Recent second-hand sales from the public Property Price Register (sold
  * prices only), newest first.
  */
+let registerLoading: Promise<{ updated: string; sales: RegisterSale[] }> | null = null;
+
+/** Served from memory; when an hour old, refreshed in the background so no visitor waits on it. */
 export async function getRegister(): Promise<{ updated: string; sales: RegisterSale[] }> {
-  if (registerCache && Date.now() - registerCache.loadedAt < REFRESH_MS) return registerCache;
+  if (!registerCache) return loadRegister();
+  if (Date.now() - registerCache.loadedAt > REFRESH_MS) {
+    loadRegister().catch((error) => console.error('Register refresh failed:', error));
+  }
+  return registerCache;
+}
+
+function loadRegister(): Promise<{ updated: string; sales: RegisterSale[] }> {
+  registerLoading ??= readRegister().finally(() => {
+    registerLoading = null;
+  });
+  return registerLoading;
+}
+
+async function readRegister(): Promise<{ updated: string; sales: RegisterSale[] }> {
   const pool = getPool();
   let rows: Array<{ date: string; address: string; price: number }> = [];
   if (pool) {
