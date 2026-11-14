@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/rp/motion";
-import PlotChart, { type ChartSpec } from "@/app/blog/[slug]/PlotChart";
+import Bars3D from "@/components/rp/Bars3D";
 import { TYPE_NAMES } from "@/lib/real-price/area-page";
 import { toTypeGroup } from "@/lib/real-price/model";
 import { reportPrice } from "@/lib/real-price/pricing";
@@ -16,6 +16,10 @@ import AreaCheck from "../../areas/AreaCheck";
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
+type Search = Promise<{ sales?: string }>;
+
+/** Sales shown in the table before "show all": very long pages hydrate unreliably */
+const SHOWN_SALES = 100;
 
 const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
 const short = (v: number) => (v >= 1_000_000 ? `€${(v / 1_000_000).toFixed(2)}m` : `€${Math.round(v / 1000)}k`);
@@ -70,7 +74,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-export default async function StreetPageView({ params }: { params: Params }) {
+export default async function StreetPageView({ params, searchParams }: { params: Params; searchParams: Search }) {
+  const showAll = (await searchParams).sales === "all";
   const page = await loadStreetPage((await params).slug);
   if (!page) notFound();
 
@@ -85,15 +90,6 @@ export default async function StreetPageView({ params }: { params: Params }) {
   const hasAreaPage = checkable;
   const areaName = page.areaName;
 
-  const chart: ChartSpec = {
-    kind: "bar",
-    data: page.years.map((y) => ({ year: String(y.year), median: y.median })),
-    x: "year",
-    xLabel: null,
-    yLabels: { default: "Middle sale price (€)" },
-    series: [{ mark: "bar", key: "median", name: "Middle sale price" }],
-    caption: `Middle sale price on ${page.name} by year. Years with few sales swing with the homes that happened to sell.`,
-  };
 
   const url = `${SITE_URL}/streets/${page.slug}`;
   const structuredData = {
@@ -216,10 +212,24 @@ export default async function StreetPageView({ params }: { params: Params }) {
             <div className="rp-area-section-head">
               <h2 className="rp-h2">Year by year.</h2>
               <p className="rp-prose">
-                The middle sale price on {page.name} each year since {page.firstYear}.
+                The middle sale price on {page.name} each year
+                {page.years.length > 12 ? `, the last ${12} years` : ` since ${page.firstYear}`}.
               </p>
             </div>
-            <PlotChart spec={chart} name={`${page.name} prices by year`} />
+            <Bars3D
+              ariaLabel={`Middle sale price on ${page.name}, by year`}
+              valueHeading="Middle sale price"
+              unit="euro"
+              bars={page.years.slice(-12).map((y, i, list) => ({
+                label: String(y.year),
+                value: y.median,
+                highlight: i === list.length - 1,
+                detail: `${y.count} sale${y.count === 1 ? "" : "s"}`,
+              }))}
+            />
+            <p className="rp-area-source">
+              Years with few sales swing with whichever homes happened to sell.
+            </p>
           </Reveal>
         )}
 
@@ -295,7 +305,7 @@ export default async function StreetPageView({ params }: { params: Params }) {
                 </tr>
               </thead>
               <tbody>
-                {page.sales.map((s, i) => (
+                {(showAll ? page.sales : page.sales.slice(0, SHOWN_SALES)).map((s, i) => (
                   <tr key={`${s.date}-${s.address}-${i}`}>
                     <td>{monthYear(s.date)}</td>
                     <th scope="row">
@@ -320,6 +330,14 @@ export default async function StreetPageView({ params }: { params: Params }) {
               </tbody>
             </table>
           </div>
+          {!showAll && page.sales.length > SHOWN_SALES && (
+            <p className="rp-area-more">
+              The latest {SHOWN_SALES} of {page.sales.length} sales.{" "}
+              <Link href={`/streets/${page.slug}?sales=all`} className="rp-link" rel="nofollow">
+                Show all {page.sales.length}
+              </Link>
+            </p>
+          )}
         </Reveal>
 
         {planning.rows.length > 0 && (

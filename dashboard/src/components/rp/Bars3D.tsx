@@ -30,6 +30,8 @@ export interface Bar3D {
 interface Props {
   bars: Bar3D[];
   format?: (value: number) => string;
+  /** Instead of format, from server components: "pct" (+8.2%) or "euro" (€474k) */
+  unit?: keyof typeof UNITS;
   /** row: a line of bars (a trend); grid: blocks like a skyline */
   layout?: "row" | "grid";
   columns?: number;
@@ -52,6 +54,9 @@ const easeOutBack = (p: number) => {
 };
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const defaultFormat = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
+const euroFormat = (v: number) => (v >= 1_000_000 ? `€${(v / 1_000_000).toFixed(2)}m` : `€${Math.round(v / 1000)}k`);
+/** Formats a server page can choose by name (a function can't be passed from the server) */
+const UNITS = { pct: defaultFormat, euro: euroFormat } as const;
 
 /** The hero's soft studio light, attached as the scene's environment. */
 function Studio() {
@@ -229,7 +234,8 @@ function useEnvironment() {
 
 export default function Bars3D({
   bars,
-  format = defaultFormat,
+  unit = "pct",
+  format = UNITS[unit],
   layout = "row",
   columns,
   ariaLabel,
