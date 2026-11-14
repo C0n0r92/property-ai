@@ -8,6 +8,7 @@
 
 import { Metadata } from "next";
 import { BACKTEST } from "@/lib/real-price/backtest";
+import { accuracyFigures } from "@/lib/real-price/track-record";
 import RpShell from "@/components/rp/RpShell";
 import {
   analyse,
@@ -191,7 +192,7 @@ export default async function RealPricePage({
       dataTo={new Date(store.asOf).toISOString().slice(0, 10)}
       salesCount={store.sales.length}
       price={price}
-      backtest={BACKTEST}
+      backtest={accuracyFigures(store, BACKTEST)}
       boardSales={boardSales}
       market={await getMarket("all")}
       insights={await getMarketInsights()}

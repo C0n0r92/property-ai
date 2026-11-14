@@ -22,6 +22,8 @@ export interface OpenAlert {
   predicted_mid: number | null;
   token: string;
   created_at: string;
+  /** The county the home is in ('Dublin', 'Kildare' ...) */
+  county: string;
 }
 
 interface RegisterRow {
@@ -30,6 +32,7 @@ interface RegisterRow {
   address: string;
   price: number;
   district: string | null;
+  county?: string;
 }
 
 /** Part-shares and other non-market transfers */
@@ -50,6 +53,7 @@ export function matchSale(alert: OpenAlert, sales: RegisterRow[]): RegisterRow |
   const since = new Date(alert.created_at).getTime() - GRACE_DAYS * 86_400_000;
   const fits = sales
     .filter((s) => s.price >= MARKET_PRICE && new Date(s.date).getTime() >= since)
+    .filter((s) => !s.county || s.county === alert.county)
     .filter((s) => (alert.district && s.district ? alert.district === s.district : sameArea(s.address, alert.address)))
     .sort((a, b) => a.date.localeCompare(b.date));
   return fits[0] ?? null;
@@ -131,16 +135,16 @@ export async function runSoldAlerts(site: string): Promise<{ open: number; sent:
       (await db.query(`DELETE FROM sold_alerts WHERE notified_at IS NULL AND created_at < NOW() - INTERVAL '${ALERT_MONTHS} months'`))
         .rowCount ?? 0;
     const { rows: alerts } = await db.query<OpenAlert>(
-      `SELECT id, email, address, address_key, district, asking_price, predicted_mid, token, created_at::text
+      `SELECT id, email, address, address_key, district, asking_price, predicted_mid, token, created_at::text, county
          FROM sold_alerts WHERE notified_at IS NULL`
     );
     let sent = 0;
     for (const alert of alerts) {
       const { rows } = await db.query<RegisterRow & { street_slug: string | null }>(
-        `SELECT r.id, r.sold_date::text AS date, r.address, r.price, r.district, s.slug AS street_slug
+        `SELECT r.id, r.sold_date::text AS date, r.address, r.price, r.district, r.county, s.slug AS street_slug
            FROM register_sales r LEFT JOIN streets s ON s.slug = r.street_slug
-          WHERE r.address_key = $1 AND r.county = 'Dublin' AND r.sold_date >= ($2::timestamptz - INTERVAL '${GRACE_DAYS} days')::date`,
-        [alert.address_key, alert.created_at]
+          WHERE r.address_key = $1 AND r.county = $3 AND r.sold_date >= ($2::timestamptz - INTERVAL '${GRACE_DAYS} days')::date`,
+        [alert.address_key, alert.created_at, alert.county]
       );
       const sale = matchSale(alert, rows);
       if (!sale) continue;

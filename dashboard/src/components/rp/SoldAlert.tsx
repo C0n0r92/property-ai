@@ -10,13 +10,15 @@ interface Props {
   askingPrice?: number;
   /** What the price check said, quoted back in the email */
   predictedMid?: number;
+  /** The home's county; Dublin unless said */
+  county?: string;
   compact?: boolean;
 }
 
 type Status = "idle" | "sending" | "done" | "already" | "error";
 
 /** "Tell me what it sold for": one email when the home appears in the register. */
-export default function SoldAlert({ address, askingPrice, predictedMid, compact = false }: Props) {
+export default function SoldAlert({ address, askingPrice, predictedMid, county, compact = false }: Props) {
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -30,7 +32,7 @@ export default function SoldAlert({ address, askingPrice, predictedMid, compact 
       const res = await fetch("/api/real-price/alert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, address, askingPrice, predictedMid, company }),
+        body: JSON.stringify({ email, address, askingPrice, predictedMid, county, company }),
       });
       const data = await res.json();
       if (!res.ok) {

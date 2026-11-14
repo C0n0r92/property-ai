@@ -11,6 +11,7 @@ import { loadStreetPage, type StreetPage } from "@/lib/real-price/street-page";
 import { decisionWord, streetPlanning, workSummary } from "@/lib/real-price/planning-data";
 import { jsonLd, SITE_URL } from "@/lib/site";
 import AreaCheck from "../../areas/AreaCheck";
+import StreetAlert from "./StreetAlert";
 
 // Read from the live database on request (the build has no database)
 export const dynamic = "force-dynamic";
@@ -18,8 +19,8 @@ export const dynamic = "force-dynamic";
 type Params = Promise<{ slug: string }>;
 type Search = Promise<{ sales?: string }>;
 
-/** Sales shown in the table before "show all": very long pages hydrate unreliably */
-const SHOWN_SALES = 100;
+/** Sales shown before "all sales": the latest, kept short (very long pages also hydrate unreliably) */
+const SHOWN_SALES = 12;
 
 const euro = (v: number) => `€${Math.round(v).toLocaleString("en-IE")}`;
 const short = (v: number) => (v >= 1_000_000 ? `€${(v / 1_000_000).toFixed(2)}m` : `€${Math.round(v / 1000)}k`);
@@ -225,81 +226,10 @@ export default async function StreetPageView({ params, searchParams }: { params:
       </section>
 
       <div className="rp-wrap">
-        {page.years.length >= 3 && (
-          <Reveal as="section" className="rp-area-section">
-            <div className="rp-area-section-head">
-              <h2 className="rp-h2">Year by year.</h2>
-              <p className="rp-prose">
-                The middle sale price on {page.name} each year
-                {page.years.length > 12 ? `, the last ${12} years` : ` since ${page.firstYear}`}.
-              </p>
-            </div>
-            <Bars3D
-              ariaLabel={`Middle sale price on ${page.name}, by year`}
-              valueHeading="Middle sale price"
-              unit="euro"
-              bars={page.years.slice(-12).map((y, i, list) => ({
-                label: String(y.year),
-                value: y.median,
-                highlight: i === list.length - 1,
-                detail: `${y.count} sale${y.count === 1 ? "" : "s"}`,
-              }))}
-            />
-            <p className="rp-area-source">
-              Years with few sales swing with whichever homes happened to sell.
-            </p>
-          </Reveal>
-        )}
-
-        {page.repeats.length > 0 && (
-          <Reveal as="section" className="rp-area-section">
-            <div className="rp-area-section-head">
-              <h2 className="rp-h2">The same home, sold again.</h2>
-              <p className="rp-prose">
-                The clearest sign of what happened to prices here: homes on {page.name} that sold more than once, first
-                sale against latest.
-              </p>
-            </div>
-            <div className="rp-area-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Home</th>
-                    <th scope="col">First sold</th>
-                    <th scope="col">Latest sale</th>
-                    <th scope="col" className="is-figure">
-                      Change
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {page.repeats.slice(0, 12).map((r) => (
-                    <tr key={`${r.address}-${r.to.date}`}>
-                      <th scope="row">{r.address}</th>
-                      <td>
-                        {euro(r.from.price)} <small>{monthYear(r.from.date)}</small>
-                      </td>
-                      <td>
-                        {euro(r.to.price)} <small>{monthYear(r.to.date)}</small>
-                      </td>
-                      <td className="is-figure">
-                        {signed(r.changePct)} <small>in {Math.round(r.years)} yrs</small>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Reveal>
-        )}
-
         <Reveal as="section" className="rp-area-section">
           <div className="rp-area-section-head">
-            <h2 className="rp-h2">Every sale on {page.name}.</h2>
-            <p className="rp-prose">
-              Sold prices from the Property Price Register, newest first.
-              {page.asking ? " Where we know the asking price, it is shown with how far the sale went over or under it." : ""}
-            </p>
+            <h2 className="rp-h2">{showAll ? `Every sale on ${page.name}.` : "Latest sales."}</h2>
+            {page.asking && <p className="rp-prose">With the asking price, where we know it.</p>}
           </div>
           <div className="rp-area-table">
             <table>
@@ -350,25 +280,81 @@ export default async function StreetPageView({ params, searchParams }: { params:
           </div>
           {!showAll && page.sales.length > SHOWN_SALES && (
             <p className="rp-area-more">
-              The latest {SHOWN_SALES} of {page.sales.length} sales.{" "}
               <Link href={`/streets/${page.slug}?sales=all`} className="rp-link" rel="nofollow">
-                Show all {page.sales.length}
+                All {page.sales.length} sales since {page.firstYear}
               </Link>
             </p>
           )}
         </Reveal>
+
+        <Reveal as="section" className="rp-area-section">
+          <StreetAlert street={page.name} area={areaName} county={page.county} />
+        </Reveal>
+
+        {page.years.length >= 3 && (
+          <Reveal as="section" className="rp-area-section">
+            <h2 className="rp-h2">Year by year.</h2>
+            <Bars3D
+              ariaLabel={`Middle sale price on ${page.name}, by year`}
+              valueHeading="Middle sale price"
+              unit="euro"
+              bars={page.years.slice(-12).map((y, i, list) => ({
+                label: String(y.year),
+                value: y.median,
+                highlight: i === list.length - 1,
+                detail: `${y.count} sale${y.count === 1 ? "" : "s"}`,
+              }))}
+            />
+            <p className="rp-area-source">Middle sale price each year. Years with few sales swing.</p>
+          </Reveal>
+        )}
+
+        {page.repeats.length > 0 && (
+          <Reveal as="section" className="rp-area-section">
+            <div className="rp-area-section-head">
+              <h2 className="rp-h2">The same home, sold again.</h2>
+              <p className="rp-prose">First sale against latest.</p>
+            </div>
+            <div className="rp-area-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Home</th>
+                    <th scope="col">First sold</th>
+                    <th scope="col">Latest sale</th>
+                    <th scope="col" className="is-figure">
+                      Change
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {page.repeats.slice(0, 12).map((r) => (
+                    <tr key={`${r.address}-${r.to.date}`}>
+                      <th scope="row">{r.address}</th>
+                      <td>
+                        {euro(r.from.price)} <small>{monthYear(r.from.date)}</small>
+                      </td>
+                      <td>
+                        {euro(r.to.price)} <small>{monthYear(r.to.date)}</small>
+                      </td>
+                      <td className="is-figure">
+                        {signed(r.changePct)} <small>in {Math.round(r.years)} yrs</small>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
+        )}
 
         {planning.rows.length > 0 && (
           <Reveal as="section" className="rp-area-section">
             <div className="rp-area-section-head">
               <h2 className="rp-h2">Planning on {page.name}.</h2>
               <p className="rp-prose">
-                {planning.total} planning application{planning.total === 1 ? "" : "s"} on this street since{" "}
-                {planning.rows[planning.rows.length - 1]?.received?.slice(0, 4) ?? "2012"}
-                {extensions > 0
-                  ? `, ${extensions} of them extensions or attic conversions that were granted`
-                  : ""}
-                . From the councils&apos; planning registers.
+                {planning.total} application{planning.total === 1 ? "" : "s"}
+                {extensions > 0 ? `, ${extensions} granted extensions or attics` : ""}.
               </p>
             </div>
             <div className="rp-area-table">
@@ -447,10 +433,7 @@ export default async function StreetPageView({ params, searchParams }: { params:
           <aside className="rp-blog-cta rp-area-cta">
             <div>
               <h2 className="rp-h2">Bidding on {page.name}?</h2>
-              <p className="rp-prose">
-                Put in the home&apos;s type, size and asking price, or paste its listing link, and see what similar homes
-                in {areaName} really sold for.
-              </p>
+              <p className="rp-prose">See what it will really sell for. Free.</p>
             </div>
             <a href="#check" className="rp-button rp-button--ink">
               Check the home, free
@@ -459,10 +442,8 @@ export default async function StreetPageView({ params, searchParams }: { params:
         )}
 
         <p className="rp-area-source">
-          Planning applications are from the national planning applications database (Department of Housing, CC BY
-          4.0). From the Property Price Register, which records the price of every home sold in Ireland. Sales under €50,000
-          (usually part-shares and family transfers) are left out. Addresses are as registered; asking prices are from
-          our own records of listings. Not a valuation.
+          Sold prices: Property Price Register (sales under €50,000 left out). Planning: Department of Housing, CC BY
+          4.0. Not a valuation.
         </p>
       </div>
     </main>

@@ -167,3 +167,35 @@ export function trackRecord(store: SalesStore): TrackRecord {
   cache.set(store, latest);
   return latest;
 }
+
+export interface AccuracyFigures {
+  /** e.g. "the last 12 months" */
+  period: string;
+  salesTested: number;
+  insideFullRangePct: number;
+  insideLikelyRangePct: number;
+  medianErrorModelPct: number;
+  medianErrorAskingPct: number;
+}
+
+/**
+ * The accuracy figures quoted across the site, from the live track record so
+ * every page says the same thing. Falls back to the given stored figures only
+ * until the record has been worked out.
+ */
+export function accuracyFigures(
+  store: SalesStore,
+  stored: { testYear: number; salesTested: number; insideFullRangePct: number; insideLikelyRangePct: number; medianErrorModelPct: number; medianErrorAskingPct: number }
+): AccuracyFigures {
+  const o = trackRecord(store).overall;
+  if (!o.tested) return { ...stored, period: String(stored.testYear) };
+  const one = (v: number) => Math.round(v * 10) / 10;
+  return {
+    period: 'the last 12 months',
+    salesTested: o.tested,
+    insideFullRangePct: Math.round(o.insideRangePct),
+    insideLikelyRangePct: Math.round(o.insideLikelyPct),
+    medianErrorModelPct: one(o.medianModelErrorPct),
+    medianErrorAskingPct: one(o.medianAskingErrorPct),
+  };
+}

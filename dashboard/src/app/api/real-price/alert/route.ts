@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const field = parsed.error.issues[0]?.path[0];
     return NextResponse.json({ error: field === 'email' ? 'invalid_email' : 'invalid_request' }, { status: 400 });
   }
-  const { email, address, askingPrice, predictedMid, company } = parsed.data;
+  const { email, address, askingPrice, predictedMid, county, company } = parsed.data;
   // Bots fill the hidden field; answer as if it worked and do nothing
   if (company) return NextResponse.json({ ok: true });
 
@@ -36,10 +36,10 @@ export async function POST(request: NextRequest) {
   try {
     const token = newToken();
     const { rowCount } = await db.query(
-      `INSERT INTO sold_alerts (email, address, address_key, district, asking_price, predicted_mid, token)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO sold_alerts (email, address, address_key, district, asking_price, predicted_mid, token, county)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (email, address_key) WHERE notified_at IS NULL DO NOTHING`,
-      [email, address, target.key, target.district, askingPrice ?? null, predictedMid ?? null, token]
+      [email, address, target.key, county === 'Dublin' ? target.district : null, askingPrice ?? null, predictedMid ?? null, token, county]
     );
     // Already watching this home for this address: say so, without a second email
     if (!rowCount) return NextResponse.json({ ok: true, already: true });

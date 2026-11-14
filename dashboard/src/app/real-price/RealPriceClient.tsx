@@ -52,7 +52,8 @@ interface Props {
   /** What the wider data shows; null without a database */
   insights: MarketInsights | null;
   backtest: {
-    testYear: number;
+    /** "the last 12 months" */
+    period: string;
     salesTested: number;
     insideFullRangePct: number;
     insideLikelyRangePct: number;
@@ -698,8 +699,7 @@ export default function RealPriceClient({
               </p>
             ) : (
               <p className="rp-lede">
-                In Dublin the asking price is where the bidding starts. This is
-                what happened to{" "}
+                Based on{" "}
                 <strong>
                   {evidenceSentence(
                     result.tier,
@@ -720,7 +720,7 @@ export default function RealPriceClient({
               >
                 {buying
                   ? "Opening payment…"
-                  : `Get the full report for ${price.label}`}
+                  : `Get the report · ${price.label}`}
               </button>
               <Link className="rp-link" href="/real-price/report?sample=1">
                 See a sample report
@@ -926,10 +926,7 @@ export default function RealPriceClient({
           <div className="rp-board-intro">
             <h2 className="rp-h2">Asked, then sold.</h2>
             <p className="rp-prose">
-              The latest Dublin sales in our records, with the price on the sign
-              beside the price the buyer paid. Public records only show the
-              second number. We have both, for{" "}
-              {salesCount.toLocaleString("en-IE")} homes.
+              The price on the sign, and the price paid. The public register only shows the second.
             </p>
           </div>
           <SalesBoard sales={boardSales} />
@@ -940,9 +937,6 @@ export default function RealPriceClient({
             <h2 className="rp-h2" id="rp-findings-title">
               What the sales show.
             </h2>
-            <p className="rp-statement-sub">
-              From the register&apos;s sales since 2010, paired with the asking prices we hold.
-            </p>
             <div className="rp-findings-grid">
               <article className="rp-finding">
                 <p className="rp-finding-kicker">Homes that sell again</p>
@@ -950,11 +944,7 @@ export default function RealPriceClient({
                   <CountUp value={insights.repeat.medianGainPct} format="signedPct" decimals={0} />
                 </p>
                 <p className="rp-finding-text">
-                  One in {Math.max(2, Math.round(insights.repeat.matched / Math.max(1, insights.repeat.withEarlier)))} homes
-                  we&apos;ve matched had sold before. The typical one sold again{" "}
-                  {insights.repeat.medianYears.toFixed(1)} years later for{" "}
-                  {Math.round(insights.repeat.medianGainPct)}% more. The full report shows the home&apos;s own sales
-                  history, and every sale on its street since 2010.
+                  Typical gain when a home sold again, {insights.repeat.medianYears.toFixed(1)} years later.
                 </p>
               </article>
               <article className="rp-finding">
@@ -974,9 +964,8 @@ export default function RealPriceClient({
                   </div>
                 </div>
                 <p className="rp-finding-text">
-                  Since 2024, homes asking just under a round figure sold further over asking, and more of them (
-                  {Math.round(insights.roundPricing.underShareAbove * 100)}% against{" "}
-                  {Math.round(insights.roundPricing.roundShareAbove * 100)}%) went above it.
+                  On asking, since 2024. {Math.round(insights.roundPricing.underShareAbove * 100)}% against{" "}
+                  {Math.round(insights.roundPricing.roundShareAbove * 100)}% went above it.
                 </p>
               </article>
             </div>
@@ -989,37 +978,26 @@ export default function RealPriceClient({
               Take the whole picture to the bidding, as a PDF.
             </h2>
             <p className="rp-offer-anchor">
-              Here, an even-odds bid and one that is rarely beaten are{" "}
-              <strong>{euro(result.gapToRarelyBeaten)} apart</strong>. The
-              report shows every comparable sale in that range, so you know
-              where to stop. Going even €5,000 further than you needed to costs
-              about{" "}
-              {(
-                Math.round(5000 / (price.cents / 100) / 10) * 10
-              ).toLocaleString("en-IE")}{" "}
-              times what the report does.
+              An even-odds bid and one that&apos;s rarely beaten are{" "}
+              <strong>{euro(result.gapToRarelyBeaten)} apart</strong> here. The report shows where to stop.
             </p>
             <ul className="rp-offer-list">
               <li>
-                <strong>Your bidding plan</strong>: what each bid level has won,
-                from asking price to the point almost nobody goes past.
+                <strong>Your bidding plan</strong>: what each bid level has won
               </li>
               <li>
-                <strong>Every comparable sale</strong>: address, asking price,
-                sale price and date. You have seen {evidence.recent.length}; the
-                report has{" "}
-                {evidence.count <= REPORT_SALES
-                  ? `all ${evidence.count}`
-                  : `the ${REPORT_SALES} most recent of ${evidence.count.toLocaleString("en-IE")}`}
-                .
+                <strong>
+                  {evidence.count <= REPORT_SALES
+                    ? `All ${evidence.count} comparable sales`
+                    : `The ${REPORT_SALES} latest comparable sales`}
+                </strong>
+                , with addresses (you&apos;ve seen {evidence.recent.length})
               </li>
               <li>
-                <strong>How {areaLabel} is moving</strong>: over-asking and
-                prices, quarter by quarter.
+                <strong>How {areaLabel} is moving</strong>, quarter by quarter
               </li>
               <li>
-                <strong>What sold this year</strong>: the latest prices from the
-                national Property Price Register.
+                <strong>The home&apos;s own history</strong>: past sales and planning, if you add its address
               </li>
             </ul>
             <details className="rp-home-optional">
@@ -1065,21 +1043,15 @@ export default function RealPriceClient({
               >
                 {buying
                   ? "Opening payment…"
-                  : `Get the report for ${price.label}`}
+                  : `Get the report · ${price.label}`}
               </button>
               <Link className="rp-link" href="/real-price/report?sample=1">
                 See a sample report
               </Link>
             </div>
             <p className="rp-offer-note">
-              One click to pay by card, Apple Pay or Google Pay. No account and
-              no subscription. The report opens straight after payment and saves
-              as a PDF. If it doesn&apos;t help, reply to your receipt within{" "}
-              {REFUND_DAYS} days for a full refund.{" "}
-              <Link href="/real-price/privacy">
-                How we use an address if you add one
-              </Link>
-              .
+              Card, Apple Pay or Google Pay · no account · opens straight away as a PDF · {REFUND_DAYS}-day
+              money-back · <Link href="/real-price/privacy">Privacy</Link>
             </p>
           </div>
           <ReportPreview
@@ -1117,40 +1089,31 @@ export default function RealPriceClient({
         <EmailResult query={answeredFor} />
 
         <section className="rp-section">
-          <h2 className="rp-h2">How it works, and how often it is right</h2>
-          <div className="rp-prose">
-            <p>
-              We hold the asking price and the final sale price of{" "}
-              <strong>{salesCount.toLocaleString("en-IE")} Dublin homes</strong>
-              . For the home you describe, we find the most similar recent sales
-              and apply how they finished, relative to their asking prices, to
-              yours. Our asking-price records run to {longDate(dataTo)}.
-            </p>
-            <p>
-              We tested this on {backtest.salesTested.toLocaleString("en-IE")}{" "}
-              sales from {backtest.testYear} that the method had never seen.{" "}
-              <strong>
-                The sale price landed inside our full range{" "}
-                {backtest.insideFullRangePct}% of the time.
-              </strong>{" "}
-              Our middle estimate was typically {backtest.medianErrorModelPct}%
-              away from the sale price; the asking price on its own was{" "}
-              {backtest.medianErrorAskingPct}% away.{" "}
-              <a href="/track-record">See the track record, month by month</a>.
-            </p>
-            <p>
-              It cannot see a home&apos;s condition or the mood of one bidding
-              round, and it is not a valuation. Use it to judge how far an
-              asking price is likely to move, alongside a viewing and a survey.
-            </p>
-          </div>
+          <h2 className="rp-h2">How it works</h2>
+          <ul className="rp-how">
+            <li>
+              <strong>Similar homes, real results.</strong> We match your home to recent sales among{" "}
+              {salesCount.toLocaleString("en-IE")} Dublin homes with both asking and sold price.
+            </li>
+            <li>
+              <strong>Tested.</strong> The sale landed in our range {backtest.insideFullRangePct}% of the time:
+              typically {backtest.medianErrorModelPct}% off, against {backtest.medianErrorAskingPct}% for the asking
+              price. <a href="/track-record">Track record</a>
+            </li>
+            <li>
+              <strong>Not a valuation.</strong> It can&apos;t see a home&apos;s condition or one bidding round.
+            </li>
+          </ul>
         </section>
 
         <footer className="rp-footer">
           <span>Sales up to {longDate(dataTo)}. Not a valuation.</span>
           <span>
             <Link href="/areas">Areas</Link>
+            <Link href="/streets">Streets</Link>
+            <Link href="/compare">Compare two homes</Link>
             <Link href="/reports">Monthly report</Link>
+            <Link href="/track-record">Track record</Link>
             <Link href="/blog">Research</Link>
             <Link href="/real-price/privacy">Privacy</Link>
             <CookieSettingsLink />
@@ -1175,7 +1138,7 @@ export default function RealPriceClient({
           disabled={buying}
           tabIndex={showBar ? 0 : -1}
         >
-          {buying ? "Opening payment…" : `Full report ${price.label}`}
+          {buying ? "Opening payment…" : `Get the report · ${price.label}`}
         </button>
       </div>
     </>
