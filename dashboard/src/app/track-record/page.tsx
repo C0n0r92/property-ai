@@ -11,7 +11,7 @@ import { jsonLd, SITE_URL } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Track Record: How Accurate Is the Price Check?",
+  title: "How Accurate Is the Price Check?",
   description:
     "Every Dublin sale of the last 12 months, predicted from its asking price using only earlier sales, then checked against what it really sold for.",
   alternates: { canonical: "/track-record" },

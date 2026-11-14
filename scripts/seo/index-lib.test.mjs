@@ -59,3 +59,17 @@ test('summarise flags pages Google chose another canonical for', () => {
   ]);
   assert.deepEqual(s.problems.map((p) => p.url), ['https://x/a']);
 });
+
+test('dailySlice: key pages always, a rotating share of the rest, covering everything over the days', async () => {
+  const { dailySlice } = await import('./index-lib.mjs');
+  const urls = ['/a', '/b', ...Array.from({ length: 10 }, (_, i) => `/streets/s${i}`)];
+  const isBulk = (u) => u.startsWith('/streets/');
+  const day0 = dailySlice(urls, isBulk, 4, 0);
+  assert.deepEqual(day0.slice(0, 2), ['/a', '/b']);
+  assert.equal(day0.length, 6);
+  const seen = new Set();
+  for (let day = 0; day < 3; day++) dailySlice(urls, isBulk, 4, day).filter(isBulk).forEach((u) => seen.add(u));
+  assert.equal(seen.size, 10);
+  // No more than everything
+  assert.equal(dailySlice(urls, isBulk, 50, 0).length, 12);
+});
