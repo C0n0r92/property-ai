@@ -7,11 +7,23 @@ export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
   const { getSalesStore } = await import('./lib/real-price/store');
   const { getMarket } = await import('./lib/real-price/market');
+  const { getMarketInsights } = await import('./lib/real-price/insights');
   const { trackRecord } = await import('./lib/real-price/track-record');
+  const { loadStoredTrackRecord } = await import('./lib/real-price/track-record-store');
+  // The pipeline's track record first, so the server never has to work it out; re-read hourly
+  const haveStored = await loadStoredTrackRecord();
+  setInterval(() => void loadStoredTrackRecord(), 60 * 60 * 1000).unref?.();
   getSalesStore()
     .then((store) => {
-      trackRecord(store);
-      return getMarket('all');
+      if (!haveStored) trackRecord(store);
+      return Promise.all([getMarket('all'), getMarketInsights()]);
+    })
+    // Then load the busiest pages once, so the first visitor after a deploy isn't the one who waits
+    .then(async () => {
+      const base = `http://127.0.0.1:${process.env.PORT ?? 3000}`;
+      for (const path of ['/', '/areas', '/worth', '/streets']) {
+        await fetch(base + path, { headers: { 'x-warm-up': '1' }, signal: AbortSignal.timeout(30_000) }).catch(() => {});
+      }
     })
     .catch((error) => console.error('Warming the sales data failed:', error));
 

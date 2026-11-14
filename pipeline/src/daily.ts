@@ -14,6 +14,7 @@ import { buildStreets } from './build-streets.ts';
 import { ingestPlanning } from './ingest-planning.ts';
 import { buildHomes } from './build-homes.ts';
 import { buildWorth } from './build-worth.ts';
+import { buildTrackRecord } from './build-track-record.ts';
 
 const year = new Date().getFullYear();
 await runJob('ingest-register', () => ingestRegister([year - 1, year]));
@@ -26,5 +27,7 @@ await runJob('ingest-planning', () => ingestPlanning());
 // Every record gets its home; then sales and listings pair up by home
 await runJob('build-homes', () => buildHomes());
 await runJob('match', () => matchSales());
+// The track record from the day's pairs, so the web server never has to work it out
+await runJob('build-track-record', () => buildTrackRecord());
 await runJob('build-worth', () => buildWorth());
 await pool.end();
