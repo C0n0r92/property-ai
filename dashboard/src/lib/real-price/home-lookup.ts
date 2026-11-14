@@ -8,6 +8,8 @@ import { getPool } from './pool';
 
 export interface HomeRow {
   home_id: string;
+  /** Its page: /home/<slug> */
+  slug?: string | null;
   county: string;
   area_key: string;
   address_key: string;
@@ -31,7 +33,7 @@ export async function resolveHomes(address: string, county?: string): Promise<Ho
   if (!db || !key.specific) return [];
   try {
     const { rows } = await db.query<HomeRow>(
-      `SELECT home_id, county, area_key, address_key, address, street_slug, sales, listings, planning,
+      `SELECT home_id, slug, county, area_key, address_key, address, street_slug, sales, listings, planning,
               last_sold::text, last_price
          FROM homes WHERE address_key = $1 AND ($2::text IS NULL OR county = $2)
         ORDER BY sales DESC, last_sold DESC NULLS LAST LIMIT 40`,

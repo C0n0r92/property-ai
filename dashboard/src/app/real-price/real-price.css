@@ -3528,3 +3528,151 @@ g.rp-area:focus-visible .rp-area-ring {
 .rp-how strong {
   color: var(--ink);
 }
+
+/* ---------- Menu: inline links on wide screens, a fold-out menu on narrow ones ---------- */
+
+.rp-nav-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.rp-nav-more {
+  display: none;
+  position: relative;
+}
+
+.rp-nav-more summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.rp-nav-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.rp-nav-more summary::after {
+  content: " ▾";
+  font-size: 0.75em;
+}
+
+.rp-nav-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  min-width: 13rem;
+  padding: 0.4rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(22, 34, 63, 0.08);
+  box-shadow: 0 16px 40px -12px rgba(22, 34, 63, 0.35);
+}
+
+.rp-nav-menu a {
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.rp-nav-menu a:hover {
+  background: rgba(22, 34, 63, 0.06);
+}
+
+@media (max-width: 860px) {
+  .rp-nav-links {
+    display: none;
+  }
+
+  .rp-nav-more {
+    display: block;
+  }
+}
+
+/* Cards linking to areas, streets and tools (shared by every page) */
+
+.rp-area-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 0.9rem;
+  margin-top: 1.2rem;
+}
+
+.rp .rp-area-card {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 16px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.rp .rp-area-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(47, 79, 176, 0.4);
+  box-shadow: 0 16px 34px -22px rgba(22, 34, 63, 0.45);
+}
+
+.rp-area-card-name {
+  font-weight: 600;
+}
+
+.rp-area-card-figure {
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+}
+
+.rp-area-card-sub {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+
+.rp-tools .rp-area-card {
+  gap: 0.4rem;
+}
+
+/* ---------- The one search box ---------- */
+
+.rp-homesearch {
+  max-width: 40rem;
+}
+
+.rp-homesearch-message {
+  margin: 0.8rem 0 0;
+  color: var(--ink-soft);
+}
+
+.rp-homesearch-hits ul {
+  display: grid;
+  gap: 0;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+
+.rp-homesearch-hits a {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.2rem;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.rp-homesearch-hits a:hover {
+  background: rgba(22, 34, 63, 0.04);
+}
+
+.rp-homesearch-hits small {
+  color: var(--ink-soft);
+  white-space: nowrap;
+}

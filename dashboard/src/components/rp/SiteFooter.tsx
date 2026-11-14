@@ -12,7 +12,7 @@ export default function SiteFooter() {
         <Link href="/">Check a home</Link>
         <Link href="/areas">Areas</Link>
         <Link href="/streets">Streets</Link>
-        <Link href="/worth">What is it worth?</Link>
+        <Link href="/worth">Look up a home</Link>
         <Link href="/compare">Compare two homes</Link>
         <Link href="/reports">Monthly report</Link>
         <Link href="/track-record">Track record</Link>

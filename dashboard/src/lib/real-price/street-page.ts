@@ -32,6 +32,8 @@ export interface StreetSaleRow {
   asking: number | null;
   beds: number | null;
   property_type: string | null;
+  /** The home's page, when it has one */
+  home_slug?: string | null;
 }
 
 export interface StreetLink {
@@ -224,8 +226,9 @@ export async function loadStreetPage(slug: string): Promise<StreetPage | null> {
       // Asking price from our records (Dublin only): the matched sale, or an older record of the
       // same sale, which has the same date, price and house number
       `SELECT r.sold_date::text AS date, r.address, r.price, r.new_build,
-              m.asking_price AS asking, m.beds, m.property_type
+              m.asking_price AS asking, m.beds, m.property_type, h.slug AS home_slug
          FROM register_sales r
+         LEFT JOIN homes h ON h.home_id = r.home_id
          LEFT JOIN LATERAL (
            SELECT asking_price, beds, property_type FROM sales s
             WHERE r.county = 'Dublin'
