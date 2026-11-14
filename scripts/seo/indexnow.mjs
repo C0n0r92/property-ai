@@ -34,14 +34,18 @@ if (!urls.length) {
   console.log('IndexNow: nothing changed, nothing sent');
   process.exit(0);
 }
-const res = await fetch('https://api.indexnow.org/indexnow', {
-  method: 'POST',
-  headers: { 'content-type': 'application/json; charset=utf-8' },
-  body: JSON.stringify({ host: HOST, key: KEY, keyLocation: `${ORIGIN}/${KEY}.txt`, urlList: urls }),
-});
-// 200 and 202 both mean accepted
-console.log(`IndexNow: ${res.status} ${res.statusText} for ${urls.length} URLs`);
-if (res.status >= 400) {
-  console.log(await res.text());
-  process.exitCode = 1;
+// IndexNow takes at most 10,000 URLs a request
+for (let i = 0; i < urls.length; i += 10_000) {
+  const batch = urls.slice(i, i + 10_000);
+  const res = await fetch('https://api.indexnow.org/indexnow', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ host: HOST, key: KEY, keyLocation: `${ORIGIN}/${KEY}.txt`, urlList: batch }),
+  });
+  // 200 and 202 both mean accepted
+  console.log(`IndexNow: ${res.status} ${res.statusText} for ${batch.length} URLs`);
+  if (res.status >= 400) {
+    console.log(await res.text());
+    process.exitCode = 1;
+  }
 }

@@ -23,3 +23,11 @@ The figures come from the latest complete month at `https://irishpropertydata.co
 4. Save drafts to `press/YYYY-MM.md` and show them to the user. Never send or post anything yourself.
 
 Tone: plain and factual, no hype words ("skyrocketing", "explosion"). Irish English spelling.
+
+## Refresh the Google Ads import
+
+The ads quote each area's latest figures, so regenerate them with the report:
+
+    DATABASE_URL=postgres://gaff:gaff@localhost:55432/gaff npx tsx scripts/ads/build-ads.mts [--budget 10]
+
+It writes `ads-export/irishpropertydata-search.txt` (import in Google Ads Editor: Account > Import > From file) and a `.csv` copy for a spreadsheet. Everything arrives Paused; nothing spends until someone enables it in Ads Editor and posts. Headline/description limits are tested in `scripts/ads/ads-lib.test.mjs` (run `node --test scripts/ads/ads-lib.test.mjs`).
