@@ -92,3 +92,9 @@
     grid-template-columns: 1fr;
   }
 }
+
+.rp-street .rp-area-table td.rp-street-work {
+  white-space: normal;
+  min-width: 16rem;
+  max-width: 34rem;
+}

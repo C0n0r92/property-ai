@@ -12,6 +12,7 @@ import Stripe from 'stripe';
 import { buildReport, describeHome, type ReportData } from '@/lib/real-price/report';
 import { checkoutSchema } from '@/lib/real-price/schema';
 import { BACKTEST } from '@/lib/real-price/backtest';
+import { decisionWord, workSummary } from '@/lib/real-price/planning-data';
 import TrackPurchase from './TrackPurchase';
 import DotPlot from '../DotPlot';
 import PrintButton from './PrintButton';
@@ -140,6 +141,28 @@ function InsightsPage({ report, ribbon, page, total }: { report: ReportData; rib
             <p>The address names the street only, so the home&apos;s own sales are not shown.</p>
           )}
         </div>
+
+        {history?.specific && (
+          <div className="rp-insight rp-insight--wide">
+            <h3>Planning for this home</h3>
+            {ins.planning && ins.planning.length > 0 ? (
+              <ul className="rp-insight-list">
+                {ins.planning.slice(0, 6).map((p) => (
+                  <li key={`${p.authority}-${p.appNumber}`}>
+                    <strong>{decisionWord(p.decision)}</strong>
+                    {p.received ? `, lodged ${longDate(p.received)}` : ''}: {workSummary(p, 180)}{' '}
+                    <span className="rp-muted">({p.appNumber})</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No planning applications for this address in the councils&apos; registers since 2012.</p>
+            )}
+            <p className="rp-muted">
+              Worth checking: work done without permission, or a refusal, can matter to a lender and a surveyor.
+            </p>
+          </div>
+        )}
 
         {history && history.street.length > 0 && (
           <div className="rp-insight rp-insight--wide">

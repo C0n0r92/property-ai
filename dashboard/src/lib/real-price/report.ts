@@ -14,6 +14,7 @@ import {
   type MarketInsights,
   type RegisterEntry,
 } from './insights';
+import { homePlanning, type PlanningRow } from './planning-data';
 import { getRegister, getSalesStore } from './store';
 
 export const TYPE_LABELS: Record<TypeGroup, { single: string; plural: string }> = {
@@ -44,6 +45,8 @@ export interface ReportData {
     earlier: Record<string, { date: string; price: number }>;
     /** The home's asking price was cut, if we have its listing */
     cut: { first: number; latest: number; since: string } | null;
+    /** Planning applications for the home, when an address was given */
+    planning?: PlanningRow[];
   };
 }
 
@@ -66,11 +69,12 @@ export async function buildReport(query: Query, label?: string): Promise<ReportD
   const home = describeHome(query, areaLabel);
   const address = label?.trim();
   // Each lookup is optional: a failure leaves that part out, never the report
-  const [market, history, earlier, cut] = await Promise.all([
+  const [market, history, earlier, cut, planning] = await Promise.all([
     getMarketInsights(),
     address ? homeAndStreetHistory(address).catch(() => null) : null,
     earlierSales(result.evidence.recent).catch(() => ({})),
     address ? listingCut(address).catch(() => null) : null,
+    address ? homePlanning(address).catch(() => []) : [],
   ]);
 
   return {
@@ -88,6 +92,6 @@ export async function buildReport(query: Query, label?: string): Promise<ReportD
         .slice(0, 12)
         .map(({ date, address, price }) => ({ date, address, price })),
     },
-    insights: { market, history, earlier, cut },
+    insights: { market, history, earlier, cut, planning },
   };
 }

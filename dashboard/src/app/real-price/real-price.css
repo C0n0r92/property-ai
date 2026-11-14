@@ -3237,6 +3237,16 @@ g.rp-area:focus-visible .rp-area-ring {
   margin: 0 0 2mm;
 }
 
+.rp-insight-list {
+  margin: 0 0 0.5rem;
+  padding-left: 1.1rem;
+}
+
+.rp-insight-list li {
+  margin-bottom: 0.3rem;
+  line-height: 1.45;
+}
+
 .rp-insight-figure {
   font-size: 11pt;
 }
