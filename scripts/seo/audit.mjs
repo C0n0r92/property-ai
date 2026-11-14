@@ -46,6 +46,11 @@ async function get(url, { redirect = 'manual' } = {}) {
       const body = res.headers.get('content-type')?.includes('text') || res.headers.get('content-type')?.includes('xml')
         ? await res.text()
         : (await res.arrayBuffer(), '');
+      // A gateway error is usually a deploy swapping servers: try once more before calling it an error
+      if ([502, 503, 504].includes(res.status) && attempt < 2) {
+        await new Promise((r) => setTimeout(r, 15_000));
+        continue;
+      }
       return { status: res.status, location: res.headers.get('location'), headers: res.headers, body, ms: Math.round(performance.now() - started) };
     } catch (error) {
       if (attempt === 2) return { status: 0, error: String(error), body: '', ms: 0, headers: new Headers() };

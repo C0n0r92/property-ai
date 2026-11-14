@@ -59,7 +59,11 @@ const keyCount = every.filter((u) => !isStreetPage(u)).length;
 const urls = (budget !== null ? dailySlice(every, isStreetPage, Math.max(0, budget - keyCount)) : every).slice(0, limit);
 if (urls.length < every.length) console.log(`Inspecting ${urls.length} of ${every.length} pages today (key pages and a rotating slice of street pages)`);
 
+// Once Google says the day's quota is used, stop asking (it would only fail, slowly)
+let quotaUsed = false;
+
 async function inspect(url) {
+  if (quotaUsed) return { url, error: 'skipped: daily inspection quota used' };
   try {
     const r = await googleJson(`${api}/v1/urlInspection/index:inspect`, token, {
       method: 'POST',
@@ -76,14 +80,15 @@ async function inspect(url) {
       pageFetchState: s.pageFetchState,
     };
   } catch (error) {
+    if (/^429|quota/i.test(error.message)) quotaUsed = true;
     return { url, error: error.message };
   }
 }
 
-// A few at a time: well under the 600-a-minute limit
+// Ten at a time: each inspection takes a few seconds, so this stays well under 600 a minute
 const results = [];
-for (let i = 0; i < urls.length; i += 4) {
-  results.push(...(await Promise.all(urls.slice(i, i + 4).map(inspect))));
+for (let i = 0; i < urls.length; i += 10) {
+  results.push(...(await Promise.all(urls.slice(i, i + 10).map(inspect))));
 }
 
 const s = summarise(results);
