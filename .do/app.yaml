@@ -71,7 +71,7 @@ jobs:
     github:
       repo: C0n0r92/property-ai
       branch: main
-    run_command: npm run migrate
+    run_command: npm run migrate:streets
     instance_size_slug: apps-s-1vcpu-0.5gb
     envs:
       - key: DATABASE_URL

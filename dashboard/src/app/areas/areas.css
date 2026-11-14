@@ -718,3 +718,29 @@
   padding-top: 0;
   padding-bottom: clamp(2rem, 5vw, 3rem);
 }
+
+/* ---------- Streets in the area ---------- */
+
+.rp-area-streets {
+  columns: 14rem;
+  column-gap: 2rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rp-area-streets li {
+  break-inside: avoid;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.rp .rp-area-streets a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.rp .rp-area-streets a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}

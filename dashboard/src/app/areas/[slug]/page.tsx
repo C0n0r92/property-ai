@@ -20,6 +20,7 @@ import SalesBoard from "../../real-price/SalesBoard";
 import { reportPrice } from "@/lib/real-price/pricing";
 import AreaCheck from "../AreaCheck";
 import AreaStreet from "../AreaStreet";
+import { streetsInArea } from "@/lib/real-price/street-page";
 
 // Built from the live database on request. Pre-building at deploy time would
 // use the seed file (the build has no database), showing old figures.
@@ -111,6 +112,7 @@ export default async function AreaPageView({ params }: { params: Params }) {
   }
 
   const p = page.profile;
+  const streets = await streetsInArea(page.key);
   const trend = p.trend;
   const first = trend[0];
   const last = trend[trend.length - 1];
@@ -429,6 +431,36 @@ export default async function AreaPageView({ params }: { params: Params }) {
                 </div>
               </>
             )}
+          </Reveal>
+        )}
+
+        {streets.length > 0 && (
+          <Reveal as="section" className="rp-area-section">
+            <div className="rp-area-section-head">
+              <h2 className="rp-h2">Street by street.</h2>
+              <p className="rp-prose">
+                Every sold price on the busiest streets in {page.label}, from the Property Price Register.
+              </p>
+            </div>
+            <ul className="rp-area-streets">
+              {[...streets]
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 24)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((s) => (
+                  <li key={s.slug}>
+                    <Link href={`/streets/${s.slug}`}>
+                      {s.name}
+                      {s.areaLabel.includes(", ") ? `, ${s.areaLabel.split(", ")[0]}` : ""}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+            <p className="rp-area-more">
+              <Link href={`/streets/in/${areaSlug(page.key)}`} className="rp-link">
+                All {streets.length} streets in {page.label}
+              </Link>
+            </p>
           </Reveal>
         )}
 
