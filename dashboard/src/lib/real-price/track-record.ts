@@ -143,6 +143,8 @@ export function computeTrackRecord(sales: Sale[], asOf: number, months = 12, eve
   };
 }
 
+/** Every second sale: about 2,600 tests, half the work on the one-CPU server */
+const EVERY = 2;
 const cache = new WeakMap<SalesStore, TrackRecord>();
 let latest: TrackRecord | null = null;
 
@@ -157,11 +159,11 @@ export function trackRecord(store: SalesStore): TrackRecord {
   if (latest) {
     const stale = latest;
     setTimeout(() => {
-      if (!cache.has(store)) cache.set(store, (latest = computeTrackRecord(store.sales, store.asOf)));
+      if (!cache.has(store)) cache.set(store, (latest = computeTrackRecord(store.sales, store.asOf, 12, EVERY)));
     }, 0);
     return stale;
   }
-  latest = computeTrackRecord(store.sales, store.asOf);
+  latest = computeTrackRecord(store.sales, store.asOf, 12, EVERY);
   cache.set(store, latest);
   return latest;
 }

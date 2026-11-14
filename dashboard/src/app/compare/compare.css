@@ -1,0 +1,111 @@
+/* Compare two homes */
+
+.rp-compare {
+  margin-top: 2rem;
+}
+
+.rp-compare-form {
+  display: grid;
+  gap: 1.2rem;
+  justify-items: start;
+}
+
+.rp-compare-homes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.rp-compare-home {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 1.2rem 1.3rem 1.4rem;
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  background: var(--sheet);
+  min-width: 0;
+}
+
+.rp-compare-home legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+}
+
+.rp-compare-field {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.rp-compare-field--wide {
+  grid-column: 1 / -1;
+}
+
+.rp-compare-field span {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.rp-compare-field input,
+.rp-compare-field select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.rp-compare-address,
+.rp-compare-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.rp-compare-note,
+.rp-compare-message,
+.rp-compare-foot {
+  color: var(--ink-soft);
+}
+
+.rp-compare-message {
+  margin-top: 1rem;
+}
+
+.rp-compare-answer {
+  margin-top: 2rem;
+}
+
+.rp-compare-verdict p {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  max-width: 48rem;
+}
+
+.rp-compare-verdict p + p {
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+
+.rp-compare .rp-area-table td {
+  font-variant-numeric: tabular-nums;
+}
+
+.rp-compare-foot {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 760px) {
+  .rp-compare-homes {
+    grid-template-columns: 1fr;
+  }
+}
