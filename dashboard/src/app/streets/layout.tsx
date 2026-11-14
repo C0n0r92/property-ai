@@ -4,6 +4,7 @@ import RealPriceNav from "../real-price/RealPriceNav";
 import "../blog/blog.css";
 import "../areas/areas.css";
 import "./streets.css";
+import "../worth/worth.css";
 
 export default function StreetsLayout({ children }: { children: React.ReactNode }) {
   return (

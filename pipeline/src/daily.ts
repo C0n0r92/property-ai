@@ -9,6 +9,7 @@ import { backfillRegister, ingestRegister } from './ingest-register.ts';
 import { matchSales } from './match.ts';
 import { buildStreets } from './build-streets.ts';
 import { ingestPlanning } from './ingest-planning.ts';
+import { buildWorth } from './build-worth.ts';
 
 const year = new Date().getFullYear();
 await runJob('ingest-register', () => ingestRegister([year - 1, year]));
@@ -19,4 +20,5 @@ await runJob('match', () => matchSales());
 await runJob('build-streets', () => buildStreets());
 // After the streets, so applications take the register's street for the same home
 await runJob('ingest-planning', () => ingestPlanning());
+await runJob('build-worth', () => buildWorth());
 await pool.end();

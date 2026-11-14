@@ -117,6 +117,8 @@ export default async function AreasIndex() {
         <p className="rp-area-more">
           <Link href="/streets" className="rp-link">Street by street</Link>
           {" · "}
+          <Link href="/worth" className="rp-link">What is it worth?</Link>
+          {" · "}
           <Link href="/compare" className="rp-link">Compare two homes</Link>
           {" · "}
           <Link href="/track-record" className="rp-link">How accurate we are</Link>

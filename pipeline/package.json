@@ -16,8 +16,10 @@
     "daily": "NODE_OPTIONS=--max-old-space-size=320 tsx src/daily.ts",
     "status": "tsx src/status.ts",
     "build-streets": "NODE_OPTIONS=--max-old-space-size=320 tsx src/build-streets.ts",
-    "migrate:streets": "npm run migrate && (npx tsx src/ingest-register.ts --backfill 8 || echo \"register backfill failed; the daily job will retry\") && (npm run build-streets || echo \"build-streets failed; the daily job will retry\") && (npx tsx src/ingest-planning.ts --if-empty || echo \"ingest-planning failed; the daily job will retry\")",
-    "ingest:planning": "tsx src/ingest-planning.ts"
+    "migrate:streets": "npm run migrate && (npx tsx src/ingest-register.ts --backfill 8 || echo \"register backfill failed; the daily job will retry\") && (npm run build-streets || echo \"build-streets failed; the daily job will retry\") && (npm run build-worth || echo \"build-worth failed; the daily job will retry\") && (npx tsx src/ingest-planning.ts --if-empty || echo \"ingest-planning failed; the daily job will retry\")",
+    "ingest:planning": "tsx src/ingest-planning.ts",
+    "build-worth": "NODE_OPTIONS=--max-old-space-size=320 tsx src/build-worth.ts",
+    "worth-backtest": "tsx src/worth-backtest.ts"
   },
   "dependencies": {
     "pg": "^8.13.0"
